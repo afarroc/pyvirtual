@@ -305,3 +305,40 @@ class InboxItemSerializer(serializers.ModelSerializer):
             "id": obj.processed_to_object_id,
             "title": str(obj.processed_to),
         }
+
+
+# ======================
+# COURSES API v1
+# ======================
+from courses.models import Course, CourseCategory
+
+class CourseCategorySerializer(serializers.ModelSerializer):
+    courses_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseCategory
+        fields = ["id", "name", "description", "slug", "courses_count"]
+
+    def get_courses_count(self, obj):
+        return obj.courses.count() if hasattr(obj, 'courses') else 0
+
+
+class CourseSerializer(serializers.ModelSerializer):
+    category = CourseCategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=CourseCategory.objects.all(), source="category", write_only=True, required=False
+    )
+    tutor = _NestedUserSummarySerializer(read_only=True)
+    tutor_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source="tutor", write_only=True, required=False
+    )
+
+    class Meta:
+        model = Course
+        fields = [
+            "id", "title", "slug", "description", "short_description",
+            "tutor", "tutor_id", "category", "category_id", "level",
+            "price", "duration_hours", "students_count", "average_rating",
+            "cover_image", "syllabus", "requirements", "learning_outcomes",
+            "status", "is_published", "created_at", "updated_at",
+        ]

@@ -246,3 +246,35 @@ class InboxItemViewSet(_PageableMixin, ModelViewSet):
 
     def get_serializer_class(self):
         return InboxItemSerializer
+
+
+# ======================
+# COURSES API v1
+# ======================
+from courses.models import Course, CourseCategory
+from .serializers import CourseCategorySerializer, CourseSerializer
+
+
+class CourseCategoryViewSet(_PageableMixin, ModelViewSet):
+    queryset = CourseCategory.objects.all()
+    serializer_class = CourseCategorySerializer
+    search_fields = ["name", "description"]
+
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        return self._paginate(request, self.queryset)
+
+    def get_serializer_class(self):
+        return CourseCategorySerializer
+
+
+class CourseViewSet(_PageableMixin, ModelViewSet):
+    queryset = Course.objects.select_related("category", "tutor").all()
+    serializer_class = CourseSerializer
+    search_fields = ["title", "description"]
+    filterset_fields = ["category", "level", "status", "is_published"]
+
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        return self._paginate(request, self.queryset)
+
+    def get_serializer_class(self):
+        return CourseSerializer
