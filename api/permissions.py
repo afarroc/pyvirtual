@@ -6,7 +6,7 @@ from rest_framework import permissions
 
 class IsWriteAuthenticated(permissions.BasePermission):
     """
-    - Lecturas (GET/HEAD/OPTIONS): requieren sesión Django activa.
+    - Lectura (GET/HEAD/OPTIONS): acepta sesión Django o Bearer token.
     - Escritura (POST/PATCH/PUT/DELETE): acepta sesión Django o Bearer token.
     """
 
@@ -14,13 +14,10 @@ class IsWriteAuthenticated(permissions.BasePermission):
         if request.user and request.user.is_authenticated:
             return True
 
-        if request.method in permissions.SAFE_METHODS:
-            return False
-
-        auth = request.META.get("HTTP_AUTHORIZATION", "")
-        if auth.startswith("Bearer "):
-            token = auth.split(" ", 1)[1].strip()
-            expected = getattr(settings, "M360_API_KEY", "")
+        auth = request.META.get('HTTP_AUTHORIZATION', '')
+        if auth.startswith('Bearer '):
+            token = auth.split(' ', 1)[1].strip()
+            expected = getattr(settings, 'M360_API_KEY', '')
             return bool(expected and token == expected)
 
         return False

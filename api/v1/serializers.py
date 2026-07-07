@@ -125,28 +125,17 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     task_status = _NestedTaskStatusSerializer(read_only=True)
-    task_status_id = serializers.PrimaryKeyRelatedField(
-        queryset=TaskStatus.objects.all(), source="task_status", write_only=True, required=False
-    )
+    task_status_id = serializers.PrimaryKeyRelatedField(queryset=TaskStatus.objects.all(), source="task_status", write_only=True, required=False)
     status = serializers.CharField(source='task_status.status_name', read_only=True)
     status_id = serializers.IntegerField(source='task_status.id', read_only=True)
     project = serializers.PrimaryKeyRelatedField(read_only=True)
-    project_id = serializers.PrimaryKeyRelatedField(
-        queryset=Project.objects.all(), source="project", write_only=True, required=False
-    )
+    project_id = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all(), source="project", write_only=True, required=False)
     project_title = serializers.CharField(source="project.title", read_only=True)
     assigned_to = _NestedUserSummarySerializer(read_only=True)
-    assigned_to_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), source="assigned_to", write_only=True, required=False
-    )
+    assigned_to_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source="assigned_to", write_only=True, required=False)
     host = _NestedUserSummarySerializer(read_only=True)
-    host_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), source="host", write_only=True, required=False
-    )
+    host_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source="host", write_only=True, required=False)
     tags = _NestedTagSerializer(many=True, read_only=True)
-    task_status_id = serializers.PrimaryKeyRelatedField(
-        queryset=TaskStatus.objects.all(), source="task_status", write_only=True, required=False
-    )
 
     dependencies = serializers.SerializerMethodField()
     events_linked = serializers.SerializerMethodField()
@@ -339,6 +328,6 @@ class CourseSerializer(serializers.ModelSerializer):
             "id", "title", "slug", "description", "short_description",
             "tutor", "tutor_id", "category", "category_id", "level",
             "price", "duration_hours", "students_count", "average_rating",
-            "cover_image", "syllabus", "requirements", "learning_outcomes",
-            "status", "is_published", "created_at", "updated_at",
+            "thumbnail", "is_published", "is_featured", "published_at",
+            "created_at", "updated_at",
         ]

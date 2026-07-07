@@ -178,17 +178,27 @@ if not DEBUG:
 
 # Bases de datos
 if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE':   'django.db.backends.mysql',
-            'NAME':     config('DATABASE_NAME',     default='management360'),
-            'USER':     config('DATABASE_USER',     default='root'),
-            'PASSWORD': config('DATABASE_PASSWORD', default=''),
-            'HOST':     config('DATABASE_HOST',     default='192.168.18.46'),
-            'PORT':     config('DATABASE_PORT',     default='3306'),
-            'OPTIONS':  {'charset': 'utf8mb4'},
+    database_url = config('DATABASE_URL', default='')
+    if database_url:
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=database_url,
+                conn_max_age=600,
+                ssl_require=True,
+            )
         }
-    }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE':   'django.db.backends.mysql',
+                'NAME':     config('DATABASE_NAME',     default='management360'),
+                'USER':     config('DATABASE_USER',     default='root'),
+                'PASSWORD': config('DATABASE_PASSWORD', default=''),
+                'HOST':     config('DATABASE_HOST',     default='192.168.18.46'),
+                'PORT':     config('DATABASE_PORT',     default='3306'),
+                'OPTIONS':  {'charset': 'utf8mb4'},
+            }
+        }
 else:
     DATABASES = {
         'default': dj_database_url.config(

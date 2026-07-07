@@ -24,6 +24,7 @@ from django.utils.dateparse import parse_date
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from rest_framework import status as http_status
+from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
@@ -31,7 +32,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from events.models import Event, InboxItem, Project, Reminder, Task
+from events.models import Event, InboxItem, Project, Reminder, Status, Task, TaskStatus
 from .serializers import (
     EventSerializer,
     InboxItemSerializer,
@@ -83,8 +84,8 @@ class _PageableMixin:
         except InvalidPage:
             page = paginator.page(1)
 
-        start_index = page.start_index() - 1
-        end_index = page.end_index()
+        start_index = max(page.start_index() - 1, 0)
+        end_index = max(page.end_index(), start_index)
         items = queryset[start_index:end_index]
 
         serializer_class = self.get_serializer_class()
@@ -183,6 +184,22 @@ class TaskViewSet(_PageableMixin, ModelViewSet):
     def get_serializer_class(self):
         return TaskSerializer
 
+    def perform_create(self, serializer):
+        if "project" not in serializer.validated_data:
+            raise serializers.ValidationError({"project": "El proyecto es obligatorio."})
+        if "task_status" not in serializer.validated_data:
+            default_status = TaskStatus.objects.filter(active=True).first()
+            if default_status:
+                serializer.validated_data["task_status"] = default_status
+        if "host" not in serializer.validated_data:
+            serializer.validated_data["host"] = self.request.user
+        if "assigned_to" not in serializer.validated_data:
+            serializer.validated_data["assigned_to"] = self.request.user
+        serializer.save()
+
+    def perform_update(self, serializer):
+        serializer.save()
+
 
 class EventViewSet(_PageableMixin, ModelViewSet):
     queryset = Event.objects.select_related("event_status", "host", "assigned_to").prefetch_related("tags")
@@ -203,6 +220,20 @@ class EventViewSet(_PageableMixin, ModelViewSet):
 
     def get_serializer_class(self):
         return EventSerializer
+
+    def perform_create(self, serializer):
+        if "event_status" not in serializer.validated_data:
+            default_status = Status.objects.filter(active=True).first()
+            if default_status:
+                serializer.validated_data["event_status"] = default_status
+        if "host" not in serializer.validated_data:
+            serializer.validated_data["host"] = self.request.user
+        if "assigned_to" not in serializer.validated_data:
+            serializer.validated_data["assigned_to"] = self.request.user
+        serializer.save()
+
+    def perform_update(self, serializer):
+        serializer.save()
 
 
 class ReminderViewSet(_PageableMixin, ModelViewSet):
@@ -255,13 +286,14 @@ from courses.models import Course, CourseCategory
 from .serializers import CourseCategorySerializer, CourseSerializer
 
 
-class CourseCategoryViewSet(_PageableMixin, ModelViewSet):
-    queryset = CourseCategory.objects.all()
+class CourseCategoryViewSet(ModelViewSet):
+    queryset = CourseCategory.objects.all().order_by("name")
     serializer_class = CourseCategorySerializer
     search_fields = ["name", "description"]
 
     def list(self, request: Request, *args, **kwargs) -> Response:
-        return self._paginate(request, self.queryset)
+        serializer = self.get_serializer(self.queryset, many=True, context={"request": request})
+        return Response(serializer.data)
 
     def get_serializer_class(self):
         return CourseCategorySerializer
