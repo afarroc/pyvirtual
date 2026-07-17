@@ -1,507 +1,363 @@
-{% extends "courses/base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi Dashboard · Cursos M360</title>
+  <meta name="description" content="Panel personal de cursos: inscritos, progreso, gestión y analíticas.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-{% block course_content %}
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h2 mb-0">Mi Dashboard de Cursos</h1>
-                    <p class="text-muted">Tu panel personal de aprendizaje - {{ user.get_full_name|default:user.username }}</p>
-                </div>
-                <div class="text-end">
-                    <small class="text-muted">Última actualización: {{ "now"|date:"d/m/Y H:i" }}</small>
-                </div>
-            </div>
-        </div>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
+
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
+
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% for category in categories %}
+              <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
     </div>
+  </header>
 
-    <!-- Estadísticas de cursos -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-primary">
-                <div class="card-body text-center">
-                    <i class="fas fa-graduation-cap fa-2x text-primary mb-2"></i>
-                    <h4 class="card-title mb-1">{{ user_course_count }}</h4>
-                    <p class="card-text text-muted small">Cursos inscritos</p>
+  <main id="main-content">
+    <section class="section section--tight">
+      <div class="container">
+        <div class="stack">
+          <h1 class="section__title">Mi Dashboard de Cursos</h1>
+          <p class="text-muted">Tu panel personal de aprendizaje - {{ user.get_full_name|default:user.username }}</p>
+          <small class="text-muted">Última actualización: {% now "d/m/Y H:i" %}</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="stats">
+          <div class="stats__item">
+            <div class="stats__value">{{ user_course_count }}</div>
+            <div class="stats__label">Cursos inscritos</div>
+          </div>
+          <div class="stats__item">
+            <div class="stats__value">{{ completed_courses }}</div>
+            <div class="stats__label">Cursos completados</div>
+          </div>
+          <div class="stats__item">
+            <div class="stats__value">{{ taught_courses|length }}</div>
+            <div class="stats__label">Cursos como tutor</div>
+          </div>
+          <div class="stats__item">
+            <div class="stats__value">{{ total_available_courses }}</div>
+            <div class="stats__label">Cursos disponibles</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt">
+      <div class="container">
+        <div class="stack stack--lg">
+          <h2 class="section__title">Funciones principales</h2>
+          <div class="grid grid--3">
+            {% for function in course_functions %}
+            <article class="course-card">
+              <div class="course-card__body">
+                <h3 class="course-card__title">{{ function.name }}</h3>
+                <p class="course-card__text">{{ function.description }}</p>
+                <div class="course-card__footer" style="border-top: none; padding-left: 0; padding-right: 0;">
+                  <a href="{% url 'courses:'|add:function.url %}" class="btn btn-{{ function.color }} btn-sm">Acceder</a>
                 </div>
-            </div>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-success">
-                <div class="card-body text-center">
-                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                    <h4 class="card-title mb-1">{{ completed_courses }}</h4>
-                    <p class="card-text text-muted small">Cursos completados</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="stack stack--lg">
+          <h2 class="section__title">Gestión de contenido</h2>
+          <div class="grid grid--3">
+            <article class="course-card">
+              <div class="course-card__body">
+                <h3 class="course-card__title">Crear módulo</h3>
+                <p class="course-card__text">Añadir módulos a cursos existentes.</p>
+                <p class="text-muted" style="font-size: var(--text-sm);">Requiere seleccionar un curso específico</p>
+                <div class="course-card__footer" style="border-top: none; padding-left: 0; padding-right: 0;">
+                  <a href="{% url 'courses:manage_courses' %}" class="btn btn-primary btn-sm">Ir a gestión</a>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-info">
-                <div class="card-body text-center">
-                    <i class="fas fa-chalkboard-teacher fa-2x text-info mb-2"></i>
-                    <h4 class="card-title mb-1">{{ taught_courses|length }}</h4>
-                    <p class="card-text text-muted small">Cursos como tutor</p>
+              </div>
+            </article>
+            <article class="course-card">
+              <div class="course-card__body">
+                <h3 class="course-card__title">Crear lección</h3>
+                <p class="course-card__text">Añadir lecciones a módulos existentes.</p>
+                <p class="text-muted" style="font-size: var(--text-sm);">Requiere seleccionar módulo específico</p>
+                <div class="course-card__footer" style="border-top: none; padding-left: 0; padding-right: 0;">
+                  <a href="{% url 'courses:manage_courses' %}" class="btn btn-outline btn-sm">Ir a gestión</a>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-warning">
-                <div class="card-body text-center">
-                    <i class="fas fa-book fa-2x text-warning mb-2"></i>
-                    <h4 class="card-title mb-1">{{ total_available_courses }}</h4>
-                    <p class="card-text text-muted small">Cursos disponibles</p>
+              </div>
+            </article>
+            <article class="course-card">
+              <div class="course-card__body">
+                <h3 class="course-card__title">Editar lecciones</h3>
+                <p class="course-card__text">Modificar contenido de lecciones publicadas.</p>
+                <p class="text-muted" style="font-size: var(--text-sm);">Acceso directo a edición</p>
+                <div class="course-card__footer" style="border-top: none; padding-left: 0; padding-right: 0;">
+                  <a href="{% url 'courses:manage_courses' %}" class="btn btn-outline btn-sm">Editar lecciones</a>
                 </div>
-            </div>
+              </div>
+            </article>
+          </div>
         </div>
-    </div>
+      </div>
+    </section>
 
-    <!-- Funciones principales de cursos -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="mb-3">
-                <i class="fas fa-th-large me-2"></i>
-                Funciones Principales
-            </h3>
-        </div>
-    </div>
-
-    <div class="row">
-        {% for function in course_functions %}
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card h-100 border-{{ function.color }} shadow-sm hover-card">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="{{ function.icon }} fa-2x text-{{ function.color }} me-3"></i>
-                        <div>
-                            <h5 class="card-title mb-1">{{ function.name }}</h5>
-                            <small class="text-muted">{{ function.description }}</small>
-                        </div>
-                    </div>
-
-                    <a href="{% url 'courses:'|add:function.url %}" class="btn btn-{{ function.color }} btn-sm mt-auto">
-                        <i class="fas fa-arrow-right me-2"></i>Acceder
-                    </a>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Funciones de gestión de contenido -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="mb-3">
-                <i class="fas fa-edit me-2"></i>
-                Gestión de Contenido
-            </h3>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card h-100 border-primary shadow-sm hover-card">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-folder-plus fa-2x text-primary me-3"></i>
-                        <div>
-                            <h5 class="card-title mb-1">Crear Módulo</h5>
-                            <small class="text-muted">Añadir módulos a cursos</small>
-                        </div>
-                    </div>
-                    <small class="text-muted mb-2">Requiere seleccionar un curso específico</small>
-                    <a href="{% url 'courses:manage_courses' %}" class="btn btn-primary btn-sm mt-auto">
-                        <i class="fas fa-arrow-right me-2"></i>Ir a Gestión
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card h-100 border-success shadow-sm hover-card">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-file-alt fa-2x text-success me-3"></i>
-                        <div>
-                            <h5 class="card-title mb-1">Crear Lección</h5>
-                            <small class="text-muted">Añadir lecciones a módulos</small>
-                        </div>
-                    </div>
-                    <small class="text-muted mb-2">Requiere seleccionar módulo específico</small>
-                    <a href="{% url 'courses:manage_courses' %}" class="btn btn-success btn-sm mt-auto">
-                        <i class="fas fa-arrow-right me-2"></i>Ir a Gestión
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card h-100 border-warning shadow-sm hover-card">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-pencil-alt fa-2x text-warning me-3"></i>
-                        <div>
-                            <h5 class="card-title mb-1">Editar Lecciones</h5>
-                            <small class="text-muted">Modificar contenido de lecciones</small>
-                        </div>
-                    </div>
-                    <small class="text-muted mb-2">Acceso directo a edición de lecciones</small>
-                    <a href="{% url 'courses:manage_courses' %}" class="btn btn-warning btn-sm mt-auto">
-                        <i class="fas fa-edit me-2"></i>Editar Lecciones
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edición rápida de lecciones (solo para tutores) -->
     {% if taught_courses %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="mb-3">
-                <i class="fas fa-bolt me-2"></i>
-                Edición Rápida de Lecciones
-            </h3>
-            <p class="text-muted small">Acceso directo a las últimas lecciones de tus cursos para edición rápida</p>
-        </div>
-    </div>
-
-    <div class="row">
-        {% for course in taught_courses %}
-        <div class="col-lg-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0">
-                        <i class="fas fa-book me-2 text-primary"></i>
-                        {{ course.title }}
-                    </h6>
-                </div>
-                <div class="card-body">
-                    {% with course.modules.all as modules %}
-                    {% if modules %}
-                        {% for module in modules %}
-                        {% with module.lessons.all|slice:":3" as recent_lessons %}
-                        {% if recent_lessons %}
-                        <div class="mb-3">
-                            <small class="text-muted fw-bold">{{ module.title }}</small>
-                            <div class="list-group list-group-flush">
-                                {% for lesson in recent_lessons %}
-                                <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        {% if lesson.lesson_type == 'video' %}
-                                        <i class="fas fa-play-circle text-danger me-2"></i>
-                                        {% elif lesson.lesson_type == 'quiz' %}
-                                        <i class="fas fa-question-circle text-warning me-2"></i>
-                                        {% elif lesson.lesson_type == 'assignment' %}
-                                        <i class="fas fa-pencil-square text-info me-2"></i>
-                                        {% else %}
-                                        <i class="fas fa-file-text text-secondary me-2"></i>
-                                        {% endif %}
-                                        <small class="fw-medium">{{ lesson.title }}</small>
-                                    </div>
-                                    <a href="{% url 'courses:edit_lesson' course.slug module.id lesson.id %}"
-                                       class="btn btn-outline-primary btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                </div>
-                                {% endfor %}
-                            </div>
+    <section class="section section--alt">
+      <div class="container">
+        <div class="stack stack--lg">
+          <h2 class="section__title">Edición rápida de lecciones</h2>
+          <p class="text-muted">Acceso directo a las últimas lecciones de tus cursos para edición rápida</p>
+          <div class="grid grid--2">
+            {% for course in taught_courses %}
+            <article class="course-card">
+              <div class="course-card__body">
+                <h3 class="course-card__title">{{ course.title }}</h3>
+                <div class="stack stack--sm" style="margin-top: var(--space-3);">
+                  {% with course.modules.all as modules %}
+                  {% if modules %}
+                    {% for module in modules %}
+                    {% with module.lessons.all|slice:":3" as recent_lessons %}
+                    {% if recent_lessons %}
+                      <div>
+                        <small class="text-muted" style="font-weight: 600;">{{ module.title }}</small>
+                        <div class="stack stack--sm" style="margin-top: var(--space-1);">
+                          {% for lesson in recent_lessons %}
+                          <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-2);">
+                            <span style="font-size: var(--text-sm);">{{ lesson.title }}</span>
+                            <a href="{% url 'courses:edit_lesson' course.slug module.id lesson.id %}" class="btn btn-outline btn-sm">Editar</a>
+                          </div>
+                          {% endfor %}
                         </div>
-                        {% endif %}
-                        {% endwith %}
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center py-3">
-                            <small class="text-muted">No hay módulos en este curso</small>
-                        </div>
+                      </div>
                     {% endif %}
                     {% endwith %}
-
-                    <div class="text-center mt-3">
-                        <a href="{% url 'courses:manage_content' course.slug %}" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-cog me-1"></i>Gestionar Todo
-                        </a>
-                    </div>
+                    {% endfor %}
+                  {% else %}
+                    <p class="text-muted" style="font-size: var(--text-sm);">No hay módulos en este curso</p>
+                  {% endif %}
+                  {% endwith %}
+                  <a href="{% url 'courses:manage_content' course.slug %}" class="btn btn-outline btn-sm" style="width: 100%;">Gestionar todo</a>
                 </div>
-            </div>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
         </div>
-        {% endfor %}
-    </div>
+      </div>
+    </section>
     {% endif %}
 
-    <!-- Categorías (solo para administradores) -->
-    <div class="row mb-4">
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card h-100 border-info shadow-sm hover-card">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-tags fa-2x text-info me-3"></i>
-                        <div>
-                            <h5 class="card-title mb-1">Crear Categoría</h5>
-                            <small class="text-muted">Añadir nuevas categorías</small>
-                        </div>
-                    </div>
-                    <small class="text-muted mb-2">Solo para administradores</small>
-                    <a href="{% url 'courses:create_category' %}" class="btn btn-info btn-sm mt-auto">
-                        <i class="fas fa-arrow-right me-2"></i>Crear Categoría
-                    </a>
+    {% if user.is_staff %}
+    <section class="section">
+      <div class="container">
+        <div class="stack stack--lg">
+          <h2 class="section__title">Administración</h2>
+          <div class="grid grid--3">
+            <article class="course-card">
+              <div class="course-card__body">
+                <h3 class="course-card__title">Crear categoría</h3>
+                <p class="course-card__text">Añadir nuevas categorías de cursos.</p>
+                <p class="text-muted" style="font-size: var(--text-sm);">Solo para administradores</p>
+                <div class="course-card__footer" style="border-top: none; padding-left: 0; padding-right: 0;">
+                  <a href="{% url 'courses:create_category' %}" class="btn btn-primary btn-sm">Crear categoría</a>
                 </div>
-            </div>
+              </div>
+            </article>
+          </div>
         </div>
-    </div>
+      </div>
+    </section>
+    {% endif %}
 
-    <!-- Funciones de análisis y estadísticas -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="mb-3">
-                <i class="fas fa-chart-bar me-2"></i>
-                Análisis y Estadísticas
-            </h3>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card h-100 border-warning shadow-sm hover-card">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-chart-line fa-2x text-warning me-3"></i>
-                        <div>
-                            <h5 class="card-title mb-1">Analíticas de Curso</h5>
-                            <small class="text-muted">Ver estadísticas detalladas</small>
-                        </div>
-                    </div>
-                    <small class="text-muted mb-2">Requiere seleccionar curso específico</small>
-                    <a href="{% url 'courses:manage_courses' %}" class="btn btn-warning btn-sm mt-auto">
-                        <i class="fas fa-arrow-right me-2"></i>Ver Analíticas
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card h-100 border-danger shadow-sm hover-card">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-users fa-2x text-danger me-3"></i>
-                        <div>
-                            <h5 class="card-title mb-1">Progreso de Estudiantes</h5>
-                            <small class="text-muted">Ver avance de estudiantes</small>
-                        </div>
-                    </div>
-                    <small class="text-muted mb-2">Por módulo o curso específico</small>
-                    <a href="{% url 'courses:manage_courses' %}" class="btn btn-danger btn-sm mt-auto">
-                        <i class="fas fa-arrow-right me-2"></i>Ver Progreso
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card h-100 border-secondary shadow-sm hover-card">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-star-half-alt fa-2x text-secondary me-3"></i>
-                        <div>
-                            <h5 class="card-title mb-1">Reseñas y Calificaciones</h5>
-                            <small class="text-muted">Gestionar reseñas de cursos</small>
-                        </div>
-                    </div>
-                    <small class="text-muted mb-2">Ver y gestionar calificaciones</small>
-                    <a href="{% url 'courses:manage_courses' %}" class="btn btn-secondary btn-sm mt-auto">
-                        <i class="fas fa-arrow-right me-2"></i>Ver Reseñas
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mis cursos (si tiene) -->
     {% if enrollment_stats %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="mb-3">
-                <i class="fas fa-book-reader me-2"></i>
-                Mis Cursos
-            </h3>
-        </div>
-    </div>
-
-    <div class="row">
-        {% for stat in enrollment_stats %}
-        <div class="col-lg-6 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="card-title mb-1">{{ stat.enrollment.course.title }}</h6>
-                        <span class="badge bg-{% if stat.progress_percentage == 100 %}success{% else %}primary{% endif %}">
-                            {{ stat.progress_percentage|floatformat:0 }}%
-                        </span>
-                    </div>
-                    <p class="card-text small text-muted">{{ stat.enrollment.course.short_description }}</p>
-
-                    <div class="progress mb-2" style="height: 6px;">
-                        <div class="progress-bar bg-{% if stat.progress_percentage == 100 %}success{% else %}primary{% endif %}"
-                             role="progressbar"
-                             aria-valuenow="{{ stat.progress_percentage }}"
-                             aria-valuemin="0" aria-valuemax="100"
-                             data-width="{{ stat.progress_percentage }}">
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">
-                            {{ stat.completed_lessons }} de {{ stat.total_lessons }} lecciones
-                        </small>
-                        <a href="{% url 'courses:course_learning' stat.enrollment.course.slug %}"
-                           class="btn btn-outline-primary btn-sm">
-                            {% if stat.progress_percentage > 0 %}Continuar{% else %}Comenzar{% endif %}
-                        </a>
-                    </div>
+    <section class="section section--tight">
+      <div class="container">
+        <div class="stack stack--lg">
+          <h2 class="section__title">Mis cursos</h2>
+          <div class="grid grid--2">
+            {% for stat in enrollment_stats %}
+            <article class="course-card">
+              <div class="course-card__body">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-3); margin-bottom: var(--space-2);">
+                  <h3 class="course-card__title" style="margin-bottom: 0;">{{ stat.enrollment.course.title }}</h3>
+                  <span class="badge {% if stat.progress_percentage == 100 %}badge--success{% else %}badge--outline{% endif %}">
+                    {{ stat.progress_percentage|floatformat:0 }}%
+                  </span>
                 </div>
-            </div>
+                <p class="course-card__text">{{ stat.enrollment.course.short_description }}</p>
+                <div style="background: var(--color-border); border-radius: var(--radius-full); height: 0.5rem; overflow: hidden; margin: var(--space-3) 0;">
+                  <div style="width: {{ stat.progress_percentage }}%; background: var(--color-primary); height: 100%; transition: width var(--transition);"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-2);">
+                  <small class="text-muted">{{ stat.completed_lessons }} de {{ stat.total_lessons }} lecciones</small>
+                  <a href="{% url 'courses:course_learning' stat.enrollment.course.slug %}" class="btn btn-primary btn-sm">
+                    {% if stat.progress_percentage > 0 %}Continuar{% else %}Comenzar{% endif %}
+                  </a>
+                </div>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
         </div>
-        {% endfor %}
-    </div>
+      </div>
+    </section>
     {% else %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>
-                Aún no estás inscrito en ningún curso.
-                <a href="{% url 'courses:courses_list' %}">Explora nuestros cursos disponibles</a>.
-            </div>
+    <section class="section">
+      <div class="container">
+        <div class="course-card" style="padding: var(--space-4);">
+          <div class="course-card__body">
+            <p class="text-muted">Aún no estás inscrito en ningún curso. <a href="{% url 'courses:courses_list' %}" class="text-primary">Explora nuestros cursos disponibles</a>.</p>
+          </div>
         </div>
-    </div>
+      </div>
+    </section>
     {% endif %}
 
-    <!-- Cursos como tutor (si tiene) -->
     {% if taught_courses %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="mb-3">
-                <i class="fas fa-chalkboard-teacher me-2"></i>
-                Mis Cursos como Tutor
-            </h3>
-        </div>
-    </div>
-
-    <div class="row">
-        {% for course in taught_courses %}
-        <div class="col-lg-4 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title">{{ course.title }}</h6>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <small class="text-muted">{{ course.student_count }} estudiantes</small>
-                        {% if course.avg_rating %}
-                        <div class="small">
-                            {% for i in "12345" %}
-                            {% if forloop.counter <= course.avg_rating %}
-                            <i class="fas fa-star text-warning"></i>
-                            {% else %}
-                            <i class="far fa-star text-warning"></i>
-                            {% endif %}
-                            {% endfor %}
-                            <span class="ms-1">({{ course.avg_rating|floatformat:1 }})</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <a href="{% url 'courses:course_analytics' course.slug %}" class="btn btn-outline-primary btn-sm w-100">
-                        <i class="fas fa-chart-bar me-2"></i>Ver analíticas
-                    </a>
+    <section class="section section--alt">
+      <div class="container">
+        <div class="stack stack--lg">
+          <h2 class="section__title">Mis cursos como tutor</h2>
+          <div class="grid grid--3">
+            {% for course in taught_courses %}
+            <article class="course-card">
+              <div class="course-card__body">
+                <h3 class="course-card__title">{{ course.title }}</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); margin-top: var(--space-2);">
+                  <small class="text-muted">{{ course.student_count }} estudiantes</small>
+                  {% if course.avg_rating %}
+                  <div style="color: var(--color-warning); font-size: var(--text-sm);">
+                    {% for i in "12345" %}
+                    {% if forloop.counter <= course.avg_rating %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                    <span class="text-muted">({{ course.avg_rating|floatformat:1 }})</span>
+                  </div>
+                  {% endif %}
                 </div>
-            </div>
+                <div class="course-card__footer" style="border-top: none; padding-left: 0; padding-right: 0;">
+                  <a href="{% url 'courses:course_analytics' course.slug %}" class="btn btn-outline btn-sm" style="width: 100%;">Ver analíticas</a>
+                </div>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
         </div>
-        {% endfor %}
-    </div>
+      </div>
+    </section>
     {% endif %}
 
-    <!-- Acceso rápido a funciones principales -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bolt me-2"></i>
-                        Acceso Rápido
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-2">
-                            <a href="{% url 'courses:courses_list' %}" class="btn btn-outline-primary w-100">
-                                <i class="fas fa-search me-2"></i>Buscar Más Cursos
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{% url 'courses:standalone_lessons_list' %}" class="btn btn-outline-success w-100">
-                                <i class="fas fa-collection me-2"></i>Contenido Educativo
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{% url 'courses:create_course' %}" class="btn btn-outline-info w-100">
-                                <i class="fas fa-plus me-2"></i>Crear Curso
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{% url 'courses:manage_courses' %}" class="btn btn-outline-warning w-100">
-                                <i class="fas fa-cog me-2"></i>Gestionar Cursos
-                            </a>
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-md-3 mb-2">
-                            <a href="{% url 'courses:modules_overview' %}" class="btn btn-outline-secondary w-100">
-                                <i class="fas fa-list me-2"></i>Módulos
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{% url 'courses:content_manager' %}" class="btn btn-outline-dark w-100">
-                                <i class="fas fa-cubes me-2"></i>Gestor de Contenido
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{% url 'courses:manage_categories' %}" class="btn btn-outline-info w-100">
-                                <i class="fas fa-tags me-2"></i>Categorías
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{% url 'courses:dashboard' %}" class="btn btn-outline-light w-100">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <section class="section">
+      <div class="container">
+        <div class="stack stack--lg">
+          <h2 class="section__title">Acceso rápido</h2>
+          <div class="grid grid--4">
+            <a href="{% url 'courses:courses_list' %}" class="btn btn-outline" style="justify-content: center;">🔍 Buscar más cursos</a>
+            <a href="{% url 'courses:standalone_lessons_list' %}" class="btn btn-outline" style="justify-content: center;">📚 Contenido educativo</a>
+            <a href="{% url 'courses:create_course' %}" class="btn btn-outline" style="justify-content: center;">➕ Crear curso</a>
+            <a href="{% url 'courses:manage_courses' %}" class="btn btn-outline" style="justify-content: center;">⚙️ Gestionar cursos</a>
+            <a href="{% url 'courses:modules_overview' %}" class="btn btn-outline" style="justify-content: center;">📋 Módulos</a>
+            <a href="{% url 'courses:content_manager' %}" class="btn btn-outline" style="justify-content: center;">🧩 Gestor de contenido</a>
+            <a href="{% url 'courses:manage_categories' %}" class="btn btn-outline" style="justify-content: center;">🏷️ Categorías</a>
+            <a href="{% url 'courses:dashboard' %}" class="btn btn-outline" style="justify-content: center;">📊 Dashboard</a>
+          </div>
         </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
     </div>
-</div>
+  </footer>
 
-<style>
-.hover-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.hover-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-}
-</style>
-
-<script>
-// Script para manejar el width dinámico de las barras de progreso
-document.addEventListener('DOMContentLoaded', function() {
-    // Encontrar todas las barras de progreso con data-width
-    const progressBars = document.querySelectorAll('.progress-bar[data-width]');
-
-    progressBars.forEach(function(bar) {
-        const width = bar.getAttribute('data-width');
-        if (width) {
-            bar.style.width = width + '%';
-        }
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
     });
-});
-</script>
-{% endblock %}
+  </script>
+</body>
+</html>

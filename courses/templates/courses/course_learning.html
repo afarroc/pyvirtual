@@ -1,877 +1,290 @@
-{% extends "courses/base.html" %}
 {% load static %}
 {% load course_filters %}
 {% load lesson_tags %}
-
-{% block course_content %}
-<body data-lesson-completed="{{ lesson_progress.completed|yesno:'true,false' }}">
-<div class="row">
-    <!-- Sidebar con el índice del curso -->
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">{{ course.title }}</h5>
-                <small class="opacity-75">Progreso: {{ enrollment.progress_percentage|default:0 }}%</small>
-            </div>
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                    {% for module in modules %}
-                    <div class="list-group-item module-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">{{ module.title }}</h6>
-                            <span class="badge bg-secondary">{{ module.lessons.count }}</span>
-                        </div>
-                        
-                        <ul class="list-unstyled mt-2 ms-3">
-                            {% for lesson in module.lessons.all %}
-                            <li class="mb-1">
-                                <a href="{% url 'courses:course_learning_lesson' course.slug lesson.id %}"
-                                   class="text-decoration-none lesson-link {% if lesson.id == current_lesson.id %}active fw-bold text-primary{% endif %}">
-                                    <i class="fas fa-{% if lesson.lesson_type == 'video' %}play-circle{% elif lesson.lesson_type == 'quiz' %}question-circle{% else %}file-alt{% endif %} me-1"></i>
-                                    {{ lesson.title }}
-                                </a>
-                                {% if lesson.id in completed_lessons %}
-                                <i class="fas fa-check-circle text-success ms-1"></i>
-                                {% endif %}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contenido principal de la lección -->
-    <div class="col-md-9">
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'courses:course_detail' course.slug %}">{{ course.title }}</a></li>
-                <li class="breadcrumb-item"><a href="#">{{ current_lesson.module.title }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ current_lesson.title }}</li>
-            </ol>
-        </nav>
-
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">{{ current_lesson.title }}</h4>
-                <span class="badge bg-{% if current_lesson.lesson_type == 'video' %}info{% elif current_lesson.lesson_type == 'quiz' %}warning{% else %}secondary{% endif %}">
-                    {{ current_lesson.get_lesson_type_display }}
-                </span>
-            </div>
-            
-            <div class="card-body">
-                <!-- Contenido según el tipo de lección -->
-                {% if current_lesson.lesson_type == 'video' and current_lesson.video_url %}
-                <div class="ratio ratio-16x9 mb-4">
-                    {% if 'youtube.com' in current_lesson.video_url or 'youtu.be' in current_lesson.video_url %}
-                        <!-- Usar el filtro personalizado para URLs de YouTube -->
-                        <iframe src="{{ current_lesson.video_url|youtube_embed_url }}" 
-                                allowfullscreen 
-                                frameborder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
-                    {% else %}
-                        <!-- Video genérico -->
-                        <video controls class="w-100">
-                            <source src="{{ current_lesson.video_url }}" type="video/mp4">
-                            Tu navegador no soporta el elemento de video.
-                        </video>
-                    {% endif %}
-                </div>
-                
-                {% if current_lesson.content %}
-                <div class="lesson-content mt-4">
-                    <h5>Descripción</h5>
-                    {{ current_lesson.content|safe }}
-                </div>
-                {% endif %}
-                
-                {% elif current_lesson.lesson_type == 'text' %}
-                <div class="lesson-content">
-                    {% if current_lesson.structured_content %}
-                        <!-- Contenido estructurado -->
-                        {{ current_lesson.structured_content|render_structured_content }}
-                    {% endif %}
-
-                    {% if current_lesson.content %}
-                        <!-- Contenido simple (para compatibilidad) -->
-                        {% if current_lesson.structured_content %}
-                            <hr class="my-4">
-                            <h5>Contenido adicional</h5>
-                        {% endif %}
-                        {{ current_lesson.content|safe }}
-                    {% endif %}
-
-                    {% if not current_lesson.structured_content and not current_lesson.content %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-file-earmark-text text-muted fs-1 mb-3"></i>
-                            <p class="text-muted">Esta lección aún no tiene contenido.</p>
-                        </div>
-                    {% endif %}
-                </div>
-                
-                {% elif current_lesson.lesson_type == 'quiz' %}
-                <div class="quiz-container">
-                    <h5>Cuestionario</h5>
-                    <p class="text-muted">Responde las siguientes preguntas para completar esta lección.</p>
-                    
-                    {% if lesson_progress.completed %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Ya completaste este quiz. Tu puntuación: {{ lesson_progress.score|floatformat:1 }}%
-                    </div>
-                    {% else %}
-                    <form method="post">
-                        {% csrf_token %}
-                        {% for question in current_lesson.quiz_questions %}
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h6 class="card-title">{{ forloop.counter }}. {{ question.question }}</h6>
-                                {% for option in question.options %}
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" 
-                                           name="question_{{ forloop.parentloop.counter }}" 
-                                           id="q{{ forloop.parentloop.counter }}_o{{ forloop.counter }}" 
-                                           value="{{ option }}" 
-                                           {% if question.correct_answer == option %}data-correct="true"{% endif %}
-                                           required>
-                                    <label class="form-check-label" for="q{{ forloop.parentloop.counter }}_o{{ forloop.counter }}">
-                                        {{ option }}
-                                    </label>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endfor %}
-                        <button type="submit" class="btn btn-primary">Enviar respuestas</button>
-                    </form>
-                    {% endif %}
-                </div>
-                
-                {% elif current_lesson.lesson_type == 'assignment' %}
-                <div class="assignment-container">
-                    <h5>Tarea</h5>
-                    
-                    {% if lesson_progress.completed %}
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i>
-                        ¡Ya completaste esta tarea el {{ lesson_progress.completed_at|date:"d M Y" }}!
-                    </div>
-                    {% else %}
-                    <div class="assignment-instructions mb-4">
-                        <h6>Instrucciones:</h6>
-                        {{ current_lesson.assignment_instructions|safe }}
-                    </div>
-                    
-                    <!-- Resto del código de la tarea -->
-                    {% if current_lesson.assignment_file %}
-                    <div class="mb-3">
-                        <a href="{{ current_lesson.assignment_file.url }}" class="btn btn-outline-primary" download>
-                            <i class="fas fa-download me-1"></i> Descargar recursos de la tarea
-                        </a>
-                    </div>
-                    {% endif %}
-                    
-                    {% if current_lesson.assignment_due_date %}
-                    <div class="alert alert-warning mb-3">
-                        <i class="fas fa-clock me-2"></i>
-                        Fecha límite: {{ current_lesson.assignment_due_date|date:"d M Y H:i" }}
-                    </div>
-                    {% endif %}
-                    
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="submission_file" class="form-label">Subir tu trabajo</label>
-                            <input type="file" class="form-control" id="submission_file" name="submission_file" 
-                                   accept=".pdf,.doc,.docx,.zip,.rar" required>
-                            <div class="form-text">Formatos aceptados: PDF, DOC, DOCX, ZIP, RAR. Tamaño máximo: 10MB.</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="submission_notes" class="form-label">Notas adicionales (opcional)</label>
-                            <textarea class="form-control" id="submission_notes" name="submission_notes" 
-                                      rows="3" placeholder="Añade cualquier comentario sobre tu entrega..."></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-1"></i> Enviar tarea
-                        </button>
-                    </form>
-                    {% endif %}
-                </div>
-                {% endif %}
-                <!-- Archivos adjuntos -->
-                {% load lesson_tags %}
-                {% with attached_files=current_lesson|get_attached_files %}
-                {% if attached_files %}
-                <div class="attached-files-section">
-                    <h5 class="mb-3">
-                        <i class="fas fa-paperclip me-2 text-primary"></i>
-                        Archivos adjuntos
-                        <span class="badge bg-primary ms-2">{{ attached_files|length }}</span>
-                    </h5>
-                    <div class="attached-files-grid">
-                        {% for file_info in attached_files %}
-                        <div class="file-card" data-file-id="{{ file_info.id }}">
-                            <div class="file-icon">
-                                {% if file_info.file_type == 'PDF Documento' %}
-                                    <div class="bg-danger bg-opacity-10 rounded-circle p-3">
-                                        <i class="fas fa-file-pdf text-danger fs-4"></i>
-                                    </div>
-                                {% elif file_info.file_type == 'Documento Word' %}
-                                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
-                                        <i class="fas fa-file-word text-primary fs-4"></i>
-                                    </div>
-                                {% elif file_info.file_type == 'Hoja de Cálculo Excel' %}
-                                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
-                                        <i class="fas fa-file-excel text-success fs-4"></i>
-                                    </div>
-                                {% elif file_info.file_type == 'Presentación PowerPoint' %}
-                                    <div class="bg-warning bg-opacity-10 rounded-circle p-3">
-                                        <i class="fas fa-file-powerpoint text-warning fs-4"></i>
-                                    </div>
-                                {% elif file_info.file_type == 'Imagen' in file_info.file_type %}
-                                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
-                                        <i class="fas fa-image text-info fs-4"></i>
-                                    </div>
-                                {% elif file_info.file_type == 'Video' in file_info.file_type %}
-                                    <div class="bg-secondary bg-opacity-10 rounded-circle p-3">
-                                        <i class="fas fa-video text-secondary fs-4"></i>
-                                    </div>
-                                {% elif file_info.type == 'assignment_file' %}
-                                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
-                                        <i class="fas fa-tasks text-success fs-4"></i>
-                                    </div>
-                                {% else %}
-                                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
-                                        <i class="fas fa-file text-primary fs-4"></i>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="file-info">
-                                <div class="file-title" title="{{ file_info.title }}">
-                                    {{ file_info.title }}
-                                </div>
-                                <div class="file-meta">
-                                    <span class="file-type-badge badge bg-light text-dark">
-                                        <i class="fas fa-tag me-1"></i>{{ file_info.file_type }}
-                                    </span>
-                                    {% if file_info.file_size != 'Desconocido' %}
-                                    <span class="file-size-badge badge bg-light text-dark ms-1">
-                                        <i class="fas fa-weight me-1"></i>{{ file_info.file_size }}
-                                    </span>
-                                    {% endif %}
-                                </div>
-                                <div class="file-description">
-                                    <i class="fas fa-info-circle me-1 text-muted"></i>{{ file_info.description }}
-                                </div>
-                                {% if file_info.category %}
-                                <div class="file-category">
-                                    <small class="text-muted">
-                                        <i class="fas fa-folder me-1"></i>{{ file_info.category }}
-                                    </small>
-                                </div>
-                                {% endif %}
-                                {% if file_info.file_extension %}
-                                <div class="file-extension">
-                                    <small class="text-muted">
-                                        <i class="fas fa-file-code me-1"></i>Extensión: {{ file_info.file_extension|upper }}
-                                    </small>
-                                </div>
-                                {% endif %}
-                                {% if file_info.is_external %}
-                                <div class="file-external">
-                                    <small class="text-warning">
-                                        <i class="fas fa-external-link-alt me-1"></i>Enlace externo
-                                    </small>
-                                </div>
-                                {% endif %}
-                                <div class="file-actions mt-2">
-                                    <a href="{{ file_info.url }}" class="btn btn-sm btn-outline-primary btn-download" target="_blank" rel="noopener noreferrer" download>
-                                        <i class="fas fa-download me-1"></i>
-                                        Descargar
-                                    </a>
-                                    {% if file_info.file_type == 'PDF Documento' %}
-                                    <a href="{{ file_info.url }}" class="btn btn-sm btn-outline-secondary ms-1" target="_blank" rel="noopener noreferrer">
-                                        <i class="fas fa-eye me-1"></i>
-                                        Vista Previa
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-                {% endwith %}
-
-                <!-- Información adicional de la lección -->
-                {% if current_lesson.duration_minutes %}
-                <div class="mt-3">
-                    <small class="text-muted">
-                        <i class="fas fa-clock me-1"></i>
-                        Duración estimada: {{ current_lesson.duration_minutes }} minutos
-                    </small>
-                </div>
-                {% endif %}
-
-                <!-- Progreso y navegación -->
-                <div class="mt-4 pt-3 border-top">
-                    {% if lesson_progress.completed %}
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-1"></i> 
-                        Completado el {{ lesson_progress.completed_at|date:"d M Y" }}
-                        {% if lesson_progress.score is not None %}
-                        - Puntuación: {{ lesson_progress.score|floatformat:1 }}%
-                        {% endif %}
-                    </div>
-                    {% else %}
-                    <div class="d-flex align-items-center">
-                        <form method="post" action="{% url 'courses:mark_lesson_complete' current_lesson.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-success me-2">
-                                <i class="fas fa-check me-1"></i> Marcar como completado
-                            </button>
-                        </form>
-                        <small class="text-muted">(Solo si ya revisaste todo el contenido)</small>
-                    </div>
-                    {% endif %}
-                </div>
-
-                <!-- Navegación entre lecciones -->
-                <div class="d-flex justify-content-between mt-4">
-                    {% if previous_lesson %}
-                    <a href="{% url 'courses:course_learning_lesson' course.slug previous_lesson.id %}" 
-                       class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left me-1"></i> Lección anterior
-                    </a>
-                    {% else %}
-                    <span></span>
-                    {% endif %}
-
-                    {% if next_lesson %}
-                    <a href="{% url 'courses:course_learning_lesson' course.slug next_lesson.id %}" 
-                       class="btn btn-primary">
-                        Siguiente lección <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
-                    {% else %}
-                    <a href="{% url 'courses:course_detail' course.slug %}" class="btn btn-success">
-                        <i class="fas fa-graduation-cap me-1"></i> Volver al curso
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_css %}
-<!-- MathJax Configuration -->
-<script>
-MathJax = {
-  tex: {
-    inlineMath: [['\\(', '\\)'], ['$', '$']],
-    displayMath: [['\\[', '\\]'], ['$$', '$$']],
-    processEscapes: true,
-    processEnvironments: true
-  },
-  options: {
-    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ current_lesson.title }} · {{ course.title }} · Cursos M360</title>
+  <meta name="description" content="{{ current_lesson.title }} - {{ course.title }}">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  {% block extra_css %}
+  <script>
+  MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['\\[', '\\]'], ['$$', '$$']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+  .learning-layout {
+    display: grid;
+    gap: var(--space-6);
   }
-};
-</script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-<style>
-.module-item {
+  @media (min-width: 768px) {
+    .learning-layout {
+      grid-template-columns: 18rem 1fr;
+    }
+  }
+  .learning-sidebar {
+    position: sticky;
+    top: var(--header-height);
+    align-self: start;
+    max-height: calc(100vh - var(--header-height) - var(--space-6));
+    overflow-y: auto;
+  }
+  .learning-sidebar__card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .learning-sidebar__header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    padding: var(--space-4);
+  }
+  .learning-sidebar__title {
+    font-weight: 700;
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-1);
+  }
+  .learning-sidebar__progress {
+    font-size: var(--text-sm);
+    opacity: 0.9;
+  }
+  .learning-sidebar__body {
+    padding: var(--space-2) 0;
+  }
+  .module-item {
+    padding: var(--space-3) var(--space-4);
     border-left: 4px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.module-item:hover {
-    border-left-color: #0d6efd;
-    background-color: #f8f9fa;
-}
-
-.lesson-link {
-    color: #6c757d;
-    transition: color 0.2s ease;
-    font-size: 0.9rem;
-}
-
-.lesson-link:hover, .lesson-link.active {
-    color: #0d6efd;
-    text-decoration: underline;
-}
-
-.quiz-container .card, .assignment-container {
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-}
-
-.lesson-content {
-    line-height: 1.7;
-    font-size: 1.05rem;
-}
-
-.lesson-content h1, .lesson-content h2, .lesson-content h3, 
-.lesson-content h4, .lesson-content h5, .lesson-content h6 {
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    color: #2c3e50;
-}
-
-.lesson-content p {
-    margin-bottom: 1rem;
-    color: #34495e;
-}
-
-.lesson-content ul, .lesson-content ol {
-    margin-bottom: 1rem;
-    padding-left: 1.5rem;
-}
-
-.lesson-content li {
-    margin-bottom: 0.5rem;
-}
-
-.lesson-content blockquote {
-    border-left: 4px solid #3498db;
-    padding-left: 1rem;
+    transition: background-color var(--transition), border-color var(--transition);
+  }
+  .module-item:hover {
+    border-left-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+  }
+  .module-item__title {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-1);
+  }
+  .module-item__count {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+  .lesson-list {
+    padding-left: var(--space-4);
+    margin-top: var(--space-2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .lesson-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition), color var(--transition);
+  }
+  .lesson-link:hover,
+  .lesson-link.active {
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+  }
+  .lesson-check {
+    color: var(--color-success);
+    margin-left: var(--space-1);
+  }
+  .lesson-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .lesson-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-4);
+  }
+  .lesson-breadcrumb a {
+    color: var(--color-primary);
+  }
+  .lesson-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .lesson-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .lesson-card__title {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin: 0;
+  }
+  .lesson-card__body {
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .lesson-media {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    height: 0;
+    background: #000;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .lesson-media iframe,
+  .lesson-media video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .lesson-content h1, .lesson-content h2, .lesson-content h3,
+  .lesson-content h4, .lesson-content h5, .lesson-content h6 {
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+    color: var(--color-text);
+  }
+  .lesson-content p {
+    margin-bottom: var(--space-4);
+    color: var(--color-text-secondary);
+    line-height: 1.75;
+  }
+  .lesson-content ul, .lesson-content ol {
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .lesson-content li {
+    margin-bottom: var(--space-2);
+  }
+  .lesson-content blockquote {
+    border-left: 4px solid var(--color-primary);
+    padding-left: var(--space-4);
     margin-left: 0;
-    color: #7f8c8d;
+    color: var(--color-text-secondary);
     font-style: italic;
-}
-
-.lesson-content code {
-    background-color: #f8f9fa;
-    padding: 0.2rem 0.4rem;
-    border-radius: 0.25rem;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  }
+  .lesson-content code {
+    background: var(--color-bg-alt);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
     font-size: 0.9em;
-}
-
-.lesson-content pre {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 0.375rem;
+  }
+  .lesson-content pre {
+    background: var(--color-bg-alt);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
     overflow-x: auto;
-    margin-bottom: 1rem;
-}
-
-.lesson-content pre code {
+    margin-bottom: var(--space-4);
+  }
+  .lesson-content pre code {
     background: none;
     padding: 0;
-}
-
-/* Estilos para contenido estructurado (legacy - mantener compatibilidad) */
-.lesson-heading {
-    color: #2c3e50;
-    font-weight: 600;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 0.5rem;
-}
-
-.lesson-subheading {
-    color: #34495e;
-    font-weight: 500;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
-}
-
-.lesson-content {
-    line-height: 1.7;
-    margin-bottom: 1rem;
-}
-
-.lesson-list {
-    margin-bottom: 1rem;
-    padding-left: 1.5rem;
-}
-
-.lesson-list-item {
-    margin-bottom: 0.5rem;
-    line-height: 1.6;
-}
-
-.lesson-image-container {
-    text-align: center;
-    margin: 2rem 0;
-}
-
-.lesson-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.lesson-image-caption {
-    margin-top: 0.75rem;
-    font-size: 0.9rem;
-    color: #6c757d;
-    font-style: italic;
-}
-
-.lesson-file {
-    margin: 1rem 0;
-}
-
-.lesson-file-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    text-decoration: none;
-    color: #495057;
-    transition: all 0.3s ease;
-}
-
-.lesson-file-link:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
-    color: #212529;
-    text-decoration: none;
-}
-
-.lesson-file-link i {
-    margin-right: 0.5rem;
-    font-size: 1.2rem;
-}
-
-/* Estilos para la navegación */
-.navigation-buttons {
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e9ecef;
-}
-
-/* Estilos responsivos */
-@media (max-width: 768px) {
-    .card-body {
-        padding: 1rem;
-    }
-
-    .lesson-content {
-        font-size: 1rem;
-    }
-
-    .navigation-buttons .btn {
-        font-size: 0.9rem;
-        padding: 0.5rem 0.75rem;
-    }
-
-    /* Archivos adjuntos responsivos mejorados */
-    .attached-files-grid {
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-    }
-
-    .file-card {
-        padding: 1rem;
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .file-icon {
-        margin-right: 0;
-        margin-bottom: 1rem;
-    }
-
-    .file-meta {
-        justify-content: center;
-    }
-
-    .file-actions {
-        justify-content: center;
-    }
-
-    .file-title {
-        font-size: 0.95rem;
-    }
-
-    .file-description {
-        font-size: 0.85rem;
-    }
-
-    .btn-download {
-        font-size: 0.8rem;
-        padding: 0.375rem 0.75rem;
-    }
-
-    /* Headings responsivos */
-    .lesson-heading-main {
-        font-size: 1.5rem;
-    }
-
-    .lesson-heading-subtitle {
-        font-size: 1rem;
-    }
-
-    .lesson-list-title {
-        font-size: 1.1rem;
-    }
-
-    .lesson-subheading {
-        font-size: 1.1rem;
-    }
-
-    .lesson-heading-main .bi-hash {
-        font-size: 1rem;
-    }
-
-    .lesson-heading-subtitle {
-        margin-left: 1.2rem;
-    }
-
-    .lesson-list-title .bi-list-check {
-        font-size: 1rem;
-    }
-
-    .lesson-subheading .bi-textarea {
-        font-size: 1rem;
-    }
-
-    .lesson-content {
-        margin-left: 1.2rem;
-    }
-
-    .lesson-list-item {
-        font-size: 0.95rem;
-    }
-
-    .list-bullet {
-        font-size: 1.1rem;
-    }
-
-    .file-extension,
-    .file-external {
-        text-align: center;
-    }
-}
-
-/* Estilos para elementos de contenido estructurado adicionales */
-.lesson-video-container {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-    border-radius: 8px;
-    border: 1px solid #ffeaa7;
-}
-
-.lesson-video-info {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.video-description {
-    font-weight: 500;
-    color: #2d3436;
-    flex: 1;
-}
-
-.video-duration {
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.lesson-exercise-container {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
-    border-radius: 8px;
-    border: 1px solid #55efc4;
-}
-
-.lesson-exercise-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-
-.exercise-title {
-    font-weight: 600;
-    color: #2d3436;
-}
-
-.lesson-exercise-content {
-    color: #2d3436;
-    font-weight: 500;
-    margin: 0;
-}
-
-.lesson-markdown-container {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-    border-radius: 8px;
-    border: 1px solid #74b9ff;
-}
-
-.lesson-markdown-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-
-.markdown-title {
-    font-weight: 600;
-    color: white;
-}
-
-.lesson-markdown-content {
-    color: white;
-    font-weight: 500;
-    margin: 0;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 0.75rem;
-    border-radius: 6px;
-}
-
-.lesson-link-container {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
-    border-radius: 8px;
-    border: 1px solid #a29bfe;
-}
-
-.lesson-link-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-
-.link-title {
-    font-weight: 600;
-    color: white;
-}
-
-.lesson-resource-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 6px;
-    text-decoration: none;
-    color: white;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.lesson-resource-link:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
-    color: white;
-    text-decoration: none;
-    transform: translateY(-1px);
-}
-
-/* Estilos para otros tipos de elementos */
-.lesson-calculator-container,
-.lesson-case-study-container,
-.lesson-project-container,
-.lesson-diagram-container,
-.lesson-grapher-container,
-.lesson-application-container,
-.lesson-game-container,
-.lesson-formula-container,
-.lesson-animation-container,
-.lesson-simulator-container,
-.lesson-infographic-container,
-.lesson-quiz-container {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-}
-
-.lesson-calculator-header,
-.lesson-case-study-header,
-.lesson-project-header,
-.lesson-diagram-header,
-.lesson-grapher-header,
-.lesson-application-header,
-.lesson-game-header,
-.lesson-formula-header,
-.lesson-animation-header,
-.lesson-simulator-header,
-.lesson-infographic-header,
-.lesson-quiz-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-
-.calculator-title,
-.case-study-title,
-.project-title,
-.diagram-title,
-.grapher-title,
-.application-title,
-.game-title,
-.formula-title,
-.animation-title,
-.simulator-title,
-.infographic-title,
-.quiz-title {
-    font-weight: 600;
-    color: #2d3748;
-}
-
-.lesson-calculator-description,
-.lesson-case-study-content,
-.lesson-project-description,
-.lesson-diagram-description,
-.lesson-grapher-description,
-.lesson-application-description,
-.lesson-game-description,
-.lesson-formula-description,
-.lesson-animation-description,
-.lesson-simulator-description,
-.lesson-infographic-description,
-.lesson-quiz-description {
-    color: #4a5568;
-    margin: 0;
-}
-
-/* Estilos para archivos adjuntos mejorados */
-.attached-files-section {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e9ecef;
-}
-
-.attached-files-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1rem;
-}
-
-.file-card {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 12px;
-    padding: 1.25rem;
+  }
+  .alert {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    font-size: var(--text-sm);
+  }
+  .alert-info {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1e40af;
+  }
+  .alert-success {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #14532d;
+  }
+  .alert-warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #78350f;
+  }
+  .form-check {
     display: flex;
     align-items: flex-start;
-    transition: all 0.3s ease;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .form-check-input {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.15rem;
+    accent-color: var(--color-primary);
+  }
+  .form-check-label {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+  }
+  .progress {
+    height: 0.5rem;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width var(--transition);
+  }
+  .attached-files-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  }
+  .file-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    display: flex;
+    gap: var(--space-3);
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
     position: relative;
     overflow: hidden;
-}
-
-.file-card::before {
+  }
+  .file-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: #cbd5e1;
+  }
+  .file-card::before {
     content: '';
     position: absolute;
     top: 0;
@@ -880,474 +293,546 @@ MathJax = {
     height: 100%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.file-card:hover {
-    border-color: #0d6efd;
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
-    transform: translateY(-2px);
-}
-
-.file-card:hover::before {
+    transition: opacity var(--transition);
+  }
+  .file-card:hover::before {
     opacity: 1;
-}
-
-.file-icon {
-    width: 50px;
-    height: 50px;
-    margin-right: 1rem;
+  }
+  .file-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-lg);
     flex-shrink: 0;
-}
-
-.file-info {
-    flex: 1;
-    min-width: 0; /* Para que el texto se trunque correctamente */
-}
-
-.file-title {
+  }
+  .file-info {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .file-title {
     font-weight: 600;
-    color: #2d3748;
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-    line-height: 1.3;
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-1);
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-}
-
-.file-meta {
+  }
+  .file-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.file-type-badge,
-.file-size-badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    font-weight: 500;
-}
-
-.file-description {
-    font-size: 0.875rem;
-    color: #718096;
-    margin-bottom: 0.25rem;
-    line-height: 1.4;
-}
-
-.file-category {
-    margin-bottom: 0.75rem;
-}
-
-.file-actions {
+    gap: var(--space-1);
+    margin-bottom: var(--space-1);
+  }
+  .file-description {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+  }
+  .file-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--space-2);
     flex-wrap: wrap;
-}
-
-.btn-download {
-    font-size: 0.8rem;
-    padding: 0.375rem 0.75rem;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.btn-download:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2);
-}
-
-/* Estilos para headings mejorados */
-.lesson-heading-container {
-    margin: 2rem 0 1.5rem 0;
-    padding: 1.5rem;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 12px;
-    border-left: 4px solid #667eea;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
-}
-
-.lesson-heading-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100px;
-    height: 100px;
-    background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    transform: translate(30px, -30px);
-}
-
-.lesson-heading-main {
-    color: #2d3748;
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    position: relative;
-    z-index: 1;
+  }
+  .lesson-nav {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-}
-
-.lesson-heading-main .bi-hash {
-    opacity: 0.7;
-    font-size: 1.2rem;
-}
-
-.lesson-heading-subtitle {
-    color: #718096;
-    font-size: 1.1rem;
-    font-weight: 400;
-    margin: 0;
-    position: relative;
-    z-index: 1;
-    line-height: 1.5;
-    margin-left: 1.5rem;
-}
-
-/* Estilos para listas mejoradas */
-.lesson-list-container {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
-    border-radius: 8px;
-    border: 1px solid #ffe082;
-    box-shadow: 0 1px 3px rgba(255, 193, 7, 0.1);
-}
-
-.lesson-list-title {
-    color: #2d3748;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0 0 1rem 0;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #ffc107;
-    display: flex;
-    align-items: center;
-}
-
-.lesson-list-title .bi-list-check {
-    opacity: 0.7;
-    font-size: 1.1rem;
-}
-
-.lesson-list {
-    margin: 0;
-    padding-left: 1.5rem;
-    background: white;
-    border-radius: 6px;
-    padding: 1rem;
-    border: 1px solid #ffe082;
-    box-shadow: 0 1px 2px rgba(255, 193, 7, 0.1);
-}
-
-.lesson-list-item {
-    color: #4a5568;
-    font-size: 1rem;
-    line-height: 1.6;
-    margin-bottom: 0.5rem;
-    padding: 0.25rem 0;
-    position: relative;
-    padding-left: 1rem;
-    border-left: 3px solid transparent;
-    transition: all 0.2s ease;
-}
-
-.lesson-list-item:hover {
-    border-left-color: #ffc107;
-    background-color: rgba(255, 193, 7, 0.1);
-    padding-left: 1.5rem;
-}
-
-.list-bullet {
-    color: #ffc107;
-    font-weight: bold;
-    margin-right: 0.5rem;
-    font-size: 1.2rem;
-}
-
-/* Estilos para texto mejorado */
-.lesson-text-container {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: white;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.lesson-subheading {
-    color: #2d3748;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0 0 1rem 0;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #28a745;
-    display: flex;
-    align-items: center;
-}
-
-.lesson-subheading .bi-textarea {
-    opacity: 0.7;
-    font-size: 1.1rem;
-}
-
-.lesson-content {
-    color: #4a5568;
-    font-size: 1rem;
-    line-height: 1.7;
-    margin: 0;
-    margin-left: 1.5rem;
-}
-
-/* Estilos para imágenes incrustadas */
-.lesson-image-container {
-    text-align: center;
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-}
-
-.lesson-image {
-    max-width: 100%;
-    height: auto;
-    max-height: 400px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    object-fit: contain;
-    transition: transform 0.3s ease;
-}
-
-.lesson-image:hover {
-    transform: scale(1.02);
-}
-
-.lesson-image-caption {
-    margin-top: 0.75rem;
-    font-size: 0.9rem;
-    color: #6c757d;
-    font-style: italic;
-}
-
-/* Responsive para imágenes */
-@media (max-width: 768px) {
-    .lesson-image {
-        max-height: 250px;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+  }
+  @media (max-width: 767px) {
+    .learning-layout {
+      grid-template-columns: 1fr;
     }
-
-    .lesson-image-container {
-        margin: 1rem 0;
-        padding: 0.75rem;
+    .learning-sidebar {
+      position: static;
+      max-height: none;
     }
+  }
+  </style>
+  {% endblock %}
+</head>
+<body data-lesson-completed="{{ lesson_progress.completed|yesno:'true,false' }}">
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-    .attached-files-grid {
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-    }
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
 
-    .file-card {
-        padding: 1rem;
-        flex-direction: column;
-        text-align: center;
-    }
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
 
-    .file-icon {
-        margin-right: 0;
-        margin-bottom: 1rem;
-    }
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% for category in categories %}
+              <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-    .file-meta {
-        justify-content: center;
-    }
+  <main id="main-content">
+    <section class="section section--tight">
+      <div class="container">
+        <div class="learning-layout">
+          <aside class="learning-sidebar">
+            <div class="learning-sidebar__card">
+              <div class="learning-sidebar__header">
+                <div class="learning-sidebar__title">{{ course.title }}</div>
+                <div class="learning-sidebar__progress">Progreso: {{ enrollment.progress_percentage|default:0 }}%</div>
+              </div>
+              <div class="learning-sidebar__body">
+                {% for module in modules %}
+                <div class="module-item">
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-2);">
+                    <div class="module-item__title">{{ module.title }}</div>
+                    <span class="badge badge--outline">{{ module.lessons.count }}</span>
+                  </div>
+                  <ul class="lesson-list">
+                    {% for lesson in module.lessons.all %}
+                    <li>
+                      <a href="{% url 'courses:course_learning_lesson' course.slug lesson.id %}"
+                         class="lesson-link {% if lesson.id == current_lesson.id %}active{% endif %}">
+                        <span>
+                          {% if lesson.lesson_type == 'video' %}▶
+                          {% elif lesson.lesson_type == 'quiz' %}?
+                          {% else %}📄
+                          {% endif %}
+                        </span>
+                        <span>{{ lesson.title }}</span>
+                        {% if lesson.id in completed_lessons %}
+                        <span class="lesson-check">✓</span>
+                        {% endif %}
+                      </a>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </aside>
 
-    .file-actions {
-        justify-content: center;
-    }
+          <div class="lesson-main">
+            <nav aria-label="breadcrumb">
+              <ol class="lesson-breadcrumb">
+                <li><a href="{% url 'courses:course_detail' course.slug %}">{{ course.title }}</a></li>
+                <li><a href="#">{{ current_lesson.module.title }}</a></li>
+                <li aria-current="page">{{ current_lesson.title }}</li>
+              </ol>
+            </nav>
 
-    .lesson-heading-main {
-        font-size: 1.5rem;
-    }
+            <article class="lesson-card">
+              <div class="lesson-card__header">
+                <h1 class="lesson-card__title">{{ current_lesson.title }}</h1>
+                <span class="badge {% if current_lesson.lesson_type == 'video' %}badge--success{% elif current_lesson.lesson_type == 'quiz' %}badge--warning{% else %}badge--outline{% endif %}">
+                  {{ current_lesson.get_lesson_type_display }}
+                </span>
+              </div>
 
-    .lesson-heading-subtitle {
-        font-size: 1rem;
-    }
+              <div class="lesson-card__body">
+                {% if current_lesson.lesson_type == 'video' and current_lesson.video_url %}
+                <div class="lesson-media">
+                  {% if 'youtube.com' in current_lesson.video_url or 'youtu.be' in current_lesson.video_url %}
+                  <iframe src="{{ current_lesson.video_url|youtube_embed_url }}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                  {% else %}
+                  <video controls>
+                    <source src="{{ current_lesson.video_url }}" type="video/mp4">
+                    Tu navegador no soporta el elemento de video.
+                  </video>
+                  {% endif %}
+                </div>
 
-    .file-extension,
-    .file-external {
-        text-align: center;
-    }
-}
+                {% if current_lesson.content %}
+                <div class="lesson-content">
+                  <h2>Descripción</h2>
+                  {{ current_lesson.content|safe }}
+                </div>
+                {% endif %}
 
-/* Estilos para información adicional de archivos */
-.file-extension {
-    margin-bottom: 0.25rem;
-}
+                {% elif current_lesson.lesson_type == 'text' %}
+                <div class="lesson-content">
+                  {% if current_lesson.structured_content %}
+                  {{ current_lesson.structured_content|render_structured_content }}
+                  {% endif %}
 
-.file-external {
-    margin-bottom: 0.25rem;
-}
+                  {% if current_lesson.content %}
+                  {% if current_lesson.structured_content %}
+                  <hr style="border: none; border-top: 1px solid var(--color-border); margin: var(--space-6) 0;">
+                  <h2>Contenido adicional</h2>
+                  {% endif %}
+                  {{ current_lesson.content|safe }}
+                  {% endif %}
 
-.file-external .text-warning {
-    font-weight: 500;
-}
+                  {% if not current_lesson.structured_content and not current_lesson.content %}
+                  <div style="text-align: center; padding: var(--space-6);">
+                    <p class="text-muted">Esta lección aún no tiene contenido.</p>
+                  </div>
+                  {% endif %}
+                </div>
 
-/* Mejoras de accesibilidad */
-.btn:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
+                {% elif current_lesson.lesson_type == 'quiz' %}
+                <div class="lesson-content">
+                  <h2>Cuestionario</h2>
+                  <p class="text-muted">Responde las siguientes preguntas para completar esta lección.</p>
 
-.lesson-link:focus {
-    outline: 2px solid #0d6efd;
-    outline-offset: 2px;
-}
-</style>
-{% endblock %}
+                  {% if lesson_progress.completed %}
+                  <div class="alert alert-info">
+                    <strong>Ya completaste este quiz.</strong> Tu puntuación: {{ lesson_progress.score|floatformat:1 }}%
+                  </div>
+                  {% else %}
+                  <form method="post">
+                    {% csrf_token %}
+                    {% for question in current_lesson.quiz_questions %}
+                    <div style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-3); background: var(--color-surface);">
+                      <h3 style="font-size: var(--text-base); font-weight: 600; margin-bottom: var(--space-3);">{{ forloop.counter }}. {{ question.question }}</h3>
+                      {% for option in question.options %}
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio"
+                               name="question_{{ forloop.parentloop.counter }}"
+                               id="q{{ forloop.parentloop.counter }}_o{{ forloop.counter }}"
+                               value="{{ option }}"
+                               {% if question.correct_answer == option %}data-correct="true"{% endif %}
+                               required>
+                        <label class="form-check-label" for="q{{ forloop.parentloop.counter }}_o{{ forloop.counter }}">
+                          {{ option }}
+                        </label>
+                      </div>
+                      {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary">Enviar respuestas</button>
+                  </form>
+                  {% endif %}
+                </div>
 
-{% block extra_js %}
-<!-- Ejemplo de contenido estructurado para testing -->
-<script>
-    // Este es un ejemplo de cómo se vería el contenido estructurado en JSON
-    // Se puede usar para poblar lecciones de ejemplo
-    const exampleStructuredContent = [
-        {
-            "type": "heading",
-            "title": "Lección 1: Tipos de números",
-            "content": ""
-        },
-        {
-            "type": "text",
-            "title": "Contenido",
-            "content": ""
-        },
-        {
-            "type": "list",
-            "title": "",
-            "items": [
-                "Números naturales (ℕ): 1, 2, 3, ...",
-                "Números enteros (ℤ): ..., -2, -1, 0, 1, 2, ...",
-                "Diferencias entre positivos, negativos y el cero.",
-                "Ejemplos cotidianos (temperaturas, deudas, conteos)."
-            ]
-        }
-    ];
-    console.log('Ejemplo de contenido estructurado:', exampleStructuredContent);
-</script>
-<script>
-// Script para manejar la reproducción de video y tracking de progreso
-document.addEventListener('DOMContentLoaded', function() {
-    // Para lecciones de video, marcar como completado cuando se termine de ver
+                {% elif current_lesson.lesson_type == 'assignment' %}
+                <div class="lesson-content">
+                  <h2>Tarea</h2>
+
+                  {% if lesson_progress.completed %}
+                  <div class="alert alert-success">
+                    <strong>¡Ya completaste esta tarea!</strong> {{ lesson_progress.completed_at|date:"d M Y" }}
+                    {% if lesson_progress.score is not None %}
+                    - Puntuación: {{ lesson_progress.score|floatformat:1 }}%
+                    {% endif %}
+                  </div>
+                  {% else %}
+                  <div style="margin-bottom: var(--space-4);">
+                    <h3 style="font-size: var(--text-base); font-weight: 600; margin-bottom: var(--space-2);">Instrucciones:</h3>
+                    {{ current_lesson.assignment_instructions|safe }}
+                  </div>
+
+                  {% if current_lesson.assignment_file %}
+                  <div style="margin-bottom: var(--space-3);">
+                    <a href="{{ current_lesson.assignment_file.url }}" class="btn btn-outline" download>
+                      <span>⬇</span> Descargar recursos de la tarea
+                    </a>
+                  </div>
+                  {% endif %}
+
+                  {% if current_lesson.assignment_due_date %}
+                  <div class="alert alert-warning" style="margin-bottom: var(--space-3);">
+                    <span>⏰</span> Fecha límite: {{ current_lesson.assignment_due_date|date:"d M Y H:i" }}
+                  </div>
+                  {% endif %}
+
+                  <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div style="margin-bottom: var(--space-3);">
+                      <label for="submission_file" style="display: block; font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-1);">Subir tu trabajo</label>
+                      <input type="file" id="submission_file" name="submission_file"
+                             accept=".pdf,.doc,.docx,.zip,.rar" required
+                             style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text);">
+                      <small class="text-muted">Formatos aceptados: PDF, DOC, DOCX, ZIP, RAR. Tamaño máximo: 10MB.</small>
+                    </div>
+
+                    <div style="margin-bottom: var(--space-3);">
+                      <label for="submission_notes" style="display: block; font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-1);">Notas adicionales (opcional)</label>
+                      <textarea id="submission_notes" name="submission_notes"
+                                rows="3" placeholder="Añade cualquier comentario sobre tu entrega..."
+                                style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); resize: vertical;"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                      <span>📤</span> Enviar tarea
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+                {% endif %}
+
+                {% load lesson_tags %}
+                {% with attached_files=current_lesson|get_attached_files %}
+                {% if attached_files %}
+                <div style="margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--color-border);">
+                  <h2 style="font-size: var(--text-lg); font-weight: 600; margin-bottom: var(--space-3);">
+                    📎 Archivos adjuntos
+                    <span class="badge badge--outline">{{ attached_files|length }}</span>
+                  </h2>
+                  <div class="attached-files-grid">
+                    {% for file_info in attached_files %}
+                    <div class="file-card" data-file-id="{{ file_info.id }}">
+                      <div class="file-icon" style="background: var(--color-primary-light); color: var(--color-primary);">
+                        {% if 'PDF' in file_info.file_type %}📄
+                        {% elif 'Word' in file_info.file_type %}📝
+                        {% elif 'Excel' in file_info.file_type %}📊
+                        {% elif 'PowerPoint' in file_info.file_type %}📽️
+                        {% elif 'Imagen' in file_info.file_type %}🖼️
+                        {% elif 'Video' in file_info.file_type %}🎬
+                        {% elif file_info.type == 'assignment_file' %}📋
+                        {% else %}📁
+                        {% endif %}
+                      </div>
+                      <div class="file-info">
+                        <div class="file-title" title="{{ file_info.title }}">{{ file_info.title }}</div>
+                        <div class="file-meta">
+                          <span class="badge badge--outline">{{ file_info.file_type }}</span>
+                          {% if file_info.file_size != 'Desconocido' %}
+                          <span class="badge badge--outline">{{ file_info.file_size }}</span>
+                          {% endif %}
+                        </div>
+                        <div class="file-description">{{ file_info.description }}</div>
+                        <div class="file-actions">
+                          <a href="{{ file_info.url }}" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer" download>
+                            ⬇ Descargar
+                          </a>
+                          {% if 'PDF' in file_info.file_type %}
+                          <a href="{{ file_info.url }}" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">
+                            👁 Vista previa
+                          </a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                {% if current_lesson.duration_minutes %}
+                <div>
+                  <small class="text-muted">⏱️ Duración estimada: {{ current_lesson.duration_minutes }} minutos</small>
+                </div>
+                {% endif %}
+
+                <div style="padding-top: var(--space-4); border-top: 1px solid var(--color-border);">
+                  {% if lesson_progress.completed %}
+                  <div class="alert alert-success">
+                    <strong>Completado</strong> el {{ lesson_progress.completed_at|date:"d M Y" }}
+                    {% if lesson_progress.score is not None %}
+                    - Puntuación: {{ lesson_progress.score|floatformat:1 }}%
+                    {% endif %}
+                  </div>
+                  {% else %}
+                  <form method="post" action="{% url 'courses:mark_lesson_complete' current_lesson.id %}" style="display: flex; align-items: center; gap: var(--space-3);">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">✓ Marcar como completado</button>
+                    <small class="text-muted">(Solo si ya revisaste todo el contenido)</small>
+                  </form>
+                  {% endif %}
+                </div>
+
+                <div class="lesson-nav">
+                  {% if previous_lesson %}
+                  <a href="{% url 'courses:course_learning_lesson' course.slug previous_lesson.id %}" class="btn btn-outline">
+                    ← Lección anterior
+                  </a>
+                  {% else %}
+                  <span></span>
+                  {% endif %}
+
+                  {% if next_lesson %}
+                  <a href="{% url 'courses:course_learning_lesson' course.slug next_lesson.id %}" class="btn btn-primary">
+                    Siguiente lección →
+                  </a>
+                  {% else %}
+                  <a href="{% url 'courses:course_detail' course.slug %}" class="btn btn-success">
+                    🎓 Volver al curso
+                  </a>
+                  {% endif %}
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+  </script>
+  {% block extra_js %}
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
     const videoElement = document.querySelector('video');
     if (videoElement) {
-        videoElement.addEventListener('ended', function() {
-            // Marcar automáticamente como completado al terminar el video
-            fetch("{% url 'courses:mark_lesson_complete' current_lesson.id %}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Recargar la página para actualizar el estado
-                    location.reload();
-                }
-            });
+      videoElement.addEventListener('ended', function() {
+        fetch("{% url 'courses:mark_lesson_complete' current_lesson.id %}", {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            location.reload();
+          }
         });
+      });
     }
-    
-    // Para lecciones de texto, marcar como leído cuando se llega al final
+
     const lessonContent = document.querySelector('.lesson-content');
     const lessonCompleted = document.body.dataset.lessonCompleted === 'true';
     if (lessonContent && !lessonCompleted) {
-        let isMarked = false;
-        
-        window.addEventListener('scroll', function() {
-            if (isMarked) return;
-            
-            const contentHeight = lessonContent.offsetHeight;
-            const scrollPosition = window.scrollY;
-            const windowHeight = window.innerHeight;
-            
-            // Si el usuario ha llegado al final del contenido
-            if (scrollPosition + windowHeight >= contentHeight + 100) {
-                isMarked = true;
-                
-                // Marcar como completado
-                fetch("{% url 'courses:mark_lesson_complete' current_lesson.id %}", {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}',
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Mostrar mensaje de confirmación
-                        const alert = document.createElement('div');
-                        alert.className = 'alert alert-success alert-dismissible fade show';
-                        alert.innerHTML = `
-                            <i class="fas fa-check-circle me-1"></i> 
-                            ¡Lección marcada como completada!
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        `;
-                        document.querySelector('.card-body').prepend(alert);
-                    }
-                });
+      let isMarked = false;
+
+      window.addEventListener('scroll', function() {
+        if (isMarked) return;
+
+        const contentHeight = lessonContent.offsetHeight;
+        const scrollPosition = window.scrollY;
+        const windowHeight = window.innerHeight;
+
+        if (scrollPosition + windowHeight >= contentHeight + 100) {
+          isMarked = true;
+
+          fetch("{% url 'courses:mark_lesson_complete' current_lesson.id %}", {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+              const alert = document.createElement('div');
+              alert.className = 'alert alert-success';
+              alert.innerHTML = '<strong>¡Lección marcada como completada!</strong>';
+              document.querySelector('.lesson-card__body').prepend(alert);
             }
-        });
+          });
+        }
+      });
     }
-    
-    // Validación de archivos para tareas
+
     const submissionFileInput = document.getElementById('submission_file');
     if (submissionFileInput) {
-        submissionFileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // Validar tamaño máximo (10MB)
-                const maxSize = 10 * 1024 * 1024; // 10MB en bytes
-                if (file.size > maxSize) {
-                    alert('El archivo es demasiado grande. El tamaño máximo permitido es 10MB.');
-                    e.target.value = ''; // Limpiar el input
-                    return;
-                }
-                
-                // Validar tipo de archivo
-                const allowedExtensions = ['.pdf', '.doc', '.docx', '.zip', '.rar'];
-                const fileName = file.name.toLowerCase();
-                const isValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
-                
-                if (!isValidExtension) {
-                    alert('Formato de archivo no permitido. Use: ' + allowedExtensions.join(', '));
-                    e.target.value = ''; // Limpiar el input
-                }
-            }
-        });
+      submissionFileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const maxSize = 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+          alert('El archivo es demasiado grande. El tamaño máximo permitido es 10MB.');
+          e.target.value = '';
+          return;
+        }
+
+        const allowedExtensions = ['.pdf', '.doc', '.docx', '.zip', '.rar'];
+        const fileName = file.name.toLowerCase();
+        const isValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+        if (!isValidExtension) {
+          alert('Formato de archivo no permitido. Use: ' + allowedExtensions.join(', '));
+          e.target.value = '';
+        }
+      });
     }
-    
-    // Mejorar la experiencia de quizzes
-    const quizForm = document.querySelector('.quiz-container form');
+
+    const quizForm = document.querySelector('.lesson-content form');
     if (quizForm) {
-        quizForm.addEventListener('submit', function(e) {
-            // Aquí podrías añadir validación adicional o animaciones
-            const submitButton = this.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Procesando...';
-        });
+      quizForm.addEventListener('submit', function(e) {
+        const submitButton = this.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Procesando...';
+        }
+      });
     }
-});
-</script>
-{% endblock %}
+  });
+  </script>
+  {% endblock %}
+</body>
+</html>

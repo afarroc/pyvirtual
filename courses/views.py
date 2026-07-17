@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.http import JsonResponse
 from django.db import models
-from django.db.models import Q, Avg, Count, Prefetch
+from django.db.models import Q, Avg, Count, Prefetch, OuterRef, Subquery
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
 from .models import (
@@ -68,7 +68,7 @@ def index(request):
         'user_completed': user_completed,
         'categories': CourseCategory.objects.all(),
     }
-    return render(request, 'courses/index.html', context)
+    return render(request, 'courses/home.html', context)
 
 
 def course_list(request, category_slug=None):
@@ -185,16 +185,24 @@ def dashboard(request):
         status=EnrollmentStatusChoices.ACTIVE
     ).select_related('course')
 
-    # Precalcular estadísticas de progreso
+    total_lessons_qs = Lesson.objects.filter(
+        module__course=OuterRef('course')
+    ).order_by().values('module__course').annotate(total=Count('id')).values('total')[:1]
+
+    completed_lessons_qs = Progress.objects.filter(
+        enrollment=OuterRef('pk'),
+        completed=True
+    ).values('enrollment').annotate(total=Count('id')).values('total')[:1]
+
+    user_enrollments = user_enrollments.annotate(
+        total_lessons=Subquery(total_lessons_qs),
+        completed_lessons=Subquery(completed_lessons_qs)
+    )
+
     enrollment_stats = []
     for enrollment in user_enrollments:
-        # Obtener estadísticas del curso
-        total_lessons = Lesson.objects.filter(module__course=enrollment.course).count()
-        completed_lessons = Progress.objects.filter(
-            enrollment=enrollment,
-            completed=True
-        ).count()
-
+        total_lessons = enrollment.total_lessons or 0
+        completed_lessons = enrollment.completed_lessons or 0
         progress_percentage = (completed_lessons / total_lessons * 100) if total_lessons > 0 else 0
 
         enrollment_stats.append({
@@ -1922,7 +1930,7 @@ def public_content_blocks(request):
         'blocks': blocks,
         'total_blocks': total_blocks,
         'featured_blocks': featured_blocks,
-        'categories': blocks.values_list('category', flat=True).distinct(),
+        'categories': CourseCategory.objects.all(),
         'authors': authors,
         'content_types': ContentBlock.CONTENT_TYPES,
         'title': 'Biblioteca Pública de Contenido',
@@ -1954,6 +1962,7 @@ def public_content_detail(request, slug):
         'block': block,
         'title': block.title,
         'force_css': force_css,
+        'categories': CourseCategory.objects.all(),
     }
 
     response = render(request, 'courses/public_content_detail.html', context)
@@ -2326,7 +2335,8 @@ def courses_docs(request):
         context = {
             'title': 'Documentación - App Courses',
             'content': content,
-            'page_title': 'Documentación de la App Courses'
+            'page_title': 'Documentación de la App Courses',
+            'categories': CourseCategory.objects.all(),
         }
 
         return render(request, 'courses/docs.html', context)
