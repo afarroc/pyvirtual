@@ -1,50 +1,170 @@
-{% extends "layouts/base.html" %}
 {% load static lesson_tags %}
-
-{% block extra_head %}
-<style>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ block.title }} · Management360</title>
+  <meta name="description" content="{{ block.description|default:block.title }}">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  <style>
   .public-content-body {
     max-width: 100%;
-    overflow: hidden;
+    overflow-x: hidden;
   }
-</style>
-{% include "courses/includes/conditional_sidebar.html" %}
-{% endblock %}
+  .public-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+  }
+  .public-card table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+  }
+  .public-card th,
+  .public-card td {
+    white-space: normal;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+  }
+  .public-card img {
+    max-width: 100%;
+    height: auto;
+  }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-{% block content %}
-<main class="public-main">
-  <div class="public-card">
-    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
-      <div>
-        <h1 class="h3 mb-2">{{ block.title }}</h1>
-        <div class="public-meta">
-          <span><i class="bi bi-person me-1"></i>{{ block.author.get_full_name|default:block.author.username }}</span>
-          <span class="ms-3"><i class="bi bi-clock me-1"></i>{{ block.created_at|date:"d/m/Y H:i" }}</span>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
+
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
+
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% for category in categories %}
+              <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="section">
+      <div class="container">
+        <div class="public-card">
+          <div class="stack">
+            <h1 class="section__title">{{ block.title }}</h1>
+            <div class="course-card__meta">
+              <span>{{ block.author.get_full_name|default:block.author.username }}</span>
+              <span>{{ block.created_at|date:"d/m/Y H:i" }}</span>
+            </div>
+            {% if block.description %}
+            <p class="text-muted">{{ block.description }}</p>
+            {% endif %}
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--color-border); margin: var(--space-6) 0;">
+
+          {% include "courses/includes/public_content_render.html" with block=block %}
+
+          {% if block.tags %}
+          <div style="margin-top: var(--space-4);">
+            {% for tag in block.get_tags_list %}
+            <span class="badge badge--outline">#{{ tag }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <footer style="margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--color-border); color: var(--color-text-muted); font-size: var(--text-sm);">
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2);">
+              <span>Publicado por {{ block.author.get_full_name|default:block.author.username }}</span>
+              <span>{{ block.created_at|date:"d/m/Y H:i" }}</span>
+            </div>
+          </footer>
         </div>
-        {% if block.description %}
-        <p class="mt-3 mb-0 text-secondary">{{ block.description }}</p>
-        {% endif %}
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
       </div>
     </div>
+  </footer>
 
-    <hr class="my-4">
-
-    {% include "courses/includes/public_content_render.html" with block=block %}
-
-    {% if block.tags %}
-    <div class="mt-4">
-      {% for tag in block.get_tags_list %}
-      <span class="badge bg-light text-dark border me-1">#{{ tag }}</span>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    <footer class="mt-5 pt-3 border-top text-secondary small">
-      <div class="d-flex justify-content-between flex-wrap gap-2">
-        <span>Publicado por {{ block.author.get_full_name|default:block.author.username }}</span>
-        <span>{{ block.created_at|date:"d/m/Y H:i" }}</span>
-      </div>
-    </footer>
-  </div>
-</main>
-{% endblock %}
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+  </script>
+</body>
+</html>

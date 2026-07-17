@@ -1,155 +1,217 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ title }} · Management360</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <meta name="description" content="Biblioteca pública de contenido educativo de Management360.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
   <style>
-    :root {
-      --public-max-width: 1100px;
-      --public-bg: #f5f7fb;
-      --public-surface: #ffffff;
-      --public-border: #e9ecef;
-    }
-
-    * { box-sizing: border-box; }
-
-    html, body { margin: 0; padding: 0; }
-
-    body { background: var(--public-bg); }
-
-    .feed-wrap {
-      max-width: var(--public-max-width);
-      margin: 0 auto;
-      padding: 28px 16px;
-    }
-
-    .card {
-      background: var(--public-surface);
-      border: 1px solid var(--public-border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .blocks-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
-    }
-
-    .tag {
-      background: #eef2ff;
-      color: #0d6efd;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: .82rem;
-      font-weight: 600;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 100%;
-      display: inline-block;
-    }
-
-    .filter-bar {
-      background: var(--public-surface);
-      border: 1px solid var(--public-border);
-      border-radius: 12px;
-      padding: 14px;
-    }
-
-    .filter-bar input,
-    .filter-bar select {
-      max-width: 100%;
-    }
-
-    @media (max-width: 576px) {
-      .feed-wrap {
-        padding: 18px 10px;
-      }
-
-      .blocks-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+  .public-content-body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  .public-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+  }
+  .public-card table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+  }
+  .public-card th,
+  .public-card td {
+    white-space: normal;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+  }
+  .public-card img {
+    max-width: 100%;
+    height: auto;
+  }
+  .tag {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: inline-block;
+  }
   </style>
 </head>
 <body>
-  <div class="feed-wrap">
-    <div class="d-flex justify-content-between align-items-end mb-3">
-      <div>
-        <h1 class="h3 mb-1">{{ title }}</h1>
-        <p class="text-secondary mb-0">Contenido público disponible sin iniciar sesión.</p>
-      </div>
-    </div>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-    <form method="get" action="." class="filter-bar mb-4">
-      <div class="row g-2">
-        <div class="col-md-5">
-          <input type="text" name="search" class="form-control" placeholder="Buscar por título, descripción o etiqueta..." value="{{ request.GET.search }}">
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
+
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
+
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% for category in categories %}
+              <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="section section--tight">
+      <div class="container">
+        <div class="stack">
+          <h1 class="section__title">{{ title }}</h1>
+          <p class="text-muted">Contenido público disponible sin iniciar sesión.</p>
         </div>
-        <div class="col-md-3">
-          <select name="category" class="form-select">
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <form method="get" action="." class="stack stack--sm" style="max-width: 60rem; margin-bottom: var(--space-6);">
+          <input type="text" name="search" placeholder="Buscar por título, descripción o etiqueta..." value="{{ request.GET.search }}" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text);">
+          <select name="category" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text);">
             <option value="">Todas las categorías</option>
             {% for category in categories %}
-            <option value="{{ category }}" {% if request.GET.category == category %}selected{% endif %}>{{ category|title }}</option>
+            <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>{{ category.name }}</option>
             {% endfor %}
           </select>
-        </div>
-        <div class="col-md-2">
-          <select name="type" class="form-select">
+          <select name="type" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text);">
             <option value="">Todos los tipos</option>
             {% for type_value, type_label in content_types %}
             <option value="{{ type_value }}" {% if request.GET.type == type_value %}selected{% endif %}>{{ type_label }}</option>
             {% endfor %}
           </select>
-        </div>
-        <div class="col-md-2">
-          <button type="submit" class="btn btn-primary w-100">Buscar</button>
-        </div>
-      </div>
-    </form>
+          <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
 
-    {% if blocks %}
-    <div class="blocks-grid">
-      {% for block in blocks %}
-      <div class="card p-3">
-        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-          <div>
-            <div class="fw-semibold">{{ block.title }}</div>
-            {% if block.description %}
-            <div class="text-secondary small">{{ block.description|truncatechars:160 }}</div>
-            {% endif %}
-          </div>
-          <span class="badge bg-success"><i class="bi bi-globe me-1"></i>Público</span>
-        </div>
-        <div class="d-flex justify-content-between align-items-center">
-          <small class="text-secondary">
-            <i class="bi bi-person me-1"></i>{{ block.author.get_full_name|default:block.author.username }}
-          </small>
-        </div>
-        {% if block.tags %}
-        <div class="mt-2">
-          {% for tag in block.get_tags_list %}
-          <span class="tag">#{{ tag }}</span>
+        {% if blocks %}
+        <div class="grid grid--3">
+          {% for block in blocks %}
+          <article class="course-card">
+            <div class="course-card__body">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-2); margin-bottom: var(--space-2);">
+                <div>
+                  <h3 class="course-card__title" style="margin-bottom: var(--space-1);">{{ block.title }}</h3>
+                  {% if block.description %}
+                  <p class="course-card__text">{{ block.description|truncatechars:160 }}</p>
+                  {% endif %}
+                </div>
+                <span class="badge badge--success">Público</span>
+              </div>
+              <div class="course-card__meta">
+                <span>{{ block.author.get_full_name|default:block.author.username }}</span>
+              </div>
+              {% if block.tags %}
+              <div style="margin-top: var(--space-2); display: flex; flex-wrap: wrap; gap: var(--space-1);">
+                {% for tag in block.get_tags_list %}
+                <span class="tag">#{{ tag }}</span>
+                {% endfor %}
+              </div>
+              {% endif %}
+              <div class="course-card__footer" style="border-top: none; padding-left: 0; padding-right: 0;">
+                <a href="{% url 'courses:public_content_detail' block.slug %}" class="btn btn-outline btn-sm" style="width: 100%;">Ver contenido</a>
+              </div>
+            </div>
+          </article>
           {% endfor %}
         </div>
+        {% else %}
+        <div class="course-card" style="padding: var(--space-6); text-align: center;">
+          <div class="course-card__body">
+            <p class="text-muted" style="font-size: var(--text-lg);">Sin bloques públicos</p>
+            <p class="text-muted">Los tutores pueden compartir bloques marcándolos como públicos.</p>
+          </div>
+        </div>
         {% endif %}
-        <div class="mt-3 text-end">
-          <a href="{% url 'courses:public_content_detail' block.slug %}" class="btn btn-outline-primary btn-sm">Ver contenido</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
         </div>
       </div>
-      {% endfor %}
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
     </div>
-    {% else %}
-    <div class="card p-5 text-center text-secondary">
-      <i class="bi bi-globe2 display-6"></i>
-      <h3 class="mt-3">Sin Bloques públicos</h3>
-      <p>Los tutores pueden compartir bloques marcándolos como públicos.</p>
-    </div>
-    {% endif %}
-  </div>
+  </footer>
+
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+  </script>
 </body>
 </html>
