@@ -1,1029 +1,372 @@
-{% extends "courses/base.html" %}
-{% load crispy_forms_tags %}
 {% load static %}
-
-{% block extra_head %}
-<style>
-/* Variables CSS para consistencia */
-:root {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --shadow-light: 0 4px 20px rgba(0,0,0,0.08);
-    --shadow-medium: 0 6px 25px rgba(102, 126, 234, 0.3);
-    --border-radius: 15px;
-    --transition-fast: all 0.3s ease;
-}
-
-/* Layout principal optimizado */
-.course-editor-container {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    min-height: 100vh;
-    padding: 2rem 0;
-}
-
-.editor-card {
-    background: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-light);
-    overflow: hidden;
-    border: none;
-    transition: var(--transition-fast);
-}
-
-.editor-card:hover {
-    box-shadow: var(--shadow-medium);
-    transform: translateY(-2px);
-}
-
-.editor-header {
-    background: var(--primary-gradient);
-    color: white;
-    padding: 2rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.editor-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 150px;
-    height: 150px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    transform: translate(50px, -50px);
-}
-
-.editor-title {
-    font-size: 1.75rem;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Curso · Cursos M360</title>
+  <meta name="description" content="Formulario de creación y edición de cursos.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  <style>
+  .form-page-header {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #fff;
+    padding: var(--space-8) 0;
+    margin-bottom: var(--space-8);
+  }
+  .form-page-header__inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+  }
+  .form-page-header__title {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    margin-bottom: var(--space-1);
+  }
+  .form-page-header__subtitle {
+    color: #cbd5e1;
+    font-size: var(--text-sm);
+  }
+  .form-editor {
+    max-width: 56rem;
+    margin: 0 auto;
+  }
+  .form-section {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+  .form-section__title {
+    font-size: var(--text-lg);
     font-weight: 700;
-    margin: 0;
-    position: relative;
-    z-index: 1;
-}
-
-.editor-subtitle {
-    font-size: 1rem;
-    opacity: 0.9;
-    margin: 0.5rem 0 0 0;
-    position: relative;
-    z-index: 1;
-}
-
-.editor-body {
-    padding: 2.5rem;
-}
-
-/* Secciones organizadas */
-.editor-section {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid #e9ecef;
-    transition: var(--transition-fast);
-}
-
-.editor-section:hover {
-    background: white;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
-
-.section-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #667eea;
-}
-
-.section-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--primary-gradient);
-    color: white;
-    margin-right: 1rem;
-    font-size: 1.2rem;
-}
-
-.section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #2d3748;
-    margin: 0;
-}
-
-/* Campos de formulario mejorados */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-label {
-    font-weight: 600;
-    color: #2d3748;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.form-control {
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    transition: var(--transition-fast);
-    background: white;
-    width: 100%;
-}
-
-.form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    background: white;
-}
-
-textarea.form-control {
-    min-height: 120px;
-    resize: vertical;
-}
-
-select.form-control {
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1rem;
-    padding-right: 2.5rem;
-}
-
-/* Campos específicos */
-.price-input {
-    position: relative;
-}
-
-.price-input .form-control {
-    padding-left: 2.5rem;
-}
-
-.price-symbol {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #718096;
-    font-weight: 600;
-    z-index: 1;
-}
-
-.duration-input {
-    position: relative;
-}
-
-.duration-input .form-control {
-    padding-right: 3rem;
-}
-
-.duration-unit {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #718096;
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-/* Thumbnail upload mejorado */
-.thumbnail-upload {
-    position: relative;
-    border: 2px dashed #cbd5e0;
-    border-radius: 12px;
-    padding: 2rem;
-    text-align: center;
-    transition: var(--transition-fast);
-    background: #f8f9fa;
-    cursor: pointer;
-}
-
-.thumbnail-upload:hover {
-    border-color: #667eea;
-    background: rgba(102, 126, 234, 0.02);
-}
-
-.thumbnail-upload.dragover {
-    border-color: #667eea;
-    background: rgba(102, 126, 234, 0.05);
-    transform: scale(1.02);
-}
-
-.upload-icon {
-    font-size: 3rem;
-    color: #cbd5e0;
-    margin-bottom: 1rem;
-    transition: var(--transition-fast);
-}
-
-.thumbnail-upload:hover .upload-icon {
-    color: #667eea;
-    transform: scale(1.1);
-}
-
-.upload-text {
-    color: #718096;
-    font-weight: 500;
-}
-
-.upload-hint {
-    font-size: 0.875rem;
-    color: #a0aec0;
-    margin-top: 0.5rem;
-}
-
-.thumbnail-preview {
-    margin-top: 1rem;
-    position: relative;
-    display: inline-block;
-}
-
-.thumbnail-preview img {
-    max-width: 200px;
-    max-height: 150px;
-    border-radius: 8px;
-    box-shadow: var(--shadow-light);
-    transition: var(--transition-fast);
-}
-
-.thumbnail-preview img:hover {
-    transform: scale(1.05);
-}
-
-/* Switches mejorados */
-.switch-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: white;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.switch-label {
-    font-weight: 500;
-    color: #2d3748;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.switch-input {
-    position: relative;
-    width: 50px;
-    height: 24px;
-    appearance: none;
-    background: #cbd5e0;
-    border-radius: 12px;
-    transition: var(--transition-fast);
-    cursor: pointer;
-}
-
-.switch-input:checked {
-    background: var(--primary-gradient);
-}
-
-.switch-input::before {
-    content: '';
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    background: white;
-    border-radius: 50%;
-    top: 3px;
-    left: 3px;
-    transition: var(--transition-fast);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.switch-input:checked::before {
-    left: 29px;
-}
-
-/* Botones de acción */
-.action-buttons {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    border: 1px solid #e9ecef;
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-top: 2rem;
-}
-
-.btn-action {
-    padding: 0.75rem 2rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: var(--transition-fast);
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-}
-
-.btn-save {
-    background: var(--primary-gradient);
-    color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.btn-save:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    color: white;
-}
-
-.btn-cancel {
-    background: #6c757d;
-    color: white;
-}
-
-.btn-cancel:hover {
-    background: #5a6268;
-    color: white;
-    transform: translateY(-2px);
-}
-
-/* Estados de carga y feedback */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-.loading-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: var(--shadow-medium);
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #667eea;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Auto-save indicator */
-.autosave-indicator {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--success-gradient);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 25px;
-    box-shadow: var(--shadow-medium);
-    display: none;
-    align-items: center;
-    gap: 0.5rem;
-    z-index: 1000;
-    font-weight: 500;
-}
-
-.autosave-indicator.show {
-    display: flex;
-}
-
-/* Error styles */
-.invalid-feedback {
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .form-field {
+    margin-bottom: var(--space-4);
+  }
+  .form-field label {
     display: block;
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-}
-
-.is-invalid {
-    border-color: #dc3545 !important;
-}
-
-.is-invalid:focus {
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
-}
-
-/* Character counter */
-.char-counter {
-    font-size: 0.875rem;
-    transition: var(--transition-fast);
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .editor-body {
-        padding: 1.5rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+    color: var(--color-text);
+  }
+  .form-field input[type="text"],
+  .form-field input[type="number"],
+  .form-field select,
+  .form-field textarea {
+    display: block;
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-base);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .form-field input:focus,
+  .form-field select:focus,
+  .form-field textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+  .form-field textarea {
+    resize: vertical;
+    min-height: 6rem;
+  }
+  .form-field .field-errors {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-danger);
+  }
+  .form-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .form-hint {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-1);
+  }
+  .thumbnail-preview img {
+    max-height: 10rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+  }
+  .switch-field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .switch-field input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    accent-color: var(--color-primary);
+  }
+  .switch-field label {
+    margin-bottom: 0;
+    font-weight: 500;
+  }
+  @media (max-width: 640px) {
+    .form-actions {
+      flex-direction: column;
+      align-items: stretch;
     }
+  }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-    .editor-section {
-        padding: 1.5rem;
-    }
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
 
-    .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
 
-    .action-buttons {
-        flex-direction: column;
-    }
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% for category in categories %}
+              <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-    .btn-action {
-        width: 100%;
-        justify-content: center;
-    }
+  <main id="main-content">
+    <section class="form-page-header">
+      <div class="form-page-header__inner">
+        <h1 class="form-page-header__title">{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Curso</h1>
+        <p class="form-page-header__subtitle">Completa la información básica del curso.</p>
+      </div>
+    </section>
 
-    .switch-container {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-}
+    <section class="section section--tight">
+      <div class="container">
+        <div class="form-editor">
+          <form method="post" enctype="multipart/form-data" class="stack stack--lg">
+            {% csrf_token %}
 
-/* Animaciones de entrada */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+            <div class="form-section">
+              <h2 class="form-section__title">Información básica</h2>
+              <div class="form-field">
+                <label for="{{ form.title.id_for_label }}">Título del curso *</label>
+                <input type="text"
+                       name="{{ form.title.name }}"
+                       id="{{ form.title.id_for_label }}"
+                       value="{{ form.title.value|default:'' }}"
+                       required>
+                {% if form.title.errors %}
+                <div class="field-errors">{{ form.title.errors|join:", " }}</div>
+                {% endif %}
+              </div>
 
-.editor-section {
-    animation: fadeInUp 0.6s ease-out;
-}
+              <div class="form-field">
+                <label for="{{ form.category.id_for_label }}">Categoría</label>
+                <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}">
+                  <option value="">Seleccione una categoría</option>
+                  {% for choice in form.category.field.queryset %}
+                  <option value="{{ choice.pk }}" {% if form.category.value|stringformat:"s" == choice.pk|stringformat:"s" %}selected{% endif %}>
+                    {{ choice.name }}
+                  </option>
+                  {% endfor %}
+                </select>
+                {% if form.category.errors %}
+                <div class="field-errors">{{ form.category.errors|join:", " }}</div>
+                {% endif %}
+              </div>
 
-.editor-section:nth-child(1) { animation-delay: 0.1s; }
-.editor-section:nth-child(2) { animation-delay: 0.2s; }
-.editor-section:nth-child(3) { animation-delay: 0.3s; }
-.editor-section:nth-child(4) { animation-delay: 0.4s; }
-</style>
-{% endblock %}
+              <div class="form-field">
+                <label for="{{ form.short_description.id_for_label }}">Descripción corta *</label>
+                <textarea name="{{ form.short_description.name }}"
+                          id="{{ form.short_description.id_for_label }}"
+                          rows="3"
+                          required>{{ form.short_description.value|default:'' }}</textarea>
+                {% if form.short_description.errors %}
+                <div class="field-errors">{{ form.short_description.errors|join:", " }}</div>
+                {% endif %}
+                <p class="form-hint">Máximo 300 caracteres.</p>
+              </div>
 
-{% block course_content %}
-<div class="course-editor-container">
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-xl-10 col-lg-11 col-md-12">
-                <div class="editor-card">
-                    <!-- Header -->
-                    <div class="editor-header">
-                        <h1 class="editor-title">
-                            <i class="fas fa-edit me-2"></i>{{ title }}
-                        </h1>
-                        <p class="editor-subtitle">
-                            Configure los detalles de su curso para una mejor experiencia de aprendizaje
-                        </p>
-                    </div>
-
-                    <!-- Mostrar errores del formulario si existen -->
-                    {% if form.errors %}
-                    <div class="alert alert-danger m-4">
-                        <strong>Por favor corrija los siguientes errores:</strong>
-                        <ul class="mb-0 mt-2">
-                            {% for field, errors in form.errors.items %}
-                                {% for error in errors %}
-                                    <li><strong>{{ field|title }}:</strong> {{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-
-                    <!-- Formulario -->
-                    <form method="post" enctype="multipart/form-data" id="course-form" novalidate>
-                        {% csrf_token %}
-
-                        <div class="editor-body">
-                            <!-- Información Básica -->
-                            <div class="editor-section">
-                                <div class="section-header">
-                                    <div class="section-icon">
-                                        <i class="fas fa-info-circle"></i>
-                                    </div>
-                                    <h2 class="section-title">Información Básica</h2>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-lg-8">
-                                        <div class="form-group">
-                                            <label for="{{ form.title.id_for_label }}" class="form-label">
-                                                <i class="fas fa-heading"></i> Título del Curso *
-                                            </label>
-                                            <input type="text" 
-                                                   name="{{ form.title.name }}"
-                                                   id="{{ form.title.id_for_label }}"
-                                                   class="form-control {% if form.title.errors %}is-invalid{% endif %}"
-                                                   value="{{ form.title.value|default:'' }}"
-                                                   required>
-                                            {% if form.title.errors %}
-                                                <div class="invalid-feedback">
-                                                    {% for error in form.title.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="form-group">
-                                            <label for="{{ form.category.id_for_label }}" class="form-label">
-                                                <i class="fas fa-tags"></i> Categoría
-                                            </label>
-                                            <select name="{{ form.category.name }}"
-                                                    id="{{ form.category.id_for_label }}"
-                                                    class="form-control {% if form.category.errors %}is-invalid{% endif %}">
-                                                <option value="">Seleccione una categoría</option>
-                                                {% for choice in form.category.field.queryset %}
-                                                    <option value="{{ choice.pk }}" 
-                                                            {% if form.category.value|stringformat:"s" == choice.pk|stringformat:"s" %}selected{% endif %}>
-                                                        {{ choice.name }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
-                                            {% if form.category.errors %}
-                                                <div class="invalid-feedback">
-                                                    {% for error in form.category.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="{{ form.short_description.id_for_label }}" class="form-label">
-                                        <i class="fas fa-quote-left"></i> Descripción Corta *
-                                    </label>
-                                    <textarea name="{{ form.short_description.name }}"
-                                              id="{{ form.short_description.id_for_label }}"
-                                              class="form-control {% if form.short_description.errors %}is-invalid{% endif %}"
-                                              rows="3"
-                                              maxlength="300"
-                                              required>{{ form.short_description.value|default:'' }}</textarea>
-                                    <small class="form-text text-muted">
-                                        Una breve descripción que aparecerá en las tarjetas de curso (máx. 300 caracteres)
-                                    </small>
-                                    {% if form.short_description.errors %}
-                                        <div class="invalid-feedback">
-                                            {% for error in form.short_description.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <!-- Configuración del Curso -->
-                            <div class="editor-section">
-                                <div class="section-header">
-                                    <div class="section-icon">
-                                        <i class="fas fa-cogs"></i>
-                                    </div>
-                                    <h2 class="section-title">Configuración del Curso</h2>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="{{ form.level.id_for_label }}" class="form-label">
-                                                <i class="fas fa-chart-line"></i> Nivel de Dificultad
-                                            </label>
-                                            <select name="{{ form.level.name }}"
-                                                    id="{{ form.level.id_for_label }}"
-                                                    class="form-control {% if form.level.errors %}is-invalid{% endif %}">
-                                                {% for value, label in form.level.field.choices %}
-                                                    <option value="{{ value }}" 
-                                                            {% if form.level.value == value %}selected{% endif %}>
-                                                        {{ label }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
-                                            {% if form.level.errors %}
-                                                <div class="invalid-feedback">
-                                                    {% for error in form.level.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group price-input">
-                                            <label for="{{ form.price.id_for_label }}" class="form-label">
-                                                <i class="fas fa-dollar-sign"></i> Precio
-                                            </label>
-                                            <span class="price-symbol">$</span>
-                                            <input type="number" 
-                                                   name="{{ form.price.name }}"
-                                                   id="{{ form.price.id_for_label }}"
-                                                   class="form-control {% if form.price.errors %}is-invalid{% endif %}"
-                                                   value="{{ form.price.value|default:'0.00' }}"
-                                                   step="0.01"
-                                                   min="0">
-                                            {% if form.price.errors %}
-                                                <div class="invalid-feedback">
-                                                    {% for error in form.price.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group duration-input">
-                                            <label for="{{ form.duration_hours.id_for_label }}" class="form-label">
-                                                <i class="fas fa-clock"></i> Duración Total
-                                            </label>
-                                            <input type="number" 
-                                                   name="{{ form.duration_hours.name }}"
-                                                   id="{{ form.duration_hours.id_for_label }}"
-                                                   class="form-control {% if form.duration_hours.errors %}is-invalid{% endif %}"
-                                                   value="{{ form.duration_hours.value|default:'' }}"
-                                                   min="1"
-                                                   required>
-                                            <span class="duration-unit">horas</span>
-                                            {% if form.duration_hours.errors %}
-                                                <div class="invalid-feedback">
-                                                    {% for error in form.duration_hours.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Descripción Detallada -->
-                            <div class="editor-section">
-                                <div class="section-header">
-                                    <div class="section-icon">
-                                        <i class="fas fa-file-alt"></i>
-                                    </div>
-                                    <h2 class="section-title">Descripción Detallada</h2>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="{{ form.description.id_for_label }}" class="form-label">
-                                        <i class="fas fa-align-left"></i> Descripción Completa *
-                                    </label>
-                                    <textarea name="{{ form.description.name }}"
-                                              id="{{ form.description.id_for_label }}"
-                                              class="form-control {% if form.description.errors %}is-invalid{% endif %}"
-                                              rows="6"
-                                              required>{{ form.description.value|default:'' }}</textarea>
-                                    <small class="form-text text-muted">
-                                        Describe detalladamente el contenido del curso, objetivos de aprendizaje y beneficios para los estudiantes
-                                    </small>
-                                    {% if form.description.errors %}
-                                        <div class="invalid-feedback">
-                                            {% for error in form.description.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <!-- Imagen y Publicación -->
-                            <div class="editor-section">
-                                <div class="section-header">
-                                    <div class="section-icon">
-                                        <i class="fas fa-image"></i>
-                                    </div>
-                                    <h2 class="section-title">Imagen y Publicación</h2>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label class="form-label">
-                                                <i class="fas fa-camera"></i> Imagen del Curso
-                                            </label>
-                                            <div class="thumbnail-upload" onclick="document.getElementById('id_thumbnail').click()">
-                                                <div class="upload-icon">
-                                                    <i class="fas fa-cloud-upload-alt"></i>
-                                                </div>
-                                                <div class="upload-text">Haz clic para seleccionar una imagen</div>
-                                                <div class="upload-hint">Formatos: JPG, PNG, GIF (máx. 5MB)</div>
-                                                <input type="file" 
-                                                       name="{{ form.thumbnail.name }}"
-                                                       id="id_thumbnail"
-                                                       class="d-none"
-                                                       accept="image/jpeg,image/png,image/gif">
-                                            </div>
-                                            <div id="thumbnail-preview" class="thumbnail-preview">
-                                                {% if form.thumbnail.value %}
-                                                    <img src="{{ form.thumbnail.value.url }}" alt="Preview">
-                                                {% endif %}
-                                            </div>
-                                            {% if form.thumbnail.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in form.thumbnail.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label class="form-label">
-                                                <i class="fas fa-toggle-on"></i> Opciones de Publicación
-                                            </label>
-                                            <div class="switch-container">
-                                                <input type="checkbox" 
-                                                       name="{{ form.is_published.name }}"
-                                                       id="{{ form.is_published.id_for_label }}"
-                                                       class="switch-input"
-                                                       {% if form.is_published.value %}checked{% endif %}>
-                                                <label class="switch-label" for="{{ form.is_published.id_for_label }}">
-                                                    <i class="fas fa-globe-americas me-1"></i>Curso Publicado
-                                                </label>
-                                            </div>
-                                            <small class="form-text text-muted mt-2">
-                                                Los cursos publicados son visibles para todos los estudiantes
-                                            </small>
-                                        </div>
-
-                                        <div class="form-group mt-3">
-                                            <div class="switch-container">
-                                                <input type="checkbox" 
-                                                       name="{{ form.is_featured.name }}"
-                                                       id="{{ form.is_featured.id_for_label }}"
-                                                       class="switch-input"
-                                                       {% if form.is_featured.value %}checked{% endif %}>
-                                                <label class="switch-label" for="{{ form.is_featured.id_for_label }}">
-                                                    <i class="fas fa-star me-1"></i>Curso Destacado
-                                                </label>
-                                            </div>
-                                            <small class="form-text text-muted mt-2">
-                                                Los cursos destacados aparecen en la página principal
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Botones de Acción -->
-                            <div class="action-buttons">
-                                <button type="submit" class="btn-action btn-save" id="save-btn" name="save">
-                                    <i class="fas fa-save"></i>
-                                    <span>Guardar Cambios</span>
-                                </button>
-                                <a href="{% url 'courses:manage_courses' %}" class="btn-action btn-cancel">
-                                    <i class="fas fa-times"></i>
-                                    <span>Cancelar</span>
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+              <div class="form-field">
+                <label for="{{ form.description.id_for_label }}">Descripción completa</label>
+                <textarea name="{{ form.description.name }}"
+                          id="{{ form.description.id_for_label }}"
+                          rows="6">{{ form.description.value|default:'' }}</textarea>
+                {% if form.description.errors %}
+                <div class="field-errors">{{ form.description.errors|join:", " }}</div>
+                {% endif %}
+              </div>
             </div>
+
+            <div class="form-section">
+              <h2 class="form-section__title">Configuración</h2>
+              <div style="display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));">
+                <div class="form-field">
+                  <label for="{{ form.level.id_for_label }}">Nivel</label>
+                  <select name="{{ form.level.name }}" id="{{ form.level.id_for_label }}">
+                    {% for value, label in form.level.field.choices %}
+                    <option value="{{ value }}" {% if form.level.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="form-field">
+                  <label for="{{ form.price.id_for_label }}">Precio</label>
+                  <input type="number"
+                         name="{{ form.price.name }}"
+                         id="{{ form.price.id_for_label }}"
+                         value="{{ form.price.value|default:'0.00' }}"
+                         min="0"
+                         step="0.01">
+                  {% if form.price.errors %}
+                  <div class="field-errors">{{ form.price.errors|join:", " }}</div>
+                  {% endif %}
+                </div>
+
+                <div class="form-field">
+                  <label for="{{ form.duration_hours.id_for_label }}">Duración (horas)</label>
+                  <input type="number"
+                         name="{{ form.duration_hours.name }}"
+                         id="{{ form.duration_hours.id_for_label }}"
+                         value="{{ form.duration_hours.value|default:'' }}"
+                         min="1">
+                  {% if form.duration_hours.errors %}
+                  <div class="field-errors">{{ form.duration_hours.errors|join:", " }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div style="display: flex; flex-wrap: wrap; gap: var(--space-6); margin-top: var(--space-4);">
+                <div class="switch-field">
+                  <input type="checkbox"
+                         name="{{ form.is_published.name }}"
+                         id="{{ form.is_published.id_for_label }}"
+                         {% if form.is_published.value %}checked{% endif %}>
+                  <label for="{{ form.is_published.id_for_label }}">Publicado</label>
+                </div>
+
+                <div class="switch-field">
+                  <input type="checkbox"
+                         name="{{ form.is_featured.name }}"
+                         id="{{ form.is_featured.id_for_label }}"
+                         {% if form.is_featured.value %}checked{% endif %}>
+                  <label for="{{ form.is_featured.id_for_label }}">Destacado</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h2 class="form-section__title">Imagen</h2>
+              <div class="form-field">
+                <label for="{{ form.thumbnail.id_for_label }}">Miniatura del curso</label>
+                <input type="file"
+                       name="{{ form.thumbnail.name }}"
+                       id="{{ form.thumbnail.id_for_label }}"
+                       accept="image/*">
+                {% if form.instance.thumbnail %}
+                <div class="thumbnail-preview" style="margin-top: var(--space-3);">
+                  <img src="{{ form.instance.thumbnail.url }}" alt="Miniatura actual">
+                </div>
+                {% endif %}
+                {% if form.thumbnail.errors %}
+                <div class="field-errors">{{ form.thumbnail.errors|join:", " }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Guardar curso</button>
+              <a href="{% url 'courses:manage_courses' %}" class="btn btn-outline">Cancelar</a>
+            </div>
+          </form>
         </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
     </div>
-</div>
+  </footer>
 
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loading-overlay">
-    <div class="loading-content">
-        <div class="spinner"></div>
-        <h5>Guardando cambios...</h5>
-        <p class="mb-0">Por favor espere mientras se procesa la información</p>
-    </div>
-</div>
-
-<!-- Auto-save Indicator -->
-<div class="autosave-indicator" id="autosave-indicator">
-    <i class="fas fa-check-circle"></i>
-    <span>Cambios guardados automáticamente</span>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// Variables globales
-let isDirty = false;
-
-// Inicialización cuando el DOM está listo
-document.addEventListener('DOMContentLoaded', function() {
-    initializeForm();
-    initializeThumbnailUpload();
-    initializeCharacterCounter();
-});
-
-// Inicializar funcionalidades del formulario - VERSIÓN SIMPLIFICADA
-function initializeForm() {
-    const form = document.getElementById('course-form');
-
-    // Quitamos toda la validación personalizada que interfería
-    // y simplemente dejamos que el navegador maneje el envío
-    
-    // Marcar como sucio cuando cambian campos
-    form.querySelectorAll('input, select, textarea').forEach(field => {
-        field.addEventListener('change', function() {
-            isDirty = true;
-        });
-        field.addEventListener('input', function() {
-            isDirty = true;
-        });
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
     });
-
-    // Mostrar loading al enviar
-    form.addEventListener('submit', function() {
-        showLoading();
-    });
-}
-
-// Inicializar subida de thumbnail
-function initializeThumbnailUpload() {
-    const fileInput = document.getElementById('id_thumbnail');
-    const uploadArea = document.querySelector('.thumbnail-upload');
-
-    if (fileInput && uploadArea) {
-        // Preview de imagen seleccionada
-        fileInput.addEventListener('change', function(e) {
-            handleFileSelect(e.target.files[0]);
-        });
-
-        // Drag and drop
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, preventDefaults, false);
-        });
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, unhighlight, false);
-        });
-
-        uploadArea.addEventListener('drop', handleDrop, false);
-    }
-}
-
-// Inicializar contador de caracteres
-function initializeCharacterCounter() {
-    const shortDesc = document.getElementById('{{ form.short_description.id_for_label }}');
-    if (shortDesc) {
-        updateCharacterCounter(shortDesc);
-        shortDesc.addEventListener('input', function() {
-            updateCharacterCounter(this);
-        });
-    }
-}
-
-function updateCharacterCounter(field) {
-    const maxLength = 300;
-    const currentLength = field.value.length;
-
-    // Crear o actualizar contador
-    let counter = field.parentNode.querySelector('.char-counter');
-    if (!counter) {
-        counter = document.createElement('small');
-        counter.className = 'char-counter form-text mt-1';
-        field.after(counter);
-    }
-
-    counter.textContent = `${currentLength}/${maxLength} caracteres`;
-
-    // Cambiar color según proximidad al límite
-    if (currentLength > maxLength * 0.9) {
-        counter.className = 'char-counter form-text text-danger mt-1';
-    } else if (currentLength > maxLength * 0.8) {
-        counter.className = 'char-counter form-text text-warning mt-1';
-    } else {
-        counter.className = 'char-counter form-text text-muted mt-1';
-    }
-}
-
-// Funciones de subida de archivos
-function handleFileSelect(file) {
-    if (file) {
-        validateAndPreviewFile(file);
-    }
-}
-
-function handleDrop(e) {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-
-    if (files.length > 0) {
-        handleFileSelect(files[0]);
-    }
-}
-
-function validateAndPreviewFile(file) {
-    // Validar tipo de archivo
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
-        alert('Solo se permiten archivos de imagen (JPG, PNG, GIF)');
-        return;
-    }
-
-    // Validar tamaño (5MB máximo)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-        alert('La imagen no puede ser mayor a 5MB');
-        return;
-    }
-
-    // Mostrar preview
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        showImagePreview(e.target.result);
-    };
-    reader.readAsDataURL(file);
-
-    isDirty = true;
-}
-
-function showImagePreview(src) {
-    let preview = document.getElementById('thumbnail-preview');
-    if (!preview) {
-        preview = document.createElement('div');
-        preview.id = 'thumbnail-preview';
-        document.querySelector('.thumbnail-upload').after(preview);
-    }
-
-    preview.innerHTML = `<img src="${src}" class="img-fluid rounded" style="max-height: 150px;">`;
-}
-
-// Funciones de drag and drop
-function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
-function highlight() {
-    document.querySelector('.thumbnail-upload').classList.add('dragover');
-}
-
-function unhighlight() {
-    document.querySelector('.thumbnail-upload').classList.remove('dragover');
-}
-
-// Loading states
-function showLoading() {
-    document.getElementById('loading-overlay').style.display = 'flex';
-}
-
-function hideLoading() {
-    document.getElementById('loading-overlay').style.display = 'none';
-}
-
-// Prevenir pérdida de cambios al salir de la página
-window.addEventListener('beforeunload', function(e) {
-    if (isDirty) {
-        e.preventDefault();
-        e.returnValue = '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.';
-        return e.returnValue;
-    }
-});
-</script>
-{% endblock %}
+  </script>
+</body>
+</html>

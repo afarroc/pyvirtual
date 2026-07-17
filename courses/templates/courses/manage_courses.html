@@ -1,27 +1,391 @@
-{% extends "courses/base.html" %}
-
 {% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestión de Cursos · Cursos M360</title>
+  <meta name="description" content="Panel de gestión de cursos: editar, eliminar, analizar y administrar contenido.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  <style>
+  .manage-header {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #fff;
+    padding: var(--space-8) 0;
+    margin-bottom: var(--space-8);
+  }
+  .manage-header__inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .manage-header__title {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    margin-bottom: var(--space-1);
+  }
+  .manage-header__subtitle {
+    color: #cbd5e1;
+    font-size: var(--text-sm);
+  }
+  .manage-stats {
+    display: grid;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+  @media (min-width: 640px) {
+    .manage-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .manage-stats { grid-template-columns: repeat(4, 1fr); }
+  }
+  .manage-stat {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5) var(--space-4);
+    text-align: center;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .manage-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .manage-stat__value {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--color-primary);
+  }
+  .manage-stat__label {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--space-1);
+  }
+  .course-grid {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  }
+  .course-admin-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .course-admin-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .course-admin-card__media {
+    height: 10rem;
+    background: linear-gradient(135deg, var(--color-primary-light), #e0e7ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    position: relative;
+  }
+  .course-admin-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .course-admin-card__badge {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+  .course-admin-card__badge--published {
+    background: #dcfce7;
+    color: #14532d;
+  }
+  .course-admin-card__badge--draft {
+    background: #fef3c7;
+    color: #78350f;
+  }
+  .course-admin-card__body {
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1 1 auto;
+  }
+  .course-admin-card__title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .course-admin-card__text {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .course-admin-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+  .course-admin-card__actions {
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .btn-course-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color var(--transition), border-color var(--transition), color var(--transition);
+    text-decoration: none;
+  }
+  .btn-content {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    border-color: var(--color-primary-light);
+  }
+  .btn-content:hover {
+    background: var(--color-primary);
+    color: #fff;
+  }
+  .btn-edit {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #dbeafe;
+  }
+  .btn-edit:hover {
+    background: #2563eb;
+    color: #fff;
+  }
+  .btn-analytics {
+    background: #fef3c7;
+    color: #78350f;
+    border-color: #fef3c7;
+  }
+  .btn-analytics:hover {
+    background: #d97706;
+    color: #fff;
+  }
+  .btn-delete {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fee2e2;
+  }
+  .btn-delete:hover {
+    background: #dc2626;
+    color: #fff;
+  }
+  .btn-view {
+    background: #f1f5f9;
+    color: #334155;
+    border-color: #e2e8f0;
+  }
+  .btn-view:hover {
+    background: #475569;
+    color: #fff;
+  }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'assets/css/manage_courses.css' %}">
-{% endblock %}
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
 
-{% block course_content %}
-<!-- Indicador de Gestión -->
-{% include "courses/partials/_management_indicator.html" with courses=courses total_students=total_students avg_rating=avg_rating %}
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
 
-<!-- Estadísticas del Dashboard -->
-{% include "courses/partials/_dashboard_stats.html" with courses=courses total_students=total_students total_duration=total_duration avg_rating=avg_rating %}
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% for category in categories %}
+              <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-<!-- Lista de Cursos -->
-{% if courses %}
-<div class="row">
-    {% for course in courses %}
-    {% include "courses/partials/_course_card_modern.html" with course=course %}
-    {% endfor %}
-</div>
-{% include "courses/partials/_quick_actions.html" %}
-{% else %}
-{% include "courses/partials/_empty_state.html" %}
-{% endif %}
-{% endblock %}
+  <main id="main-content">
+    <section class="manage-header">
+      <div class="manage-header__inner">
+        <div>
+          <h1 class="manage-header__title">Panel de Gestión</h1>
+          <p class="manage-header__subtitle">Administra tus cursos y contenido educativo</p>
+        </div>
+        <div class="manage-stats" style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+          <div style="text-align: center;">
+            <div style="font-size: var(--text-2xl); font-weight: 800;">{{ courses|length }}</div>
+            <div style="font-size: var(--text-sm); color: #cbd5e1;">Cursos</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: var(--text-2xl); font-weight: 800;">{{ total_students }}</div>
+            <div style="font-size: var(--text-sm); color: #cbd5e1;">Estudiantes</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: var(--text-2xl); font-weight: 800;">{{ avg_rating|floatformat:1|default:0 }}</div>
+            <div style="font-size: var(--text-sm); color: #cbd5e1;">Calificación</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        {% if courses %}
+        <div class="course-grid">
+          {% for course in courses %}
+          <article class="course-admin-card">
+            <div class="course-admin-card__media">
+              {% if course.thumbnail %}
+              <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+              {% else %}
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+              </svg>
+              {% endif %}
+              <span class="course-admin-card__badge {% if course.is_published %}course-admin-card__badge--published{% else %}course-admin-card__badge--draft{% endif %}">
+                {% if course.is_published %}Publicado{% else %}Borrador{% endif %}
+              </span>
+            </div>
+            <div class="course-admin-card__body">
+              <h3 class="course-admin-card__title">{{ course.title }}</h3>
+              <p class="course-admin-card__text">{{ course.short_description }}</p>
+              <div class="course-admin-card__meta">
+                <span>{{ course.duration_hours }}h</span>
+                <span>{{ course.students_count }} estudiantes</span>
+                {% if course.average_rating %}
+                <span>★ {{ course.average_rating|floatformat:1 }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="course-admin-card__actions">
+              <a href="{% url 'courses:manage_content' course.slug %}" class="btn-course-action btn-content" title="Gestionar contenido">
+                <span>📁</span> Contenido
+              </a>
+              <a href="{% url 'courses:edit_course' course.slug %}" class="btn-course-action btn-edit" title="Editar curso">
+                <span>✏️</span> Editar
+              </a>
+              <a href="{% url 'courses:course_analytics' course.slug %}" class="btn-course-action btn-analytics" title="Ver analíticas">
+                <span>📊</span> Analíticas
+              </a>
+              <a href="{% url 'courses:delete_course' course.slug %}" class="btn-course-action btn-delete" title="Eliminar curso">
+                <span>🗑</span> Eliminar
+              </a>
+              <a href="{% url 'courses:course_detail' course.slug %}" class="btn-course-action btn-view" title="Ver curso">
+                <span>👁</span> Ver
+              </a>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="course-card" style="padding: var(--space-6); text-align: center;">
+          <div class="course-card__body">
+            <p class="text-muted" style="font-size: var(--text-lg);">Aún no tienes cursos creados.</p>
+            <a href="{% url 'courses:create_course' %}" class="btn btn-primary">Crear primer curso</a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+  </script>
+</body>
+</html>

@@ -1,239 +1,281 @@
-{% extends "courses/base.html" %}
 {% load static %}
-
-{% block title %}{{ title }} - {{ course.title }}{% endblock %}
-
-{% block extra_head %}
-<style>
-.form-container {
-    background: #f8f9fa;
-    min-height: 100vh;
-    padding: 2rem 0;
-}
-
-.form-card {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-    overflow: hidden;
-}
-
-.form-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 2rem;
-}
-
-.form-header h2 {
-    margin: 0;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} · {{ course.title }} · Cursos M360</title>
+  <meta name="description" content="Formulario de creación y edición de módulos.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  <style>
+  .form-page-header {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #fff;
+    padding: var(--space-8) 0;
+    margin-bottom: var(--space-8);
+  }
+  .form-page-header__inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+  }
+  .form-page-header__title {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    margin-bottom: var(--space-1);
+  }
+  .form-page-header__subtitle {
+    color: #cbd5e1;
+    font-size: var(--text-sm);
+  }
+  .form-editor {
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+  .course-context {
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-6);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .course-context__icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-xl);
+    flex-shrink: 0;
+  }
+  .form-section {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+  .form-section__title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .form-field {
+    margin-bottom: var(--space-4);
+  }
+  .form-field label {
+    display: block;
+    font-size: var(--text-sm);
     font-weight: 600;
-}
-
-.form-body {
-    padding: 2rem;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-label {
-    font-weight: 600;
-    color: #2d3748;
-    margin-bottom: 0.5rem;
-}
-
-.form-control {
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.form-text {
-    font-size: 0.875rem;
-    color: #718096;
-    margin-top: 0.25rem;
-}
-
-.btn-submit {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    border-radius: 8px;
-    padding: 0.75rem 2rem;
-    font-weight: 600;
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    color: white;
-}
-
-.btn-cancel {
-    border: 2px solid #e2e8f0;
-    background: white;
-    color: #718096;
-    border-radius: 8px;
-    padding: 0.75rem 2rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.btn-cancel:hover {
-    border-color: #cbd5e0;
-    background: #f8f9fa;
-    color: #4a5568;
-    text-decoration: none;
-}
-
-.course-info {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.course-info h5 {
-    color: #2d3748;
-    margin-bottom: 0.5rem;
-}
-
-.course-info p {
-    color: #718096;
-    margin: 0;
-}
-
-@media (max-width: 768px) {
-    .form-header {
-        padding: 1.5rem;
+    margin-bottom: var(--space-1);
+    color: var(--color-text);
+  }
+  .form-field input[type="text"],
+  .form-field input[type="number"],
+  .form-field select,
+  .form-field textarea {
+    display: block;
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-base);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .form-field input:focus,
+  .form-field select:focus,
+  .form-field textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+  .form-field textarea {
+    resize: vertical;
+    min-height: 6rem;
+  }
+  .form-field .field-errors {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-danger);
+  }
+  .form-hint {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-1);
+  }
+  .form-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  @media (max-width: 640px) {
+    .form-actions {
+      flex-direction: column;
+      align-items: stretch;
     }
+  }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-    .form-body {
-        padding: 1.5rem;
-    }
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
 
-    .btn-submit,
-    .btn-cancel {
-        width: 100%;
-        margin-bottom: 0.5rem;
-    }
-}
-</style>
-{% endblock %}
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
 
-{% block course_content %}
-<div class="form-container">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Información del curso -->
-                <div class="course-info">
-                    <h5><i class="bi bi-journal-bookmark me-2"></i>{{ course.title }}</h5>
-                    <p>Configurando módulo para este curso</p>
-                </div>
-
-                <!-- Formulario -->
-                <div class="form-card">
-                    <div class="form-header">
-                        <h2><i class="bi bi-folder-plus me-2"></i>{{ title }}</h2>
-                    </div>
-
-                    <div class="form-body">
-                        <form method="post">
-                            {% csrf_token %}
-
-                            <!-- Campo Título -->
-                            <div class="form-group">
-                                <label for="{{ form.title.id_for_label }}" class="form-label">
-                                    <i class="bi bi-tag me-1"></i>Título del Módulo *
-                                </label>
-                                {{ form.title }}
-                                {% if form.title.errors %}
-                                    <div class="text-danger mt-1">
-                                        {% for error in form.title.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text">
-                                    Elige un título descriptivo que indique claramente el contenido del módulo
-                                </div>
-                            </div>
-
-                            <!-- Campo Descripción -->
-                            <div class="form-group">
-                                <label for="{{ form.description.id_for_label }}" class="form-label">
-                                    <i class="bi bi-textarea me-1"></i>Descripción
-                                </label>
-                                {{ form.description }}
-                                {% if form.description.errors %}
-                                    <div class="text-danger mt-1">
-                                        {% for error in form.description.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text">
-                                    Describe brevemente qué aprenderán los estudiantes en este módulo
-                                </div>
-                            </div>
-
-                            <!-- Campo Orden -->
-                            <div class="form-group">
-                                <label for="{{ form.order.id_for_label }}" class="form-label">
-                                    <i class="bi bi-sort-numeric-down me-1"></i>Orden del Módulo
-                                </label>
-                                {{ form.order }}
-                                {% if form.order.errors %}
-                                    <div class="text-danger mt-1">
-                                        {% for error in form.order.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text">
-                                    Número que determina la posición del módulo en el curso (1, 2, 3...)
-                                </div>
-                            </div>
-
-                            <!-- Botones -->
-                            <div class="d-flex justify-content-between align-items-center mt-4">
-                                <a href="{% url 'courses:manage_content' course.slug %}" class="btn-cancel">
-                                    <i class="bi bi-arrow-left me-1"></i>Cancelar
-                                </a>
-                                <button type="submit" class="btn-submit">
-                                    <i class="bi bi-check-circle me-1"></i>
-                                    {% if module %}Actualizar Módulo{% else %}Crear Módulo{% endif %}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Consejos -->
-                <div class="mt-4">
-                    <div class="alert alert-info border-0 rounded-3">
-                        <h6 class="alert-heading"><i class="bi bi-lightbulb me-2"></i>Consejos para crear módulos efectivos:</h6>
-                        <ul class="mb-0 mt-2">
-                            <li>Usa títulos claros y descriptivos</li>
-                            <li>Organiza el contenido de manera lógica</li>
-                            <li>Mantén los módulos con una duración similar</li>
-                            <li>Incluye objetivos de aprendizaje en la descripción</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% for category in categories %}
+              <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
     </div>
-</div>
-{% endblock %}
+  </header>
+
+  <main id="main-content">
+    <section class="form-page-header">
+      <div class="form-page-header__inner">
+        <h1 class="form-page-header__title">{{ title }}</h1>
+        <p class="form-page-header__subtitle">Configurando módulo para: {{ course.title }}</p>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container">
+        <div class="form-editor">
+          <div class="course-context">
+            <div class="course-context__icon">📚</div>
+            <div>
+              <div style="font-weight: 700;">{{ course.title }}</div>
+              <div class="text-muted" style="font-size: var(--text-sm);">Curso seleccionado</div>
+            </div>
+          </div>
+
+          <form method="post" class="stack stack--lg">
+            {% csrf_token %}
+
+            <div class="form-section">
+              <h2 class="form-section__title">Información del módulo</h2>
+              <div class="form-field">
+                <label for="{{ form.title.id_for_label }}">Título del módulo *</label>
+                <input type="text"
+                       name="{{ form.title.name }}"
+                       id="{{ form.title.id_for_label }}"
+                       value="{{ form.title.value|default:'' }}"
+                       required>
+                {% if form.title.errors %}
+                <div class="field-errors">{{ form.title.errors|join:", " }}</div>
+                {% endif %}
+                <p class="form-hint">Elige un título descriptivo que indique claramente el contenido del módulo.</p>
+              </div>
+
+              <div class="form-field">
+                <label for="{{ form.description.id_for_label }}">Descripción</label>
+                <textarea name="{{ form.description.name }}"
+                          id="{{ form.description.id_for_label }}"
+                          rows="4">{{ form.description.value|default:'' }}</textarea>
+                {% if form.description.errors %}
+                <div class="field-errors">{{ form.description.errors|join:", " }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Guardar módulo</button>
+              <a href="{% url 'courses:modules_overview' %}" class="btn btn-outline">Cancelar</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+  </script>
+</body>
+</html>
