@@ -26,7 +26,9 @@ python manage.py migrate contenttypes --verbosity=1
 python manage.py migrate sessions --verbosity=1
 
 echo "Applying remaining migrations..."
-python manage.py migrate --no-input --verbosity=1
+# --fake-initial: aplica el 0001_initial como fake si las tablas ya existen
+# con el mismo schema (seguro tras regenerar migraciones contra Postgres).
+python manage.py migrate --fake-initial --no-input --verbosity=1
 
 # Collect static files
 echo "Collecting static files..."
