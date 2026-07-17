@@ -7,9 +7,34 @@ from django.db import migrations, models
 def rename_autor_to_created_by(apps, schema_editor):
     db = schema_editor.connection
     cursor = db.cursor()
-    cursor.execute(
-        "ALTER TABLE bitacora_bitacoraentry RENAME COLUMN autor_id TO created_by_id;"
-    )
+    if db.vendor == 'postgresql':
+        cursor.execute(
+            'ALTER TABLE bitacora_bitacoraentry RENAME COLUMN autor_id TO created_by_id;'
+        )
+    else:
+        try:
+            cursor.execute(
+                'ALTER TABLE bitacora_bitacoraentry CHANGE autor_id created_by_id INT;'
+            )
+        except Exception:
+            pass
+    cursor.close()
+
+
+def add_is_active_if_missing(apps, schema_editor):
+    db = schema_editor.connection
+    cursor = db.cursor()
+    if db.vendor == 'postgresql':
+        cursor.execute(
+            'ALTER TABLE bitacora_bitacoraentry ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;'
+        )
+    else:
+        try:
+            cursor.execute(
+                'ALTER TABLE bitacora_bitacoraentry ADD COLUMN is_active BOOLEAN DEFAULT TRUE;'
+            )
+        except Exception:
+            pass
     cursor.close()
 
 
@@ -33,10 +58,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Rename real en BD: autor_id -> created_by_id
         migrations.RunPython(rename_autor_to_created_by, migrations.RunPython.noop),
+        migrations.AddField(
+            model_name='bitacoraentry',
+            name='is_active',
+            field=models.BooleanField(default=True),
+        ),
+        migrations.RunPython(add_is_active_if_missing, migrations.RunPython.noop),
 
-        # Sincronizar estado Django sin tocar BD más allá de is_active
         migrations.SeparateDatabaseAndState(
             state_operations=[
                 migrations.RenameField(
@@ -44,109 +73,10 @@ class Migration(migrations.Migration):
                     old_name='autor',
                     new_name='created_by',
                 ),
-                migrations.AlterField(
-                    model_name='bitacoraentry',
-                    name='created_by',
-                    field=models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name='bitacora_entries',
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-                migrations.AddField(
-                    model_name='bitacoraentry',
-                    name='is_active',
-                    field=models.BooleanField(default=True),
-                ),
-                migrations.AlterField(
-                    model_name='bitacoraentry',
-                    name='mood',
-                    field=models.CharField(
-                        blank=True,
-                        max_length=20,
-                        choices=[
-                            ('muy_bien', '😄 Muy bien'),
-                            ('bien',     '🙂 Bien'),
-                            ('neutral',  '😐 Neutral'),
-                            ('mal',      '😕 Mal'),
-                            ('muy_mal',  '😞 Muy mal'),
-                        ],
-                    ),
-                ),
-                migrations.AlterField(
-                    model_name='bitacoraentry',
-                    name='categoria',
-                    field=models.CharField(
-                        default='personal',
-                        max_length=50,
-                        choices=[
-                            ('personal',  'Personal'),
-                            ('viaje',     'Viaje'),
-                            ('trabajo',   'Trabajo'),
-                            ('meta',      'Meta'),
-                            ('idea',      'Idea'),
-                            ('recuerdo',  'Recuerdo'),
-                            ('diario',    'Diario'),
-                            ('reflexion', 'Reflexión'),
-                        ],
-                    ),
-                ),
-                migrations.AlterField(
-                    model_name='bitacoraentry',
-                    name='related_event',
-                    field=models.ForeignKey(
-                        blank=True, null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        related_name='bitacora_entries',
-                        to='events.event',
-                    ),
-                ),
-                migrations.AlterField(
-                    model_name='bitacoraentry',
-                    name='related_task',
-                    field=models.ForeignKey(
-                        blank=True, null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        related_name='bitacora_entries',
-                        to='events.task',
-                    ),
-                ),
-                migrations.AlterField(
-                    model_name='bitacoraentry',
-                    name='related_project',
-                    field=models.ForeignKey(
-                        blank=True, null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        related_name='bitacora_entries',
-                        to='events.project',
-                    ),
-                ),
-                migrations.AlterField(
-                    model_name='bitacoraentry',
-                    name='related_room',
-                    field=models.ForeignKey(
-                        blank=True, null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        related_name='bitacora_entries',
-                        to='rooms.room',
-                    ),
-                ),
             ],
-            database_operations=[
-                migrations.RunSQL(
-                    sql=(
-                        "ALTER TABLE bitacora_bitacoraentry "
-                        "ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT TRUE;"
-                    ),
-                    reverse_sql=(
-                        "ALTER TABLE bitacora_bitacoraentry "
-                        "DROP COLUMN IF EXISTS is_active;"
-                    ),
-                ),
-            ],
+            database_operations=[],
         ),
 
-        # UUID temporales para el swap de PK
         migrations.AddField(
             model_name='bitacoraentry',
             name='uuid_new',
@@ -158,6 +88,5 @@ class Migration(migrations.Migration):
             field=models.UUIDField(null=True, editable=False),
         ),
 
-        # Poblar UUIDs en registros existentes
         migrations.RunPython(populate_uuids, migrations.RunPython.noop),
     ]

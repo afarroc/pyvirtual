@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
 
 from django.contrib.auth.models import Group
-User = get_user_model(), Group
+User = get_user_model()
 from django.contrib import messages
 from django.urls import reverse
 from django.core.exceptions import ValidationError
@@ -142,14 +142,14 @@ class SetupView(View):
                         login(request, user)
                         request.session['first_session'] = True
                         logger.info(f"Superuser authenticated and logged in: {user}")
-                        return redirect(reverse('setup') + '?step=2')
+                        return redirect(reverse('events:setup') + '?step=2')
                     else:
                         logger.error("Failed to authenticate newly created superuser")
                         messages.error(request, 'Error al autenticar el superusuario creado.')
                 else:
                     logger.info("Superuser already exists, redirecting to login")
                     messages.info(request, 'El superusuario ya existe. Por favor, inicie sesión.')
-                    return redirect(reverse('setup') + '?step=login')
+                    return redirect(reverse('events:setup') + '?step=login')
                     
             except Exception as e:
                 logger.error(f"Error creating superuser: {str(e)}", exc_info=True)
@@ -160,7 +160,7 @@ class SetupView(View):
                     error_message += '. Las migraciones pueden no haberse ejecutado aún.'
                 
                 messages.error(request, error_message)
-                return redirect(reverse('setup'))
+                return redirect(reverse('events:setup'))
     
         elif 'login_su' in request.POST:
             username = request.POST['username']
@@ -168,7 +168,7 @@ class SetupView(View):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect(reverse('setup') + '?step=2')
+                return redirect(reverse('events:setup') + '?step=2')
             else:
                 messages.error(request, 'Credenciales incorrectas.')
     
@@ -196,13 +196,13 @@ class SetupView(View):
     
                 profile.save()
                 messages.success(request, 'Profile created successfully!')
-                return redirect(reverse('setup') + '?step=3')
+                return redirect(reverse('events:setup') + '?step=3')
     
             except User.DoesNotExist:
                 messages.error(request, 'Superuser does not exist. Please create one first.')
             except Exception as e:
                 messages.error(request, f'Error creating profile: {str(e)}. Las tablas pueden no existir aún.')
-            return redirect(reverse('setup') + '?step=2')
+            return redirect(reverse('events:setup') + '?step=2')
     
         elif 'create_random_users' in request.POST:
             try:
@@ -257,7 +257,7 @@ class SetupView(View):
                 })
             except Exception as e:
                 messages.error(request, f'Error al crear usuarios: {str(e)}. Las tablas pueden no existir aún.')
-                return redirect(reverse('setup'))
+                return redirect(reverse('events:setup'))
     
         elif 'create_group' in request.POST:
             try:
@@ -296,7 +296,7 @@ class SetupView(View):
                 completed_steps = ['1', '2', '3', '4']
                 logger.info(f"DEBUG: About to redirect to step 5. completed_steps: {completed_steps}")
                 logger.info("=== DEBUG POST REQUEST END (SUCCESS) ===")
-                return redirect(reverse('setup') + '?step=5')
+                return redirect(reverse('events:setup') + '?step=5')
     
             except Exception as e:
                 # Logging de error detallado
@@ -306,7 +306,7 @@ class SetupView(View):
                 logger.error(f"Usuarios que se intentaban asignar: {usernames}")
     
                 messages.error(request, f'Error al crear grupo: {str(e)}. Las tablas pueden no existir aún.')
-                return redirect(reverse('setup'))
+                return redirect(reverse('events:setup'))
     
         elif 'create_another_su' in request.POST:
             try:
@@ -330,9 +330,9 @@ class SetupView(View):
                     messages.info(request, f'- {status}')
             else:
                 messages.info(request, 'All initial statuses already exist.')
-            return redirect(reverse('setup') + '?step=4')
+            return redirect(reverse('events:setup') + '?step=4')
     
         # Si llegamos aquí sin haber manejado ninguna acción, redirigir de vuelta
         logger.warning("No se manejó ninguna acción POST específica")
-        return redirect(reverse('setup'))
+        return redirect(reverse('events:setup'))
         
