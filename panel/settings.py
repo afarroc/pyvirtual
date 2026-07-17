@@ -103,16 +103,24 @@ REDIS_HOST     = config('REDIS_HOST',     default='localhost')
 REDIS_PORT     = config('REDIS_PORT',     default=6379, cast=int)
 REDIS_PASSWORD = config('REDIS_PASSWORD', default='')
 REDIS_DB       = config('REDIS_DB',       default=0, cast=int)
-REDIS_URL      = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+# Respeta REDIS_URL del entorno (si se provee, usarlo tal cual: permite redis:// o rediss://
+# segun la instancia). Si no, construir por componentes.
+REDIS_URL      = config('REDIS_URL', default=f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}")
 
 # Cache — Redis con FileBasedCache como fallback
 def _build_caches():
     import importlib
-    _url = (
-        f"rediss://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
-        if not DEBUG else
-        f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
-    )
+    # Si REDIS_URL viene del entorno, respetalo tal cual (redis:// o rediss://).
+    # Si no, construir por componentes forzando TLS en produccion.
+    _env_redis_url = os.environ.get('REDIS_URL')
+    if _env_redis_url:
+        _url = _env_redis_url
+    else:
+        _url = (
+            f"rediss://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+            if not DEBUG else
+            f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+        )
     try:
         importlib.import_module('django_redis')
         import redis as _redis
@@ -164,12 +172,18 @@ CHANNEL_LAYERS = {
 }
 
 if not DEBUG:
-    CHANNEL_LAYERS['default']['CONFIG']['hosts'] = [
-        {
-            'address': f"rediss://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
-            'ssl_cert_reqs': None,
-        }
-    ]
+    # Si REDIS_URL viene del entorno, respetalo tal cual (redis:// o rediss://).
+    # Si no, construir por componentes forzando TLS.
+    _env_redis_url = os.environ.get('REDIS_URL')
+    if _env_redis_url:
+        CHANNEL_LAYERS['default']['CONFIG']['hosts'] = [_env_redis_url]
+    else:
+        CHANNEL_LAYERS['default']['CONFIG']['hosts'] = [
+            {
+                'address': f"rediss://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+                'ssl_cert_reqs': None,
+            }
+        ]
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE    = True
     CSRF_TRUSTED_ORIGINS  = (
