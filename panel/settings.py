@@ -191,15 +191,24 @@ if not DEBUG:
     )
 
 # Bases de datos
+# Límite de conexiones de Aiven (plan con pocos slots para avnadmin, ~12-16).
+# Para no saturar el pool: cerramos la conexión tras cada request (CONN_MAX_AGE=0)
+# y acotamos el número de workers de Daphne (ver comentario abajo).
+# Daphne 4.x corre sobre asyncio: NO usar django-db-geventpool (requiere monkey-patch
+# gevent, incompatible con el loop async). El acotamiento por proceso es la via robusta.
+MAX_DB_CONNS_PER_PROCESS = 1  # una conexion viva por worker a la vez
+
 if DEBUG:
     database_url = config('DATABASE_URL', default='')
     if database_url:
         DATABASES = {
-            'default': dj_database_url.config(
-                default=database_url,
-                conn_max_age=600,
-                ssl_require=True,
-            )
+            'default': {
+                **dj_database_url.config(
+                    default=database_url,
+                    ssl_require=True,
+                ),
+                'CONN_MAX_AGE': 0,
+            }
         }
     else:
         DATABASES = {
@@ -214,13 +223,21 @@ if DEBUG:
             }
         }
 else:
+    # Una sola base: DATABASE_URL del entorno (Render) es la unica fuente de BD.
     DATABASES = {
-        'default': dj_database_url.config(
-            default=config('DATABASE_URL'),
-            conn_max_age=600,
-            ssl_require=True,
-        )
+        'default': {
+            **dj_database_url.config(
+                default=config('DATABASE_URL'),
+                ssl_require=True,
+            ),
+            'CONN_MAX_AGE': 0,
+        }
     }
+
+# Recomendacion de arranque para respetar el limite de slots de Aiven:
+#   daphne -p 8001 -b 127.0.0.1 -w 4 panel.asgi:application
+# (4 workers x 1 conexion = 4 slots; deja margen sobre el limite de ~12-16).
+# En produccion (Render) reducir a 2-3 workers si el plan Aiven es el mismo.
 
 # Auth
 AUTH_USER_MODEL = 'accounts.User'

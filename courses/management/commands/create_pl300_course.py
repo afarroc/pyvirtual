@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
+from django.utils.crypto import get_random_string
 
 User = get_user_model()
 from courses.models import Course, Module, Lesson, CourseCategory
@@ -276,9 +277,17 @@ class Command(BaseCommand):
             }
         )
         if created:
-            user.set_password('Pl300Demo2026!')
+            # Contraseña generada en runtime (nunca hardcodeada en el repo).
+            # El usuario debe cambiarla vía admin o reset de password en producción.
+            temp_password = get_random_string(16)
+            user.set_password(temp_password)
             user.save()
-            self.stdout.write(self.style.SUCCESS(f'Usuario tutor "{username}" creado.'))
+            self.stdout.write(self.style.SUCCESS(
+                f'Usuario tutor "{username}" creado. Password temporal generado: {temp_password}'
+            ))
+            self.stdout.write(self.style.WARNING(
+                'IMPORTANTE: anota el password temporal o cambialo via admin; no se vuelve a mostrar.'
+            ))
 
         if not hasattr(user, 'cv') or user.cv is None:
             Curriculum.objects.create(
