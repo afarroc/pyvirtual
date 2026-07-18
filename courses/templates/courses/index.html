@@ -15,7 +15,7 @@
                                 <i class="fas fa-search me-2"></i>Explorar Cursos
                             </a>
                             {% if not user.is_authenticated %}
-                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg">
+                            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
                                 <i class="fas fa-user-plus me-2"></i>Comenzar Ahora
                             </a>
                             {% endif %}
@@ -222,7 +222,7 @@
                             <i class="fas fa-tachometer-alt me-2"></i>Mi Dashboard
                         </a>
                         {% else %}
-                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg">
+                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
                             <i class="fas fa-user-plus me-2"></i>Crear Cuenta
                         </a>
                         {% endif %}

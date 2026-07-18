@@ -338,25 +338,54 @@
     gap: var(--space-2);
     flex-wrap: wrap;
   }
-  .lesson-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-  }
-  @media (max-width: 767px) {
-    .learning-layout {
-      grid-template-columns: 1fr;
-    }
-    .learning-sidebar {
-      position: static;
-      max-height: none;
-    }
-  }
-  </style>
-  {% endblock %}
+   .lesson-nav {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     gap: var(--space-3);
+     padding-top: var(--space-4);
+     border-top: 1px solid var(--color-border);
+   }
+   .lesson-tabs {
+     border: 1px solid var(--color-border);
+     border-radius: var(--radius-lg);
+     overflow: hidden;
+     margin-bottom: var(--space-4);
+   }
+   .lesson-tabs__nav {
+     display: flex;
+     border-bottom: 1px solid var(--color-border);
+     background: var(--color-surface);
+   }
+   .lesson-tabs__tab {
+     flex: 1;
+     padding: var(--space-3) var(--space-4);
+     border: none;
+     background: transparent;
+     font-weight: 600;
+     color: var(--color-text-secondary);
+     cursor: pointer;
+     border-bottom: 2px solid transparent;
+   }
+   .lesson-tabs__tab[aria-selected="true"] {
+     color: var(--color-primary);
+     border-bottom-color: var(--color-primary);
+   }
+   .lesson-tabs__panel {
+     padding: var(--space-4);
+     background: #fff;
+   }
+   @media (max-width: 767px) {
+     .learning-layout {
+       grid-template-columns: 1fr;
+     }
+     .learning-sidebar {
+       position: static;
+       max-height: none;
+     }
+   }
+   </style>
+   {% endblock %}
 </head>
 <body data-lesson-completed="{{ lesson_progress.completed|yesno:'true,false' }}">
   <a class="skip-link" href="#main-content">Saltar al contenido</a>
@@ -507,15 +536,103 @@
                 </div>
 
                 {% elif current_lesson.lesson_type == 'quiz' %}
+                {% if current_lesson.content %}
+                <div class="lesson-tabs">
+                  <div class="lesson-tabs__nav" role="tablist">
+                    <button class="lesson-tabs__tab" role="tab" aria-selected="true" data-tab="tab-content" id="tab-content-trigger">Contenido</button>
+                    <button class="lesson-tabs__tab" role="tab" aria-selected="false" data-tab="tab-quiz" id="tab-quiz-trigger">Cuestionario</button>
+                  </div>
+
+                  <div class="lesson-tabs__panel" id="tab-content" role="tabpanel" aria-labelledby="tab-content-trigger">
+                    <div class="lesson-content">
+                      {{ current_lesson.content|safe }}
+                    </div>
+                  </div>
+
+                  <div class="lesson-tabs__panel" id="tab-quiz" role="tabpanel" aria-labelledby="tab-quiz-trigger" hidden>
+                    <div class="lesson-content">
+                      <h2>Cuestionario</h2>
+                      {% if lesson_progress.completed %}
+                      <div class="alert alert-success">
+                        <strong>Quiz completado.</strong> Puntuación: {{ lesson_progress.score|floatformat:1 }}%
+                      </div>
+                      {% for question in current_lesson.quiz_questions %}
+                      <div style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-3); background: var(--color-surface);">
+                        <h3 style="font-size: var(--text-base); font-weight: 600; margin-bottom: var(--space-3);">{{ forloop.counter }}. {{ question.question }}</h3>
+                        {% for option in question.options %}
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" disabled
+                                 name="question_{{ forloop.parentloop.counter }}"
+                                 id="q{{ forloop.parentloop.counter }}_o{{ forloop.counter }}"
+                                 value="{{ option }}"
+                                 {% if question.correct_answer == option %}checked{% endif %}>
+                          <label class="form-check-label" for="q{{ forloop.parentloop.counter }}_o{{ forloop.counter }}">
+                            {{ option }}
+                            {% if question.correct_answer == option %}
+                              <strong style="color: var(--color-success);"> ✓ Correcta</strong>
+                            {% endif %}
+                          </label>
+                        </div>
+                        {% endfor %}
+                      </div>
+                      {% endfor %}
+                      {% else %}
+                      <p class="text-muted">Responde las siguientes preguntas para completar esta lección.</p>
+                      <form method="post">
+                        {% csrf_token %}
+                        {% for question in current_lesson.quiz_questions %}
+                        <div style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-3); background: var(--color-surface);">
+                          <h3 style="font-size: var(--text-base); font-weight: 600; margin-bottom: var(--space-3);">{{ forloop.counter }}. {{ question.question }}</h3>
+                          {% for option in question.options %}
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio"
+                                   name="question_{{ forloop.parentloop.counter }}"
+                                   id="q{{ forloop.parentloop.counter }}_o{{ forloop.counter }}"
+                                   value="{{ option }}"
+                                   {% if question.correct_answer == option %}data-correct="true"{% endif %}
+                                   required>
+                            <label class="form-check-label" for="q{{ forloop.parentloop.counter }}_o{{ forloop.counter }}">
+                              {{ option }}
+                            </label>
+                          </div>
+                          {% endfor %}
+                        </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary">Enviar respuestas</button>
+                      </form>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% else %}
                 <div class="lesson-content">
                   <h2>Cuestionario</h2>
-                  <p class="text-muted">Responde las siguientes preguntas para completar esta lección.</p>
-
                   {% if lesson_progress.completed %}
-                  <div class="alert alert-info">
-                    <strong>Ya completaste este quiz.</strong> Tu puntuación: {{ lesson_progress.score|floatformat:1 }}%
+                  <div class="alert alert-success">
+                    <strong>Quiz completado.</strong> Puntuación: {{ lesson_progress.score|floatformat:1 }}%
                   </div>
+                  {% for question in current_lesson.quiz_questions %}
+                  <div style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-3); background: var(--color-surface);">
+                    <h3 style="font-size: var(--text-base); font-weight: 600; margin-bottom: var(--space-3);">{{ forloop.counter }}. {{ question.question }}</h3>
+                    {% for option in question.options %}
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" disabled
+                             name="question_{{ forloop.parentloop.counter }}"
+                             id="q{{ forloop.parentloop.counter }}_o{{ forloop.counter }}"
+                             value="{{ option }}"
+                             {% if question.correct_answer == option %}checked{% endif %}>
+                      <label class="form-check-label" for="q{{ forloop.parentloop.counter }}_o{{ forloop.counter }}">
+                        {{ option }}
+                        {% if question.correct_answer == option %}
+                          <strong style="color: var(--color-success);"> ✓ Correcta</strong>
+                        {% endif %}
+                      </label>
+                    </div>
+                    {% endfor %}
+                  </div>
+                  {% endfor %}
                   {% else %}
+                  <p class="text-muted">Responde las siguientes preguntas para completar esta lección.</p>
                   <form method="post">
                     {% csrf_token %}
                     {% for question in current_lesson.quiz_questions %}
@@ -540,6 +657,7 @@
                   </form>
                   {% endif %}
                 </div>
+                {% endif %}
 
                 {% elif current_lesson.lesson_type == 'assignment' %}
                 <div class="lesson-content">
@@ -829,6 +947,27 @@
           submitButton.disabled = true;
           submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Procesando...';
         }
+      });
+    }
+
+    const lessonTabs = document.querySelector('.lesson-tabs');
+    if (lessonTabs) {
+      const tabButtons = lessonTabs.querySelectorAll('.lesson-tabs__tab');
+      const tabPanels = lessonTabs.querySelectorAll('.lesson-tabs__panel');
+
+      tabButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+          const targetTab = this.getAttribute('data-tab');
+
+          tabButtons.forEach(function(btn) {
+            btn.setAttribute('aria-selected', 'false');
+          });
+          this.setAttribute('aria-selected', 'true');
+
+          tabPanels.forEach(function(panel) {
+            panel.hidden = panel.id !== targetTab;
+          });
+        });
       });
     }
   });
