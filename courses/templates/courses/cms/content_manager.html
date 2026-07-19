@@ -1,4 +1,4 @@
-{% extends "courses/cms_base.html" %}
+{% extends "courses/components/cms_base.html" %}
 {% load static %}
 
 {% block title %}{{ title }} - Management360{% endblock %}
@@ -74,10 +74,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <!-- Bloques Recientes -->
     <div class="recent-blocks-section">
-        {% include "courses/includes/content_manager_recent_blocks.html" %}
+        {% include "courses/components/content_manager_recent_blocks.html" %}
     </div>
 </div>
 
 <!-- Modal de Vista Previa -->
-{% include "courses/includes/content_manager_modal.html" %}
+{% include "courses/components/content_manager_modal.html" %}
 {% endblock %}

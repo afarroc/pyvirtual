@@ -32,7 +32,7 @@ Los estilos utilizan un sistema de variables CSS definido en `static/assets/css/
 ## 🧩 Componentes Disponibles
 
 ### 1. `_course_card_modern.html`
-**Uso**: `{% include "courses/partials/_course_card_modern.html" with course=course %}`
+**Uso**: `{% include "courses/components/_course_card_modern.html" with course=course %}`
 
 **Parámetros requeridos**:
 - `course`: Objeto del curso con todos sus atributos
@@ -46,7 +46,7 @@ Los estilos utilizan un sistema de variables CSS definido en `static/assets/css/
 - Indicador de estado (Publicado/Borrador)
 
 ### 2. `_management_indicator.html`
-**Uso**: `{% include "courses/partials/_management_indicator.html" with courses=courses total_students=total_students avg_rating=avg_rating %}`
+**Uso**: `{% include "courses/components/_management_indicator.html" with courses=courses total_students=total_students avg_rating=avg_rating %}`
 
 **Parámetros requeridos**:
 - `courses`: QuerySet de cursos
@@ -60,7 +60,7 @@ Los estilos utilizan un sistema de variables CSS definido en `static/assets/css/
 - Patrón de fondo sutil
 
 ### 3. `_dashboard_stats.html`
-**Uso**: `{% include "courses/partials/_dashboard_stats.html" with courses=courses total_students=total_students total_duration=total_duration avg_rating=avg_rating %}`
+**Uso**: `{% include "courses/components/_dashboard_stats.html" with courses=courses total_students=total_students total_duration=total_duration avg_rating=avg_rating %}`
 
 **Parámetros requeridos**:
 - `courses`: QuerySet de cursos
@@ -74,7 +74,7 @@ Los estilos utilizan un sistema de variables CSS definido en `static/assets/css/
 - Diseño consistente con el indicador
 
 ### 4. `_quick_actions.html`
-**Uso**: `{% include "courses/partials/_quick_actions.html" %}`
+**Uso**: `{% include "courses/components/_quick_actions.html" %}`
 
 **Parámetros**: Ninguno requerido
 
@@ -85,7 +85,7 @@ Los estilos utilizan un sistema de variables CSS definido en `static/assets/css/
 - Grid adaptable
 
 ### 5. `_empty_state.html`
-**Uso**: `{% include "courses/partials/_empty_state.html" %}`
+**Uso**: `{% include "courses/components/_empty_state.html" %}`
 
 **Parámetros**: Ninguno requerido
 
@@ -108,17 +108,17 @@ Los estilos utilizan un sistema de variables CSS definido en `static/assets/css/
 
 {% block course_content %}
 <!-- Usar componentes -->
-{% include "courses/partials/_management_indicator.html" with courses=courses total_students=total_students avg_rating=avg_rating %}
+{% include "courses/components/_management_indicator.html" with courses=courses total_students=total_students avg_rating=avg_rating %}
 
 {% if courses %}
 <div class="row">
     {% for course in courses %}
-    {% include "courses/partials/_course_card_modern.html" with course=course %}
+    {% include "courses/components/_course_card_modern.html" with course=course %}
     {% endfor %}
 </div>
-{% include "courses/partials/_quick_actions.html" %}
+{% include "courses/components/_quick_actions.html" %}
 {% else %}
-{% include "courses/partials/_empty_state.html" %}
+{% include "courses/components/_empty_state.html" %}
 {% endif %}
 {% endblock %}
 ```
