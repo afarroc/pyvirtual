@@ -1,6 +1,6 @@
-{% extends "courses/base.html" %}
+{% extends "courses/base_itcss.html" %}
 
-{% block course_content %}
+{% block content %}
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -26,7 +26,7 @@
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 
-                        <div class="row">
+                        <div class="lessons-filters-row">
                             <div class="col-md-8">
                                 <div class="mb-3">
                                     <label for="{{ form.title.id_for_label }}" class="form-label">
@@ -38,7 +38,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="filter-field filter-field--wide">
                                 <div class="mb-3">
                                     <label for="{{ form.level.id_for_label }}" class="form-label">
                                         <i class="fas fa-chart-line me-1"></i>Nivel *
@@ -61,8 +61,8 @@
                             {% endif %}
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6">
+                        <div class="lessons-filters-row">
+                            <div class="stats-col">
                                 <div class="mb-3">
                                     <label for="{{ form.price.id_for_label }}" class="form-label">
                                         <i class="fas fa-dollar-sign me-1"></i>Precio (USD) *
@@ -74,7 +74,7 @@
                                     <small class="text-muted">0 = Gratuito</small>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="stats-col">
                                 <div class="mb-3">
                                     <label for="{{ form.duration_hours.id_for_label }}" class="form-label">
                                         <i class="fas fa-clock me-1"></i>Duración (horas) *
@@ -119,8 +119,8 @@
                             <small class="text-muted">Formatos: JPG, PNG. Tamaño recomendado: 1280x720px</small>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6">
+                        <div class="lessons-filters-row">
+                            <div class="stats-col">
                                 <div class="form-check mb-3">
                                     {{ form.is_published }}
                                     <label for="{{ form.is_published.id_for_label }}" class="form-check-label">
@@ -128,7 +128,7 @@
                                     </label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="stats-col">
                                 <div class="form-check mb-3">
                                     {{ form.is_featured }}
                                     <label for="{{ form.is_featured.id_for_label }}" class="form-check-label">

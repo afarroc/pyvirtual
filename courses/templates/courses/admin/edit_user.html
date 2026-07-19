@@ -1,448 +1,573 @@
-{% extends "courses/base.html" %}
 {% load static %}
-
-{% block title %}Editar Usuario - {{ block.super }}{% endblock %}
-
-{% block extra_head %}
-<style>
-.edit-user-container {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.form-section {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.form-section h4 {
-    color: #495057;
-    margin-bottom: 1rem;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editar Usuario · Cursos M360</title>
+  <meta name="description" content="Editar información de usuario.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  <style>
+  .edit-user-page {
+    background: var(--color-background);
+    min-height: 100vh;
+    padding: var(--space-8) 0;
+  }
+  .edit-user-header {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .edit-user-header__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .edit-user-header__title {
+    margin: 0 0 var(--space-1) 0;
+    font-size: var(--text-2xl);
+    font-weight: 800;
+  }
+  .edit-user-header__subtitle {
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+  .edit-user-container {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .form-section {
+    background: var(--color-background);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    margin-bottom: var(--space-5);
+  }
+  .form-section:last-child {
+    margin-bottom: 0;
+  }
+  .form-section__title {
+    margin: 0 0 var(--space-4) 0;
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-text);
+  }
+  .form-grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .form-label {
     font-weight: 600;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 0.5rem;
-}
-
-.form-control, .form-select {
-    border-radius: 8px;
-    border: 1px solid #ced4da;
-    padding: 0.75rem;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-}
-
-.checkbox-group {
+    color: var(--color-text);
+    font-size: var(--text-sm);
+  }
+  .form-control, .form-select {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-base);
+    color: var(--color-text);
+    background: var(--color-surface);
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    outline: none;
+  }
+  .checkbox-group {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-}
-
-.checkbox-group input[type="checkbox"] {
+    gap: var(--space-2);
+  }
+  .checkbox-group input[type="checkbox"] {
     width: 18px;
     height: 18px;
-}
-
-.permissions-section {
+    accent-color: var(--color-primary);
+  }
+  .checkbox-group label {
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  .field-error {
+    color: #dc2626;
+    font-size: var(--text-sm);
+    margin-top: var(--space-1);
+  }
+  .role-info {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+  }
+  .role-info__title {
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .role-info__text {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  .permissions-section {
     max-height: 300px;
     overflow-y: auto;
-    border: 1px solid #ced4da;
-    border-radius: 8px;
-    padding: 1rem;
-    background: white;
-}
-
-.btn-submit {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    background: var(--color-surface);
+  }
+  .permissions-section select {
+    width: 100%;
+    min-height: 120px;
+  }
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     border: none;
-    border-radius: 25px;
-    padding: 0.75rem 2rem;
+    border-radius: var(--radius-full);
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--text-sm);
     font-weight: 600;
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.btn-submit:hover {
+    color: #fff;
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-
-.alert-custom {
-    border-radius: 10px;
-    border: none;
-}
-
-@media (max-width: 768px) {
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    color: #fff;
+  }
+  .alert-custom {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    color: var(--color-text);
+  }
+  .alert-custom--success { border-left: 4px solid #10b981; }
+  .alert-custom--danger { border-left: 4px solid #dc2626; }
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  @media (max-width: 768px) {
+    .edit-user-header {
+      padding: var(--space-5);
+    }
+    .edit-user-header__inner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
     .edit-user-container {
-        padding: 1rem;
+      padding: var(--space-4);
     }
-
-    .form-section {
-        padding: 1rem;
+    .form-grid {
+      grid-template-columns: 1fr;
     }
-}
-</style>
-{% endblock %}
+    .form-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+  
+        </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-{% block course_content %}
-<div class="courses-main-content">
-    <div class="row">
-        <div class="col-12">
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="h2 mb-1"><i class="bi bi-pencil-square me-2"></i>Editar Usuario</h1>
-                    <p class="text-muted mb-0">{{ user.get_full_name|default:user.username }}</p>
-                </div>
-                <a href="{% url 'courses:admin_user_detail' user.id %}" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-left me-1"></i>Volver al Perfil
-                </a>
-            </div>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
 
-            <!-- Mostrar mensajes -->
-            {% if messages %}
-            <div class="mb-4">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-custom alert-dismissible fade show" role="alert">
-                    <i class="bi bi-info-circle me-2"></i>
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
+
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% if categories %}
+                {% for category in categories %}
+                  {% if category.slug %}
+                    <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+                  {% endif %}
                 {% endfor %}
-            </div>
+              {% endif %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
             {% endif %}
-
-            <div class="edit-user-container">
-                <!-- Información Básica -->
-                <form method="post" id="userForm">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="update_user">
-
-                    <div class="form-section">
-                        <h4><i class="bi bi-person me-2"></i>Información Básica</h4>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ user_form.username.id_for_label }}" class="form-label">Nombre de Usuario</label>
-                                    {{ user_form.username }}
-                                    {% if user_form.username.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {% for error in user_form.username.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ user_form.email.id_for_label }}" class="form-label">Correo Electrónico</label>
-                                    {{ user_form.email }}
-                                    {% if user_form.email.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {% for error in user_form.email.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ user_form.first_name.id_for_label }}" class="form-label">Nombre</label>
-                                    {{ user_form.first_name }}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Apellido</label>
-                                    {{ user_form.last_name }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Estado de la Cuenta -->
-                    <div class="form-section">
-                        <h4><i class="bi bi-shield-check me-2"></i>Estado de la Cuenta</h4>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="checkbox-group">
-                                    {{ user_form.is_active }}
-                                    <label for="{{ user_form.is_active.id_for_label }}" class="form-label mb-0">
-                                        Cuenta Activa
-                                    </label>
-                                </div>
-                                <small class="text-muted d-block mt-1">Permite que el usuario inicie sesión</small>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="checkbox-group">
-                                    {{ user_form.is_staff }}
-                                    <label for="{{ user_form.is_staff.id_for_label }}" class="form-label mb-0">
-                                        Es Administrador
-                                    </label>
-                                </div>
-                                <small class="text-muted d-block mt-1">Acceso al panel de administración</small>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="checkbox-group">
-                                    {{ user_form.is_superuser }}
-                                    <label for="{{ user_form.is_superuser.id_for_label }}" class="form-label mb-0">
-                                        Es Superusuario
-                                    </label>
-                                </div>
-                                <small class="text-muted d-block mt-1">Permisos completos del sistema</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Asignación de Roles -->
-                    <div class="form-section">
-                        <h4><i class="bi bi-person-badge me-2"></i>Asignación de Roles</h4>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ user_form.user_role.id_for_label }}" class="form-label">Rol del Sistema</label>
-                                    {{ user_form.user_role }}
-                                    {% if user_form.user_role.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {% for error in user_form.user_role.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                    {% endif %}
-                                    <small class="text-muted d-block mt-1">
-                                        Asigna un rol específico que define las funciones del usuario en el sistema
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="role-info p-3 bg-light rounded">
-                                    <h6 class="mb-2"><i class="bi bi-info-circle text-primary me-1"></i>Información del Rol</h6>
-                                    <div id="role-description">
-                                        {% if user_form.user_role.value %}
-                                            {% for choice_value, choice_label in user_form.user_role.field.choices %}
-                                                {% if choice_value == user_form.user_role.value %}
-                                                    <p class="mb-1"><strong>{{ choice_label }}</strong></p>
-                                                    {% if choice_value == 'TU' %}
-                                                        <small class="text-muted">Puede crear y gestionar cursos, módulos y lecciones</small>
-                                                    {% elif choice_value == 'AD' %}
-                                                        <small class="text-muted">Acceso completo a la administración del sistema</small>
-                                                    {% elif choice_value == 'GE' %}
-                                                        <small class="text-muted">Gestión especializada de eventos y actividades</small>
-                                                    {% elif choice_value == 'SU' %}
-                                                        <small class="text-muted">Rol de supervisión y control de procesos</small>
-                                                    {% else %}
-                                                        <small class="text-muted">Usuario estándar con acceso básico</small>
-                                                    {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            <p class="mb-1 text-muted">Selecciona un rol para ver su descripción</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Grupos y Permisos -->
-                    <div class="form-section">
-                        <h4><i class="bi bi-people me-2"></i>Grupos y Permisos</h4>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ user_form.groups.id_for_label }}" class="form-label">Grupos</label>
-                                    {{ user_form.groups }}
-                                    <small class="text-muted d-block mt-1">Selecciona los grupos a los que pertenece el usuario</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ user_form.user_permissions.id_for_label }}" class="form-label">Permisos Específicos</label>
-                                    <div class="permissions-section">
-                                        {{ user_form.user_permissions }}
-                                    </div>
-                                    <small class="text-muted d-block mt-1">Permisos adicionales específicos para este usuario</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Botones de Acción -->
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{% url 'courses:admin_user_detail' user.id %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle me-1"></i>Cancelar
-                        </a>
-                        <button type="submit" class="btn btn-submit">
-                            <i class="bi bi-check-circle me-1"></i>Guardar Cambios
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Cambio de Contraseña -->
-                <div class="form-section mt-4">
-                    <h4><i class="bi bi-key me-2"></i>Cambiar Contraseña</h4>
-                    <form method="post" id="passwordForm">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="change_password">
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ password_form.new_password1.id_for_label }}" class="form-label">Nueva Contraseña</label>
-                                    {{ password_form.new_password1 }}
-                                    {% if password_form.new_password1.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {% for error in password_form.new_password1.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ password_form.new_password2.id_for_label }}" class="form-label">Confirmar Nueva Contraseña</label>
-                                    {{ password_form.new_password2 }}
-                                    {% if password_form.new_password2.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {% for error in password_form.new_password2.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        {% if password_form.non_field_errors %}
-                        <div class="alert alert-danger mt-2">
-                            {% for error in password_form.non_field_errors %}{{ error }}{% endfor %}
-                        </div>
-                        {% endif %}
-
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-warning">
-                                <i class="bi bi-key-fill me-1"></i>Cambiar Contraseña
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
     </div>
-</div>
+  </header>
 
-<script>
-// Mejorar la funcionalidad de los select múltiples
-document.addEventListener('DOMContentLoaded', function() {
-    // Mejorar los select múltiples para grupos y permisos
-    const selectElements = document.querySelectorAll('select[multiple]');
-    selectElements.forEach(select => {
+  <main id="main-content">
+    <div class="edit-user-page">
+      <div class="container">
+        <section class="edit-user-header">
+          <div class="edit-user-header__inner">
+            <div>
+              <h1 class="edit-user-header__title">✏️ Editar Usuario</h1>
+              <p class="edit-user-header__subtitle">{{ user.get_full_name|default:user.username }}</p>
+            </div>
+            <a href="{% url 'courses:admin_user_detail' user.id %}" class="btn-action btn-action--secondary">
+              ← Volver al Perfil
+            </a>
+          </div>
+        </section>
+
+        {% if messages %}
+        <div class="mb-4">
+          {% for message in messages %}
+          <div class="alert-custom alert-custom--{{ message.tags }}">
+            ℹ️ {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="edit-user-container">
+          <form method="post" id="userForm">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_user">
+
+            <div class="form-section">
+              <h2 class="form-section__title">👤 Información Básica</h2>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="{{ user_form.username.id_for_label }}" class="form-label">Nombre de Usuario</label>
+                  {{ user_form.username }}
+                  {% if user_form.username.errors %}
+                  <div class="field-error">
+                    {% for error in user_form.username.errors %}{{ error }}{% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="form-group">
+                  <label for="{{ user_form.email.id_for_label }}" class="form-label">Correo Electrónico</label>
+                  {{ user_form.email }}
+                  {% if user_form.email.errors %}
+                  <div class="field-error">
+                    {% for error in user_form.email.errors %}{{ error }}{% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="form-group">
+                  <label for="{{ user_form.first_name.id_for_label }}" class="form-label">Nombre</label>
+                  {{ user_form.first_name }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Apellido</label>
+                  {{ user_form.last_name }}
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h2 class="form-section__title">🛡️ Estado de la Cuenta</h2>
+              <div class="form-grid">
+                <div class="form-group">
+                  <div class="checkbox-group">
+                    {{ user_form.is_active }}
+                    <label for="{{ user_form.is_active.id_for_label }}" class="form-label mb-0">Cuenta Activa</label>
+                  </div>
+                  <span class="role-info__text">Permite que el usuario inicie sesión</span>
+                </div>
+                <div class="form-group">
+                  <div class="checkbox-group">
+                    {{ user_form.is_staff }}
+                    <label for="{{ user_form.is_staff.id_for_label }}" class="form-label mb-0">Es Administrador</label>
+                  </div>
+                  <span class="role-info__text">Acceso al panel de administración</span>
+                </div>
+                <div class="form-group">
+                  <div class="checkbox-group">
+                    {{ user_form.is_superuser }}
+                    <label for="{{ user_form.is_superuser.id_for_label }}" class="form-label mb-0">Es Superusuario</label>
+                  </div>
+                  <span class="role-info__text">Permisos completos del sistema</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h2 class="form-section__title">🎖️ Asignación de Roles</h2>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="{{ user_form.user_role.id_for_label }}" class="form-label">Rol del Sistema</label>
+                  {{ user_form.user_role }}
+                  {% if user_form.user_role.errors %}
+                  <div class="field-error">
+                    {% for error in user_form.user_role.errors %}{{ error }}{% endfor %}
+                  </div>
+                  {% endif %}
+                  <span class="role-info__text">Asigna un rol específico que define las funciones del usuario en el sistema</span>
+                </div>
+                <div class="role-info">
+                  <h6 class="role-info__title">ℹ️ Información del Rol</h6>
+                  <div id="role-description">
+                    {% if user_form.user_role.value %}
+                      {% for choice_value, choice_label in user_form.user_role.field.choices %}
+                        {% if choice_value == user_form.user_role.value %}
+                          <p class="role-info__text"><strong>{{ choice_label }}</strong></p>
+                          {% if choice_value == 'TU' %}
+                            <small class="role-info__text">Puede crear y gestionar cursos, módulos y lecciones</small>
+                          {% elif choice_value == 'AD' %}
+                            <small class="role-info__text">Acceso completo a la administración del sistema</small>
+                          {% elif choice_value == 'GE' %}
+                            <small class="role-info__text">Gestión especializada de eventos y actividades</small>
+                          {% elif choice_value == 'SU' %}
+                            <small class="role-info__text">Rol de supervisión y control de procesos</small>
+                          {% else %}
+                            <small class="role-info__text">Usuario estándar con acceso básico</small>
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    {% else %}
+                      <p class="role-info__text">Selecciona un rol para ver su descripción</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h2 class="form-section__title">👥 Grupos y Permisos</h2>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="{{ user_form.groups.id_for_label }}" class="form-label">Grupos</label>
+                  {{ user_form.groups }}
+                  <span class="role-info__text">Selecciona los grupos a los que pertenece el usuario</span>
+                </div>
+                <div class="form-group">
+                  <label for="{{ user_form.user_permissions.id_for_label }}" class="form-label">Permisos Específicos</label>
+                  <div class="permissions-section">
+                    {{ user_form.user_permissions }}
+                  </div>
+                  <span class="role-info__text">Permisos adicionales específicos para este usuario</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <a href="{% url 'courses:admin_user_detail' user.id %}" class="btn-action btn-action--secondary">
+                ✖️ Cancelar
+              </a>
+              <button type="submit" class="btn-submit">
+                ✅ Guardar Cambios
+              </button>
+            </div>
+          </form>
+
+          <div class="form-section" style="margin-top: var(--space-6);">
+            <h2 class="form-section__title">🔑 Cambiar Contraseña</h2>
+            <form method="post" id="passwordForm">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="change_password">
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="{{ password_form.new_password1.id_for_label }}" class="form-label">Nueva Contraseña</label>
+                  {{ password_form.new_password1 }}
+                  {% if password_form.new_password1.errors %}
+                  <div class="field-error">
+                    {% for error in password_form.new_password1.errors %}{{ error }}{% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="form-group">
+                  <label for="{{ password_form.new_password2.id_for_label }}" class="form-label">Confirmar Nueva Contraseña</label>
+                  {{ password_form.new_password2 }}
+                  {% if password_form.new_password2.errors %}
+                  <div class="field-error">
+                    {% for error in password_form.new_password2.errors %}{{ error }}{% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              {% if password_form.non_field_errors %}
+              <div class="alert-custom alert-custom--danger" style="margin-top: var(--space-3);">
+                {% for error in password_form.non_field_errors %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+
+              <div style="display: flex; justify-content: flex-end; margin-top: var(--space-4);">
+                <button type="submit" class="btn-action btn-action--warning" style="background: #f59e0b; color: #fff; border-color: #f59e0b;">
+                  🔑 Cambiar Contraseña
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
+
+      var selectElements = document.querySelectorAll('select[multiple]');
+      selectElements.forEach(function(select) {
         select.style.minHeight = '120px';
-    });
+      });
 
-    // Validación adicional del formulario
-    const userForm = document.getElementById('userForm');
-    userForm.addEventListener('submit', function(e) {
-        const username = document.getElementById('id_username').value;
-        const email = document.getElementById('id_email').value;
-
-        if (!username.trim()) {
+      var userForm = document.getElementById('userForm');
+      if (userForm) {
+        userForm.addEventListener('submit', function(e) {
+          var username = document.getElementById('id_username');
+          var email = document.getElementById('id_email');
+          if (username && !username.value.trim()) {
             alert('El nombre de usuario es obligatorio');
             e.preventDefault();
             return false;
-        }
-
-        if (!email.trim()) {
+          }
+          if (email && !email.value.trim()) {
             alert('El correo electrónico es obligatorio');
             e.preventDefault();
             return false;
-        }
-
-        // Validación básica de email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            alert('Por favor ingresa un correo electrónico válido');
-            e.preventDefault();
-            return false;
-        }
-    });
-
-    // Confirmación para cambios importantes
-    const staffCheckbox = document.getElementById('id_is_staff');
-    const superuserCheckbox = document.getElementById('id_is_superuser');
-
-    [staffCheckbox, superuserCheckbox].forEach(checkbox => {
-        if (checkbox) {
-            checkbox.addEventListener('change', function() {
-                if (this.checked) {
-                    const type = this.id === 'id_is_staff' ? 'administrador' : 'superusuario';
-                    if (!confirm(`¿Estás seguro de que quieres otorgar permisos de ${type} a este usuario?`)) {
-                        this.checked = false;
-                    }
-                }
-            });
-        }
-    });
-
-    // Actualización dinámica de descripción de rol
-    const roleSelect = document.getElementById('id_user_role');
-    const roleDescription = document.getElementById('role-description');
-
-    if (roleSelect && roleDescription) {
-        roleSelect.addEventListener('change', function() {
-            const selectedValue = this.value;
-            let description = '';
-
-            switch(selectedValue) {
-                case 'TU':
-                    description = `
-                        <p class="mb-1"><strong>Tutor</strong></p>
-                        <small class="text-muted">Puede crear y gestionar cursos, módulos y lecciones</small>
-                    `;
-                    break;
-                case 'AD':
-                    description = `
-                        <p class="mb-1"><strong>Administrador</strong></p>
-                        <small class="text-muted">Acceso completo a la administración del sistema</small>
-                    `;
-                    break;
-                case 'GE':
-                    description = `
-                        <p class="mb-1"><strong>Gestor de Eventos</strong></p>
-                        <small class="text-muted">Gestión especializada de eventos y actividades</small>
-                    `;
-                    break;
-                case 'SU':
-                    description = `
-                        <p class="mb-1"><strong>Supervisor</strong></p>
-                        <small class="text-muted">Rol de supervisión y control de procesos</small>
-                    `;
-                    break;
-                case 'US':
-                    description = `
-                        <p class="mb-1"><strong>Usuario Estándar</strong></p>
-                        <small class="text-muted">Usuario estándar con acceso básico</small>
-                    `;
-                    break;
-                default:
-                    description = `
-                        <p class="mb-1 text-muted">Selecciona un rol para ver su descripción</p>
-                    `;
+          }
+          if (email) {
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.value)) {
+              alert('Por favor ingresa un correo electrónico válido');
+              e.preventDefault();
+              return false;
             }
-
-            roleDescription.innerHTML = description;
+          }
         });
-    }
-});
-</script>
-{% endblock %}
+      }
+
+      var staffCheckbox = document.getElementById('id_is_staff');
+      var superuserCheckbox = document.getElementById('id_is_superuser');
+      [staffCheckbox, superuserCheckbox].forEach(function(checkbox) {
+        if (checkbox) {
+          checkbox.addEventListener('change', function() {
+            if (this.checked) {
+              var type = this.id === 'id_is_staff' ? 'administrador' : 'superusuario';
+              if (!confirm('¿Estás seguro de que quieres otorgar permisos de ' + type + ' a este usuario?')) {
+                this.checked = false;
+              }
+            }
+          });
+        }
+      });
+
+      var roleSelect = document.getElementById('id_user_role');
+      var roleDescription = document.getElementById('role-description');
+      if (roleSelect && roleDescription) {
+        roleSelect.addEventListener('change', function() {
+          var selectedValue = this.value;
+          var description = '';
+          switch(selectedValue) {
+            case 'TU':
+              description = '<p class="role-info__text"><strong>Tutor</strong></p><small class="role-info__text">Puede crear y gestionar cursos, módulos y lecciones</small>';
+              break;
+            case 'AD':
+              description = '<p class="role-info__text"><strong>Administrador</strong></p><small class="role-info__text">Acceso completo a la administración del sistema</small>';
+              break;
+            case 'GE':
+              description = '<p class="role-info__text"><strong>Gestor de Eventos</strong></p><small class="role-info__text">Gestión especializada de eventos y actividades</small>';
+              break;
+            case 'SU':
+              description = '<p class="role-info__text"><strong>Supervisor</strong></p><small class="role-info__text">Rol de supervisión y control de procesos</small>';
+              break;
+            case 'US':
+              description = '<p class="role-info__text"><strong>Usuario Estándar</strong></p><small class="role-info__text">Usuario estándar con acceso básico</small>';
+              break;
+            default:
+              description = '<p class="role-info__text">Selecciona un rol para ver su descripción</p>';
+          }
+          roleDescription.innerHTML = description;
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-{% extends "courses/base.html" %}
+{% extends "courses/base_itcss.html" %}
 {% load static %}
 
 {% block title %}Eliminar Curso - {{ course.title }}{% endblock %}
@@ -256,10 +256,11 @@
         margin-bottom: 0.5rem;
     }
 }
-</style>
+
+        </style>
 {% endblock %}
 
-{% block course_content %}
+{% block content %}
 <div class="delete-course-container">
     <div class="container">
         <div class="row justify-content-center">
@@ -294,9 +295,9 @@
                                     <div class="detail-label">Estado</div>
                                     <div class="detail-value">
                                         {% if course.is_published %}
-                                            <span class="badge bg-success">Publicado</span>
+                                            <span class="badge-success">Publicado</span>
                                         {% else %}
-                                            <span class="badge bg-warning">Borrador</span>
+                                            <span class="badge-warning">Borrador</span>
                                         {% endif %}
                                     </div>
                                 </div>

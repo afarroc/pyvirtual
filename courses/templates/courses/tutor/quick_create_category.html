@@ -1,149 +1,363 @@
-{% extends "courses/base.html" %}
-
-{% block title %}{{ title }}{% endblock %}
-
-{% block course_content %}
-<div class="pagetitle">
-    <h1><i class="bi bi-bolt me-2"></i>{{ title }}</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'courses:dashboard' %}">Cursos</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'courses:manage_categories' %}">Categorías</a></li>
-            <li class="breadcrumb-item active">Creación Rápida</li>
-        </ol>
-    </nav>
-</div><!-- End Page Title -->
-
-<section class="section">
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-10">
-            <div class="card">
-                <div class="card-body p-3 p-md-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h5 class="card-title mb-1">
-                                <i class="bi bi-tags me-2"></i>Selección de Categorías
-                            </h5>
-                            <p class="text-muted mb-0">Selecciona las categorías que deseas crear. Solo se crearán las que no existan actualmente.</p>
-                        </div>
-                        <a href="{% url 'courses:manage_categories' %}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>Volver
-                        </a>
-                    </div>
-
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Selecciona las categorías que deseas crear. Solo se crearán las que no existan actualmente.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-
-                    {% if categories %}
-                    <form method="post">
-                        {% csrf_token %}
-
-                        <div class="row g-3">
-                            {% for category in categories %}
-                            <div class="col-12 col-sm-6 col-md-6 col-lg-4">
-                                <div class="card h-100 border">
-                                    <div class="card-body">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox"
-                                                   name="categories" value="{{ category.name }}"
-                                                   id="category_{{ forloop.counter }}">
-                                            <label class="form-check-label" for="category_{{ forloop.counter }}">
-                                                <h6 class="mb-1">{{ category.name }}</h6>
-                                                <small class="text-muted">{{ category.description }}</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center pt-3 border-top mt-4 gap-2">
-                            <a href="{% url 'courses:manage_categories' %}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left me-1"></i>Volver
-                            </a>
-                            <div class="d-flex flex-column flex-sm-row gap-2">
-                                <a href="{% url 'courses:create_category' %}" class="btn btn-outline-primary">
-                                    <i class="bi bi-plus me-1"></i>Crear Personalizada
-                                </a>
-                                <button type="submit" class="btn btn-warning">
-                                    <i class="bi bi-plus-circle me-1"></i>Crear Seleccionadas
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-check-circle text-success fs-1 mb-3"></i>
-                        <h4 class="text-success">¡Todas las categorías ya existen!</h4>
-                        <p class="text-muted">No hay categorías predefinidas disponibles para crear.</p>
-                        <a href="{% url 'courses:create_category' %}" class="btn btn-primary">
-                            <i class="bi bi-plus me-1"></i>Crear Categoría Personalizada
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Estadísticas -->
-    {% if categories %}
-    <div class="row mt-4 g-3">
-        <div class="col-12 col-sm-6">
-            <div class="card">
-                <div class="card-body text-center p-3">
-                    <i class="bi bi-tags text-info mb-2" style="font-size: 2rem;"></i>
-                    <h5 class="card-title h4">{{ categories|length }}</h5>
-                    <p class="card-text text-muted small mb-0">Categorías disponibles</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-sm-6">
-            <div class="card">
-                <div class="card-body text-center p-3">
-                    <i class="bi bi-check-circle text-success mb-2" style="font-size: 2rem;"></i>
-                    <h5 class="card-title h4">10</h5>
-                    <p class="card-text text-muted small mb-0">Categorías totales en sistema</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-</section>
-
-
-<script>
-// Seleccionar/deseleccionar todas las categorías
-document.addEventListener('DOMContentLoaded', function() {
-    // Función para actualizar el contador de seleccionadas
-    function updateSelectedCount() {
-        const selected = document.querySelectorAll('input[name="categories"]:checked').length;
-        const total = document.querySelectorAll('input[name="categories"]').length;
-
-        // Actualizar el texto del botón si existe
-        const submitBtn = document.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            const originalText = submitBtn.innerHTML;
-            if (selected > 0) {
-                submitBtn.innerHTML = `<i class="bi bi-plus-circle me-1"></i>Crear ${selected} Categoría${selected > 1 ? 's' : ''}`;
-            } else {
-                submitBtn.innerHTML = originalText;
-            }
-        }
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} · Cursos M360</title>
+  <meta name="description" content="Creación rápida de categorías.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  <style>
+  .quick-categories-page {
+    background: var(--color-background);
+    min-height: 100vh;
+    padding: var(--space-8) 0;
+  }
+  .quick-categories-header {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .quick-categories-header__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .quick-categories-header__title {
+    margin: 0 0 var(--space-1) 0;
+    font-size: var(--text-2xl);
+    font-weight: 800;
+  }
+  .quick-categories-header__subtitle {
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+  .quick-categories-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-6);
+  }
+  .quick-categories-grid {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .category-option {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  }
+  .category-option:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+  }
+  .category-option__check {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .category-option__check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-primary);
+    margin-top: var(--space-1);
+  }
+  .category-option__check label {
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  .category-option__check h6 {
+    margin: 0 0 var(--space-1) 0;
+    font-weight: 600;
+  }
+  .category-option__check small {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  .alert-info {
+    background: var(--color-background);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    margin-bottom: var(--space-6);
+    color: var(--color-text);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .alert-info__icon {
+    font-size: var(--text-xl);
+    flex-shrink: 0;
+  }
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+  }
+  .stats-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-card__icon {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-2);
+  }
+  .stat-card__value {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--color-text);
+    margin-bottom: var(--space-1);
+  }
+  .stat-card__label {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .empty-state {
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--color-text-muted);
+  }
+  .empty-state__icon {
+    font-size: var(--text-4xl);
+    margin-bottom: var(--space-3);
+  }
+  @media (max-width: 768px) {
+    .quick-categories-header {
+      padding: var(--space-5);
     }
+    .quick-categories-header__inner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .form-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+  
+        </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-    // Agregar event listeners a todos los checkboxes
-    document.querySelectorAll('input[name="categories"]').forEach(checkbox => {
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
+
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
+
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% if categories %}
+                {% for category in categories %}
+                  {% if category.slug %}
+                    <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <div class="quick-categories-page">
+      <div class="container">
+        <section class="quick-categories-header">
+          <div class="quick-categories-header__inner">
+            <div>
+              <h1 class="quick-categories-header__title">⚡ {{ title }}</h1>
+              <p class="quick-categories-header__subtitle">Selecciona las categorías que deseas crear. Solo se crearán las que no existan actualmente.</p>
+            </div>
+            <a href="{% url 'courses:manage_categories' %}" class="btn-action btn-action--secondary">
+              ← Volver
+            </a>
+          </div>
+        </section>
+
+        <div class="alert-info">
+          <span class="alert-info__icon">ℹ️</span>
+          <div>
+            <strong>Selecciona las categorías que deseas crear.</strong>
+            Solo se crearán las que no existan actualmente.
+          </div>
+        </div>
+
+        {% if categories %}
+        <div class="quick-categories-card">
+          <form method="post" id="quick-create-form">
+            {% csrf_token %}
+            <div class="quick-categories-grid">
+              {% for category in categories %}
+              <div class="category-option">
+                <div class="category-option__check">
+                  <input type="checkbox" name="categories" value="{{ category.name }}" id="category_{{ forloop.counter }}">
+                  <label for="category_{{ forloop.counter }}">
+                    <h6>{{ category.name }}</h6>
+                    <small>{{ category.description|default:'Sin descripción' }}</small>
+                  </label>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="form-actions">
+              <a href="{% url 'courses:manage_categories' %}" class="btn-action btn-action--secondary">
+                ← Volver
+              </a>
+              <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                <a href="{% url 'courses:create_category' %}" class="btn-action btn-action--secondary">
+                  ➕ Crear Personalizada
+                </a>
+                <button type="submit" class="btn-action btn-action--warning" style="background: #f59e0b; color: #fff; border-color: #f59e0b;">
+                  ✅ Crear Seleccionadas
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card__icon">🏷️</div>
+            <div class="stat-card__value">{{ categories|length }}</div>
+            <div class="stat-card__label">Categorías disponibles</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__icon">✅</div>
+            <div class="stat-card__value">10</div>
+            <div class="stat-card__label">Categorías totales en sistema</div>
+          </div>
+        </section>
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-state__icon">✅</div>
+          <h3 style="color: #059669; margin-bottom: var(--space-2);">¡Todas las categorías ya existen!</h3>
+          <p>No hay categorías predefinidas disponibles para crear.</p>
+          <a href="{% url 'courses:create_category' %}" class="btn-action btn-action--primary" style="margin-top: var(--space-4);">
+            ➕ Crear Categoría Personalizada
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
+
+      function updateSelectedCount() {
+        var selected = document.querySelectorAll('input[name="categories"]:checked').length;
+        var submitBtn = document.querySelector('button[type="submit"]');
+        if (submitBtn) {
+          if (selected > 0) {
+            submitBtn.innerHTML = '✅ Crear ' + selected + ' Categoría' + (selected > 1 ? 's' : '');
+          } else {
+            submitBtn.innerHTML = '✅ Crear Seleccionadas';
+          }
+        }
+      }
+
+      document.querySelectorAll('input[name="categories"]').forEach(function(checkbox) {
         checkbox.addEventListener('change', updateSelectedCount);
-    });
+      });
 
-    // Inicializar contador
-    updateSelectedCount();
-});
-</script>
-{% endblock %}
+      updateSelectedCount();
+    });
+  </script>
+</body>
+</html>

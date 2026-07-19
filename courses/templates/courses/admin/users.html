@@ -1,386 +1,545 @@
-{% extends "courses/base.html" %}
 {% load static %}
-
-{% block title %}Gestión de Usuarios - {{ block.super }}{% endblock %}
-
-{% block extra_head %}
-<style>
-.users-management {
-    background: #f8f9fa;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestión de Usuarios · Cursos M360</title>
+  <meta name="description" content="Administra usuarios, roles y permisos de la plataforma.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  <style>
+  .users-page {
+    background: var(--color-background);
     min-height: 100vh;
-    padding: 2rem 0;
-}
-
-.management-header {
-    background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-}
-
-.filters-section {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-}
-
-.users-table-container {
-    background: white;
-    border-radius: 15px;
+    padding: var(--space-8) 0;
+  }
+  .users-header {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .users-header__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .users-header__title {
+    margin: 0 0 var(--space-1) 0;
+    font-size: var(--text-2xl);
+    font-weight: 800;
+  }
+  .users-header__subtitle {
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+  .filters-section {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .filters-grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .filters-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .form-label {
+    font-weight: 600;
+    color: var(--color-text);
+    font-size: var(--text-sm);
+  }
+  .input-group {
+    display: flex;
+    gap: var(--space-2);
+  }
+  .form-control, .form-select {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-base);
+    color: var(--color-text);
+    background: var(--color-surface);
+    flex: 1 1 auto;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    outline: none;
+  }
+  .input-group-text {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text-muted);
+  }
+  .filters-actions {
+    display: flex;
+    gap: var(--space-2);
+    align-items: flex-end;
+  }
+  .users-table-container {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-}
-
-.user-avatar {
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-6);
+  }
+  .table-responsive {
+    overflow-x: auto;
+  }
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .users-table th {
+    background: var(--color-background);
+    border-bottom: 2px solid var(--color-border);
+    font-weight: 600;
+    color: var(--color-text);
+    padding: var(--space-4);
+    text-align: left;
+  }
+  .users-table td {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+  }
+  .user-main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .user-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #fff;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .user-meta h6 {
+    margin: 0;
     font-weight: 600;
-}
-
-.user-role-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
+  }
+  .user-meta small {
+    color: var(--color-text-muted);
+  }
+  .user-role-badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
     font-weight: 600;
-}
-
-.role-admin {
-    background: rgba(220, 38, 38, 0.1);
-    color: #dc2626;
-}
-
-.role-tutor {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-}
-
-.role-student {
-    background: rgba(59, 130, 246, 0.1);
-    color: #3b82f6;
-}
-
-.user-actions .btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-}
-
-.table th {
-    background: #f8f9fa;
-    border-bottom: 2px solid #e9ecef;
+  }
+  .user-role-badge--admin { background: #fee2e2; color: #991b1b; }
+  .user-role-badge--tutor { background: #d1fae5; color: #065f46; }
+  .user-role-badge--student { background: #dbeafe; color: #1e40af; }
+  .user-status-badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
     font-weight: 600;
-    color: #495057;
-    padding: 1rem;
-}
-
-.table td {
-    padding: 1rem;
-    vertical-align: middle;
-}
-
-.pagination {
-    margin-bottom: 0;
-}
-
-.page-link {
-    color: #667eea;
-    border-color: #667eea;
-}
-
-.page-link:hover {
-    color: #764ba2;
-    background-color: rgba(102, 126, 234, 0.1);
-    border-color: #764ba2;
-}
-
-.page-item.active .page-link {
-    background-color: #667eea;
-    border-color: #667eea;
-}
-
-@media (max-width: 768px) {
-    .management-header {
-        padding: 1.5rem;
+  }
+  .user-status-badge--active { background: #dcfce7; color: #14532d; }
+  .user-status-badge--inactive { background: #fee2e2; color: #991b1b; }
+  .user-actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-4);
+    border-top: 1px solid var(--color-border);
+  }
+  .pagination {
+    display: flex;
+    gap: var(--space-1);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pagination a, .pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    transition: background-color var(--transition), border-color var(--transition), color var(--transition);
+  }
+  .pagination a:hover {
+    background: var(--color-background);
+    border-color: var(--color-primary);
+    color: var(--color-primary-dark);
+  }
+  .pagination .current {
+    background: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
+  }
+  .stats-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-card__icon {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-2);
+  }
+  .stat-card__value {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--color-text);
+    margin-bottom: var(--space-1);
+  }
+  .stat-card__label {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  @media (max-width: 768px) {
+    .users-header {
+      padding: var(--space-5);
     }
-
-    .table-responsive {
-        font-size: 0.875rem;
+    .users-header__inner {
+      flex-direction: column;
+      align-items: flex-start;
     }
-
     .user-actions {
-        flex-direction: column;
-        gap: 0.25rem;
+      flex-direction: column;
     }
-}
-</style>
-{% endblock %}
+    .filters-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+  
+        </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-{% block course_content %}
-<div class="users-management">
-    <div class="container">
-        <!-- Header -->
-        <div class="management-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h2 mb-1"><i class="bi bi-people-fill me-2"></i>Gestión de Usuarios</h1>
-                    <p class="text-muted mb-0">Administra usuarios, roles y permisos de la plataforma</p>
-                </div>
-                <a href="{% url 'courses:admin_dashboard' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i>Volver al Panel
-                </a>
-            </div>
-        </div>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
 
-        <!-- Filtros y Búsqueda -->
-        <div class="filters-section">
-            <form method="get" class="row g-3">
-                <div class="col-md-4">
-                    <label for="search" class="form-label fw-semibold">Buscar Usuario</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control" id="search" name="search"
-                               placeholder="Nombre, email o username..." value="{{ search_query }}">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <label for="role" class="form-label fw-semibold">Filtrar por Rol</label>
-                    <select class="form-select" id="role" name="role">
-                        <option value="">Todos los roles</option>
-                        <option value="TU" {% if role_filter == 'TU' %}selected{% endif %}>Tutores</option>
-                        <option value="AD" {% if role_filter == 'AD' %}selected{% endif %}>Administradores</option>
-                        <option value="GE" {% if role_filter == 'GE' %}selected{% endif %}>Gestores de Eventos</option>
-                        <option value="SU" {% if role_filter == 'SU' %}selected{% endif %}>Supervisores</option>
-                        <option value="US" {% if role_filter == 'US' %}selected{% endif %}>Usuarios Estándar</option>
-                        <option value="none" {% if role_filter == 'none' %}selected{% endif %}>Sin Rol Asignado</option>
-                    </select>
-                </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary me-2">
-                        <i class="bi bi-funnel me-1"></i>Filtrar
-                    </button>
-                    <a href="{% url 'courses:admin_users' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-circle me-1"></i>Limpiar
-                    </a>
-                </div>
-            </form>
-        </div>
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
 
-        <!-- Tabla de Usuarios -->
-        <div class="users-table-container">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Email</th>
-                            <th>Rol</th>
-                            <th>Estado</th>
-                            <th>Fecha de Registro</th>
-                            <th>Última Actividad</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in users %}
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="user-avatar me-3">
-                                        {{ user.first_name|first|default:user.username|first|upper }}
-                                    </div>
-                                    <div>
-                                        <div class="fw-semibold">{{ user.get_full_name|default:user.username }}</div>
-                                        <small class="text-muted">@{{ user.username }}</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>{{ user.email }}</td>
-                            <td>
-                                {% if user.cv %}
-                                    {% if user.cv.role == 'TU' %}
-                                        <span class="user-role-badge role-tutor">Tutor</span>
-                                    {% elif user.cv.role == 'AD' %}
-                                        <span class="user-role-badge role-admin">Administrador</span>
-                                    {% elif user.cv.role == 'GE' %}
-                                        <span class="user-role-badge role-admin">Gestor Eventos</span>
-                                    {% elif user.cv.role == 'SU' %}
-                                        <span class="user-role-badge role-admin">Supervisor</span>
-                                    {% else %}
-                                        <span class="user-role-badge role-student">Usuario Estándar</span>
-                                    {% endif %}
-                                {% else %}
-                                    <span class="user-role-badge role-student">Sin Rol</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if user.is_active %}
-                                    <span class="badge bg-success">Activo</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Inactivo</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ user.date_joined|date:"M d, Y" }}</td>
-                            <td>{{ user.last_login|date:"M d, Y H:i"|default:"Nunca" }}</td>
-                            <td>
-                                <div class="user-actions d-flex gap-1">
-                                    <a href="{% url 'courses:admin_user_detail' user.id %}"
-                                       class="btn btn-sm btn-outline-primary" title="Ver detalles">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="{% url 'courses:edit_user' user.id %}"
-                                       class="btn btn-sm btn-outline-secondary" title="Editar usuario">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    {% if user.is_active %}
-                                    <button class="btn btn-sm btn-outline-warning" title="Desactivar usuario">
-                                        <i class="bi bi-person-dash"></i>
-                                    </button>
-                                    {% else %}
-                                    <button class="btn btn-sm btn-outline-success" title="Activar usuario">
-                                        <i class="bi bi-person-check"></i>
-                                    </button>
-                                    {% endif %}
-                                    <button class="btn btn-sm btn-outline-danger" title="Eliminar usuario">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center py-5">
-                                <i class="bi bi-people text-muted fs-1 mb-3"></i>
-                                <h5 class="text-muted mb-2">No se encontraron usuarios</h5>
-                                <p class="text-muted mb-0">Intenta con otros criterios de búsqueda</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Paginación -->
-            {% if users.has_other_pages %}
-            <div class="d-flex justify-content-center p-3 border-top">
-                <nav aria-label="Paginación de usuarios">
-                    <ul class="pagination pagination-sm">
-                        {% if users.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?{% if role_filter %}role={{ role_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page=1">
-                                <i class="bi bi-chevron-double-left"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?{% if role_filter %}role={{ role_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ users.previous_page_number }}">
-                                <i class="bi bi-chevron-left"></i>
-                            </a>
-                        </li>
-                        {% endif %}
-
-                        {% for num in users.paginator.page_range %}
-                            {% if users.number == num %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
-                            {% elif num > users.number|add:-3 and num < users.number|add:3 %}
-                            <li class="page-item">
-                                <a class="page-link" href="?{% if role_filter %}role={{ role_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ num }}">{{ num }}</a>
-                            </li>
-                            {% endif %}
-                        {% endfor %}
-
-                        {% if users.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?{% if role_filter %}role={{ role_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ users.next_page_number }}">
-                                <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?{% if role_filter %}role={{ role_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ users.paginator.num_pages }}">
-                                <i class="bi bi-chevron-double-right"></i>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            </div>
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% if categories %}
+                {% for category in categories %}
+                  {% if category.slug %}
+                    <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
             {% endif %}
-        </div>
-
-        <!-- Estadísticas -->
-        <div class="row mt-4">
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="fs-1 text-primary mb-2">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                        <div class="fs-4 fw-bold">{{ users.paginator.count }}</div>
-                        <div class="text-muted">Usuarios Totales</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="fs-1 text-success mb-2">
-                            <i class="bi bi-person-badge-fill"></i>
-                        </div>
-                        <div class="fs-4 fw-bold">{{ users|length }}</div>
-                        <div class="text-muted">En esta página</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="fs-1 text-info mb-2">
-                            <i class="bi bi-person-check-fill"></i>
-                        </div>
-                        <div class="fs-4 fw-bold">{{ users.paginator.count }}</div>
-                        <div class="text-muted">Activos</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="fs-1 text-warning mb-2">
-                            <i class="bi bi-person-plus-fill"></i>
-                        </div>
-                        <div class="fs-4 fw-bold">{{ users.paginator.num_pages }}</div>
-                        <div class="text-muted">Páginas</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
     </div>
-</div>
+  </header>
 
-<script>
-// Funcionalidad para activar/desactivar usuarios
-document.addEventListener('DOMContentLoaded', function() {
-    const actionButtons = document.querySelectorAll('.user-actions button');
+  <main id="main-content">
+    <div class="users-page">
+      <div class="container">
+        <section class="users-header">
+          <div class="users-header__inner">
+            <div>
+              <h1 class="users-header__title">👥 Gestión de Usuarios</h1>
+              <p class="users-header__subtitle">Administra usuarios, roles y permisos de la plataforma</p>
+            </div>
+            <a href="{% url 'courses:admin_dashboard' %}" class="btn-action btn-action--secondary">
+              ← Volver al Panel
+            </a>
+          </div>
+        </section>
 
-    actionButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const action = this.title.includes('Desactivar') ? 'deactivate' : 'activate';
-            const userId = this.closest('tr').dataset.userId;
+        <section class="filters-section">
+          <form method="get" class="filters-grid">
+            <div class="form-group">
+              <label for="search" class="form-label">Buscar Usuario</label>
+              <div class="input-group">
+                <span class="input-group-text">🔍</span>
+                <input type="text" class="form-control" id="search" name="search" placeholder="Nombre, email o username..." value="{{ search_query }}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="role" class="form-label">Filtrar por Rol</label>
+              <select class="form-select" id="role" name="role">
+                <option value="">Todos los roles</option>
+                <option value="TU" {% if role_filter == 'TU' %}selected{% endif %}>Tutores</option>
+                <option value="AD" {% if role_filter == 'AD' %}selected{% endif %}>Administradores</option>
+                <option value="GE" {% if role_filter == 'GE' %}selected{% endif %}>Gestores de Eventos</option>
+                <option value="SU" {% if role_filter == 'SU' %}selected{% endif %}>Supervisores</option>
+                <option value="US" {% if role_filter == 'US' %}selected{% endif %}>Usuarios Estándar</option>
+                <option value="none" {% if role_filter == 'none' %}selected{% endif %}>Sin Rol Asignado</option>
+              </select>
+            </div>
+            <div class="filters-actions">
+              <button type="submit" class="btn-action btn-action--primary">
+                🔍 Filtrar
+              </button>
+              <a href="{% url 'courses:admin_users' %}" class="btn-action btn-action--secondary">
+                ✖️ Limpiar
+              </a>
+            </div>
+          </form>
+        </section>
 
-            if (confirm(`¿Estás seguro de que quieres ${action === 'deactivate' ? 'desactivar' : 'activar'} este usuario?`)) {
-                // Aquí iría la lógica AJAX para activar/desactivar usuario
-                console.log(`${action} user ${userId}`);
-            }
-        });
+        <section class="users-table-container">
+          <div class="table-responsive">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Fecha de Registro</th>
+                  <th>Última Actividad</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for user in users %}
+                <tr>
+                  <td>
+                    <div class="user-main">
+                      <div class="user-avatar">
+                        {{ user.first_name|first|default:user.username|first|upper }}
+                      </div>
+                      <div class="user-meta">
+                        <h6>{{ user.get_full_name|default:user.username }}</h6>
+                        <small>@{{ user.username }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ user.email }}</td>
+                  <td>
+                    {% if user.cv %}
+                      {% if user.cv.role == 'TU' %}
+                        <span class="user-role-badge user-role-badge--tutor">Tutor</span>
+                      {% elif user.cv.role == 'AD' %}
+                        <span class="user-role-badge user-role-badge--admin">Administrador</span>
+                      {% elif user.cv.role == 'GE' %}
+                        <span class="user-role-badge user-role-badge--admin">Gestor Eventos</span>
+                      {% elif user.cv.role == 'SU' %}
+                        <span class="user-role-badge user-role-badge--admin">Supervisor</span>
+                      {% else %}
+                        <span class="user-role-badge user-role-badge--student">Usuario Estándar</span>
+                      {% endif %}
+                    {% else %}
+                      <span class="user-role-badge user-role-badge--student">Sin Rol</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if user.is_active %}
+                      <span class="user-status-badge user-status-badge--active">Activo</span>
+                    {% else %}
+                      <span class="user-status-badge user-status-badge--inactive">Inactivo</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                  <td>{{ user.last_login|date:"M d, Y H:i"|default:"Nunca" }}</td>
+                  <td>
+                    <div class="user-actions">
+                      <a href="{% url 'courses:admin_user_detail' user.id %}" class="btn-action btn-action--secondary" title="Ver detalles">👁</a>
+                      <a href="{% url 'courses:edit_user' user.id %}" class="btn-action btn-action--secondary" title="Editar usuario">✏️</a>
+                      {% if user.is_active %}
+                      <button class="btn-action btn-action--warning" style="background: #fef3c7; color: #78350f; border-color: #fef3c7;" title="Desactivar usuario">⏸️</button>
+                      {% else %}
+                      <button class="btn-action btn-action--success" style="background: #d1fae5; color: #065f46; border-color: #d1fae5;" title="Activar usuario">▶️</button>
+                      {% endif %}
+                      <button class="btn-action btn-action--danger" title="Eliminar usuario">🗑</button>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: var(--space-8); color: var(--color-text-muted);">
+                    <div style="font-size: var(--text-4xl); margin-bottom: var(--space-3);">👥</div>
+                    <h5 style="color: var(--color-text); margin-bottom: var(--space-2);">No se encontraron usuarios</h5>
+                    <p>Intenta con otros criterios de búsqueda</p>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          {% if users.has_other_pages %}
+          <div class="pagination-container">
+            <nav aria-label="Paginación de usuarios">
+              <ul class="pagination">
+                {% if users.has_previous %}
+                <li>
+                  <a href="?{% if role_filter %}role={{ role_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page=1">⏮️</a>
+                </li>
+                <li>
+                  <a href="?{% if role_filter %}role={{ role_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ users.previous_page_number }}">◀️</a>
+                </li>
+                {% endif %}
+
+                {% for num in users.paginator.page_range %}
+                  {% if users.number == num %}
+                  <li><span class="current">{{ num }}</span></li>
+                  {% elif num > users.number|add:-3 and num < users.number|add:3 %}
+                  <li>
+                    <a href="?{% if role_filter %}role={{ role_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+                  </li>
+                  {% endif %}
+                {% endfor %}
+
+                {% if users.has_next %}
+                <li>
+                  <a href="?{% if role_filter %}role={{ role_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ users.next_page_number }}">▶️</a>
+                </li>
+                <li>
+                  <a href="?{% if role_filter %}role={{ role_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ users.paginator.num_pages }}">⏭️</a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+          {% endif %}
+        </section>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card__icon">👥</div>
+            <div class="stat-card__value">{{ users.paginator.count }}</div>
+            <div class="stat-card__label">Usuarios Totales</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__icon">📄</div>
+            <div class="stat-card__value">{{ users|length }}</div>
+            <div class="stat-card__label">En esta página</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__icon">✅</div>
+            <div class="stat-card__value">{{ users.paginator.count }}</div>
+            <div class="stat-card__label">Activos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__icon">📑</div>
+            <div class="stat-card__value">{{ users.paginator.num_pages }}</div>
+            <div class="stat-card__label">Páginas</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
     });
-});
-</script>
-{% endblock %}
+  </script>
+</body>
+</html>

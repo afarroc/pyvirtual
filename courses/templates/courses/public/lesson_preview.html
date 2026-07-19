@@ -1,11 +1,11 @@
-{% extends "courses/base.html" %}
+{% extends "courses/base_itcss.html" %}
 {% load static %}
 {% load course_filters %}
 {% load lesson_tags %}
 
-{% block course_content %}
+{% block content %}
 <div class="container-fluid">
-    <div class="row">
+    <div class="lessons-filters-row">
         <!-- Contenido principal de la lección -->
         <div class="col-12">
             <nav aria-label="breadcrumb" class="mb-4">
@@ -20,7 +20,7 @@
                     <h4 class="mb-0">{{ current_lesson.title }}</h4>
                     <div>
                         <span class="badge bg-info me-2">{{ current_lesson.get_lesson_type_display }}</span>
-                        <span class="badge bg-secondary">Vista Previa</span>
+                        <span class="badge-secondary">Vista Previa</span>
                     </div>
                 </div>
 
@@ -493,5 +493,6 @@
         margin-top: 0.5rem;
     }
 }
-</style>
+
+    </style>
 {% endblock %}

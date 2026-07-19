@@ -1,8 +1,8 @@
-{% extends "courses/base.html" %}
+{% extends "courses/base_itcss.html" %}
 {% load humanize %}
 {% load static %}
 
-{% block course_content %}
+{% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Analíticas de {{ course.title }}</h1>
     <div>
@@ -16,7 +16,7 @@
 </div>
 
 <!-- Tarjetas de resumen -->
-<div class="row mb-4">
+<div class="lessons-stats">
     <div class="col-md-3 col-6 mb-3">
         <div class="card text-center">
             <div class="card-body">
@@ -109,9 +109,9 @@
                         </td>
                         <td>
                             {% if data.progress == 100 %}
-                            <span class="badge bg-success">Completado</span>
+                            <span class="badge-success">Completado</span>
                             {% else %}
-                            <span class="badge bg-primary">En progreso</span>
+                            <span class="badge-primary">En progreso</span>
                             {% endif %}
                         </td>
                         <td>

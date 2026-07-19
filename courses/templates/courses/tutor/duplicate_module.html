@@ -1,4 +1,4 @@
-{% extends "courses/base.html" %}
+{% extends "courses/base_itcss.html" %}
 {% load static %}
 
 {% block title %}Duplicar Módulo - {{ course.title }}{% endblock %}
@@ -124,10 +124,11 @@
         margin-bottom: 0.5rem;
     }
 }
-</style>
+
+        </style>
 {% endblock %}
 
-{% block course_content %}
+{% block content %}
 <div class="duplicate-container">
     <div class="container">
         <div class="duplicate-card">

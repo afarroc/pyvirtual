@@ -1,659 +1,749 @@
-{% extends "courses/base.html" %}
 {% load static %}
-
-{% block extra_head %}
-<style>
-.user-detail-section {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-    margin-bottom: 2rem;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ user_profile.get_full_name|default:user_profile.username }} · Cursos M360</title>
+  <meta name="description" content="Detalle de usuario del sistema.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  <style>
+  .user-detail-page {
+    background: var(--color-background);
+    min-height: 100vh;
+    padding: var(--space-8) 0;
+  }
+  .user-detail-section {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
-}
-
-.user-detail-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 2rem;
-    margin: -1.5rem -1.5rem 1.5rem -1.5rem;
-}
-
-.user-avatar-large {
+  }
+  .user-detail-header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    padding: var(--space-6);
+    margin: calc(-1 * var(--space-6)) calc(-1 * var(--space-6)) var(--space-6) calc(-1 * var(--space-6));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .user-detail-header__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .user-detail-header__main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .user-avatar-large {
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 3rem;
-    margin: 0 auto 1rem;
-    border: 4px solid white;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.info-card {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.info-label {
+    color: #fff;
+    font-size: var(--text-4xl);
+    border: 4px solid #fff;
+    box-shadow: var(--shadow-md);
+    flex-shrink: 0;
+  }
+  .user-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  .user-detail-header__title {
+    margin: 0 0 var(--space-1) 0;
+    font-size: var(--text-2xl);
+    font-weight: 800;
+  }
+  .user-detail-header__subtitle {
+    margin: 0 0 var(--space-3) 0;
+    opacity: 0.9;
+  }
+  .user-detail-header__badges {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .user-detail-header__actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .info-card {
+    background: var(--color-background);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--color-border);
+  }
+  .info-card:last-child {
+    margin-bottom: 0;
+  }
+  .info-card__label {
     font-weight: 600;
-    color: #495057;
-    font-size: 0.875rem;
+    color: var(--color-text);
+    font-size: var(--text-sm);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
-}
-
-.info-value {
-    color: #212529;
-    font-size: 1rem;
-}
-
-.status-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
+    margin-bottom: var(--space-3);
+  }
+  .info-card__row {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .info-card__row strong {
+    min-width: 140px;
+    color: var(--color-text);
+  }
+  .status-badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
     font-weight: 600;
-}
-
-.tab-content {
-    background: white;
-    border-radius: 0 0 15px 15px;
-    padding: 2rem;
-}
-
-.nav-tabs .nav-link {
+  }
+  .status-badge--success { background: #dcfce7; color: #14532d; }
+  .status-badge--danger { background: #fee2e2; color: #991b1b; }
+  .status-badge--info { background: #cffafe; color: #155e75; }
+  .status-badge--warning { background: #fef3c7; color: #78350f; }
+  .status-badge--secondary { background: #e2e8f0; color: #475569; }
+  .user-stats-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    margin-bottom: var(--space-6);
+  }
+  .user-stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .user-stat-card__icon {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-2);
+  }
+  .user-stat-card__icon--primary { color: var(--color-primary); }
+  .user-stat-card__icon--success { color: #059669; }
+  .user-stat-card__icon--info { color: #0891b2; }
+  .user-stat-card__icon--warning { color: #d97706; }
+  .user-stat-card__value {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--color-text);
+    margin-bottom: var(--space-1);
+  }
+  .user-stat-card__label {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .tabs-nav {
+    display: flex;
+    gap: var(--space-1);
+    border-bottom: 2px solid var(--color-border);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+  }
+  .tab-button {
+    padding: var(--space-3) var(--space-4);
     border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    cursor: pointer;
     border-bottom: 3px solid transparent;
-    color: #6c757d;
-    font-weight: 500;
-    padding: 1rem 1.5rem;
-}
-
-.nav-tabs .nav-link.active {
-    background: none;
-    border-bottom-color: #667eea;
-    color: #667eea;
-}
-
-.nav-tabs .nav-link:hover {
-    border-bottom-color: #667eea;
-    color: #667eea;
-}
-
-@media (max-width: 768px) {
+    margin-bottom: -2px;
+    transition: color var(--transition), border-color var(--transition);
+  }
+  .tab-button:hover {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+  .tab-button--active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+  .tab-pane {
+    display: none;
+  }
+  .tab-pane--active {
+    display: block;
+  }
+  .list-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .list-item:last-child {
+    border-bottom: none;
+  }
+  .list-item__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .list-item__icon--course { background: #dbeafe; color: #2563eb; }
+  .list-item__icon--enrollment { background: #d1fae5; color: #059669; }
+  .list-item__main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .list-item__main h6 {
+    margin: 0;
+    font-weight: 600;
+  }
+  .list-item__main p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  .list-item__aside {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .actions-grid {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .action-row {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .permissions-grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .permissions-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .empty-state {
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--color-text-muted);
+  }
+  .empty-state__icon {
+    font-size: var(--text-4xl);
+    margin-bottom: var(--space-3);
+  }
+  @media (max-width: 768px) {
     .user-detail-header {
-        padding: 1.5rem;
+      padding: var(--space-5);
     }
-
-    .user-avatar-large {
-        width: 100px;
-        height: 100px;
-        font-size: 2.5rem;
+    .user-detail-header__inner {
+      flex-direction: column;
+      align-items: flex-start;
     }
-}
-</style>
-{% endblock %}
+    .user-detail-header__main {
+      flex-direction: column;
+      text-align: center;
+    }
+    .user-stats-grid {
+      grid-template-columns: 1fr;
+    }
+    .tabs-nav {
+      flex-direction: column;
+    }
+    .list-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .list-item__aside {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+  
+        </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-{% block course_content %}
-<div class="courses-main-content">
-    <div class="row">
-        <div class="col-12">
-            <!-- Header -->
-            <div class="user-detail-section">
-                <div class="user-detail-header">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="d-flex align-items-center">
-                            {% if user_profile.profile.profile_picture %}
-                            <img src="{{ user_profile.profile.profile_picture.url }}" class="user-avatar-large me-4" alt="Profile Picture">
-                            {% else %}
-                            <div class="user-avatar-large me-4">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-                            {% endif %}
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
 
-                            <div>
-                                <h1 class="h2 mb-1">{{ user_profile.get_full_name|default:user_profile.username }}</h1>
-                                <p class="mb-2">@{{ user_profile.username }}</p>
-                                <div class="d-flex gap-2">
-                                    {% if user_profile.is_staff %}
-                                    <span class="status-badge bg-danger">Administrador</span>
-                                    {% endif %}
-                                    {% if user_profile.cv %}
-                                    <span class="status-badge bg-success">Tutor</span>
-                                    {% else %}
-                                    <span class="status-badge bg-info">Estudiante</span>
-                                    {% endif %}
-                                    {% if user_profile.is_active %}
-                                    <span class="status-badge bg-success">Activo</span>
-                                    {% else %}
-                                    <span class="status-badge bg-danger">Inactivo</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
 
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'courses:edit_user' user.id %}" class="btn btn-warning">
-                                <i class="bi bi-pencil-square me-1"></i>Editar Usuario
-                            </a>
-                            <button class="btn btn-light" onclick="window.print()">
-                                <i class="bi bi-printer me-1"></i>Imprimir
-                            </button>
-                            <a href="{% url 'courses:admin_users' %}" class="btn btn-outline-light">
-                                <i class="bi bi-arrow-left me-1"></i>Volver
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Información Básica -->
-                <div class="row mb-4">
-                    <div class="col-lg-4">
-                        <div class="info-card">
-                            <div class="info-label">Información de Cuenta</div>
-                            <div class="info-value mb-2"><strong>Username:</strong> {{ user_profile.username }}</div>
-                            <div class="info-value mb-2"><strong>Email:</strong> {{ user_profile.email }}</div>
-                            <div class="info-value mb-2"><strong>Nombre:</strong> {{ user_profile.first_name }} {{ user_profile.last_name }}</div>
-                            <div class="info-value mb-2"><strong>ID:</strong> {{ user_profile.id }}</div>
-                            <div class="info-value"><strong>Fecha de Registro:</strong> {{ user_profile.date_joined|date:"M d, Y H:i" }}</div>
-                        </div>
-
-                        <div class="info-card">
-                            <div class="info-label">Estado de Cuenta</div>
-                            <div class="info-value mb-2">
-                                <strong>Activo:</strong>
-                                {% if user_profile.is_active %}
-                                <span class="badge bg-success">Sí</span>
-                                {% else %}
-                                <span class="badge bg-danger">No</span>
-                                {% endif %}
-                            </div>
-                            <div class="info-value mb-2">
-                                <strong>Staff:</strong>
-                                {% if user_profile.is_staff %}
-                                <span class="badge bg-danger">Sí</span>
-                                {% else %}
-                                <span class="badge bg-secondary">No</span>
-                                {% endif %}
-                            </div>
-                            <div class="info-value mb-2">
-                                <strong>Superuser:</strong>
-                                {% if user_profile.is_superuser %}
-                                <span class="badge bg-danger">Sí</span>
-                                {% else %}
-                                <span class="badge bg-secondary">No</span>
-                                {% endif %}
-                            </div>
-                            <div class="info-value">
-                                <strong>Último Login:</strong> {{ user_profile.last_login|date:"M d, Y H:i"|default:"Nunca" }}
-                            </div>
-                            <div class="info-value">
-                                <strong>Rol del Sistema:</strong>
-                                {% if user_profile.cv %}
-                                    {% if user_profile.cv.role == 'TU' %}
-                                        <span class="badge bg-info">Tutor</span>
-                                    {% elif user_profile.cv.role == 'AD' %}
-                                        <span class="badge bg-danger">Administrador</span>
-                                    {% elif user_profile.cv.role == 'GE' %}
-                                        <span class="badge bg-success">Gestor de Eventos</span>
-                                    {% elif user_profile.cv.role == 'SU' %}
-                                        <span class="badge bg-warning">Supervisor</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">Usuario Estándar</span>
-                                    {% endif %}
-                                {% else %}
-                                    <span class="badge bg-light text-muted">Sin rol asignado</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-8">
-                        <!-- Estadísticas -->
-                        <div class="row mb-4">
-                            <div class="col-md-3">
-                                <div class="card border-0 shadow-sm text-center h-100">
-                                    <div class="card-body">
-                                        <div class="fs-1 text-primary mb-2">
-                                            <i class="bi bi-book"></i>
-                                        </div>
-                                        <div class="fs-4 fw-bold text-primary">{{ user_stats.courses_as_student }}</div>
-                                        <div class="text-muted small">Cursos como Estudiante</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card border-0 shadow-sm text-center h-100">
-                                    <div class="card-body">
-                                        <div class="fs-1 text-success mb-2">
-                                            <i class="bi bi-person-badge"></i>
-                                        </div>
-                                        <div class="fs-4 fw-bold text-success">{{ user_stats.courses_as_tutor }}</div>
-                                        <div class="text-muted small">Cursos como Tutor</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card border-0 shadow-sm text-center h-100">
-                                    <div class="card-body">
-                                        <div class="fs-1 text-info mb-2">
-                                            <i class="bi bi-trophy"></i>
-                                        </div>
-                                        <div class="fs-4 fw-bold text-info">{{ user_stats.completed_enrollments }}</div>
-                                        <div class="text-muted small">Cursos Completados</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card border-0 shadow-sm text-center h-100">
-                                    <div class="card-body">
-                                        <div class="fs-1 text-warning mb-2">
-                                            <i class="bi bi-star"></i>
-                                        </div>
-                                        <div class="fs-4 fw-bold text-warning">{{ user_stats.reviews_count }}</div>
-                                        <div class="text-muted small">Reseñas</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pestañas de Información Detallada -->
-                        <ul class="nav nav-tabs" id="userDetailTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
-                                    <i class="bi bi-house me-1"></i>Resumen
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="cv-tab" data-bs-toggle="tab" data-bs-target="#cv" type="button" role="tab">
-                                    <i class="bi bi-person-badge me-1"></i>CV/Perfil
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="courses-tab" data-bs-toggle="tab" data-bs-target="#courses" type="button" role="tab">
-                                    <i class="bi bi-book me-1"></i>Cursos
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat" type="button" role="tab">
-                                    <i class="bi bi-chat me-1"></i>Chat/Salas
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="permissions-tab" data-bs-toggle="tab" data-bs-target="#permissions" type="button" role="tab">
-                                    <i class="bi bi-shield me-1"></i>Permisos
-                                </button>
-                            </li>
-                        </ul>
-
-                        <div class="tab-content" id="userDetailTabsContent">
-                            <!-- Resumen -->
-                            <div class="tab-pane fade show active" id="overview" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5 class="mb-3"><i class="bi bi-journal-bookmark me-2"></i>Cursos como Tutor</h5>
-                                        {% if user_courses %}
-                                        <div class="list-group">
-                                            {% for course in user_courses %}
-                                            <div class="list-group-item">
-                                                <div class="d-flex align-items-center">
-                                                    {% if course.thumbnail %}
-                                                    <img src="{{ course.thumbnail.url }}" class="rounded me-3" width="50" height="50" alt="{{ course.title }}">
-                                                    {% else %}
-                                                    <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                                        <i class="bi bi-journal-bookmark"></i>
-                                                    </div>
-                                                    {% endif %}
-                                                    <div class="flex-grow-1">
-                                                        <h6 class="mb-1">{{ course.title }}</h6>
-                                                        <small class="text-muted">{{ course.category.name }}</small>
-                                                    </div>
-                                                    {% if course.is_published %}
-                                                    <span class="badge bg-success">Publicado</span>
-                                                    {% else %}
-                                                    <span class="badge bg-secondary">Borrador</span>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        <p class="text-muted">No tiene cursos como tutor</p>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <h5 class="mb-3"><i class="bi bi-book me-2"></i>Inscripciones Recientes</h5>
-                                        {% if user_enrollments %}
-                                        <div class="list-group">
-                                            {% for enrollment in user_enrollments %}
-                                            <div class="list-group-item">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <h6 class="mb-1">{{ enrollment.course.title }}</h6>
-                                                        <small class="text-muted">por {{ enrollment.course.tutor.get_full_name }}</small>
-                                                    </div>
-                                                    <div class="text-end">
-                                                        <span class="badge bg-{{ enrollment.status|lower }}">{{ enrollment.get_status_display }}</span>
-                                                        <br>
-                                                        <small class="text-muted">{{ enrollment.enrolled_at|date:"M d, Y" }}</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        <p class="text-muted">No tiene inscripciones recientes</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- CV/Perfil -->
-                            <div class="tab-pane fade" id="cv" role="tabpanel">
-                                {% if user_profile.cv %}
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <div class="info-card">
-                                            <div class="info-label">Información Profesional</div>
-                                            <div class="info-value mb-2"><strong>Profesión:</strong> {{ user_profile.cv.profession }}</div>
-                                            <div class="info-value mb-2"><strong>Experiencia:</strong> {{ user_profile.cv.experience_years }} años</div>
-                                            <div class="info-value mb-2"><strong>Ubicación:</strong> {{ user_profile.cv.location }}</div>
-                                            <div class="info-value mb-2"><strong>Teléfono:</strong> {{ user_profile.cv.phone }}</div>
-                                            <div class="info-value"><strong>Sitio Web:</strong> {{ user_profile.cv.website }}</div>
-                                        </div>
-
-                                        <div class="info-card">
-                                            <div class="info-label">Biografía</div>
-                                            <div class="info-value">{{ user_profile.cv.bio|linebreaks }}</div>
-                                        </div>
-
-                                        <div class="info-card">
-                                            <div class="info-label">Habilidades</div>
-                                            <div class="info-value">
-                                                {% for skill in user_profile.cv.skills.all %}
-                                                <span class="badge bg-primary me-1">{{ skill.name }}</span>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        {% if user_profile.cv.profile_picture %}
-                                        <img src="{{ user_profile.cv.profile_picture.url }}" class="img-fluid rounded mb-3" alt="CV Picture">
-                                        {% endif %}
-
-                                        <div class="info-card">
-                                            <div class="info-label">Estadísticas CV</div>
-                                            <div class="info-value mb-2"><strong>Vistas:</strong> {{ user_profile.cv.views_count }}</div>
-                                            <div class="info-value mb-2"><strong>Rating:</strong> {{ user_profile.cv.average_rating|floatformat:1 }}</div>
-                                            <div class="info-value"><strong>Completado:</strong> {{ user_profile.cv.completion_percentage }}%</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% else %}
-                                <div class="text-center py-5">
-                                    <i class="bi bi-person-x text-muted fs-1 mb-3"></i>
-                                    <h5 class="text-muted mb-2">No tiene CV registrado</h5>
-                                    <p class="text-muted">Este usuario no ha completado su perfil profesional</p>
-                                </div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Cursos -->
-                            <div class="tab-pane fade" id="courses" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5 class="mb-3"><i class="bi bi-person-badge me-2"></i>Cursos como Tutor</h5>
-                                        {% if user_courses %}
-                                        <div class="list-group">
-                                            {% for course in user_courses %}
-                                            <div class="list-group-item">
-                                                <div class="d-flex justify-content-between align-items-start">
-                                                    <div>
-                                                        <h6 class="mb-1">{{ course.title }}</h6>
-                                                        <small class="text-muted">{{ course.category.name }} • {{ course.price }} USD</small>
-                                                        <div class="mt-1">
-                                                            {% if course.is_published %}
-                                                            <span class="badge bg-success">Publicado</span>
-                                                            {% else %}
-                                                            <span class="badge bg-secondary">Borrador</span>
-                                                            {% endif %}
-                                                            <span class="badge bg-info">{{ course.students_count }} estudiantes</span>
-                                                        </div>
-                                                    </div>
-                                                    <a href="{% url 'courses:manage_content' course.slug %}" class="btn btn-sm btn-outline-primary">
-                                                        <i class="bi bi-gear"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        <p class="text-muted">No tiene cursos como tutor</p>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <h5 class="mb-3"><i class="bi bi-book me-2"></i>Todas las Inscripciones</h5>
-                                        {% if user_enrollments %}
-                                        <div class="list-group">
-                                            {% for enrollment in user_enrollments %}
-                                            <div class="list-group-item">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <h6 class="mb-1">{{ enrollment.course.title }}</h6>
-                                                        <small class="text-muted">Tutor: {{ enrollment.course.tutor.get_full_name }}</small>
-                                                    </div>
-                                                    <div class="text-end">
-                                                        <span class="badge bg-{{ enrollment.status|lower }}">{{ enrollment.get_status_display }}</span>
-                                                        <br>
-                                                        <small class="text-muted">{{ enrollment.enrolled_at|date:"M d, Y" }}</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        <p class="text-muted">No tiene inscripciones</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Chat/Salas -->
-                            <div class="tab-pane fade" id="chat" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <h5 class="mb-3"><i class="bi bi-chat-dots me-2"></i>Salas de Chat</h5>
-                                        <div class="alert alert-info">
-                                            <i class="bi bi-info-circle me-2"></i>
-                                            Información de salas de chat próximamente disponible
-                                        </div>
-                                        <div class="text-center py-4">
-                                            <i class="bi bi-chat-square-text text-muted fs-1 mb-3"></i>
-                                            <h6 class="text-muted">Funcionalidad en desarrollo</h6>
-                                            <p class="text-muted small">La información detallada de salas de chat estará disponible próximamente</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Permisos -->
-                            <div class="tab-pane fade" id="permissions" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="info-card">
-                                            <div class="info-label">Permisos de Usuario</div>
-                                            <div class="mb-2">
-                                                <strong>Es Staff:</strong>
-                                                {% if user_profile.is_staff %}
-                                                <span class="badge bg-success">Sí</span>
-                                                {% else %}
-                                                <span class="badge bg-danger">No</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="mb-2">
-                                                <strong>Es Superuser:</strong>
-                                                {% if user_profile.is_superuser %}
-                                                <span class="badge bg-success">Sí</span>
-                                                {% else %}
-                                                <span class="badge bg-danger">No</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="mb-2">
-                                                <strong>Cuenta Activa:</strong>
-                                                {% if user_profile.is_active %}
-                                                <span class="badge bg-success">Sí</span>
-                                                {% else %}
-                                                <span class="badge bg-danger">No</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-
-                                        <div class="info-card">
-                                            <div class="info-label">Grupos</div>
-                                            <div class="info-value">
-                                                {% for group in user_profile.groups.all %}
-                                                <span class="badge bg-secondary me-1">{{ group.name }}</span>
-                                                {% empty %}
-                                                <span class="text-muted">Sin grupos asignados</span>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="info-card">
-                                            <div class="info-label">Permisos Específicos</div>
-                                            <div class="info-value">
-                                                {% for permission in user_profile.user_permissions.all %}
-                                                <span class="badge bg-info me-1 mb-1">{{ permission.name }}</span>
-                                                {% empty %}
-                                                <span class="text-muted">Sin permisos específicos</span>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-
-                                        <div class="info-card">
-                                            <div class="info-label">Acciones de Administración</div>
-                                            <div class="d-grid gap-2">
-                                                <button class="btn btn-outline-primary btn-sm" onclick="toggleUserStatus({{ user_profile.id }}, {{ user_profile.is_active|lower }})">
-                                                    {% if user_profile.is_active %}
-                                                    <i class="bi bi-person-dash me-1"></i>Desactivar Usuario
-                                                    {% else %}
-                                                    <i class="bi bi-person-check me-1"></i>Activar Usuario
-                                                    {% endif %}
-                                                </button>
-                                                <button class="btn btn-outline-warning btn-sm" onclick="resetPassword({{ user_profile.id }})">
-                                                    <i class="bi bi-key me-1"></i>Resetear Contraseña
-                                                </button>
-                                                <button class="btn btn-outline-danger btn-sm" onclick="deleteUser({{ user_profile.id }})">
-                                                    <i class="bi bi-trash me-1"></i>Eliminar Usuario
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-                </div>
-            </div>
-        </div>
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% if categories %}
+                {% for category in categories %}
+                  {% if category.slug %}
+                    <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
     </div>
-</div>
+  </header>
 
-<script>
-// Funciones de administración de usuarios
-function toggleUserStatus(userId, currentStatus) {
-    if (confirm(`¿Estás seguro de que quieres ${currentStatus ? 'desactivar' : 'activar'} este usuario?`)) {
-        // Aquí iría la llamada AJAX para cambiar el estado del usuario
-        fetch(`/admin/users/${userId}/toggle-status/`, {
+  <main id="main-content">
+    <div class="user-detail-page">
+      <div class="container">
+        <section class="user-detail-section">
+          <div class="user-detail-header">
+            <div class="user-detail-header__inner">
+              <div class="user-detail-header__main">
+                {% if user_profile.profile.profile_picture %}
+                <img src="{{ user_profile.profile.profile_picture.url }}" class="user-avatar-large" alt="Profile Picture">
+                {% else %}
+                <div class="user-avatar-large">👤</div>
+                {% endif %}
+                <div>
+                  <h1 class="user-detail-header__title">{{ user_profile.get_full_name|default:user_profile.username }}</h1>
+                  <p class="user-detail-header__subtitle">@{{ user_profile.username }}</p>
+                  <div class="user-detail-header__badges">
+                    {% if user_profile.is_staff %}
+                    <span class="status-badge status-badge--danger">Administrador</span>
+                    {% endif %}
+                    {% if user_profile.cv %}
+                    <span class="status-badge status-badge--success">Tutor</span>
+                    {% else %}
+                    <span class="status-badge status-badge--info">Estudiante</span>
+                    {% endif %}
+                    {% if user_profile.is_active %}
+                    <span class="status-badge status-badge--success">Activo</span>
+                    {% else %}
+                    <span class="status-badge status-badge--danger">Inactivo</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="user-detail-header__actions">
+                <a href="{% url 'courses:edit_user' user_profile.id %}" class="btn-action" style="background: rgba(255,255,255,0.95); color: var(--color-text); border-color: rgba(255,255,255,0.5);">✏️ Editar Usuario</a>
+                <button class="btn-action" style="background: rgba(255,255,255,0.95); color: var(--color-text); border-color: rgba(255,255,255,0.5);" onclick="window.print()">🖨️ Imprimir</button>
+                <a href="{% url 'courses:admin_users' %}" class="btn-action" style="background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.4);">← Volver</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="user-stats-grid">
+            <div class="user-stat-card">
+              <div class="user-stat-card__icon user-stat-card__icon--primary">📚</div>
+              <div class="user-stat-card__value">{{ user_stats.courses_as_student }}</div>
+              <div class="user-stat-card__label">Cursos como Estudiante</div>
+            </div>
+            <div class="user-stat-card">
+              <div class="user-stat-card__icon user-stat-card__icon--success">🎓</div>
+              <div class="user-stat-card__value">{{ user_stats.courses_as_tutor }}</div>
+              <div class="user-stat-card__label">Cursos como Tutor</div>
+            </div>
+            <div class="user-stat-card">
+              <div class="user-stat-card__icon user-stat-card__icon--info">🏆</div>
+              <div class="user-stat-card__value">{{ user_stats.completed_enrollments }}</div>
+              <div class="user-stat-card__label">Cursos Completados</div>
+            </div>
+            <div class="user-stat-card">
+              <div class="user-stat-card__icon user-stat-card__icon--warning">⭐</div>
+              <div class="user-stat-card__value">{{ user_stats.reviews_count }}</div>
+              <div class="user-stat-card__label">Reseñas</div>
+            </div>
+          </div>
+
+          <div class="tabs-nav" role="tablist">
+            <button class="tab-button tab-button--active" data-tab="overview" role="tab">🏠 Resumen</button>
+            <button class="tab-button" data-tab="cv" role="tab">🪪 CV/Perfil</button>
+            <button class="tab-button" data-tab="courses" role="tab">📚 Cursos</button>
+            <button class="tab-button" data-tab="chat" role="tab">💬 Chat/Salas</button>
+            <button class="tab-button" data-tab="permissions" role="tab">🛡️ Permisos</button>
+          </div>
+
+          <div class="tab-pane tab-pane--active" id="tab-overview">
+            <div class="permissions-grid">
+              <div>
+                <h3 style="margin: 0 0 var(--space-3) 0; font-size: var(--text-lg); font-weight: 700;">📘 Cursos como Tutor</h3>
+                {% if user_courses %}
+                <div class="list-card">
+                  {% for course in user_courses %}
+                  <div class="list-item">
+                    <div class="list-item__icon list-item__icon--course">📚</div>
+                    <div class="list-item__main">
+                      <h6>{{ course.title }}</h6>
+                      <p>{{ course.category.name }}</p>
+                    </div>
+                    <div class="list-item__aside">
+                      {% if course.is_published %}
+                      <span class="status-badge status-badge--success">Publicado</span>
+                      {% else %}
+                      <span class="status-badge status-badge--secondary">Borrador</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                  <p>No tiene cursos como tutor</p>
+                </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <h3 style="margin: 0 0 var(--space-3) 0; font-size: var(--text-lg); font-weight: 700;">📗 Inscripciones Recientes</h3>
+                {% if user_enrollments %}
+                <div class="list-card">
+                  {% for enrollment in user_enrollments %}
+                  <div class="list-item">
+                    <div class="list-item__icon list-item__icon--enrollment">📝</div>
+                    <div class="list-item__main">
+                      <h6>{{ enrollment.course.title }}</h6>
+                      <p>por {{ enrollment.course.tutor.get_full_name }}</p>
+                    </div>
+                    <div class="list-item__aside">
+                      <span class="status-badge status-badge--{{ enrollment.status|lower }}">{{ enrollment.get_status_display }}</span>
+                      <small style="color: var(--color-text-muted);">{{ enrollment.enrolled_at|date:"M d, Y" }}</small>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                  <p>No tiene inscripciones recientes</p>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="tab-cv">
+            {% if user_profile.cv %}
+            <div class="info-card">
+              <div class="info-card__label">Información Profesional</div>
+              <div class="info-card__row"><strong>Profesión:</strong> <span>{{ user_profile.cv.profession }}</span></div>
+              <div class="info-card__row"><strong>Experiencia:</strong> <span>{{ user_profile.cv.experience_years }} años</span></div>
+              <div class="info-card__row"><strong>Ubicación:</strong> <span>{{ user_profile.cv.location }}</span></div>
+              <div class="info-card__row"><strong>Teléfono:</strong> <span>{{ user_profile.cv.phone }}</span></div>
+              <div class="info-card__row"><strong>Sitio Web:</strong> <span>{{ user_profile.cv.website }}</span></div>
+            </div>
+            <div class="info-card">
+              <div class="info-card__label">Biografía</div>
+              <p style="margin: 0; color: var(--color-text);">{{ user_profile.cv.bio|linebreaks }}</p>
+            </div>
+            <div class="info-card">
+              <div class="info-card__label">Habilidades</div>
+              <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                {% for skill in user_profile.cv.skills.all %}
+                <span class="status-badge status-badge--info">{{ skill.name }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+              <div class="empty-state__icon">👤</div>
+              <h3 style="color: var(--color-text); margin-bottom: var(--space-2);">No tiene CV registrado</h3>
+              <p>Este usuario no ha completado su perfil profesional</p>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="tab-pane" id="tab-courses">
+            <div class="permissions-grid">
+              <div>
+                <h3 style="margin: 0 0 var(--space-3) 0; font-size: var(--text-lg); font-weight: 700;">📘 Cursos como Tutor</h3>
+                {% if user_courses %}
+                <div class="list-card">
+                  {% for course in user_courses %}
+                  <div class="list-item">
+                    <div class="list-item__icon list-item__icon--course">📚</div>
+                    <div class="list-item__main">
+                      <h6>{{ course.title }}</h6>
+                      <p>{{ course.category.name }} • {{ course.price }} USD</p>
+                      <div style="margin-top: var(--space-2); display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                        {% if course.is_published %}
+                        <span class="status-badge status-badge--success">Publicado</span>
+                        {% else %}
+                        <span class="status-badge status-badge--secondary">Borrador</span>
+                        {% endif %}
+                        <span class="status-badge status-badge--info">{{ course.students_count }} estudiantes</span>
+                      </div>
+                    </div>
+                    <div class="list-item__aside">
+                      <a href="{% url 'courses:manage_content' course.slug %}" class="btn-action btn-action--secondary" title="Gestionar">⚙️</a>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                  <p>No tiene cursos como tutor</p>
+                </div>
+                {% endif %}
+              </div>
+
+              <div>
+                <h3 style="margin: 0 0 var(--space-3) 0; font-size: var(--text-lg); font-weight: 700;">📗 Todas las Inscripciones</h3>
+                {% if user_enrollments %}
+                <div class="list-card">
+                  {% for enrollment in user_enrollments %}
+                  <div class="list-item">
+                    <div class="list-item__icon list-item__icon--enrollment">📝</div>
+                    <div class="list-item__main">
+                      <h6>{{ enrollment.course.title }}</h6>
+                      <p>Tutor: {{ enrollment.course.tutor.get_full_name }}</p>
+                    </div>
+                    <div class="list-item__aside">
+                      <span class="status-badge status-badge--{{ enrollment.status|lower }}">{{ enrollment.get_status_display }}</span>
+                      <small style="color: var(--color-text-muted);">{{ enrollment.enrolled_at|date:"M d, Y" }}</small>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                  <p>No tiene inscripciones</p>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="tab-chat">
+            <div class="empty-state">
+              <div class="empty-state__icon">💬</div>
+              <h3 style="color: var(--color-text); margin-bottom: var(--space-2);">Información de salas de chat próximamente disponible</h3>
+              <p>La información detallada de salas de chat estará disponible próximamente</p>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="tab-permissions">
+            <div class="permissions-grid">
+              <div class="info-card">
+                <div class="info-card__label">Permisos de Usuario</div>
+                <div class="info-card__row"><strong>Es Staff:</strong> {% if user_profile.is_staff %}<span class="status-badge status-badge--success">Sí</span>{% else %}<span class="status-badge status-badge--danger">No</span>{% endif %}</div>
+                <div class="info-card__row"><strong>Es Superuser:</strong> {% if user_profile.is_superuser %}<span class="status-badge status-badge--success">Sí</span>{% else %}<span class="status-badge status-badge--danger">No</span>{% endif %}</div>
+                <div class="info-card__row"><strong>Cuenta Activa:</strong> {% if user_profile.is_active %}<span class="status-badge status-badge--success">Sí</span>{% else %}<span class="status-badge status-badge--danger">No</span>{% endif %}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-card__label">Grupos</div>
+                <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                  {% for group in user_profile.groups.all %}
+                  <span class="status-badge status-badge--secondary">{{ group.name }}</span>
+                  {% empty %}
+                  <span style="color: var(--color-text-muted);">Sin grupos asignados</span>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="info-card">
+                <div class="info-card__label">Permisos Específicos</div>
+                <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                  {% for permission in user_profile.user_permissions.all %}
+                  <span class="status-badge status-badge--info">{{ permission.name }}</span>
+                  {% empty %}
+                  <span style="color: var(--color-text-muted);">Sin permisos específicos</span>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="info-card">
+                <div class="info-card__label">Acciones de Administración</div>
+                <div class="actions-grid">
+                  <button class="btn-action btn-action--secondary" onclick="toggleUserStatus({{ user_profile.id }}, {{ user_profile.is_active|lower }})">
+                    {% if user_profile.is_active %}⏸️ Desactivar Usuario{% else %}▶️ Activar Usuario{% endif %}
+                  </button>
+                  <button class="btn-action btn-action--warning" style="background: #fef3c7; color: #78350f; border-color: #fef3c7;" onclick="resetPassword({{ user_profile.id }})">
+                    🔑 Resetear Contraseña
+                  </button>
+                  <button class="btn-action btn-action--danger" onclick="deleteUser({{ user_profile.id }})">
+                    🗑 Eliminar Usuario
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
+
+      document.querySelectorAll('.tab-button').forEach(function(button) {
+        button.addEventListener('click', function() {
+          var tabId = this.getAttribute('data-tab');
+          document.querySelectorAll('.tab-button').forEach(function(b) { b.classList.remove('tab-button--active'); });
+          document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('tab-pane--active'); });
+          this.classList.add('tab-button--active');
+          var pane = document.getElementById('tab-' + tabId);
+          if (pane) pane.classList.add('tab-pane--active');
+        });
+      });
+
+      function toggleUserStatus(userId, currentStatus) {
+        if (confirm('¿Estás seguro de que quieres ' + (currentStatus ? 'desactivar' : 'activar') + ' este usuario?')) {
+          fetch('/admin/users/' + userId + '/toggle-status/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             },
             body: JSON.stringify({ active: !currentStatus })
-        })
-        .then(response => response.json())
-        .then(data => {
+          })
+          .then(function(response) { return response.json(); })
+          .then(function(data) {
             if (data.success) {
-                location.reload();
+              location.reload();
             } else {
-                alert('Error al cambiar el estado del usuario');
+              alert('Error al cambiar el estado del usuario');
             }
-        })
-        .catch(error => {
+          })
+          .catch(function(error) {
             console.error('Error:', error);
             alert('Error al procesar la solicitud');
-        });
-    }
-}
+          });
+        }
+      }
 
-function resetPassword(userId) {
-    if (confirm('¿Estás seguro de que quieres resetear la contraseña de este usuario? Se enviará un email con las instrucciones.')) {
-        // Aquí iría la llamada AJAX para resetear contraseña
-        fetch(`/admin/users/${userId}/reset-password/`, {
+      function resetPassword(userId) {
+        if (confirm('¿Estás seguro de que quieres resetear la contraseña de este usuario? Se enviará un email con las instrucciones.')) {
+          fetch('/admin/users/' + userId + '/reset-password/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             }
-        })
-        .then(response => response.json())
-        .then(data => {
+          })
+          .then(function(response) { return response.json(); })
+          .then(function(data) {
             if (data.success) {
-                alert('Email de reseteo de contraseña enviado exitosamente');
+              alert('Email de reseteo de contraseña enviado exitosamente');
             } else {
-                alert('Error al enviar el email de reseteo');
+              alert('Error al enviar el email de reseteo');
             }
-        })
-        .catch(error => {
+          })
+          .catch(function(error) {
             console.error('Error:', error);
             alert('Error al procesar la solicitud');
-        });
-    }
-}
+          });
+        }
+      }
 
-function deleteUser(userId) {
-    if (confirm('¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.')) {
-        // Aquí iría la llamada AJAX para eliminar usuario
-        fetch(`/admin/users/${userId}/delete/`, {
+      function deleteUser(userId) {
+        if (confirm('¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.')) {
+          fetch('/admin/users/' + userId + '/delete/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             }
-        })
-        .then(response => response.json())
-        .then(data => {
+          })
+          .then(function(response) { return response.json(); })
+          .then(function(data) {
             if (data.success) {
-                window.location.href = '/admin/users/';
+              window.location.href = '/admin/users/';
             } else {
-                alert('Error al eliminar el usuario');
+              alert('Error al eliminar el usuario');
             }
-        })
-        .catch(error => {
+          })
+          .catch(function(error) {
             console.error('Error:', error);
             alert('Error al procesar la solicitud');
-        });
-    }
-}
-
-// Funcionalidad de impresión
-document.addEventListener('DOMContentLoaded', function() {
-    // Agregar funcionalidad adicional si es necesario
-    console.log('User detail page loaded');
-});
-</script>
-{% endblock %}
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>

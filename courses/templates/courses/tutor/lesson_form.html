@@ -1,4 +1,4 @@
-{% extends "courses/base.html" %}
+{% extends "courses/base_itcss.html" %}
 {% load static %}
 
 {% block title %}{{ title }} - {{ course.title }}{% endblock %}
@@ -646,10 +646,11 @@ code {
         padding: 0.75rem;
     }
 }
-</style>
+
+        </style>
 {% endblock %}
 
-{% block course_content %}
+{% block content %}
 <!-- Datos de bloques disponibles para JavaScript -->
 <script type="application/json" id="content-blocks-data">
 [
@@ -737,8 +738,8 @@ code {
                             </div>
 
                             <!-- Campos comunes -->
-                            <div class="row">
-                                <div class="col-md-6">
+                            <div class="lessons-filters-row">
+                                <div class="stats-col">
                                     <div class="form-group">
                                         <label for="{{ form.duration_minutes.id_for_label }}" class="form-label">
                                             <i class="bi bi-clock me-1"></i>Duración (minutos) *
@@ -753,7 +754,7 @@ code {
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="stats-col">
                                     <div class="form-group">
                                         <label for="{{ form.order.id_for_label }}" class="form-label">
                                             <i class="bi bi-sort-numeric-down me-1"></i>Orden
@@ -1078,12 +1079,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="mb-2">
                     <input type="text" class="form-control" placeholder="Escribe la pregunta" name="question_${questionCount}_text">
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
+                <div class="lessons-filters-row">
+                    <div class="stats-col">
                         <input type="text" class="form-control mb-2" placeholder="Opción A" name="question_${questionCount}_option_a">
                         <input type="text" class="form-control mb-2" placeholder="Opción B" name="question_${questionCount}_option_b">
                     </div>
-                    <div class="col-md-6">
+                    <div class="stats-col">
                         <input type="text" class="form-control mb-2" placeholder="Opción C" name="question_${questionCount}_option_c">
                         <input type="text" class="form-control mb-2" placeholder="Opción D" name="question_${questionCount}_option_d">
                     </div>
@@ -1891,8 +1892,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="modal-body">
                             <h6>Elementos disponibles:</h6>
 
-                            <div class="row">
-                                <div class="col-md-6">
+                            <div class="lessons-filters-row">
+                                <div class="stats-col">
                                     <h7><i class="bi bi-type-h1 text-primary me-1"></i>Encabezado</h7>
                                     <p class="small">Para títulos y secciones principales</p>
 
@@ -1902,7 +1903,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <h7><i class="bi bi-list-ul text-info me-1"></i>Lista</h7>
                                     <p class="small">Listas numeradas o con viñetas</p>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="stats-col">
                                     <h7><i class="bi bi-image text-warning me-1"></i>Imagen</h7>
                                     <p class="small">Imágenes con pie de foto opcional</p>
 

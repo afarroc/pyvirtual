@@ -1,4 +1,4 @@
-{% extends "courses/base.html" %}
+{% extends "courses/base_itcss.html" %}
 {% load static lesson_tags %}
 
 {% block title %}{{ lesson.title }} - Lección Independiente{% endblock %}
@@ -223,22 +223,23 @@ MathJax = {
         text-align: center;
     }
 }
-</style>
+
+    </style>
 {% endblock %}
 
-{% block course_content %}
+{% block content %}
 <div class="standalone-lesson-container">
     <!-- Header -->
     <div class="lesson-header">
         <div class="container">
-            <div class="row">
+            <div class="lessons-filters-row">
                 <div class="col-lg-8">
                     <h1><i class="bi bi-book me-3"></i>{{ lesson.title }}</h1>
                     {% if lesson.description %}
                     <p class="lead mb-0 mt-2">{{ lesson.description }}</p>
                     {% endif %}
                 </div>
-                <div class="col-lg-4 text-lg-end">
+                <div class="col-lg-4 lessons-header-icon">
                     <div class="mt-4">
                         <span class="badge bg-{% if lesson.lesson_type == 'video' %}primary{% elif lesson.lesson_type == 'text' %}success{% elif lesson.lesson_type == 'quiz' %}warning{% else %}info{% endif %} fs-6">
                             {{ lesson.get_lesson_type_display }}
@@ -281,7 +282,7 @@ MathJax = {
 
             {% if lesson.is_featured %}
             <div class="mt-2">
-                <span class="badge bg-warning">
+                <span class="badge-warning">
                     <i class="bi bi-star-fill me-1"></i>Lección Destacada
                 </span>
             </div>

@@ -1,4 +1,4 @@
-{% extends "courses/base.html" %}
+{% extends "courses/base_itcss.html" %}
 {% load static %}
 
 {% block title %}{{ title }} - Management360{% endblock %}
@@ -281,22 +281,23 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
-</style>
+
+    </style>
 {% endblock %}
 
-{% block course_content %}
+{% block content %}
 <div class="my-lessons-container">
     <!-- Header -->
     <div class="lessons-header">
         <div class="container">
-            <div class="row">
+            <div class="lessons-filters-row">
                 <div class="col-lg-8">
                     <h1><i class="bi bi-folder me-3"></i>{{ title }}</h1>
                     <p class="lead mb-0 mt-2">
                         Gestiona tus lecciones independientes y contenido educativo
                     </p>
                 </div>
-                <div class="col-lg-4 text-lg-end">
+                <div class="col-lg-4 lessons-header-icon">
                     <div class="mt-4">
                         <i class="bi bi-journal-bookmark fs-1 text-white-50"></i>
                     </div>

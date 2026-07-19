@@ -1,8 +1,8 @@
-{% extends "courses/base.html" %}
+{% extends "courses/base_itcss.html" %}
 
-{% block course_content %}
+{% block content %}
 <div class="content-manager-layout">
-    {% include "courses/includes/conditional_sidebar.html" %}
+    {% include "courses/components/conditional_sidebar.html" %}
 
     <main class="content-main">
         {% block cms_content %}
@@ -12,11 +12,11 @@
     {% if user.is_authenticated %}
     <!-- Panel Lateral -->
     <div class="content-panel">
-        {% include "courses/includes/content_manager_create_panel.html" %}
+        {% include "courses/components/content_manager_create_panel.html" %}
     </div>
     {% endif %}
 
     <!-- Modal de Vista Previa -->
-    {% include "courses/includes/content_manager_modal.html" %}
+    {% include "courses/components/content_manager_modal.html" %}
 </div>
 {% endblock %}

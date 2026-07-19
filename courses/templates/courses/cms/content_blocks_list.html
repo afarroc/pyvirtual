@@ -11,7 +11,7 @@
 <!-- Header -->
 <div class="content-blocks-header">
     <div class="container">
-        <div class="row">
+        <div class="lessons-filters-row">
             <div class="col-lg-8">
                 <h1><i class="bi bi-grid-3x3-gap me-3"></i>{{ title }}</h1>
                 <p class="lead mb-0 mt-2">
@@ -24,7 +24,7 @@
                     {% endif %}
                 </p>
             </div>
-            <div class="col-lg-4 text-lg-end">
+            <div class="col-lg-4 lessons-header-icon">
                 <div class="mt-4">
                     {% if title == "Mis Bloques de Contenido" %}
                         <i class="bi bi-folder fs-1 text-white-50"></i>
@@ -72,14 +72,14 @@
 
     <!-- Filtros -->
     <div class="filters-section">
-        <div class="row">
-            <div class="col-md-4">
+        <div class="lessons-filters-row">
+            <div class="filter-field filter-field--wide">
                 <label for="search" class="form-label">Buscar</label>
                 <input type="text" id="search" name="search" class="form-control"
                        placeholder="Buscar por título, descripción o etiquetas..."
                        value="{{ request.GET.search }}">
             </div>
-            <div class="col-md-3">
+            <div class="filter-field">
                 <label for="category" class="form-label">Categoría</label>
                 <select id="category" name="category" class="form-select">
                     <option value="">Todas las categorías</option>
@@ -90,7 +90,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="filter-field">
                 <label for="type" class="form-label">Tipo</label>
                 <select id="type" name="type" class="form-select">
                     <option value="">Todos los tipos</option>
@@ -101,7 +101,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="filter-actions">
                 <button type="button" class="btn btn-primary w-100" onclick="applyFilters()">
                     <i class="bi bi-search me-1"></i>Buscar
                 </button>
@@ -165,13 +165,13 @@
                 {% endif %}
 
                 {% if block.is_featured %}
-                <span class="badge bg-warning">
+                <span class="badge-warning">
                     <i class="bi bi-star-fill me-1"></i>Destacado
                 </span>
                 {% endif %}
 
                 {% if block.is_public %}
-                <span class="badge bg-success">
+                <span class="badge-success">
                     <i class="bi bi-globe me-1"></i>Público
                 </span>
                 {% endif %}

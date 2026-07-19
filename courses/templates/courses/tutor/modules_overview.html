@@ -1,296 +1,472 @@
-{% extends "courses/base.html" %}
 {% load static %}
-
-{% block title %}Vista General de Módulos{% endblock %}
-
-{% block extra_head %}
-<style>
-.modules-overview {
-    background: #f8f9fa;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vista General de Módulos · Cursos M360</title>
+  <meta name="description" content="Gestión general de módulos por curso.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  <style>
+  .modules-overview {
+    background: var(--color-background);
     min-height: 100vh;
-    padding: 2rem 0;
-}
-
-.overview-header {
-    background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-}
-
-.stats-grid {
+    padding: var(--space-8) 0;
+  }
+  .overview-header {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .overview-header__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .overview-header__title {
+    margin: 0;
+    font-weight: 800;
+    font-size: var(--text-2xl);
+  }
+  .overview-header__subtitle {
+    color: var(--color-text-muted);
+    margin: var(--space-1) 0 0 0;
+  }
+  .stats-grid {
     display: grid;
+    gap: var(--space-4);
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.stat-card {
-    background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
+    margin-bottom: var(--space-6);
+  }
+  .stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
     text-align: center;
-    border-left: 4px solid #667eea;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #2d3748;
-    margin-bottom: 0.5rem;
-}
-
-.stat-label {
-    color: #718096;
-    font-size: 0.875rem;
+    border-left: 4px solid var(--color-primary);
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-card__value {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--color-text);
+    margin-bottom: var(--space-1);
+  }
+  .stat-card__label {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
     text-transform: uppercase;
     font-weight: 600;
-}
-
-.courses-grid {
+  }
+  .overview-grid {
     display: grid;
-    gap: 2rem;
-}
-
-.course-card {
-    background: white;
-    border-radius: 15px;
+    gap: var(--space-6);
+  }
+  @media (min-width: 1024px) {
+    .overview-grid { grid-template-columns: 2fr 1fr; }
+  }
+  .course-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-}
-
-.course-card:hover {
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .course-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.course-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 1.5rem;
-}
-
-.course-title {
-    font-size: 1.25rem;
-    font-weight: 600;
+    box-shadow: var(--shadow-md);
+  }
+  .course-header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    padding: var(--space-5);
+  }
+  .course-title {
+    font-size: var(--text-xl);
+    font-weight: 700;
     margin: 0;
-}
-
-.course-meta {
-    font-size: 0.875rem;
+  }
+  .course-meta {
+    font-size: var(--text-sm);
     opacity: 0.9;
-    margin-top: 0.5rem;
-}
-
-.modules-list {
-    padding: 1.5rem;
-}
-
-.module-item {
+    margin-top: var(--space-1);
+  }
+  .modules-list {
+    padding: var(--space-5);
+  }
+  .module-item {
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 10px;
-    margin-bottom: 0.75rem;
-    transition: all 0.3s ease;
-}
-
-.module-item:hover {
-    background: #e9ecef;
-    transform: translateX(5px);
-}
-
-.module-info h6 {
+    padding: var(--space-4);
+    background: var(--color-background);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-3);
+    transition: transform var(--transition), background-color var(--transition);
+  }
+  .module-item:hover {
+    background: var(--color-border);
+    transform: translateX(4px);
+  }
+  .module-info h6 {
     margin: 0;
     font-weight: 600;
-    color: #2d3748;
-}
-
-.module-stats {
-    font-size: 0.875rem;
-    color: #718096;
-    margin: 0.25rem 0 0 0;
-}
-
-.module-actions {
+    color: var(--color-text);
+  }
+  .module-stats {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin: var(--space-1) 0 0 0;
+  }
+  .module-actions {
     display: flex;
-    gap: 0.5rem;
-}
-
-.btn-module-action {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-    border-radius: 6px;
-}
-
-.recent-modules {
-    background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-}
-
-.recent-module-item {
-    display: flex;
-    justify-content: between;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .btn-module-action {
+    display: inline-flex;
     align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.recent-module-item:last-child {
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition: background-color var(--transition), border-color var(--transition), color var(--transition);
+  }
+  .btn-module-action--view {
+    background: var(--color-background);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+  .btn-module-action--view:hover {
+    background: var(--color-border);
+  }
+  .btn-module-action--edit {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #dbeafe;
+  }
+  .btn-module-action--edit:hover {
+    background: #2563eb;
+    color: #fff;
+  }
+  .empty-state {
+    text-align: center;
+    padding: var(--space-6);
+    color: var(--color-text-muted);
+  }
+  .empty-state__icon {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-3);
+  }
+  .sidebar-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .sidebar-card__title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+  }
+  .recent-module-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+    gap: var(--space-3);
+  }
+  .recent-module-item:last-child {
     border-bottom: none;
-}
-
-@media (max-width: 768px) {
+  }
+  .recent-module-item h6 {
+    margin: 0;
+    font-weight: 600;
+  }
+  .recent-module-item small {
+    color: var(--color-text-muted);
+  }
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition: background-color var(--transition), border-color var(--transition), color var(--transition);
+  }
+  .btn-action--primary {
+    background: var(--color-primary);
+    color: #fff;
+  }
+  .btn-action--primary:hover {
+    background: var(--color-primary-dark);
+  }
+  .btn-action--secondary {
+    background: var(--color-background);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+  .btn-action--secondary:hover {
+    background: var(--color-border);
+  }
+  .btn-action--sm {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+  }
+  @media (max-width: 768px) {
+    .overview-header {
+      padding: var(--space-5);
+    }
     .stats-grid {
-        grid-template-columns: 1fr;
+      grid-template-columns: 1fr;
     }
-
     .module-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-3);
     }
-
     .module-actions {
-        width: 100%;
-        justify-content: flex-end;
+      width: 100%;
+      justify-content: flex-end;
     }
-}
-</style>
-{% endblock %}
+  }
+  
+        </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-{% block course_content %}
-<div class="modules-overview">
-    <div class="container">
-        <!-- Header -->
-        <div class="overview-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h2 mb-1"><i class="bi bi-folder-fill me-2"></i>Vista General de Módulos</h1>
-                    <p class="text-muted mb-0">Gestiona todos tus módulos desde un solo lugar</p>
-                </div>
-                <a href="{% url 'courses:manage_courses' %}" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-left me-1"></i>Volver a Cursos
-                </a>
-            </div>
-        </div>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
 
-        <!-- Estadísticas Generales -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value">{{ total_courses }}</div>
-                <div class="stat-label">Cursos Totales</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">{{ total_modules }}</div>
-                <div class="stat-label">Módulos Totales</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">{{ total_lessons }}</div>
-                <div class="stat-label">Lecciones Totales</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">{{ recent_modules|length }}</div>
-                <div class="stat-label">Módulos Recientes</div>
-            </div>
-        </div>
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
 
-        <div class="row">
-            <!-- Lista de Cursos con Módulos -->
-            <div class="col-lg-8">
-                <div class="courses-grid">
-                    {% for course in courses %}
-                    <div class="course-card">
-                        <div class="course-header">
-                            <h3 class="course-title">{{ course.title }}</h3>
-                            <div class="course-meta">
-                                <span>{{ course.modules.count }} módulos</span> •
-                                <span>{{ course.students_count }} estudiantes</span>
-                            </div>
-                        </div>
-
-                        <div class="modules-list">
-                            {% if course.modules.exists %}
-                                {% for module in course.modules.all %}
-                                <div class="module-item">
-                                    <div class="module-info">
-                                        <h6>{{ module.title }}</h6>
-                                        <p class="module-stats">
-                                            {{ module.lessons.count }} lecciones •
-                                            Orden: {{ module.order }}
-                                        </p>
-                                    </div>
-                                    <div class="module-actions">
-                                        <a href="{% url 'courses:manage_content' course.slug %}" class="btn btn-outline-primary btn-module-action">
-                                            <i class="bi bi-eye me-1"></i>Ver
-                                        </a>
-                                        <a href="{% url 'courses:edit_module' course.slug module.id %}" class="btn btn-outline-secondary btn-module-action">
-                                            <i class="bi bi-pencil me-1"></i>Editar
-                                        </a>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <div class="text-center py-4">
-                                    <i class="bi bi-folder-x text-muted fs-1 mb-2"></i>
-                                    <p class="text-muted mb-2">Este curso aún no tiene módulos</p>
-                                    <a href="{% url 'courses:create_module' course.slug %}" class="btn btn-outline-primary">
-                                        <i class="bi bi-plus-circle me-1"></i>Crear Primer Módulo
-                                    </a>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Panel Lateral -->
-            <div class="col-lg-4">
-                <!-- Módulos Recientes -->
-                <div class="recent-modules">
-                    <h4 class="mb-3"><i class="bi bi-clock-history me-2"></i>Módulos Recientes</h4>
-                    {% if recent_modules %}
-                        {% for module in recent_modules %}
-                        <div class="recent-module-item">
-                            <div>
-                                <h6 class="mb-1">{{ module.title }}</h6>
-                                <small class="text-muted">{{ module.course.title }}</small>
-                            </div>
-                            <a href="{% url 'courses:manage_content' module.course.slug %}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-folder text-muted fs-1 mb-2"></i>
-                            <p class="text-muted mb-0">No hay módulos recientes</p>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <!-- Acciones Rápidas -->
-                <div class="recent-modules mt-3">
-                    <h4 class="mb-3"><i class="bi bi-lightning me-2"></i>Acciones Rápidas</h4>
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'courses:create_course' %}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle me-1"></i>Crear Nuevo Curso
-                        </a>
-                        <a href="{% url 'courses:manage_categories' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-tags me-1"></i>Gestionar Categorías
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% if categories %}
+                {% for category in categories %}
+                  {% if category.slug %}
+                    <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
     </div>
-</div>
-{% endblock %}
+  </header>
+
+  <main id="main-content">
+    <div class="modules-overview">
+      <div class="container">
+        <section class="overview-header">
+          <div class="overview-header__inner">
+            <div>
+              <h1 class="overview-header__title">📁 Vista General de Módulos</h1>
+              <p class="overview-header__subtitle">Gestiona todos tus módulos desde un solo lugar</p>
+            </div>
+            <a href="{% url 'courses:manage_courses' %}" class="btn-action btn-action--secondary">
+              ← Volver a Cursos
+            </a>
+          </div>
+        </section>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card__value">{{ total_courses }}</div>
+            <div class="stat-card__label">Cursos Totales</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__value">{{ total_modules }}</div>
+            <div class="stat-card__label">Módulos Totales</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__value">{{ total_lessons }}</div>
+            <div class="stat-card__label">Lecciones Totales</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__value">{{ recent_modules|length }}</div>
+            <div class="stat-card__label">Módulos Recientes</div>
+          </div>
+        </section>
+
+        <div class="overview-grid">
+          <div class="courses-grid">
+            {% for course in courses %}
+            <div class="course-card">
+              <div class="course-header">
+                <h2 class="course-title">{{ course.title }}</h2>
+                <div class="course-meta">
+                  <span>{{ course.modules.count }} módulos</span> •
+                  <span>{{ course.students_count }} estudiantes</span>
+                </div>
+              </div>
+
+              <div class="modules-list">
+                {% if course.modules.exists %}
+                  {% for module in course.modules.all %}
+                  <div class="module-item">
+                    <div class="module-info">
+                      <h6>{{ module.title }}</h6>
+                      <p class="module-stats">
+                        {{ module.lessons.count }} lecciones •
+                        Orden: {{ module.order }}
+                      </p>
+                    </div>
+                    <div class="module-actions">
+                      <a href="{% url 'courses:manage_content' course.slug %}" class="btn-module-action btn-module-action--view" title="Ver contenido">
+                        👁 Ver
+                      </a>
+                      <a href="{% url 'courses:edit_module' course.slug module.id %}" class="btn-module-action btn-module-action--edit" title="Editar módulo">
+                        ✏️ Editar
+                      </a>
+                    </div>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                  <div class="empty-state__icon">📁</div>
+                  <h5 class="text-muted">Este curso aún no tiene módulos</h5>
+                  <a href="{% url 'courses:create_module' course.slug %}" class="btn-action btn-action--primary">
+                    ➕ Crear Primer Módulo
+                  </a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div>
+            <div class="sidebar-card">
+              <h3 class="sidebar-card__title">🕒 Módulos Recientes</h3>
+              {% if recent_modules %}
+                {% for module in recent_modules %}
+                <div class="recent-module-item">
+                  <div>
+                    <h6>{{ module.title }}</h6>
+                    <small class="text-muted">{{ module.course.title }}</small>
+                  </div>
+                  <a href="{% url 'courses:manage_content' module.course.slug %}" class="btn-action btn-action--primary btn-action--sm" title="Ver curso">
+                    👁
+                  </a>
+                </div>
+                {% endfor %}
+              {% else %}
+              <div class="empty-state">
+                <div class="empty-state__icon">📁</div>
+                <p class="text-muted">No hay módulos recientes</p>
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="sidebar-card">
+              <h3 class="sidebar-card__title">⚡ Acciones Rápidas</h3>
+              <div style="display: grid; gap: var(--space-2);">
+                <a href="{% url 'courses:create_course' %}" class="btn-action btn-action--primary" style="justify-content: center;">
+                  ➕ Crear Nuevo Curso
+                </a>
+                <a href="{% url 'courses:manage_categories' %}" class="btn-action btn-action--secondary" style="justify-content: center;">
+                  🏷️ Gestionar Categorías
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+  </script>
+</body>
+</html>

@@ -1,319 +1,470 @@
-{% extends "courses/base.html" %}
 {% load static %}
-
-{% block title %}Progreso del Módulo - {{ module.title }}{% endblock %}
-
-{% block extra_head %}
-<style>
-.progress-container {
-    background: #f8f9fa;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Progreso del Módulo · {{ module.title }} · Cursos M360</title>
+  <meta name="description" content="Progreso detallado de estudiantes por módulo.">
+  <link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
+  <style>
+  .progress-container {
+    background: var(--color-background);
     min-height: 100vh;
-    padding: 2rem 0;
-}
-
-.progress-header {
-    background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-}
-
-.progress-summary {
-    background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-}
-
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-}
-
-.summary-card {
-    text-align: center;
-    padding: 1.5rem;
-    background: #f8f9fa;
-    border-radius: 10px;
-    border-left: 4px solid #667eea;
-}
-
-.summary-value {
-    font-size: 2rem;
+    padding: var(--space-8) 0;
+  }
+  .progress-header {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .progress-header__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .progress-header__title {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    margin-bottom: var(--space-1);
+  }
+  .progress-header__subtitle {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  .progress-header__actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .progress-summary {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .progress-summary__title {
+    font-size: var(--text-lg);
     font-weight: 700;
-    color: #2d3748;
-    margin-bottom: 0.5rem;
-}
-
-.summary-label {
-    color: #718096;
-    font-size: 0.875rem;
+    margin-bottom: var(--space-4);
+  }
+  .summary-grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+  @media (min-width: 640px) {
+    .summary-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .summary-card {
+    text-align: center;
+    padding: var(--space-5);
+    background: var(--color-background);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--color-primary);
+  }
+  .summary-card__value {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--color-primary);
+  }
+  .summary-card__label {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
     text-transform: uppercase;
     font-weight: 600;
-}
-
-.students-progress {
-    background: white;
-    border-radius: 15px;
+    margin-top: var(--space-1);
+  }
+  .students-progress {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-}
-
-.progress-table {
+    box-shadow: var(--shadow-sm);
+  }
+  .progress-table {
     width: 100%;
-}
-
-.progress-table th {
-    background: #f8f9fa;
-    border-bottom: 2px solid #e9ecef;
+    border-collapse: collapse;
+  }
+  .progress-table th {
+    background: var(--color-background);
+    border-bottom: 2px solid var(--color-border);
     font-weight: 600;
-    color: #495057;
-    padding: 1rem;
+    color: var(--color-text);
+    padding: var(--space-4);
     text-align: left;
-}
-
-.progress-table td {
-    padding: 1rem;
+  }
+  .progress-table td {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
     vertical-align: middle;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.student-info {
+  }
+  .student-info {
     display: flex;
     align-items: center;
-}
-
-.student-avatar {
+    gap: var(--space-3);
+  }
+  .student-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-weight: 600;
-    margin-right: 1rem;
-}
-
-.student-details h6 {
+    color: #fff;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .student-details h6 {
     margin: 0;
     font-weight: 600;
-    color: #2d3748;
-}
-
-.student-details small {
-    color: #718096;
-}
-
-.progress-bar-container {
+  }
+  .student-details small {
+    color: var(--color-text-muted);
+  }
+  .progress-bar-container {
     width: 100%;
     height: 8px;
-    background: #e2e8f0;
-    border-radius: 4px;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
     overflow: hidden;
-}
-
-.progress-fill {
+  }
+  .progress-fill {
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-}
-
-.progress-text {
-    font-size: 0.875rem;
-    color: #718096;
-    margin-top: 0.25rem;
-}
-
-.status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    border-radius: var(--radius-full);
+    transition: width var(--transition);
+  }
+  .progress-text {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-1);
+  }
+  .status-badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
     font-weight: 600;
-}
-
-.status-completed {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-}
-
-.status-in-progress {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-}
-
-.status-not-started {
-    background: rgba(107, 114, 128, 0.1);
-    color: #6b7280;
-}
-
-@media (max-width: 768px) {
+  }
+  .status-completed {
+    background: #dcfce7;
+    color: #14532d;
+  }
+  .status-in-progress {
+    background: #fef3c7;
+    color: #78350f;
+  }
+  .status-not-started {
+    background: #e2e8f0;
+    color: #475569;
+  }
+  .module-info {
+    margin-top: var(--space-6);
+  }
+  .module-info__title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+  }
+  .module-info__grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .module-info__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .module-info__item {
+    display: flex;
+    gap: var(--space-2);
+  }
+  .module-info__item strong {
+    min-width: 140px;
+  }
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color var(--transition), border-color var(--transition), color var(--transition);
+    text-decoration: none;
+  }
+  .btn-action--secondary {
+    background: var(--color-background);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+  .btn-action--secondary:hover {
+    background: var(--color-border);
+  }
+  .btn-action--primary {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    border-color: var(--color-primary-light);
+  }
+  .btn-action--primary:hover {
+    background: var(--color-primary);
+    color: #fff;
+  }
+  .empty-state {
+    text-align: center;
+    padding: var(--space-6);
+    color: var(--color-text-muted);
+  }
+  .empty-state__icon {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-3);
+  }
+  @media (max-width: 768px) {
     .progress-table {
-        font-size: 0.875rem;
+      font-size: var(--text-sm);
     }
-
     .student-info {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-2);
     }
-
     .summary-grid {
-        grid-template-columns: 1fr;
+      grid-template-columns: 1fr;
     }
-}
-</style>
-{% endblock %}
+  }
+  
+        </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
-{% block course_content %}
-<div class="progress-container">
-    <div class="container">
-        <!-- Header -->
-        <div class="progress-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h2 mb-1"><i class="bi bi-bar-chart-line me-2"></i>Progreso del Módulo</h1>
-                    <p class="text-muted mb-0">{{ module.title }} - {{ course.title }}</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="{% url 'courses:module_statistics' course.slug module.id %}" class="btn btn-outline-info">
-                        <i class="bi bi-graph-up me-1"></i>Estadísticas
-                    </a>
-                    <a href="{% url 'courses:manage_content' course.slug %}" class="btn btn-outline-primary">
-                        <i class="bi bi-arrow-left me-1"></i>Volver
-                    </a>
-                </div>
-            </div>
-        </div>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="{% url 'courses:index' %}" class="site-brand" aria-label="Cursos M360 · Inicio">
+        <svg class="site-brand__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/>
+        </svg>
+        <span>Cursos M360</span>
+      </a>
 
-        <!-- Resumen del Progreso -->
-        <div class="progress-summary">
-            <h4 class="mb-3"><i class="bi bi-trophy me-2"></i>Resumen del Progreso</h4>
-            <div class="summary-grid">
-                <div class="summary-card">
-                    <div class="summary-value">{{ total_students }}</div>
-                    <div class="summary-label">Estudiantes Totales</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value">{{ module.lessons.count }}</div>
-                    <div class="summary-label">Lecciones en Módulo</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value">
-                        {% widthratio student_progress|length total_students 100 %}%
-                    </div>
-                    <div class="summary-label">Estudiantes Activos</div>
-                </div>
-            </div>
-        </div>
+      <button class="nav__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
 
-        <!-- Tabla de Progreso por Estudiante -->
-        <div class="students-progress">
-            <table class="progress-table">
-                <thead>
-                    <tr>
-                        <th>Estudiante</th>
-                        <th>Progreso</th>
-                        <th>Lecciones Completadas</th>
-                        <th>Estado</th>
-                        <th>Última Actividad</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for progress in student_progress %}
-                    <tr>
-                        <td>
-                            <div class="student-info">
-                                <div class="student-avatar">
-                                    {{ progress.enrollment.student.first_name|first|default:progress.enrollment.student.username|first|upper }}
-                                </div>
-                                <div class="student-details">
-                                    <h6>{{ progress.enrollment.student.get_full_name|default:progress.enrollment.student.username }}</h6>
-                                    <small>@{{ progress.enrollment.student.username }}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="progress-bar-container">
-                                <div class="progress-fill" data-width="{{ progress.progress_percentage }}"></div>
-                            </div>
-                            <div class="progress-text">
-                                {{ progress.progress_percentage|floatformat:1 }}% completado
-                            </div>
-                        </td>
-                        <td>
-                            <span class="fw-semibold">{{ progress.completed_lessons }} / {{ progress.total_lessons }}</span>
-                        </td>
-                        <td>
-                            {% if progress.progress_percentage == 100 %}
-                                <span class="status-badge status-completed">Completado</span>
-                            {% elif progress.completed_lessons > 0 %}
-                                <span class="status-badge status-in-progress">En Progreso</span>
-                            {% else %}
-                                <span class="status-badge status-not-started">No Iniciado</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if progress.enrollment.updated_at %}
-                                {{ progress.enrollment.updated_at|date:"M d, Y H:i" }}
-                            {% else %}
-                                <span class="text-muted">Nunca</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center py-5">
-                            <i class="bi bi-people text-muted fs-1 mb-3"></i>
-                            <h5 class="text-muted mb-2">No hay estudiantes inscritos</h5>
-                            <p class="text-muted mb-0">Este módulo no tiene estudiantes activos</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Información del Módulo -->
-        <div class="progress-summary mt-3">
-            <h4 class="mb-3"><i class="bi bi-info-circle me-2"></i>Información del Módulo</h4>
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Título:</strong> {{ module.title }}</p>
-                    <p><strong>Curso:</strong> {{ course.title }}</p>
-                    <p><strong>Orden:</strong> {{ module.order }}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Lecciones:</strong> {{ module.lessons.count }}</p>
-                    <p><strong>Estudiantes:</strong> {{ total_students }}</p>
-                    <p><strong>Fecha de creación:</strong> {{ module.id|date:"M d, Y" }}</p>
-                </div>
-            </div>
-            {% if module.description %}
-            <div class="mt-3">
-                <strong>Descripción:</strong>
-                <p class="text-muted mb-0">{{ module.description }}</p>
-            </div>
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__menu" data-nav-menu>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Explorar</a></li>
+          <li><a href="{% url 'courses:courses_list' %}" class="nav__link">Categorías ▾</a>
+            <ul class="nav__dropdown">
+              {% if categories %}
+                {% for category in categories %}
+                  {% if category.slug %}
+                    <li><a href="{% url 'courses:course_list_by_category' category.slug %}" class="nav__link">{{ category.name }}</a></li>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </ul>
+          </li>
+          <li><a href="{% url 'courses:standalone_lessons_list' %}" class="nav__link">Lecciones Libres</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'courses:dashboard' %}" class="nav__link">Mi Dashboard</a></li>
+            {% if user.cv %}
+            <li><a href="{% url 'courses:manage_courses' %}" class="nav__link">Gestión</a></li>
             {% endif %}
-        </div>
+            {% if user.is_staff %}
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="nav__link">Admin</a></li>
+            {% endif %}
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav__link">Iniciar sesión</a></li>
+          {% endif %}
+        </ul>
+      </nav>
     </div>
-</div>
+  </header>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Aplicar el ancho dinámico a las barras de progreso
-    const progressFills = document.querySelectorAll('.progress-fill');
-    progressFills.forEach(fill => {
-        const width = fill.style.width;
-        if (width) {
-            fill.style.width = width;
-        }
+  <main id="main-content">
+    <div class="progress-container">
+      <div class="container">
+        <section class="progress-header">
+          <div class="progress-header__inner">
+            <div>
+              <h1 class="progress-header__title">📊 Progreso del Módulo</h1>
+              <p class="progress-header__subtitle">{{ module.title }} - {{ course.title }}</p>
+            </div>
+            <div class="progress-header__actions">
+              <a href="{% url 'courses:module_statistics' course.slug module.id %}" class="btn-action btn-action--primary">
+                📈 Estadísticas
+              </a>
+              <a href="{% url 'courses:manage_content' course.slug %}" class="btn-action btn-action--secondary">
+                ← Volver
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="progress-summary">
+          <h2 class="progress-summary__title">🏆 Resumen del Progreso</h2>
+          <div class="summary-grid">
+            <div class="summary-card">
+              <div class="summary-card__value">{{ total_students }}</div>
+              <div class="summary-card__label">Estudiantes Totales</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-card__value">{{ module.lessons.count }}</div>
+              <div class="summary-card__label">Lecciones en Módulo</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-card__value">
+                {% widthratio student_progress|length total_students 100 %}%
+              </div>
+              <div class="summary-card__label">Estudiantes Activos</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="students-progress">
+          <table class="progress-table">
+            <thead>
+              <tr>
+                <th>Estudiante</th>
+                <th>Progreso</th>
+                <th>Lecciones Completadas</th>
+                <th>Estado</th>
+                <th>Última Actividad</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for progress in student_progress %}
+              <tr>
+                <td>
+                  <div class="student-info">
+                    <div class="student-avatar">
+                      {{ progress.enrollment.student.first_name|first|default:progress.enrollment.student.username|first|upper }}
+                    </div>
+                    <div class="student-details">
+                      <h6>{{ progress.enrollment.student.get_full_name|default:progress.enrollment.student.username }}</h6>
+                      <small>@{{ progress.enrollment.student.username }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="progress-bar-container">
+                    <div class="progress-fill" style="width: {{ progress.progress_percentage|floatformat:0 }}%"></div>
+                  </div>
+                  <div class="progress-text">
+                    {{ progress.progress_percentage|floatformat:1 }}% completado
+                  </div>
+                </td>
+                <td>
+                  <span class="font-semibold">{{ progress.completed_lessons }} / {{ progress.total_lessons }}</span>
+                </td>
+                <td>
+                  {% if progress.progress_percentage == 100 %}
+                    <span class="status-badge status-completed">Completado</span>
+                  {% elif progress.completed_lessons > 0 %}
+                    <span class="status-badge status-in-progress">En Progreso</span>
+                  {% else %}
+                    <span class="status-badge status-not-started">No Iniciado</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if progress.enrollment.updated_at %}
+                    {{ progress.enrollment.updated_at|date:"M d, Y H:i" }}
+                  {% else %}
+                    <span class="text-muted">Nunca</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="empty-state">
+                  <div class="empty-state__icon">👥</div>
+                  <h5 class="text-muted">No hay estudiantes inscritos</h5>
+                  <p class="text-muted">Este módulo no tiene estudiantes activos</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </section>
+
+        <section class="progress-summary module-info">
+          <h2 class="module-info__title">ℹ️ Información del Módulo</h2>
+          <div class="module-info__grid">
+            <div class="module-info__item"><strong>Título:</strong> <span>{{ module.title }}</span></div>
+            <div class="module-info__item"><strong>Curso:</strong> <span>{{ course.title }}</span></div>
+            <div class="module-info__item"><strong>Orden:</strong> <span>{{ module.order }}</span></div>
+            <div class="module-info__item"><strong>Lecciones:</strong> <span>{{ module.lessons.count }}</span></div>
+            <div class="module-info__item"><strong>Estudiantes:</strong> <span>{{ total_students }}</span></div>
+            <div class="module-info__item"><strong>Fecha de creación:</strong> <span>{{ module.id|date:"M d, Y" }}</span></div>
+          </div>
+          {% if module.description %}
+          <div class="module-info__item" style="margin-top: var(--space-4);">
+            <strong>Descripción:</strong>
+            <p class="text-muted" style="margin: var(--space-1) 0 0 0;">{{ module.description }}</p>
+          </div>
+          {% endif %}
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <div class="site-footer__title">Cursos M360</div>
+          <p class="site-footer__text">Plataforma de capacitación integrada en Management360.</p>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Navegación</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:courses_list' %}" class="site-footer__link">Catálogo</a></li>
+            <li><a href="{% url 'courses:standalone_lessons_list' %}" class="site-footer__link">Lecciones libres</a></li>
+            <li><a href="{% url 'courses:dashboard' %}" class="site-footer__link">Mi dashboard</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Gestión</div>
+          <ul class="site-footer__links">
+            <li><a href="{% url 'courses:manage_courses' %}" class="site-footer__link">Mis cursos</a></li>
+            <li><a href="{% url 'courses:create_course_wizard' %}" class="site-footer__link">Crear curso</a></li>
+            <li><a href="{% url 'courses:admin_dashboard' %}" class="site-footer__link">Panel admin</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__title">Legal</div>
+          <ul class="site-footer__links">
+            <li><a href="#" class="site-footer__link">Privacidad</a></li>
+            <li><a href="#" class="site-footer__link">Términos</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <p>© <span data-year>2026</span> Management360 · Cursos · Todos los derechos reservados</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'courses/js/nav.js' %}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.querySelector('[data-year]');
+      if (y) y.textContent = new Date().getFullYear();
     });
-});
-</script>
-{% endblock %}
+  </script>
+</body>
+</html>

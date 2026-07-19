@@ -244,7 +244,8 @@
         margin-bottom: 0.5rem;
     }
 }
-</style>
+
+        </style>
 {% endblock %}
 
 {% block cms_content %}
@@ -311,7 +312,7 @@
                             {% endif %}
 
                             <!-- Información básica -->
-                            <div class="row">
+                            <div class="lessons-filters-row">
                                 <div class="col-md-8">
                                     <div class="form-group">
                                         <label for="id_title" class="form-label">
@@ -322,7 +323,7 @@
                                                placeholder="Título descriptivo del bloque">
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="filter-field filter-field--wide">
                                     <div class="form-group">
                                         <label for="id_category" class="form-label">
                                             <i class="bi bi-folder me-1"></i>Categoría
@@ -478,14 +479,14 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                     <label class="form-label">
                                         <i class="bi bi-image me-1"></i>Configuración de Imagen
                                     </label>
-                                    <div class="row">
-                                        <div class="col-md-6">
+                                    <div class="lessons-filters-row">
+                                        <div class="stats-col">
                                             <input type="url" name="image_url" class="form-control mb-2"
                                                    placeholder="URL de la imagen" value="{{ content_block.json_content.url|default:'' }}">
                                             <input type="text" name="image_alt" class="form-control mb-2"
                                                    placeholder="Texto alternativo" value="{{ content_block.json_content.alt|default:'' }}">
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <input type="text" name="image_caption" class="form-control"
                                                    placeholder="Pie de foto (opcional)" value="{{ content_block.json_content.caption|default:'' }}">
                                         </div>
@@ -503,12 +504,12 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                     <div class="form-text mb-3">
                                         URL de embed de YouTube, Vimeo, etc.
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
+                                    <div class="lessons-filters-row">
+                                        <div class="stats-col">
                                             <input type="text" name="video_description" class="form-control"
                                                    placeholder="Descripción del video" value="{{ content_block.json_content.description|default:'' }}">
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <input type="number" name="video_duration" class="form-control"
                                                    placeholder="Duración en minutos" min="1" value="{{ content_block.json_content.duration|default:'' }}">
                                         </div>
@@ -534,7 +535,7 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                         <i class="bi bi-code me-1"></i>Configuración de Código
                                     </label>
                                     <div class="row mb-2">
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <select name="code_language" class="form-select">
                                                 <option value="text" {% if content_block.json_content.language == 'text' %}selected{% endif %}>Texto</option>
                                                 <option value="python" {% if content_block.json_content.language == 'python' %}selected{% endif %}>Python</option>
@@ -544,7 +545,7 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                                 <option value="json" {% if content_block.json_content.language == 'json' %}selected{% endif %}>JSON</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <input type="text" name="code_title" class="form-control"
                                                    placeholder="Título del código (opcional)" value="{{ content_block.json_content.title|default:'' }}">
                                         </div>
@@ -579,7 +580,7 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                         <i class="bi bi-table me-1"></i>Configuración de Tabla
                                     </label>
                                     <div class="row mb-2">
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <input type="text" name="table_headers" class="form-control"
                                                    placeholder="Encabezados separados por comas" value="{{ content_block.json_content.headers|join:', '|default:'' }}">
                                         </div>
@@ -603,12 +604,12 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                            placeholder="Título de la tarjeta" value="{{ content_block.json_content.title|default:'' }}">
                                     <textarea name="card_text" class="form-control mb-2" rows="3"
                                               placeholder="Contenido de la tarjeta">{{ content_block.json_content.text|default:'' }}</textarea>
-                                    <div class="row">
-                                        <div class="col-md-6">
+                                    <div class="lessons-filters-row">
+                                        <div class="stats-col">
                                             <input type="url" name="card_button_url" class="form-control"
                                                    placeholder="URL del botón (opcional)" value="{{ content_block.json_content.button.url|default:'' }}">
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <input type="text" name="card_button_text" class="form-control"
                                                    placeholder="Texto del botón" value="{{ content_block.json_content.button.text|default:'Ver más' }}">
                                         </div>
@@ -622,7 +623,7 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                         <i class="bi bi-exclamation-triangle me-1"></i>Configuración de Alerta
                                     </label>
                                     <div class="row mb-2">
-                                        <div class="col-md-4">
+                                        <div class="filter-field filter-field--wide">
                                             <select name="alert_type" class="form-select">
                                                 <option value="primary" {% if content_block.json_content.type == 'primary' %}selected{% endif %}>Primario</option>
                                                 <option value="secondary" {% if content_block.json_content.type == 'secondary' %}selected{% endif %}>Secundario</option>
@@ -644,7 +645,7 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                         <i class="bi bi-hand-index me-1"></i>Configuración de Botón
                                     </label>
                                     <div class="row mb-2">
-                                        <div class="col-md-4">
+                                        <div class="filter-field filter-field--wide">
                                             <select name="button_style" class="form-select">
                                                 <option value="primary" {% if content_block.json_content.style == 'primary' %}selected{% endif %}>Primario</option>
                                                 <option value="secondary" {% if content_block.json_content.style == 'secondary' %}selected{% endif %}>Secundario</option>
@@ -654,7 +655,7 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                                 <option value="info" {% if content_block.json_content.style == 'info' %}selected{% endif %}>Información</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="filter-field filter-field--wide">
                                             <select name="button_size" class="form-select">
                                                 <option value="sm" {% if content_block.json_content.size == 'sm' %}selected{% endif %}>Pequeño</option>
                                                 <option value="md" {% if content_block.json_content.size == 'md' %}selected{% endif %}>Mediano</option>
@@ -663,11 +664,11 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                         </div>
                                     </div>
                                     <div class="row mb-2">
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <input type="url" name="button_url" class="form-control"
                                                    placeholder="URL del botón" value="{{ content_block.json_content.url|default:'' }}">
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <input type="text" name="button_text" class="form-control"
                                                    placeholder="Texto del botón" value="{{ content_block.json_content.text|default:'' }}">
                                         </div>
@@ -711,11 +712,11 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                         <i class="bi bi-star me-1"></i>Configuración de Ícono
                                     </label>
                                     <div class="row mb-2">
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <input type="text" name="icon_name" class="form-control"
                                                    placeholder="Nombre del ícono (ej: star)" value="{{ content_block.json_content.icon|default:'' }}">
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <select name="icon_color" class="form-select">
                                                 <option value="primary" {% if content_block.json_content.color == 'primary' %}selected{% endif %}>Primario</option>
                                                 <option value="secondary" {% if content_block.json_content.color == 'secondary' %}selected{% endif %}>Secundario</option>
@@ -737,11 +738,11 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                         <i class="bi bi-bar-chart me-1"></i>Configuración de Barra de Progreso
                                     </label>
                                     <div class="row mb-2">
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <input type="number" name="progress_value" class="form-control" min="0" max="100"
                                                    placeholder="Valor (0-100)" value="{{ content_block.json_content.value|default:50 }}">
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <select name="progress_color" class="form-select">
                                                 <option value="primary" {% if content_block.json_content.color == 'primary' %}selected{% endif %}>Primario</option>
                                                 <option value="secondary" {% if content_block.json_content.color == 'secondary' %}selected{% endif %}>Secundario</option>
@@ -761,11 +762,11 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                         <i class="bi bi-tag me-1"></i>Configuración de Insignia
                                     </label>
                                     <div class="row mb-2">
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <input type="text" name="badge_text" class="form-control"
                                                    placeholder="Texto de la insignia" value="{{ content_block.json_content.text|default:'' }}">
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="stats-col">
                                             <select name="badge_color" class="form-select">
                                                 <option value="primary" {% if content_block.json_content.color == 'primary' %}selected{% endif %}>Primario</option>
                                                 <option value="secondary" {% if content_block.json_content.color == 'secondary' %}selected{% endif %}>Secundario</option>
@@ -816,8 +817,8 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                             </div>
 
                             <!-- Configuración -->
-                            <div class="row">
-                                <div class="col-md-6">
+                            <div class="lessons-filters-row">
+                                <div class="stats-col">
                                     <div class="form-check mb-3">
                                         <input type="checkbox" name="is_public" id="id_is_public" class="form-check-input"
                                                {% if block and content_block.is_public %}checked{% endif %}>
@@ -829,7 +830,7 @@ Este es un párrafo con **texto en negrita** e *itálica*.
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="stats-col">
                                     <div class="form-check mb-3">
                                         <input type="checkbox" name="is_featured" id="id_is_featured" class="form-check-input"
                                                {% if block and content_block.is_featured %}checked{% endif %}>
@@ -938,10 +939,10 @@ function insertBootstrapComponent(component) {
             break;
 
         case 'badge':
-            componentCode = `<span class="badge bg-primary">Primario</span>
-<span class="badge bg-secondary">Secundario</span>
-<span class="badge bg-success">Éxito</span>
-<span class="badge bg-danger">Peligro</span>
+            componentCode = `<span class="badge-primary">Primario</span>
+<span class="badge-secondary">Secundario</span>
+<span class="badge-success">Éxito</span>
+<span class="badge-danger">Peligro</span>
 <span class="badge bg-warning text-dark">Advertencia</span>
 <span class="badge bg-info text-dark">Info</span>`;
             break;

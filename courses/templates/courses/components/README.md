@@ -17,7 +17,7 @@ partials/
 ## 🎨 Sistema de Diseño
 
 ### Variables CSS
-Los estilos utilizan un sistema de variables CSS definido en `static/assets/css/manage_courses.css`:
+Los estilos utilizan un sistema de variables CSS definido en `static/courses/css/main.css`:
 
 - **Gradientes**: `--primary-gradient`, `--secondary-gradient`, etc.
 - **Sombras**: `--shadow-light`, `--shadow-medium`, `--shadow-heavy`
@@ -99,14 +99,14 @@ Los estilos utilizan un sistema de variables CSS definido en `static/assets/css/
 ### En Templates Principales
 
 ```django
-{% extends "courses/base.html" %}
+{% extends "courses/base_itcss.html" %}
 {% load static %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'assets/css/manage_courses.css' %}">
+<link rel="stylesheet" href="{% static 'courses/css/main.css' %}">
 {% endblock %}
 
-{% block course_content %}
+{% block content %}
 <!-- Usar componentes -->
 {% include "courses/components/_management_indicator.html" with courses=courses total_students=total_students avg_rating=avg_rating %}
 
@@ -141,7 +141,7 @@ Los componentes pueden reutilizarse en otras vistas como:
 ## 🔧 Personalización
 
 ### Modificar Estilos
-Edita `static/assets/css/manage_courses.css` para:
+Edita `static/courses/css/main.css` para:
 - Cambiar colores del tema
 - Ajustar animaciones
 - Modificar responsive breakpoints
@@ -149,7 +149,7 @@ Edita `static/assets/css/manage_courses.css` para:
 
 ### Agregar Nuevos Componentes
 1. Crea el archivo `_nuevo_componente.html`
-2. Agrega estilos en `manage_courses.css`
+2. Agrega estilos en `courses/css/main.css`
 3. Documenta en este README
 4. Inclúyelo en los templates necesarios
 
