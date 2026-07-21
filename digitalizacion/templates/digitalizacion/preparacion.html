@@ -1,0 +1,124 @@
+{% extends "digitalizacion/base_itcss.html" %}
+{% load static %}
+
+{% block content %}
+<div>
+  <div>
+    <h1>Preparación de documentos</h1>
+    <p>Lotes en preparación · {{ stats.lotes }} lotes · {{ stats.documentos }} documentos registrados</p>
+  </div>
+
+  {% if messages %}
+  <div>
+    <div>
+      {% for message in messages %}
+      <div>{{ message }}</div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div>
+    <div>
+      <h2>Crear nuevo lote</h2>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="crear_lote">
+        {{ form_lote.as_p }}
+        <button type="submit">Crear lote</button>
+      </form>
+    </div>
+
+    <div>
+      <h2>Agregar documento a lote</h2>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="agregar_documento">
+        {{ form_doc.as_p }}
+        <button type="submit">Agregar documento</button>
+      </form>
+    </div>
+  </div>
+
+  <div>
+    <h2>Lotes en preparación</h2>
+    {% if lotes %}
+      {% for lote in lotes %}
+      <div>
+        <div>
+          <h3>{{ lote.nombre }}</h3>
+          <span>Creado: {{ lote.created_at|date:"Y-m-d H:i" }}</span>
+        </div>
+        <div>
+          <div>
+            <span>Documentos:</span>
+            <span>{{ lote.documentos.count }}</span>
+          </div>
+          <div>
+            <span>Proyecto M360:</span>
+            <span>{{ lote.proyecto_m360|default:"—" }}</span>
+          </div>
+          <div>
+            <span>Curso M360:</span>
+            <span>{{ lote.curso_m360|default:"—" }}</span>
+          </div>
+          <div>
+            <span>Ruta base:</span>
+            <span>{{ lote.ruta_base|truncatechars:40 }}</span>
+          </div>
+        </div>
+        <div>
+          <a href="/admin/digitalizacion/lotedigitalizacion/{{ lote.id }}/change/" target="_blank">Ver en admin</a>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="cerrar_preparacion">
+            <input type="hidden" name="lote_id" value="{{ lote.id }}">
+            <button type="submit" onclick="return confirm('¿Cerrar preparación del lote {{ lote.nombre|escapejs }}? Los folios pasarán a digitalización.');">Cerrar preparación</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div>
+        <h3>Sin lotes en preparación</h3>
+        <p>Crea un lote para comenzar a registrar folios desde Archivo Central.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <h2>Documentos registrados en preparación</h2>
+    {% if documentos %}
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Tipo</th>
+            <th>Lote</th>
+            <th>Fecha documento</th>
+            <th>Creador</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in documentos %}
+          <tr>
+            <td>{{ doc.document_id }}</td>
+            <td>{{ doc.titulo }}</td>
+            <td>{{ doc.tipo }}</td>
+            <td>{{ doc.lote.nombre|truncatechars:30 }}</td>
+            <td>{{ doc.fecha_documento|default:"—" }}</td>
+            <td>{{ doc.creator|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div>
+        <h3>Sin documentos en preparación</h3>
+        <p>Agrega documentos a un lote para comenzar.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

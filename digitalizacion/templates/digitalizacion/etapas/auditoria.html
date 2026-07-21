@@ -1,0 +1,65 @@
+{% extends "digitalizacion/etapas/etapa_base.html" %}
+
+{% block stage_content %}
+<div>
+  <div>
+    <h2>Bitácora de lote</h2>
+    <p>Revisa el historial completo de etapas del documento. Asegúrate de que todos los eventos PREMIS estén registrados.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Etapa</th>
+          <th>Estado</th>
+          <th>Inicio</th>
+          <th>Fin</th>
+          <th>Usuario</th>
+          <th>Observaciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for etapa in etapas_bitacora %}
+        <tr>
+          <td>{{ etapa.get_etapa_display }}</td>
+          <td>{{ etapa.get_estado_display }}</td>
+          <td>{{ etapa.inicio|date:"Y-m-d H:i" }}</td>
+          <td>{{ etapa.fin|date:"Y-m-d H:i"|default:"—" }}</td>
+          <td>{{ etapa.usuario|default:"—" }}</td>
+          <td>{{ etapa.observaciones|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6">Sin registros en la bitácora.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+    <h2>Reporte de calidad</h2>
+    <div>
+      <div>
+        <span>Confianza OCR</span>
+        <span>{{ doc.ocr_confidence|floatformat:2|default:"—" }}</span>
+      </div>
+      <div>
+        <span>SHA-256</span>
+        <span>{{ doc.checksum_sha256|slice:":12"|default:"—" }}…</span>
+      </div>
+      <div>
+        <span>PDF/A-2b</span>
+        <span>{{ doc.converted_to_pdf_a|yesno:"Sí,No" }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <a href="{% url 'digitalizacion:qc2_documento' documento_id=doc.id %}">← Volver</a>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Completar auditoría →</button>
+  </form>
+</div>
+{% endblock %}

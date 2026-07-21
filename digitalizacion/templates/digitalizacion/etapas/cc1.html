@@ -1,0 +1,53 @@
+{% extends "digitalizacion/etapas/etapa_base.html" %}
+
+{% block stage_content %}
+<div>
+  <div>
+    <h2>Criterios de Control de Calidad 1</h2>
+    <ul>
+      <li>Orientación correcta (no invertida ni rotada).</li>
+      <li>Sin cortes ni sombras en bordes.</li>
+      <li>Sin desenfoque (Laplacian variance ≥ 100).</li>
+      <li>Resolución ≥ 300 DPI.</li>
+      <li>Sin páginas faltantes.</li>
+      <li>Ausencia de bordes negros.</li>
+    </ul>
+  </div>
+
+  <div>
+    <h2>Resultado CC1</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div>
+        <label for="motivo">Motivo (si corresponde)</label>
+        <textarea id="motivo" name="motivo" rows="3" placeholder="Describe el problema encontrado..."></textarea>
+      </div>
+      <div>
+        <button type="submit" name="action" value="aprobar">Aprobar</button>
+        <button type="submit" name="action" value="rechazar">Rechazar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if logs %}
+  <div>
+    <h3>Bitácora CC1</h3>
+    {% for log in logs %}
+      <div>
+        <strong>{{ log.etapa|default:"CC1" }}:</strong>
+        {% if log.ok %}
+          Aprobado
+        {% else %}
+          Rechazado: {{ log.error }}
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div>
+  <a href="{% url 'digitalizacion:digitalizar_documento' documento_id=doc.id %}">← Volver</a>
+  <a href="{% url 'digitalizacion:metadatos_documento' documento_id=doc.id %}">Avanzar a Metadatos →</a>
+</div>
+{% endblock %}

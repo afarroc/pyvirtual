@@ -1,0 +1,141 @@
+{% extends "digitalizacion/base_itcss.html" %}
+{% load static %}
+
+{% block content %}
+<div>
+  <div>
+    <h1>Pipeline: {{ doc.document_id }}</h1>
+    <p>{{ doc.titulo }} · Lote: {{ lote.nombre }} · Estado lote: {{ lote.get_estado_display }}</p>
+  </div>
+
+  {% if messages %}
+  <div>
+    <div>
+      {% for message in messages %}
+      <div>{{ message }}</div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div>
+    <div>
+      <h2>Documento</h2>
+      <div>
+        <div>
+          <span>ID:</span>
+          <span>{{ doc.document_id }}</span>
+        </div>
+        <div>
+          <span>Tipo:</span>
+          <span>{{ doc.tipo }}</span>
+        </div>
+        <div>
+          <span>Título:</span>
+          <span>{{ doc.titulo }}</span>
+        </div>
+        <div>
+          <span>Fecha documento:</span>
+          <span>{{ doc.fecha_documento|default:"—" }}</span>
+        </div>
+        <div>
+          <span>OCR engine:</span>
+          <span>{{ doc.ocr_engine|default:"pending" }}</span>
+        </div>
+        <div>
+          <span>Confianza OCR:</span>
+          <span>{% if doc.ocr_confidence %}{{ doc.ocr_confidence|floatformat:2 }}{% else %}N/A{% endif %}</span>
+        </div>
+        <div>
+          <span>PDF/A:</span>
+          <span>{% if doc.converted_to_pdf_a %}Sí{% else %}No{% endif %}</span>
+        </div>
+        <div>
+          <span>Checksum SHA-256:</span>
+          <span>{% if doc.checksum_sha256 %}{{ doc.checksum_sha256 }}{% else %}Pendiente{% endif %}</span>
+        </div>
+        <div>
+          <span>Inbox:</span>
+          <span>{{ doc.ruta_inbox|truncatechars:60 }}</span>
+        </div>
+        <div>
+          <span>Preprocessed:</span>
+          <span>{{ doc.ruta_preprocessed|truncatechars:60 }}</span>
+        </div>
+        <div>
+          <span>Acceso:</span>
+          <span>{{ doc.ruta_acceso|truncatechars:60|default:"—" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Ejecutar pipeline</h2>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+          <label>Subir imágenes a inbox</label>
+          <input type="file" name="inbox_files" multiple accept="image/*">
+          <span>Se guardarán en {{ doc.ruta_inbox|default:"ruta inbox no definida" }}</span>
+        </div>
+        <div>
+          <label for="etapa">Etapa</label>
+          <select id="etapa" name="etapa">
+            {% for key, label in etapas %}
+            <option value="{{ key }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" name="avanzar" value="1">
+            Avanzar automáticamente hasta donde se pueda
+          </label>
+        </div>
+        <button type="submit">Ejecutar</button>
+        <a href="{% url 'digitalizacion:preparacion' %}">Volver</a>
+      </form>
+
+      <div>
+        <h3>Bitácora de ejecución</h3>
+        {% if logs %}
+          {% for log in logs %}
+            <div>
+              <strong>{{ log.etapa|default:"Pipeline" }}:</strong>
+              {% if log.ok %}
+                {% if log.pdfa %}
+                  <div>PDF/A generado: {{ log.pdfa }}</div>
+                {% endif %}
+                {% if log.checksums %}
+                  <div>SHA-256: {{ log.checksums.sha256 }}</div>
+                {% endif %}
+                {% if log.preprocessed %}
+                  <div>Preprocesado: {{ log.preprocessed }}</div>
+                {% endif %}
+                {% if log.qc2 %}
+                  <div>QC2: OK</div>
+                {% endif %}
+                {% if log.msg %}
+                  <div>{{ log.msg }}</div>
+                {% endif %}
+              {% else %}
+                <div>{{ log.error }}</div>
+                {% if log.missing %}
+                  <div>Faltan: {{ log.missing|join:", " }}</div>
+                {% endif %}
+                {% if log.rechazado %}
+                  <div>Rechazado</div>
+                {% endif %}
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div>
+            <p>Sin ejecuciones aún.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "digitalizacion/etapas/etapa_base.html" %}
+
+{% block stage_content %}
+<div>
+  <div>
+    <h2>Metadatos descriptivos (Dublin Core)</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div>
+        <div>
+          <label for="titulo">Título *</label>
+          <input type="text" id="titulo" name="titulo" value="{{ doc.titulo }}" required>
+        </div>
+        <div>
+          <label for="creator">Creador / Entidad</label>
+          <input type="text" id="creator" name="creator" value="{{ doc.creator }}">
+        </div>
+        <div>
+          <label for="fecha_documento">Fecha del documento</label>
+          <input type="date" id="fecha_documento" name="fecha_documento" value="{{ doc.fecha_documento|date:'Y-m-d' }}">
+        </div>
+        <div>
+          <label for="language">Idioma</label>
+          <input type="text" id="language" name="language" value="{{ doc.language|default:'es' }}">
+        </div>
+        <div>
+          <label for="rights">Derechos</label>
+          <input type="text" id="rights" name="rights" value="{{ doc.rights|default:'Derechos reservados UPN' }}">
+        </div>
+        <div>
+          <label for="subject">Temas (separados por coma)</label>
+          <input type="text" id="subject" name="subject" value="{{ doc.subject|join:', ' }}">
+        </div>
+      </div>
+      <div>
+        <label for="description">Descripción</label>
+        <textarea id="description" name="description" rows="3">{{ doc.description }}</textarea>
+      </div>
+      <button type="submit">Guardar metadatos y ejecutar OCR</button>
+    </form>
+  </div>
+</div>
+
+{% if logs %}
+  <div>
+    <h3>Resultado OCR</h3>
+    {% for log in logs %}
+      <div>
+        <strong>{{ log.etapa|default:"Metadatos" }}:</strong>
+        {% if log.ok %}
+          {% if log.ocr %}
+            <div>Motor OCR: {{ log.ocr.engine }}</div>
+            <div>Páginas procesadas: {{ log.ocr.pages }}</div>
+            <div>Confianza promedio: {% if log.ocr.avg_confidence %}{{ log.ocr.avg_confidence|floatformat:2 }}{% else %}N/A{% endif %}</div>
+          {% endif %}
+          {% if log.metadata %}
+            <div>Metadatos guardados correctamente.</div>
+          {% endif %}
+        {% else %}
+          <div>{{ log.error }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div>
+  <a href="{% url 'digitalizacion:cc1_documento' documento_id=doc.id %}">← Volver</a>
+  <a href="{% url 'digitalizacion:qc2_documento' documento_id=doc.id %}">Avanzar a QC2 →</a>
+</div>
+{% endblock %}

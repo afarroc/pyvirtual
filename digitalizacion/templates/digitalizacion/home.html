@@ -1,0 +1,109 @@
+{% extends "digitalizacion/base_itcss.html" %}
+{% load static %}
+
+{% block extra_head %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="container">
+    <div class="dashboard-header">
+      <div>
+        <h1>Digitalización UPN</h1>
+        <p>Línea de producción de microformatos · {{ stats.total }} documentos · Actualizado {{ now }}</p>
+      </div>
+      <a href="{% url 'digitalizacion:preparacion' %}" class="btn btn-primary">Nuevo documento</a>
+    </div>
+
+    <div class="toolbar">
+      <div class="field">
+        <label for="typeFilter">Tipo</label>
+        <select id="typeFilter">
+          <option value="">Todos</option>
+          {% for t, c in tipos %}
+          <option value="{{ t }}">{{ t }} ({{ c }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="ocrFilter">OCR</label>
+        <select id="ocrFilter">
+          <option value="">Cualquiera</option>
+          <option value="pending">Pendiente</option>
+          <option value="tesseract">Tesseract</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="pdfaFilter">PDF/A</label>
+        <select id="pdfaFilter">
+          <option value="">Cualquiera</option>
+          <option value="true">Sí</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="search">Buscar</label>
+        <input id="search" type="text" placeholder="Título o ID…">
+      </div>
+      <div class="field">
+        <label>Resumen</label>
+        <div class="pills">
+          <span class="pill"><strong>{{ stats.total }}</strong> docs</span>
+          <span class="pill"><strong>{{ stats.total|length }}</strong> tipos</span>
+          <span class="pill"><strong>{{ stats.pendientes_qc1 }}</strong> OCR pendiente</span>
+          <span class="pill"><strong>{{ stats.convertidos_pdfa }}</strong> PDF/A</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="list" id="grid">
+      {% for doc in docs %}
+      <div class="item" data-type="{{ doc.tipo }}" data-ocr="{{ doc.ocr_engine }}" data-pdfa="{{ doc.converted_to_pdf_a|lower }}">
+        <div class="item__main">
+          <div>
+            <div class="item__title">{{ doc.titulo }}</div>
+            <div class="item__meta">{{ doc.document_id }}</div>
+          </div>
+          <div class="item__details">
+            <span>Fecha: {{ doc.fecha_documento|default:"—" }}</span>
+            <span>OCR: <span class="status status--{% if doc.ocr_engine != 'pending' %}ok{% else %}pending{% endif %}">{{ doc.ocr_engine|default:"pending" }}</span></span>
+            <span>Confianza: {% if doc.ocr_confidence %}{{ doc.ocr_confidence|floatformat:0 }}%{% else %}N/A{% endif %}</span>
+            <span>PDF/A: <span class="status status--{% if doc.converted_to_pdf_a %}ok{% else %}pending{% endif %}">{% if doc.converted_to_pdf_a %}Sí{% else %}No{% endif %}</span></span>
+          </div>
+          <div class="track">
+            {% if doc.ocr_engine != 'pending' %}
+              <span class="chip chip--done" title="OCR">OCR</span>
+            {% else %}
+              <span class="chip chip--pending" title="OCR">OCR</span>
+            {% endif %}
+            {% if doc.converted_to_pdf_a %}
+              <span class="chip chip--done" title="PDF/A">PDF/A</span>
+            {% else %}
+              <span class="chip chip--pending" title="PDF/A">PDF/A</span>
+            {% endif %}
+            <span class="chip chip--active" title="Microformato">Micro</span>
+          </div>
+        </div>
+        <div class="item__actions">
+          <a class="link" href="/admin/digitalizacion/documentodigital/{{ doc.id }}/change/" target="_blank" title="Admin">Admin</a>
+          <a class="link" href="{% url 'digitalizacion:digitalizar_documento' documento_id=doc.id %}" title="Digitalizar">Digitalizar</a>
+          <a class="link" href="{% url 'digitalizacion:metadatos_documento' documento_id=doc.id %}" title="Metadatos">Metadatos</a>
+          <a class="link" href="{% url 'digitalizacion:certificar_documento' documento_id=doc.id %}" title="Certificar">Certificar</a>
+          {% if doc.ruta_acceso %}
+            <a class="btn btn-primary" href="{% url 'digitalizacion:acceso_pdf' documento_id=doc.id %}" target="_blank" title="Ver PDF/A">PDF/A</a>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty">
+        <div class="empty__icon">📄</div>
+        <div class="empty__title">Sin documentos</div>
+        <div class="empty__text">
+          No hay microformatos registrados aún. Escanea un documento para iniciar el pipeline.
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

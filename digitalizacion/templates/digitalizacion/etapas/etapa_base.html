@@ -1,0 +1,55 @@
+{% extends "digitalizacion/base_itcss.html" %}
+{% load static %}
+
+{% block content %}
+<div>
+  <div>
+    <div>
+      <h1>{{ etapa_label }}</h1>
+      <p>{{ etapa_description }}</p>
+    </div>
+
+    <div>
+      {% for step in pipeline_timeline %}
+        <div>
+          <span>{{ step.label }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div>
+      <div>
+        <span>Documento</span>
+        <span>{{ doc.document_id }}</span>
+      </div>
+      <div>
+        <span>Título</span>
+        <span>{{ doc.titulo }}</span>
+      </div>
+      <div>
+        <span>Tipo</span>
+        <span>{{ doc.tipo }}</span>
+      </div>
+      <div>
+        <span>Lote</span>
+        <span>{{ lote.nombre }}</span>
+      </div>
+    </div>
+
+    {% if not puede_acceder %}
+      <div>
+        Esta etapa no está disponible. Completa las etapas anteriores primero.
+      </div>
+    {% endif %}
+
+    {% block stage_content %}{% endblock %}
+
+    <div>
+      <a href="{% url 'digitalizacion:dashboard' %}">Volver al dashboard</a>
+      {% if pipeline_timeline|slice:"-1"|first != etapa_actual %}
+        <a href="{% url 'digitalizacion:procesar_documento' documento_id=doc.id %}?etapa={{ etapa_actual }}">Ejecutar etapa</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

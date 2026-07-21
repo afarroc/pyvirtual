@@ -1,0 +1,37 @@
+{% extends "digitalizacion/etapas/etapa_base.html" %}
+
+{% block stage_content %}
+<div>
+  <div>
+    <h2>Criterios de Control de Calidad 2</h2>
+    <ul>
+      <li>Metadatos Dublin Core completos.</li>
+      <li>Microformato JSON válido contra esquema.</li>
+      <li>Checksum SHA-256 calculado y registrado.</li>
+      <li>OCR confidence ≥ 0.90 en páginas de texto.</li>
+      <li>PDF/A-2b generado y validado.</li>
+      <li>Nomenclatura respeta <code>upn_YYYY-MM-DD_NNN</code>.</li>
+    </ul>
+  </div>
+
+  <div>
+    <h2>Resultado QC2</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div>
+        <label for="motivo">Motivo (si corresponde)</label>
+        <textarea id="motivo" name="motivo" rows="3" placeholder="Describe el problema encontrado..."></textarea>
+      </div>
+      <div>
+        <button type="submit" name="action" value="aprobar">Aprobar</button>
+        <button type="submit" name="action" value="rechazar">Rechazar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div>
+  <a href="{% url 'digitalizacion:metadatos_documento' documento_id=doc.id %}">← Volver</a>
+  <a href="{% url 'digitalizacion:auditoria_documento' documento_id=doc.id %}">Avanzar a Auditoría →</a>
+</div>
+{% endblock %}

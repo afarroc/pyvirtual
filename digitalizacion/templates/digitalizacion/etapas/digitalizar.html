@@ -1,0 +1,120 @@
+{% extends "digitalizacion/etapas/etapa_base.html" %}
+
+{% block stage_content %}
+{% if messages %}
+<div>
+  {% for message in messages %}
+    <div>{{ message }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div>
+  <div>
+    <h2>Captura por escáner</h2>
+    <p>
+      Conecta el escáner y asegúrate de que esté configurado a <strong>300 DPI mínimo</strong>, 
+      color o escala de grises según el documento.
+    </p>
+    <div>
+      <span>Ruta inbox:</span>
+      <span>{{ doc.ruta_inbox|default:"No definida" }}</span>
+    </div>
+    <div>
+      <span>Archivos en inbox:</span>
+      <span>{{ inbox_files|length }} archivo{{ inbox_files|pluralize }}</span>
+    </div>
+    
+    {% if scan_error %}
+      <div>
+        <strong>Escáner:</strong> {{ scan_error }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <h2>Acciones</h2>
+    <p>Sube imágenes escaneadas o escanea directamente.</p>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div>
+        <label>Subir imágenes escaneadas</label>
+        <input type="file" name="inbox_files" multiple accept="image/*">
+        <span>Se guardarán en la carpeta inbox del documento.</span>
+      </div>
+      <button type="submit">Subir imágenes</button>
+    </form>
+
+    {% if scan_devices %}
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="scan_enabled" value="1">
+        
+        <div>
+          <label for="dispositivo_idx">Dispositivo de escaneo</label>
+          <select id="dispositivo_idx" name="dispositivo_idx">
+            {% for device in scan_devices %}
+              <option value="{{ forloop.counter0 }}">{{ device }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div>
+          <label for="dpi">DPI</label>
+          <select id="dpi" name="dpi">
+            <option value="150">150</option>
+            <option value="300" selected>300</option>
+            <option value="600">600</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="modo_color">Modo de color</label>
+          <select id="modo_color" name="modo_color">
+            <option value="color" selected>Color</option>
+            <option value="gray">Escala de grises</option>
+            <option value="lineart">Blanco y negro</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="formato">Formato</label>
+          <select id="formato" name="formato">
+            <option value="jpeg" selected>JPEG</option>
+            <option value="png">PNG</option>
+            <option value="tiff">TIFF</option>
+          </select>
+        </div>
+        
+        <button type="submit">Escanear ahora</button>
+      </form>
+    {% else %}
+      <div>
+        <strong>Escáner no disponible.</strong> Conecta un escáner y verifica que scanlib esté instalado.
+        Puedes subir imágenes manualmente mientras tanto.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if inbox_files %}
+  <div>
+    <h3>Imágenes en inbox</h3>
+    <div>
+      {% for file in inbox_files %}
+        <div>
+          <span>{{ file }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div>
+    <strong>Sin archivos en inbox.</strong> Ruta: {{ doc.ruta_inbox|default:"No definida" }}
+  </div>
+{% endif %}
+
+<div>
+  <a href="{% url 'digitalizacion:cc1_documento' documento_id=doc.id %}">Avanzar a CC1 -&gt;</a>
+</div>
+{% endblock %}

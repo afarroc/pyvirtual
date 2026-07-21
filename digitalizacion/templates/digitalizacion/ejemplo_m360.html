@@ -1,0 +1,374 @@
+{% extends "m360/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'm360/css/_index.css' %}">
+<style>
+  .example-section { margin-bottom: 32px; }
+  .example-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #111827; }
+  .example-desc { font-size: 13px; color: #6b7280; margin-bottom: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="m360-root">
+<div class="m360-page">
+  <div class="m360-page-header">
+    <div>
+      <h1>
+        <i class="m360-icon">🎨</i>
+        M360 Design System — Ejemplo
+      </h1>
+      <p>Referencia visual de componentes, layouts y utilities</p>
+    </div>
+    <div class="m360-page-actions">
+      <button class="m360-btn m360-btn-primary" onclick="alert('M360 Design System funcionando')">Probar interacción</button>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="m360-toolbar">
+    <div class="m360-tb-section">
+      <span class="m360-tb-label">Acciones</span>
+      <button class="m360-tb-btn">
+        <span class="m360-tb-icon-pill m360-tip-blue">📄</span>
+        <span>Nuevo</span>
+      </button>
+      <button class="m360-tb-btn">
+        <span class="m360-tb-icon-pill m360-tip-green">✏️</span>
+        <span>Editar</span>
+      </button>
+      <button class="m360-tb-btn">
+        <span class="m360-tb-icon-pill m360-tip-amber">🗑️</span>
+        <span>Borrar</span>
+      </button>
+    </div>
+    <div class="m360-tb-section">
+      <span class="m360-tb-label">Vista</span>
+      <button class="m360-tb-btn">
+        <span class="m360-tb-icon-pill m360-tip-purple">📋</span>
+        <span>Lista</span>
+      </button>
+      <button class="m360-tb-btn">
+        <span class="m360-tb-icon-pill m360-tip-teal">⊞</span>
+        <span>Grid</span>
+      </button>
+    </div>
+    <div class="m360-tb-spacer"></div>
+    <div class="m360-tb-section">
+      <button class="m360-tb-btn">
+        <span class="m360-tb-icon-pill m360-tip-red">⋮</span>
+        <span>Más</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="m360-summary">
+    <div class="m360-summary-stats">
+      <div class="m360-stat-item">
+        <div class="m360-stat-value">1,234</div>
+        <div class="m360-stat-label">Total documentos</div>
+      </div>
+      <div class="m360-stat-item">
+        <div class="m360-stat-value">89%</div>
+        <div class="m360-stat-label">Tasa de éxito</div>
+      </div>
+      <div class="m360-stat-item">
+        <div class="m360-stat-value">42</div>
+        <div class="m360-stat-label">Pendientes</div>
+      </div>
+      <div class="m360-stat-item">
+        <div class="m360-stat-value">12</div>
+        <div class="m360-stat-label">Errores</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="example-section">
+    <div class="example-title">Alertas</div>
+    <div class="m360-alert m360-alert-info">
+      <i>ℹ️</i>
+      <span>Información importante para el usuario</span>
+    </div>
+    <div class="m360-alert m360-alert-success">
+      <i>✅</i>
+      <span>Operación completada exitosamente</span>
+    </div>
+    <div class="m360-alert m360-alert-warning">
+      <i>⚠️</i>
+      <span>Advertencia: revisa los datos antes de continuar</span>
+    </div>
+    <div class="m360-alert m360-alert-danger">
+      <i>❌</i>
+      <span>Error crítico en el procesamiento</span>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="example-section">
+    <div class="example-title">Botones</div>
+    <div class="m360-flex m360-gap-2 m360-flex-wrap">
+      <button class="m360-btn m360-btn-primary">Primary</button>
+      <button class="m360-btn m360-btn-success">Success</button>
+      <button class="m360-btn m360-btn-warning">Warning</button>
+      <button class="m360-btn m360-btn-danger">Danger</button>
+      <button class="m360-btn m360-btn-outline-secondary">Outline</button>
+      <button class="m360-btn m360-btn-ghost">Ghost</button>
+      <button class="m360-btn m360-btn-sm">Small</button>
+      <button class="m360-btn m360-btn-primary" disabled>Disabled</button>
+    </div>
+  </div>
+
+  <!-- Forms -->
+  <div class="example-section">
+    <div class="example-title">Formularios</div>
+    <div class="m360-card">
+      <div class="m360-card-header">
+        <i class="m360-icon">📝</i>
+        Formulario de ejemplo
+      </div>
+      <div class="m360-card-body">
+        <form>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="nombre">Nombre completo</label>
+            <input type="text" id="nombre" class="m360-form-control" placeholder="Ingrese su nombre">
+            <small class="m360-form-hint">Máximo 100 caracteres</small>
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="email">Correo electrónico</label>
+            <input type="email" id="email" class="m360-form-control" placeholder="correo@ejemplo.com">
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="tipo">Tipo de documento</label>
+            <select id="tipo" class="m360-form-control">
+              <option value="">Seleccione...</option>
+              <option value="pdf">PDF</option>
+              <option value="docx">DOCX</option>
+              <option value="xlsx">XLSX</option>
+            </select>
+          </div>
+          <div class="m360-form-check">
+            <input type="checkbox" id="activo" class="m360-form-check-input" checked>
+            <label for="activo" class="m360-form-check-label">Documento activo</label>
+          </div>
+          <div class="m360-flex m360-gap-2 m360-mt-3">
+            <button type="submit" class="m360-btn m360-btn-primary">Guardar</button>
+            <button type="reset" class="m360-btn m360-btn-outline-secondary">Limpiar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Badges -->
+  <div class="example-section">
+    <div class="example-title">Badges</div>
+    <div class="m360-flex m360-gap-2 m360-flex-wrap">
+      <span class="m360-badge">Default</span>
+      <span class="m360-badge m360-badge-success">Success</span>
+      <span class="m360-badge m360-badge-warning">Warning</span>
+      <span class="m360-badge m360-badge-danger">Danger</span>
+      <span class="m360-badge m360-badge-info">Info</span>
+      <span class="m360-badge m360-badge-required">Requerido</span>
+      <span class="m360-status-pill m360-done">✓ Done</span>
+      <span class="m360-status-pill m360-running">⟳ Running</span>
+      <span class="m360-status-pill m360-error">✗ Error</span>
+      <span class="m360-status-pill m360-idle">○ Idle</span>
+    </div>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="example-section">
+    <div class="example-title">Cards</div>
+    <div class="m360-grid m360-grid-cards">
+      <div class="m360-card">
+        <div class="m360-card-header">
+          <i class="m360-icon">📄</i>
+          Documento 1
+        </div>
+        <div class="m360-card-body">
+          <p class="m360-text-sm m360-text-secondary m360-mb-2">Tipo: PDF · Creado: 2025-01-15</p>
+          <div class="m360-flex m360-gap-1">
+            <span class="m360-badge m360-badge-success">OCR</span>
+            <span class="m360-badge m360-badge-success">PDF/A</span>
+            <span class="m360-badge m360-badge-info">Micro</span>
+          </div>
+          <div class="m360-flex m360-gap-2 m360-mt-3">
+            <button class="m360-btn m360-btn-sm m360-btn-primary">Ver</button>
+            <button class="m360-btn m360-btn-sm m360-btn-outline-secondary">Editar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="m360-card">
+        <div class="m360-card-header">
+          <i class="m360-icon">📄</i>
+          Documento 2
+        </div>
+        <div class="m360-card-body">
+          <p class="m360-text-sm m360-text-secondary m360-mb-2">Tipo: DOCX · Creado: 2025-01-16</p>
+          <div class="m360-flex m360-gap-1">
+            <span class="m360-badge m360-badge-warning">OCR pendiente</span>
+            <span class="m360-badge m360-badge-info">Micro</span>
+          </div>
+          <div class="m360-flex m360-gap-2 m360-mt-3">
+            <button class="m360-btn m360-btn-sm m360-btn-primary">Ver</button>
+            <button class="m360-btn m360-btn-sm m360-btn-outline-secondary">Editar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="m360-card">
+        <div class="m360-card-header">
+          <i class="m360-icon">📄</i>
+          Documento 3
+        </div>
+        <div class="m360-card-body">
+          <p class="m360-text-sm m360-text-secondary m360-mb-2">Tipo: XLSX · Creado: 2025-01-17</p>
+          <div class="m360-flex m360-gap-1">
+            <span class="m360-badge m360-badge-danger">Error</span>
+          </div>
+          <div class="m360-flex m360-gap-2 m360-mt-3">
+            <button class="m360-btn m360-btn-sm m360-btn-primary">Ver</button>
+            <button class="m360-btn m360-btn-sm m360-btn-outline-secondary">Editar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="example-section">
+    <div class="example-title">Tabla</div>
+    <div class="m360-table-responsive">
+      <table class="m360-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>DOC-001</td>
+            <td>Contrato de arrendamiento</td>
+            <td>PDF</td>
+            <td><span class="m360-badge m360-badge-success">Completado</span></td>
+            <td>2025-01-15</td>
+          </tr>
+          <tr>
+            <td>DOC-002</td>
+            <td>Informe mensual</td>
+            <td>XLSX</td>
+            <td><span class="m360-badge m360-badge-warning">Pendiente</span></td>
+            <td>2025-01-16</td>
+          </tr>
+          <tr>
+            <td>DOC-003</td>
+            <td>Acta de reunión</td>
+            <td>DOCX</td>
+            <td><span class="m360-badge m360-badge-danger">Error</span></td>
+            <td>2025-01-17</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="example-section">
+    <div class="example-title">Pestañas</div>
+    <div class="m360-tabs">
+      <div class="m360-tab m360-active">General</div>
+      <div class="m360-tab">Metadatos</div>
+      <div class="m360-tab">Historial</div>
+      <div class="m360-tab">Configuración</div>
+    </div>
+    <div class="m360-card">
+      <div class="m360-card-body">
+        <p class="m360-text-secondary">Contenido de la pestaña General. Aquí iría la información principal del documento.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="example-section">
+    <div class="example-title">Paginación</div>
+    <div class="m360-flex m360-gap-1">
+      <button class="m360-pg-btn" disabled>‹</button>
+      <button class="m360-pg-btn m360-active">1</button>
+      <button class="m360-pg-btn">2</button>
+      <button class="m360-pg-btn">3</button>
+      <button class="m360-pg-btn m360-ellipsis">…</button>
+      <button class="m360-pg-btn">10</button>
+      <button class="m360-pg-btn">›</button>
+    </div>
+  </div>
+
+  <!-- Dropdown -->
+  <div class="example-section">
+    <div class="example-title">Dropdown</div>
+    <div class="m360-dropdown">
+      <button class="m360-btn m360-btn-outline-secondary" onclick="this.nextElementSibling.classList.toggle('m360-open')">
+        Opciones ▼
+      </button>
+      <div class="m360-dropdown-menu">
+        <div class="m360-dropdown-header">Acciones</div>
+        <a href="#" class="m360-dropdown-item"><i>📄</i> Ver documento</a>
+        <a href="#" class="m360-dropdown-item"><i>✏️</i> Editar</a>
+        <a href="#" class="m360-dropdown-item"><i>📋</i> Duplicar</a>
+        <div class="m360-dropdown-sep"></div>
+        <a href="#" class="m360-dropdown-item"><i>🗑️</i> Eliminar</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="example-section">
+    <div class="example-title">Barras de progreso</div>
+    <div class="m360-progress">
+      <div class="m360-progress-fill" style="width: 75%"></div>
+    </div>
+    <div class="m360-progress m360-mt-2">
+      <div class="m360-progress-fill" style="width: 45%"></div>
+    </div>
+  </div>
+
+  <!-- Spinner -->
+  <div class="example-section">
+    <div class="example-title">Spinner</div>
+    <div class="m360-flex m360-gap-3 m360-items-center">
+      <div class="m360-spinner"></div>
+      <div class="m360-spinner m360-spinner-sm"></div>
+      <span class="m360-spinner m360-spinner-inline"></span>
+      <span class="m360-text-sm m360-text-secondary">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Utilities -->
+  <div class="example-section">
+    <div class="example-title">Utilities</div>
+    <div class="m360-flex m360-gap-2 m360-flex-wrap">
+      <span class="m360-badge m360-badge-info">m360-flex</span>
+      <span class="m360-badge m360-badge-info">m360-gap-2</span>
+      <span class="m360-badge m360-badge-info">m360-items-center</span>
+      <span class="m360-badge m360-badge-info">m360-justify-between</span>
+      <span class="m360-badge m360-badge-info">m360-text-truncate</span>
+      <span class="m360-badge m360-badge-info">m360-rounded</span>
+      <span class="m360-badge m360-badge-info">m360-shadow-sm</span>
+      <span class="m360-badge m360-badge-info">m360-mt-3</span>
+      <span class="m360-badge m360-badge-info">m360-mb-4</span>
+      <span class="m360-badge m360-badge-info">m360-p-4</span>
+    </div>
+    <p class="m360-text-truncate m360-mt-3" style="max-width: 300px; border: 1px solid #e5e7eb; padding: 8px; border-radius: 6px;">
+      Este texto es muy largo y debería truncarse con elipsis al final
+    </p>
+  </div>
+</div>
+</div>
+{% endblock %}
