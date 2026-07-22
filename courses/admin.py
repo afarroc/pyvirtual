@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import CourseCategory, Course, Module, Lesson, Enrollment, Progress, Review, LessonAttachment, ContentBlock
+from django.contrib import messages
+from .models import CourseCategory, Course, Module, Lesson, Enrollment, Progress, Review, LessonAttachment, ContentBlock, Evaluation, Bibliografia
 
 @admin.register(CourseCategory)
 class CourseCategoryAdmin(admin.ModelAdmin):
@@ -13,15 +14,18 @@ class ModuleInline(admin.StackedInline):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ['title', 'tutor', 'category', 'level', 'price', 'is_published', 'is_featured', 'students_count', 'average_rating']
+    list_display = ['title', 'codigo', 'tutor', 'category', 'level', 'price', 'is_published', 'is_featured', 'students_count', 'average_rating']
     list_filter = ['is_published', 'is_featured', 'category', 'level', 'created_at']
-    search_fields = ['title', 'description', 'tutor__username']
+    search_fields = ['title', 'description', 'tutor__username', 'codigo']
     prepopulated_fields = {'slug': ('title',)}
     readonly_fields = ['students_count', 'average_rating', 'created_at', 'updated_at', 'published_at']
     inlines = [ModuleInline]
     fieldsets = (
         ('Información Básica', {
             'fields': ('title', 'slug', 'description', 'short_description', 'category', 'level')
+        }),
+        ('Metadatos UPN', {
+            'fields': ('codigo', 'creditos', 'ht', 'hp', 'hl', 'pc', 'requisitos', 'naturaleza', 'competencia_general', 'componentes', 'sumilla', 'logro_curso', 'sistema_evaluacion', 'bibliografia')
         }),
         ('Multimedia', {
             'fields': ('thumbnail',)
@@ -37,6 +41,45 @@ class CourseAdmin(admin.ModelAdmin):
         }),
     )
 
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        course = form.instance
+        warnings = []
+
+        # Validar módulos
+        modules = course.modules.all()
+        if not modules.exists():
+            warnings.append('El curso no tiene módulos.')
+        else:
+            for module in modules:
+                if not module.logro_unidad:
+                    warnings.append(f'Módulo "{module.title}" no tiene logro_unidad.')
+
+        # Validar lecciones
+        lessons = Lesson.objects.filter(module__course=course)
+        lesson_count = lessons.count()
+        if lesson_count != 17:
+            warnings.append(f'El curso tiene {lesson_count} lecciones; el patrón UPN espera 17.')
+
+        for lesson in lessons:
+            if not lesson.logro_semana:
+                warnings.append(f'Lección "{lesson.title}" no tiene logro_semana.')
+            if not lesson.saberes_esenciales:
+                warnings.append(f'Lección "{lesson.title}" no tiene saberes_esenciales.')
+
+        # Validar evaluaciones
+        evals = Evaluation.objects.filter(course=course)
+        expected_evals = ['T1', 'T2', 'T3', 'T4', 'Final', 'Sustitutoria']
+        actual_evals = [e.nombre for e in evals]
+        missing = [e for e in expected_evals if e not in actual_evals]
+        if missing:
+            warnings.append(f'Evaluaciones faltantes: {", ".join(missing)}')
+
+        # Mostrar advertencias
+        if warnings:
+            for w in warnings:
+                messages.warning(request, w)
+
 class LessonAttachmentInline(admin.TabularInline):
     model = LessonAttachment
     extra = 0
@@ -51,22 +94,25 @@ class LessonInline(admin.StackedInline):
 
 @admin.register(Module)
 class ModuleAdmin(admin.ModelAdmin):
-    list_display = ['title', 'course', 'order']
+    list_display = ['title', 'course', 'order', 'logro_unidad']
     list_filter = ['course']
-    search_fields = ['title', 'course__title']
+    search_fields = ['title', 'course__title', 'logro_unidad']
     inlines = [LessonInline]
 
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
-    list_display = ['title', 'module', 'lesson_type', 'order', 'is_free', 'duration_minutes', 'has_structured_content', 'attachments_count']
+    list_display = ['title', 'module', 'lesson_type', 'order', 'is_free', 'duration_minutes', 'has_structured_content', 'attachments_count', 'logro_semana', 'saberes_esenciales']
     list_filter = ['lesson_type', 'is_free', 'module__course']
-    search_fields = ['title', 'module__title', 'content']
+    search_fields = ['title', 'module__title', 'content', 'logro_semana', 'saberes_esenciales']
     readonly_fields = ['structured_content_count']
     inlines = [LessonAttachmentInline]
 
     fieldsets = (
         ('Información Básica', {
             'fields': ('module', 'title', 'lesson_type', 'order', 'is_free', 'duration_minutes')
+        }),
+        ('Metodología UPN', {
+            'fields': ('logro_semana', 'saberes_esenciales', 'actividades', 'trabajo_campo')
         }),
         ('Contenido Simple', {
             'fields': ('content', 'video_url'),
@@ -186,3 +232,17 @@ class ContentBlockAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Optimizar consultas incluyendo autor"""
         return super().get_queryset(request).select_related('author')
+
+@admin.register(Evaluation)
+class EvaluationAdmin(admin.ModelAdmin):
+    list_display = ['course', 'nombre', 'peso', 'semana', 'descripcion']
+    list_filter = ['course', 'nombre']
+    search_fields = ['course__title', 'nombre', 'descripcion']
+    ordering = ['semana']
+
+@admin.register(Bibliografia)
+class BibliografiaAdmin(admin.ModelAdmin):
+    list_display = ['course', 'autor', 'titulo', 'anio', 'enlace']
+    list_filter = ['course']
+    search_fields = ['course__title', 'autor', 'titulo']
+    ordering = ['autor']

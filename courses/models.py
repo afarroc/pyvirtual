@@ -84,6 +84,22 @@ class Course(models.Model):
         blank=True
     )
     
+    # Metadatos UPN
+    codigo = models.CharField(max_length=50, blank=True, help_text="Código UPN")
+    creditos = models.PositiveIntegerField(null=True, blank=True, help_text="Créditos")
+    ht = models.PositiveIntegerField(null=True, blank=True, help_text="Horas teóricas")
+    hp = models.PositiveIntegerField(null=True, blank=True, help_text="Horas prácticas")
+    hl = models.PositiveIntegerField(null=True, blank=True, help_text="Horas de laboratorio")
+    pc = models.PositiveIntegerField(null=True, blank=True, help_text="Práctica de campo")
+    requisitos = models.CharField(max_length=200, blank=True, help_text="Requisitos")
+    naturaleza = models.CharField(max_length=50, blank=True, help_text="Naturaleza: teórico, teórico-práctico, práctico")
+    competencia_general = models.TextField(blank=True, help_text="Competencia general")
+    componentes = models.TextField(blank=True, help_text="Componentes transversales")
+    sumilla = models.TextField(blank=True, help_text="Sumilla del curso")
+    logro_curso = models.TextField(blank=True, help_text="Logro del curso")
+    sistema_evaluacion = models.TextField(blank=True, help_text="Sistema de evaluación")
+    bibliografia = models.TextField(blank=True, help_text="Bibliografía básica")
+    
     # Metadata
     is_published = models.BooleanField(default=False)
     is_featured = models.BooleanField(default=False)
@@ -131,6 +147,7 @@ class Module(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     order = models.PositiveIntegerField(default=0)
+    logro_unidad = models.TextField(blank=True, help_text="Logro de la unidad")
     
     class Meta:
         ordering = ['order']
@@ -268,6 +285,12 @@ class Lesson(models.Model):
     duration_minutes = models.PositiveIntegerField(default=0)
     order = models.PositiveIntegerField(default=0)
     is_free = models.BooleanField(default=False)  # Lección gratuita para preview
+    
+    # Columnas UPN
+    logro_semana = models.TextField(blank=True, help_text="Logro de la semana")
+    saberes_esenciales = models.TextField(blank=True, help_text="Saberes esenciales")
+    actividades = models.TextField(blank=True, help_text="Actividades")
+    trabajo_campo = models.TextField(blank=True, help_text="Trabajo de campo / PC")
 
     # Para quizzes
     quiz_questions = models.JSONField(default=list, blank=True)  # Almacena preguntas y respuestas
@@ -523,6 +546,50 @@ class ContentBlock(models.Model):
         if not self.tags:
             return []
         return [tag.strip() for tag in self.tags.split(',') if tag.strip()]
+
+# ======================
+# MODELOS UPN
+# ======================
+
+class Evaluation(models.Model):
+    """Evaluación formal del sílabo UPN: T1, T2, T3, T4, Final, Sustitutoria"""
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='evaluations'
+    )
+    nombre = models.CharField(max_length=100, help_text="Nombre de la evaluación: T1, T2, T3, T4, Final, Sustitutoria")
+    peso = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)], help_text="Peso en porcentaje")
+    semana = models.PositiveIntegerField(help_text="Semana en la que se aplica")
+    descripcion = models.TextField(blank=True, help_text="Descripción de la evaluación")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['semana']
+        unique_together = ['course', 'nombre']
+    
+    def __str__(self):
+        return f"{self.course.title} - {self.nombre} (semana {self.semana})"
+
+class Bibliografia(models.Model):
+    """Referencia bibliográfica del sílabo UPN"""
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='bibliografia_items'
+    )
+    autor = models.CharField(max_length=200, help_text="Autor o autores")
+    titulo = models.CharField(max_length=300, help_text="Título del libro o artículo")
+    anio = models.CharField(max_length=10, blank=True, help_text="Año de publicación")
+    enlace = models.URLField(blank=True, help_text="Enlace o referencia")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['autor']
+    
+    def __str__(self):
+        return f"{self.autor} - {self.titulo}"
 
 # ======================
 # SIGNALS
