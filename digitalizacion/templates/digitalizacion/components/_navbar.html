@@ -1,0 +1,20 @@
+<nav class="m360-site-header-actions" aria-label="Principal">
+  <button class="m360-btn m360-btn-ghost" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <line x1="4" y1="6" x2="20" y2="6"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <line x1="4" y1="18" x2="20" y2="18"/>
+    </svg>
+  </button>
+  <ul data-nav-menu>
+    <li><a href="{% url 'digitalizacion:dashboard' %}" class="m360-btn m360-btn-ghost" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>Inicio</a></li>
+    <li><a href="{% url 'digitalizacion:preparacion' %}" class="m360-btn m360-btn-ghost" {% if request.resolver_match.url_name == 'preparacion' %}aria-current="page"{% endif %}>Preparación</a></li>
+    {% if request.resolver_match.kwargs.documento_id %}
+      <li><a href="{% url 'digitalizacion:digitalizar_documento' documento_id=request.resolver_match.kwargs.documento_id %}" class="m360-btn m360-btn-ghost" {% if request.resolver_match.url_name == 'digitalizar_documento' %}aria-current="page"{% endif %}>Digitalizar</a></li>
+      <li><a href="{% url 'digitalizacion:cc1_documento' documento_id=request.resolver_match.kwargs.documento_id %}" class="m360-btn m360-btn-ghost" {% if request.resolver_match.url_name == 'cc1_documento' %}aria-current="page"{% endif %}>CC1</a></li>
+    {% endif %}
+    {% if user.is_staff %}
+    <li><a href="/admin/" class="m360-btn m360-btn-ghost">Admin</a></li>
+    {% endif %}
+  </ul>
+</nav>

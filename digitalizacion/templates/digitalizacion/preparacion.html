@@ -1,95 +1,134 @@
-{% extends "digitalizacion/base_itcss.html" %}
+{% extends "digitalizacion/base.html" %}
 {% load static %}
 
 {% block content %}
-<div>
+<div class="m360-page-header">
   <div>
     <h1>Preparación de documentos</h1>
     <p>Lotes en preparación · {{ stats.lotes }} lotes · {{ stats.documentos }} documentos registrados</p>
   </div>
+</div>
 
-  {% if messages %}
-  <div>
-    <div>
-      {% for message in messages %}
-      <div>{{ message }}</div>
+<div class="m360-card m360-mb-4">
+  <div class="m360-card-header">
+    <i class="m360-icon">📦</i>
+    Crear nuevo lote
+  </div>
+  <div class="m360-card-body">
+    <form method="post" class="m360-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="crear_lote">
+      {% for field in form_lote %}
+        {% if not field.is_hidden %}
+        <div class="m360-form-group">
+          <label class="m360-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <small class="m360-form-hint">{{ field.help_text }}</small>
+          {% endif %}
+          {% for error in field.errors %}
+            <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
       {% endfor %}
-    </div>
+      {% for field in form_lote %}
+        {% if field.is_hidden %}
+          {{ field }}
+        {% endif %}
+      {% endfor %}
+      <button type="submit" class="m360-btn m360-btn-primary">Crear lote</button>
+    </form>
   </div>
-  {% endif %}
+</div>
 
-  <div>
-    <div>
-      <h2>Crear nuevo lote</h2>
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="crear_lote">
-        {{ form_lote.as_p }}
-        <button type="submit">Crear lote</button>
-      </form>
-    </div>
-
-    <div>
-      <h2>Agregar documento a lote</h2>
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="agregar_documento">
-        {{ form_doc.as_p }}
-        <button type="submit">Agregar documento</button>
-      </form>
-    </div>
+<div class="m360-card m360-mb-4">
+  <div class="m360-card-header">
+    <i class="m360-icon">📄</i>
+    Agregar documento a lote
   </div>
+  <div class="m360-card-body">
+    <form method="post" class="m360-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="agregar_documento">
+      {% for field in form_doc %}
+        {% if not field.is_hidden %}
+        <div class="m360-form-group">
+          <label class="m360-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <small class="m360-form-hint">{{ field.help_text }}</small>
+          {% endif %}
+          {% for error in field.errors %}
+            <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% endfor %}
+      {% for field in form_doc %}
+        {% if field.is_hidden %}
+          {{ field }}
+        {% endif %}
+      {% endfor %}
+      <button type="submit" class="m360-btn m360-btn-primary">Agregar documento</button>
+    </form>
+  </div>
+</div>
 
-  <div>
-    <h2>Lotes en preparación</h2>
+<div class="m360-card m360-mb-4">
+  <div class="m360-card-header">
+    <i class="m360-icon">📋</i>
+    Lotes en preparación
+  </div>
+  <div class="m360-card-body">
     {% if lotes %}
       {% for lote in lotes %}
-      <div>
-        <div>
-          <h3>{{ lote.nombre }}</h3>
-          <span>Creado: {{ lote.created_at|date:"Y-m-d H:i" }}</span>
-        </div>
-        <div>
+      <div class="m360-lote-item">
+        <div class="m360-lote-header">
           <div>
-            <span>Documentos:</span>
-            <span>{{ lote.documentos.count }}</span>
+            <div class="m360-text-lg m360-fw-bold">{{ lote.nombre }}</div>
+            <div class="m360-text-sm m360-text-muted">Creado: {{ lote.created_at|date:"Y-m-d H:i" }}</div>
           </div>
-          <div>
-            <span>Proyecto M360:</span>
-            <span>{{ lote.proyecto_m360|default:"—" }}</span>
-          </div>
-          <div>
-            <span>Curso M360:</span>
-            <span>{{ lote.curso_m360|default:"—" }}</span>
-          </div>
-          <div>
-            <span>Ruta base:</span>
-            <span>{{ lote.ruta_base|truncatechars:40 }}</span>
-          </div>
-        </div>
-        <div>
-          <a href="/admin/digitalizacion/lotedigitalizacion/{{ lote.id }}/change/" target="_blank">Ver en admin</a>
-          <form method="post">
+          <form method="post" class="m360-lote-actions">
             {% csrf_token %}
             <input type="hidden" name="action" value="cerrar_preparacion">
             <input type="hidden" name="lote_id" value="{{ lote.id }}">
-            <button type="submit" onclick="return confirm('¿Cerrar preparación del lote {{ lote.nombre|escapejs }}? Los folios pasarán a digitalización.');">Cerrar preparación</button>
+            <button type="submit" class="m360-btn m360-btn-primary m360-btn-sm" onclick="return confirm('¿Cerrar preparación del lote {{ lote.nombre|escapejs }}? Los folios pasarán a digitalización.');">Cerrar preparación</button>
           </form>
+        </div>
+        <div class="m360-lote-meta">
+          <div class="m360-grid m360-grid-2">
+            <div class="m360-text-sm"><strong>ID:</strong> {{ lote.id }}</div>
+            <div class="m360-text-sm"><strong>Estado:</strong> {{ lote.get_estado_display }}</div>
+            <div class="m360-text-sm"><strong>Documentos:</strong> {{ lote.documentos.count }}</div>
+            <div class="m360-text-sm"><strong>Proyecto M360:</strong> {{ lote.proyecto_m360|default:"—" }}</div>
+            <div class="m360-text-sm"><strong>Curso M360:</strong> {{ lote.curso_m360|default:"—" }}</div>
+            <div class="m360-text-sm m360-col-span-full"><strong>Ruta:</strong> {{ lote.ruta_base|truncatechars:60|default:"—" }}</div>
+          </div>
+        </div>
+        <div class="m360-lote-footer">
+          <a href="/admin/digitalizacion/lotedigitalizacion/{{ lote.id }}/change/" target="_blank" class="m360-btn m360-btn-sm m360-btn-ghost">Ver en admin</a>
         </div>
       </div>
       {% endfor %}
     {% else %}
-      <div>
-        <h3>Sin lotes en preparación</h3>
-        <p>Crea un lote para comenzar a registrar folios desde Archivo Central.</p>
+      <div class="m360-text-center m360-py-6">
+        <div class="m360-text-xl m360-fw-bold m360-text-primary m360-mb-2">Sin lotes en preparación</div>
+        <div class="m360-text-md m360-text-secondary">Crea un lote para comenzar a registrar folios desde Archivo Central.</div>
       </div>
     {% endif %}
   </div>
+</div>
 
-  <div>
-    <h2>Documentos registrados en preparación</h2>
+<div class="m360-card">
+  <div class="m360-card-header">
+    <i class="m360-icon">📊</i>
+    Documentos registrados en preparación
+  </div>
+  <div class="m360-card-body m360-p-0">
     {% if documentos %}
-      <table>
+    <div class="m360-table-responsive">
+      <table class="m360-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -113,11 +152,12 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
     {% else %}
-      <div>
-        <h3>Sin documentos en preparación</h3>
-        <p>Agrega documentos a un lote para comenzar.</p>
-      </div>
+    <div class="m360-text-center m360-py-6">
+      <div class="m360-text-xl m360-fw-bold m360-text-primary m360-mb-2">Sin documentos en preparación</div>
+      <div class="m360-text-md m360-text-secondary">Agrega documentos a un lote para comenzar.</div>
+    </div>
     {% endif %}
   </div>
 </div>

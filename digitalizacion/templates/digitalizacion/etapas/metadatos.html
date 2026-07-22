@@ -1,71 +1,83 @@
-{% extends "digitalizacion/etapas/etapa_base.html" %}
+{% extends "digitalizacion/base.html" %}
 
-{% block stage_content %}
-<div>
-  <div>
-    <h2>Metadatos descriptivos (Dublin Core)</h2>
-    <form method="post">
-      {% csrf_token %}
-      <div>
-        <div>
-          <label for="titulo">Título *</label>
-          <input type="text" id="titulo" name="titulo" value="{{ doc.titulo }}" required>
-        </div>
-        <div>
-          <label for="creator">Creador / Entidad</label>
-          <input type="text" id="creator" name="creator" value="{{ doc.creator }}">
-        </div>
-        <div>
-          <label for="fecha_documento">Fecha del documento</label>
-          <input type="date" id="fecha_documento" name="fecha_documento" value="{{ doc.fecha_documento|date:'Y-m-d' }}">
-        </div>
-        <div>
-          <label for="language">Idioma</label>
-          <input type="text" id="language" name="language" value="{{ doc.language|default:'es' }}">
-        </div>
-        <div>
-          <label for="rights">Derechos</label>
-          <input type="text" id="rights" name="rights" value="{{ doc.rights|default:'Derechos reservados UPN' }}">
-        </div>
-        <div>
-          <label for="subject">Temas (separados por coma)</label>
-          <input type="text" id="subject" name="subject" value="{{ doc.subject|join:', ' }}">
-        </div>
+{% block content %}
+<div class="m360-grid m360-grid-2 m360-mb-4">
+    <div class="m360-card">
+      <div class="m360-card-header">
+        <i class="m360-icon">🏷️</i>
+        Metadatos descriptivos (Dublin Core)
       </div>
-      <div>
-        <label for="description">Descripción</label>
-        <textarea id="description" name="description" rows="3">{{ doc.description }}</textarea>
+      <div class="m360-card-body">
+        <form method="post" class="m360-d-flex m360-flex-column m360-gap-3">
+          {% csrf_token %}
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="titulo">Título *</label>
+            <input type="text" id="titulo" name="titulo" value="{{ doc.titulo }}" required class="m360-form-control">
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="creator">Creador / Entidad</label>
+            <input type="text" id="creator" name="creator" value="{{ doc.creator }}" class="m360-form-control">
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="fecha_documento">Fecha del documento</label>
+            <input type="date" id="fecha_documento" name="fecha_documento" value="{{ doc.fecha_documento|date:'Y-m-d' }}" class="m360-form-control">
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="language">Idioma</label>
+            <input type="text" id="language" name="language" value="{{ doc.language|default:'es' }}" class="m360-form-control">
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="rights">Derechos</label>
+            <input type="text" id="rights" name="rights" value="{{ doc.rights|default:'Derechos reservados UPN' }}" class="m360-form-control">
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="subject">Temas (separados por coma)</label>
+            <input type="text" id="subject" name="subject" value="{{ doc.subject|join:', ' }}" class="m360-form-control">
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="description">Descripción</label>
+            <textarea id="description" name="description" rows="3" class="m360-form-control">{{ doc.description }}</textarea>
+          </div>
+          <button type="submit" class="m360-btn m360-btn-primary">Guardar metadatos y ejecutar OCR</button>
+        </form>
       </div>
-      <button type="submit">Guardar metadatos y ejecutar OCR</button>
-    </form>
-  </div>
-</div>
+    </div>
 
-{% if logs %}
-  <div>
-    <h3>Resultado OCR</h3>
-    {% for log in logs %}
-      <div>
-        <strong>{{ log.etapa|default:"Metadatos" }}:</strong>
-        {% if log.ok %}
-          {% if log.ocr %}
-            <div>Motor OCR: {{ log.ocr.engine }}</div>
-            <div>Páginas procesadas: {{ log.ocr.pages }}</div>
-            <div>Confianza promedio: {% if log.ocr.avg_confidence %}{{ log.ocr.avg_confidence|floatformat:2 }}{% else %}N/A{% endif %}</div>
-          {% endif %}
-          {% if log.metadata %}
-            <div>Metadatos guardados correctamente.</div>
-          {% endif %}
+    <div class="m360-card">
+      <div class="m360-card-header">
+        <i class="m360-icon">🔍</i>
+        Resultado OCR
+      </div>
+      <div class="m360-card-body">
+        {% if logs %}
+          {% for log in logs %}
+          <div class="m360-card m360-mb-2">
+            <div class="m360-card-body">
+              <div class="m360-text-sm m360-fw-bold m360-mb-2">{{ log.etapa|default:"Metadatos" }}:</div>
+              {% if log.ok %}
+                {% if log.ocr %}
+                  <div class="m360-text-sm m360-text-secondary m360-mb-1">Motor OCR: {{ log.ocr.engine }}</div>
+                  <div class="m360-text-sm m360-text-secondary m360-mb-1">Páginas procesadas: {{ log.ocr.pages }}</div>
+                  <div class="m360-text-sm m360-text-secondary m360-mb-1">Confianza promedio: {% if log.ocr.avg_confidence %}{{ log.ocr.avg_confidence|floatformat:2 }}{% else %}N/A{% endif %}</div>
+                {% endif %}
+                {% if log.metadata %}
+                  <div class="m360-badge m360-badge-success">Metadatos guardados correctamente.</div>
+                {% endif %}
+              {% else %}
+                <div class="m360-text-sm m360-text-danger">{{ log.error }}</div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
         {% else %}
-          <div>{{ log.error }}</div>
+          <div class="m360-text-center m360-text-secondary m360-mt-2">Sin ejecuciones aún.</div>
         {% endif %}
       </div>
-    {% endfor %}
+    </div>
   </div>
-{% endif %}
 
-<div>
-  <a href="{% url 'digitalizacion:cc1_documento' documento_id=doc.id %}">← Volver</a>
-  <a href="{% url 'digitalizacion:qc2_documento' documento_id=doc.id %}">Avanzar a QC2 →</a>
-</div>
+  <div class="m360-d-flex m360-flex-column m360-gap-2">
+    <a href="{% url 'digitalizacion:cc1_documento' documento_id=doc.id %}" class="m360-btn m360-btn-ghost">← Volver</a>
+    <a href="{% url 'digitalizacion:qc2_documento' documento_id=doc.id %}" class="m360-btn m360-btn-primary">Avanzar a QC2 →</a>
+  </div>
 {% endblock %}

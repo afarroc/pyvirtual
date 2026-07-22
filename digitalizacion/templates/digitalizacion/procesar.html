@@ -1,141 +1,112 @@
-{% extends "digitalizacion/base_itcss.html" %}
+{% extends "digitalizacion/base.html" %}
 {% load static %}
 
 {% block content %}
-<div>
+<div class="m360-page-header">
   <div>
     <h1>Pipeline: {{ doc.document_id }}</h1>
     <p>{{ doc.titulo }} · Lote: {{ lote.nombre }} · Estado lote: {{ lote.get_estado_display }}</p>
   </div>
+</div>
 
-  {% if messages %}
-  <div>
-    <div>
-      {% for message in messages %}
-      <div>{{ message }}</div>
-      {% endfor %}
+<div class="m360-grid m360-grid-2 m360-mb-4">
+  <div class="m360-card">
+    <div class="m360-card-header">
+      <i class="m360-icon">📄</i>
+      Documento
     </div>
-  </div>
-  {% endif %}
-
-  <div>
-    <div>
-      <h2>Documento</h2>
-      <div>
-        <div>
-          <span>ID:</span>
-          <span>{{ doc.document_id }}</span>
-        </div>
-        <div>
-          <span>Tipo:</span>
-          <span>{{ doc.tipo }}</span>
-        </div>
-        <div>
-          <span>Título:</span>
-          <span>{{ doc.titulo }}</span>
-        </div>
-        <div>
-          <span>Fecha documento:</span>
-          <span>{{ doc.fecha_documento|default:"—" }}</span>
-        </div>
-        <div>
-          <span>OCR engine:</span>
-          <span>{{ doc.ocr_engine|default:"pending" }}</span>
-        </div>
-        <div>
-          <span>Confianza OCR:</span>
-          <span>{% if doc.ocr_confidence %}{{ doc.ocr_confidence|floatformat:2 }}{% else %}N/A{% endif %}</span>
-        </div>
-        <div>
-          <span>PDF/A:</span>
-          <span>{% if doc.converted_to_pdf_a %}Sí{% else %}No{% endif %}</span>
-        </div>
-        <div>
-          <span>Checksum SHA-256:</span>
-          <span>{% if doc.checksum_sha256 %}{{ doc.checksum_sha256 }}{% else %}Pendiente{% endif %}</span>
-        </div>
-        <div>
-          <span>Inbox:</span>
-          <span>{{ doc.ruta_inbox|truncatechars:60 }}</span>
-        </div>
-        <div>
-          <span>Preprocessed:</span>
-          <span>{{ doc.ruta_preprocessed|truncatechars:60 }}</span>
-        </div>
-        <div>
-          <span>Acceso:</span>
-          <span>{{ doc.ruta_acceso|truncatechars:60|default:"—" }}</span>
+      <div class="m360-card-body">
+        <div class="m360-grid m360-grid-2">
+          <div class="m360-text-sm"><strong>ID:</strong> {{ doc.document_id }}</div>
+          <div class="m360-text-sm"><strong>Tipo:</strong> {{ doc.tipo }}</div>
+          <div class="m360-text-sm"><strong>Título:</strong> {{ doc.titulo }}</div>
+          <div class="m360-text-sm"><strong>Fecha documento:</strong> {{ doc.fecha_documento|default:"—" }}</div>
+          <div class="m360-text-sm"><strong>OCR engine:</strong> {{ doc.ocr_engine|default:"pending" }}</div>
+          <div class="m360-text-sm"><strong>Confianza OCR:</strong> {% if doc.ocr_confidence %}{{ doc.ocr_confidence|floatformat:2 }}{% else %}N/A{% endif %}</div>
+          <div class="m360-text-sm"><strong>PDF/A:</strong> {% if doc.converted_to_pdf_a %}Sí{% else %}No{% endif %}</div>
+          <div class="m360-text-sm"><strong>Checksum SHA-256:</strong> {% if doc.checksum_sha256 %}{{ doc.checksum_sha256 }}{% else %}Pendiente{% endif %}</div>
+          <div class="m360-text-sm"><strong>Inbox:</strong> {{ doc.ruta_inbox|truncatechars:60 }}</div>
+          <div class="m360-text-sm"><strong>Preprocessed:</strong> {{ doc.ruta_preprocessed|truncatechars:60 }}</div>
+          <div class="m360-text-sm m360-col-span-full"><strong>Acceso:</strong> {{ doc.ruta_acceso|truncatechars:60|default:"—" }}</div>
         </div>
       </div>
-    </div>
+  </div>
 
-    <div>
-      <h2>Ejecutar pipeline</h2>
-      <form method="post" enctype="multipart/form-data">
+  <div class="m360-card">
+    <div class="m360-card-header">
+      <i class="m360-icon">⚙️</i>
+      Ejecutar pipeline
+    </div>
+    <div class="m360-card-body">
+      <form method="post" enctype="multipart/form-data" class="m360-d-flex m360-flex-column m360-gap-3">
         {% csrf_token %}
-        <div>
-          <label>Subir imágenes a inbox</label>
-          <input type="file" name="inbox_files" multiple accept="image/*">
-          <span>Se guardarán en {{ doc.ruta_inbox|default:"ruta inbox no definida" }}</span>
+        <div class="m360-form-group">
+          <label class="m360-form-label">Subir imágenes a inbox</label>
+          <input type="file" name="inbox_files" multiple accept="image/*" class="m360-form-control-file">
+          <small class="m360-form-hint">Se guardarán en {{ doc.ruta_inbox|default:"ruta inbox no definida" }}</small>
         </div>
-        <div>
-          <label for="etapa">Etapa</label>
-          <select id="etapa" name="etapa">
+        <div class="m360-form-group">
+          <label class="m360-form-label" for="etapa">Etapa</label>
+          <select id="etapa" name="etapa" class="m360-form-control">
             {% for key, label in etapas %}
             <option value="{{ key }}">{{ label }}</option>
             {% endfor %}
           </select>
         </div>
-        <div>
-          <label>
-            <input type="checkbox" name="avanzar" value="1">
-            Avanzar automáticamente hasta donde se pueda
-          </label>
+        <div class="m360-form-check">
+          <input type="checkbox" name="avanzar" value="1" class="m360-form-check-input" id="avanzar">
+          <label for="avanzar" class="m360-form-check-label">Avanzar automáticamente hasta donde se pueda</label>
         </div>
-        <button type="submit">Ejecutar</button>
-        <a href="{% url 'digitalizacion:preparacion' %}">Volver</a>
+  <div class="m360-d-flex m360-flex-column m360-gap-2">
+    <a href="{% url 'digitalizacion:preparacion' %}" class="m360-btn m360-btn-primary">← Volver a Preparación</a>
+  </div>
       </form>
-
-      <div>
-        <h3>Bitácora de ejecución</h3>
-        {% if logs %}
-          {% for log in logs %}
-            <div>
-              <strong>{{ log.etapa|default:"Pipeline" }}:</strong>
-              {% if log.ok %}
-                {% if log.pdfa %}
-                  <div>PDF/A generado: {{ log.pdfa }}</div>
-                {% endif %}
-                {% if log.checksums %}
-                  <div>SHA-256: {{ log.checksums.sha256 }}</div>
-                {% endif %}
-                {% if log.preprocessed %}
-                  <div>Preprocesado: {{ log.preprocessed }}</div>
-                {% endif %}
-                {% if log.qc2 %}
-                  <div>QC2: OK</div>
-                {% endif %}
-                {% if log.msg %}
-                  <div>{{ log.msg }}</div>
-                {% endif %}
-              {% else %}
-                <div>{{ log.error }}</div>
-                {% if log.missing %}
-                  <div>Faltan: {{ log.missing|join:", " }}</div>
-                {% endif %}
-                {% if log.rechazado %}
-                  <div>Rechazado</div>
-                {% endif %}
-              {% endif %}
-            </div>
-          {% endfor %}
-        {% else %}
-          <div>
-            <p>Sin ejecuciones aún.</p>
-          </div>
-        {% endif %}
-      </div>
     </div>
+  </div>
+</div>
+
+<div class="m360-card">
+  <div class="m360-card-header">
+    <i class="m360-icon">📝</i>
+    Bitácora de ejecución
+  </div>
+  <div class="m360-card-body">
+    {% if logs %}
+      {% for log in logs %}
+      <div class="m360-card m360-mb-2">
+        <div class="m360-card-body">
+          <div class="m360-text-sm m360-fw-bold m360-mb-2">{{ log.etapa|default:"Pipeline" }}:</div>
+          {% if log.ok %}
+            {% if log.pdfa %}
+              <div class="m360-text-sm m360-text-secondary m360-mb-1">PDF/A generado: {{ log.pdfa }}</div>
+            {% endif %}
+            {% if log.checksums %}
+              <div class="m360-text-sm m360-text-secondary m360-mb-1">SHA-256: {{ log.checksums.sha256 }}</div>
+            {% endif %}
+            {% if log.preprocessed %}
+              <div class="m360-text-sm m360-text-secondary m360-mb-1">Preprocesado: {{ log.preprocessed }}</div>
+            {% endif %}
+            {% if log.qc2 %}
+              <div class="m360-text-sm m360-text-secondary m360-mb-1">QC2: OK</div>
+            {% endif %}
+            {% if log.msg %}
+              <div class="m360-text-sm m360-text-secondary">{{ log.msg }}</div>
+            {% endif %}
+          {% else %}
+            <div class="m360-text-sm m360-text-danger">{{ log.error }}</div>
+            {% if log.missing %}
+              <div class="m360-text-sm m360-text-secondary m360-mt-1">Faltan: {{ log.missing|join:", " }}</div>
+            {% endif %}
+            {% if log.rechazado %}
+              <div class="m360-text-sm m360-text-secondary m360-mt-1">Rechazado</div>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="m360-text-center m360-text-secondary">Sin ejecuciones aún.</div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

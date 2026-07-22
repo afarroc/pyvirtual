@@ -1,37 +1,47 @@
-{% extends "digitalizacion/etapas/etapa_base.html" %}
+{% extends "digitalizacion/base.html" %}
 
-{% block stage_content %}
-<div>
-  <div>
-    <h2>Criterios de Control de Calidad 2</h2>
-    <ul>
-      <li>Metadatos Dublin Core completos.</li>
-      <li>Microformato JSON válido contra esquema.</li>
-      <li>Checksum SHA-256 calculado y registrado.</li>
-      <li>OCR confidence ≥ 0.90 en páginas de texto.</li>
-      <li>PDF/A-2b generado y validado.</li>
-      <li>Nomenclatura respeta <code>upn_YYYY-MM-DD_NNN</code>.</li>
-    </ul>
+{% block content %}
+<div class="m360-grid m360-grid-2 m360-mb-4">
+    <div class="m360-card">
+      <div class="m360-card-header">
+        <i class="m360-icon">🔬</i>
+        Criterios de Control de Calidad 2
+      </div>
+      <div class="m360-card-body">
+        <ul class="m360-text-sm m360-text-secondary m360-pl-4 m360-m-0">
+          <li class="m360-mb-2">Metadatos Dublin Core completos.</li>
+          <li class="m360-mb-2">Microformato JSON válido contra esquema.</li>
+          <li class="m360-mb-2">Checksum SHA-256 calculado y registrado.</li>
+          <li class="m360-mb-2">OCR confidence ≥ 0.90 en páginas de texto.</li>
+          <li class="m360-mb-2">PDF/A-2b generado y validado.</li>
+          <li class="m360-mb-2">Nomenclatura respeta <code>upn_YYYY-MM-DD_NNN</code>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="m360-card">
+      <div class="m360-card-header">
+        <i class="m360-icon">📝</i>
+        Resultado QC2
+      </div>
+      <div class="m360-card-body">
+        <form method="post" class="m360-d-flex m360-flex-column m360-gap-3">
+          {% csrf_token %}
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="motivo">Motivo (si corresponde)</label>
+            <textarea id="motivo" name="motivo" rows="3" class="m360-form-control" placeholder="Describe el problema encontrado..."></textarea>
+          </div>
+          <div class="m360-d-flex m360-gap-2">
+            <button type="submit" name="action" value="aprobar" class="m360-btn m360-btn-success">Aprobar</button>
+            <button type="submit" name="action" value="rechazar" class="m360-btn m360-btn-danger">Rechazar</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
-  <div>
-    <h2>Resultado QC2</h2>
-    <form method="post">
-      {% csrf_token %}
-      <div>
-        <label for="motivo">Motivo (si corresponde)</label>
-        <textarea id="motivo" name="motivo" rows="3" placeholder="Describe el problema encontrado..."></textarea>
-      </div>
-      <div>
-        <button type="submit" name="action" value="aprobar">Aprobar</button>
-        <button type="submit" name="action" value="rechazar">Rechazar</button>
-      </div>
-    </form>
+  <div class="m360-d-flex m360-flex-column m360-gap-2">
+    <a href="{% url 'digitalizacion:metadatos_documento' documento_id=doc.id %}" class="m360-btn m360-btn-ghost">← Volver</a>
+    <a href="{% url 'digitalizacion:auditoria_documento' documento_id=doc.id %}" class="m360-btn m360-btn-primary">Avanzar a Auditoría →</a>
   </div>
-</div>
-
-<div>
-  <a href="{% url 'digitalizacion:metadatos_documento' documento_id=doc.id %}">← Volver</a>
-  <a href="{% url 'digitalizacion:auditoria_documento' documento_id=doc.id %}">Avanzar a Auditoría →</a>
-</div>
 {% endblock %}

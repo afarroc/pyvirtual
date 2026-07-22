@@ -4,17 +4,17 @@
 <div class="m360-grid m360-grid-2 m360-mb-4">
     <div class="m360-card">
       <div class="m360-card-header">
-        <i class="m360-icon">✅</i>
-        Criterios de Control de Calidad 1
+        <i class="m360-icon">🔧</i>
+        Criterios de preprocesamiento
       </div>
       <div class="m360-card-body">
         <ul class="m360-text-sm m360-text-secondary m360-pl-4 m360-m-0">
-          <li class="m360-mb-2">Orientación correcta (no invertida ni rotada).</li>
-          <li class="m360-mb-2">Sin cortes ni sombras en bordes.</li>
-          <li class="m360-mb-2">Sin desenfoque (Laplacian variance ≥ 100).</li>
-          <li class="m360-mb-2">Resolución ≥ 300 DPI.</li>
-          <li class="m360-mb-2">Sin páginas faltantes.</li>
-          <li class="m360-mb-2">Ausencia de bordes negros.</li>
+          <li class="m360-mb-2">Deskew automático (±1° tolerancia).</li>
+          <li class="m360-mb-2">Reducción de ruido (denoise) sin perder trazo.</li>
+          <li class="m360-mb-2">Resolución mínima mantenida ≥ 300 DPI.</li>
+          <li class="m360-mb-2">Binarización adaptativa si el documento es B/N.</li>
+          <li class="m360-mb-2">Sin recortes ni pérdida de bordes.</li>
+          <li class="m360-mb-2">Salida en ruta preprocessed lista para OCR.</li>
         </ul>
       </div>
     </div>
@@ -22,7 +22,7 @@
     <div class="m360-card">
       <div class="m360-card-header">
         <i class="m360-icon">📝</i>
-        Resultado CC1
+        Resultado preprocesamiento
       </div>
       <div class="m360-card-body">
         <form method="post" class="m360-d-flex m360-flex-column m360-gap-3">
@@ -44,15 +44,18 @@
   <div class="m360-card m360-mb-4">
     <div class="m360-card-header">
       <i class="m360-icon">📋</i>
-      Bitácora CC1
+      Bitácora preprocesamiento
     </div>
     <div class="m360-card-body">
       {% for log in logs %}
       <div class="m360-card m360-mb-2">
         <div class="m360-card-body">
-          <div class="m360-text-sm m360-fw-bold m360-mb-1">{{ log.etapa|default:"CC1" }}:</div>
+          <div class="m360-text-sm m360-fw-bold m360-mb-1">{{ log.etapa|default:"Preprocesamiento" }}:</div>
           {% if log.ok %}
             <span class="m360-badge m360-badge-success">Aprobado</span>
+            {% if log.preprocessed %}
+              <div class="m360-text-sm m360-text-secondary m360-mt-1">Ruta preprocessed: {{ log.preprocessed }}</div>
+            {% endif %}
           {% else %}
             <span class="m360-badge m360-badge-danger">Rechazado: {{ log.error }}</span>
           {% endif %}
@@ -64,7 +67,7 @@
   {% endif %}
 
   <div class="m360-d-flex m360-flex-column m360-gap-2">
-    <a href="{% url 'digitalizacion:digitalizar_documento' documento_id=doc.id %}" class="m360-btn m360-btn-ghost">← Volver</a>
-    <a href="{% url 'digitalizacion:preprocesamiento_documento' documento_id=doc.id %}" class="m360-btn m360-btn-primary">Avanzar a Preprocesamiento →</a>
+    <a href="{% url 'digitalizacion:cc1_documento' documento_id=doc.id %}" class="m360-btn m360-btn-ghost">← Volver</a>
+    <a href="{% url 'digitalizacion:metadatos_documento' documento_id=doc.id %}" class="m360-btn m360-btn-primary">Avanzar a Metadatos →</a>
   </div>
 {% endblock %}

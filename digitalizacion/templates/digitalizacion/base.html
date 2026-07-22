@@ -1,1 +1,32 @@
-{% extends "digitalizacion/base_itcss.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Digitalización · Management360{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Pipeline de digitalización UPN en Management360.{% endblock %}">
+  <link rel="stylesheet" href="{% static 'm360/css/_index.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
+  <div class="m360-root">
+    {% include "digitalizacion/components/_site_header.html" %}
+    <main id="main-content" class="m360-page">
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="m360-alert m360-alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+    {% include "digitalizacion/components/_site_footer.html" %}
+  </div>
+  <script src="{% static 'courses/js/nav.js' %}"></script>
+  <script src="{% static 'digitalizacion/js/toolbar-filters.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

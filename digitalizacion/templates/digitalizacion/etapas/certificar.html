@@ -1,47 +1,42 @@
-{% extends "digitalizacion/etapas/etapa_base.html" %}
+{% extends "digitalizacion/base.html" %}
 
-{% block stage_content %}
-<div>
-  <div>
-    <h2>Datos de certificación</h2>
-    <div>
-      <div>
-        <span>Documento:</span>
-        <span>{{ doc.document_id }}</span>
+{% block content %}
+<div class="m360-grid m360-grid-2 m360-mb-4">
+    <div class="m360-card">
+      <div class="m360-card-header">
+        <i class="m360-icon">🏆</i>
+        Datos de certificación
       </div>
-      <div>
-        <span>SHA-256:</span>
-        <span>{{ doc.checksum_sha256|default:"Pendiente" }}</span>
+      <div class="m360-card-body">
+        <div class="m360-grid m360-grid-2">
+          <div class="m360-text-sm"><strong>Documento:</strong> {{ doc.document_id }}</div>
+          <div class="m360-text-sm"><strong>SHA-256:</strong> {{ doc.checksum_sha256|default:"Pendiente" }}</div>
+          <div class="m360-text-sm"><strong>PDF/A:</strong> {% if doc.converted_to_pdf_a %}<span class="m360-badge m360-badge-success">Sí</span>{% else %}<span class="m360-badge m360-badge-warning">No</span>{% endif %}</div>
+          <div class="m360-text-sm"><strong>OCR confidence:</strong> {% if doc.ocr_confidence %}{{ doc.ocr_confidence|floatformat:2 }}{% else %}N/A{% endif %}</div>
+          <div class="m360-text-sm m360-col-span-full"><strong>Fedatado:</strong> {% if doc.lote.fedatado %}<span class="m360-badge m360-badge-success">Sí</span>{% else %}<span class="m360-badge m360-badge-warning">No</span>{% endif %}</div>
+        </div>
       </div>
-      <div>
-        <span>PDF/A:</span>
-        <span>{% if doc.converted_to_pdf_a %}Sí{% else %}No{% endif %}</span>
+    </div>
+
+    <div class="m360-card">
+      <div class="m360-card-header">
+        <i class="m360-icon">⚡</i>
+        Acciones de certificación
       </div>
-      <div>
-        <span>OCR confidence:</span>
-        <span>{% if doc.ocr_confidence %}{{ doc.ocr_confidence|floatformat:2 }}{% else %}N/A{% endif %}</span>
-      </div>
-      <div>
-        <span>Fedatado:</span>
-        <span>{% if doc.lote.fedatado %}Sí{% else %}No{% endif %}</span>
+      <div class="m360-card-body">
+        <p class="m360-text-sm m360-text-secondary m360-mb-3">Al certificar, se generará el certificado de integridad con SHA-256 y timestamp. El documento quedará listo para archivado.</p>
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="m360-btn m360-btn-primary">Certificar documento</button>
+        </form>
       </div>
     </div>
   </div>
 
-  <div>
-    <h2>Acciones de certificación</h2>
-    <p>Al certificar, se generará el certificado de integridad con SHA-256 y timestamp. El documento quedará listo para archivado.</p>
-    <form method="post">
-      {% csrf_token %}
-      <button type="submit">Certificar documento</button>
-    </form>
+  <div class="m360-d-flex m360-flex-column m360-gap-2">
+    <a href="{% url 'digitalizacion:auditoria_documento' documento_id=doc.id %}" class="m360-btn m360-btn-ghost">← Volver</a>
+    {% if doc.ruta_acceso %}
+      <a href="{% url 'digitalizacion:acceso_pdf' documento_id=doc.id %}" target="_blank" class="m360-btn m360-btn-outline-secondary">Ver PDF/A</a>
+    {% endif %}
   </div>
-</div>
-
-<div>
-  <a href="{% url 'digitalizacion:auditoria_documento' documento_id=doc.id %}">← Volver</a>
-  {% if doc.ruta_acceso %}
-    <a href="{% url 'digitalizacion:acceso_pdf' documento_id=doc.id %}" target="_blank">Ver PDF/A</a>
-  {% endif %}
-</div>
 {% endblock %}

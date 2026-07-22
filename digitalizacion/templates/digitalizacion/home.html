@@ -1,109 +1,112 @@
-{% extends "digitalizacion/base_itcss.html" %}
+{% extends "digitalizacion/base.html" %}
 {% load static %}
 
 {% block extra_head %}
 {% endblock %}
 
 {% block content %}
-<div class="dashboard">
-  <div class="container">
-    <div class="dashboard-header">
-      <div>
-        <h1>Digitalización UPN</h1>
-        <p>Línea de producción de microformatos · {{ stats.total }} documentos · Actualizado {{ now }}</p>
-      </div>
-      <a href="{% url 'digitalizacion:preparacion' %}" class="btn btn-primary">Nuevo documento</a>
-    </div>
+<div class="m360-page-header">
+  <div>
+    <h1>Digitalización UPN</h1>
+    <p>Línea de producción de microformatos · {{ stats.total }} documentos · Actualizado {{ now }}</p>
+  </div>
+  <div class="m360-page-actions">
+    <a href="{% url 'digitalizacion:preparacion' %}" class="m360-btn m360-btn-primary">Nuevo documento</a>
+  </div>
+</div>
 
-    <div class="toolbar">
-      <div class="field">
-        <label for="typeFilter">Tipo</label>
-        <select id="typeFilter">
-          <option value="">Todos</option>
-          {% for t, c in tipos %}
-          <option value="{{ t }}">{{ t }} ({{ c }})</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="field">
-        <label for="ocrFilter">OCR</label>
-        <select id="ocrFilter">
-          <option value="">Cualquiera</option>
-          <option value="pending">Pendiente</option>
-          <option value="tesseract">Tesseract</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="pdfaFilter">PDF/A</label>
-        <select id="pdfaFilter">
-          <option value="">Cualquiera</option>
-          <option value="true">Sí</option>
-          <option value="false">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="search">Buscar</label>
-        <input id="search" type="text" placeholder="Título o ID…">
-      </div>
-      <div class="field">
-        <label>Resumen</label>
-        <div class="pills">
-          <span class="pill"><strong>{{ stats.total }}</strong> docs</span>
-          <span class="pill"><strong>{{ stats.total|length }}</strong> tipos</span>
-          <span class="pill"><strong>{{ stats.pendientes_qc1 }}</strong> OCR pendiente</span>
-          <span class="pill"><strong>{{ stats.convertidos_pdfa }}</strong> PDF/A</span>
-        </div>
-      </div>
+  <div class="m360-toolbar">
+    <div class="m360-tb-section">
+      <span class="m360-tb-label">Tipo</span>
+      <select class="m360-form-control m360-form-control-compact" id="typeFilter">
+        <option value="">Todos</option>
+        {% for t, c in tipos %}
+        <option value="{{ t }}">{{ t }} ({{ c }})</option>
+        {% endfor %}
+      </select>
     </div>
-
-    <div class="list" id="grid">
-      {% for doc in docs %}
-      <div class="item" data-type="{{ doc.tipo }}" data-ocr="{{ doc.ocr_engine }}" data-pdfa="{{ doc.converted_to_pdf_a|lower }}">
-        <div class="item__main">
-          <div>
-            <div class="item__title">{{ doc.titulo }}</div>
-            <div class="item__meta">{{ doc.document_id }}</div>
-          </div>
-          <div class="item__details">
-            <span>Fecha: {{ doc.fecha_documento|default:"—" }}</span>
-            <span>OCR: <span class="status status--{% if doc.ocr_engine != 'pending' %}ok{% else %}pending{% endif %}">{{ doc.ocr_engine|default:"pending" }}</span></span>
-            <span>Confianza: {% if doc.ocr_confidence %}{{ doc.ocr_confidence|floatformat:0 }}%{% else %}N/A{% endif %}</span>
-            <span>PDF/A: <span class="status status--{% if doc.converted_to_pdf_a %}ok{% else %}pending{% endif %}">{% if doc.converted_to_pdf_a %}Sí{% else %}No{% endif %}</span></span>
-          </div>
-          <div class="track">
-            {% if doc.ocr_engine != 'pending' %}
-              <span class="chip chip--done" title="OCR">OCR</span>
-            {% else %}
-              <span class="chip chip--pending" title="OCR">OCR</span>
-            {% endif %}
-            {% if doc.converted_to_pdf_a %}
-              <span class="chip chip--done" title="PDF/A">PDF/A</span>
-            {% else %}
-              <span class="chip chip--pending" title="PDF/A">PDF/A</span>
-            {% endif %}
-            <span class="chip chip--active" title="Microformato">Micro</span>
-          </div>
-        </div>
-        <div class="item__actions">
-          <a class="link" href="/admin/digitalizacion/documentodigital/{{ doc.id }}/change/" target="_blank" title="Admin">Admin</a>
-          <a class="link" href="{% url 'digitalizacion:digitalizar_documento' documento_id=doc.id %}" title="Digitalizar">Digitalizar</a>
-          <a class="link" href="{% url 'digitalizacion:metadatos_documento' documento_id=doc.id %}" title="Metadatos">Metadatos</a>
-          <a class="link" href="{% url 'digitalizacion:certificar_documento' documento_id=doc.id %}" title="Certificar">Certificar</a>
-          {% if doc.ruta_acceso %}
-            <a class="btn btn-primary" href="{% url 'digitalizacion:acceso_pdf' documento_id=doc.id %}" target="_blank" title="Ver PDF/A">PDF/A</a>
-          {% endif %}
-        </div>
-      </div>
-      {% empty %}
-      <div class="empty">
-        <div class="empty__icon">📄</div>
-        <div class="empty__title">Sin documentos</div>
-        <div class="empty__text">
-          No hay microformatos registrados aún. Escanea un documento para iniciar el pipeline.
-        </div>
-      </div>
-      {% endfor %}
+    <div class="m360-tb-section">
+      <span class="m360-tb-label">OCR</span>
+      <select class="m360-form-control m360-form-control-compact" id="ocrFilter">
+        <option value="">Cualquiera</option>
+        <option value="pending">Pendiente</option>
+        <option value="tesseract">Tesseract</option>
+      </select>
+    </div>
+    <div class="m360-tb-section">
+      <span class="m360-tb-label">PDF/A</span>
+      <select class="m360-form-control m360-form-control-compact" id="pdfaFilter">
+        <option value="">Cualquiera</option>
+        <option value="true">Sí</option>
+        <option value="false">No</option>
+      </select>
+    </div>
+    <div class="m360-tb-section">
+      <span class="m360-tb-label">Buscar</span>
+      <input type="text" class="m360-form-control m360-form-control-compact" id="search" placeholder="Título o ID…">
+    </div>
+    <div class="m360-tb-section">
+      <button type="button" class="m360-btn m360-btn-ghost m360-btn-sm" id="resetFilters">Borrar filtros</button>
     </div>
   </div>
+
+  <div class="m360-d-flex m360-flex-wrap m360-gap-2 m360-mb-4">
+    <span class="m360-badge"><strong>{{ stats.total }}</strong> docs</span>
+    <span class="m360-badge"><strong>{{ tipos|length }}</strong> tipos</span>
+    <span class="m360-badge m360-badge-warning"><strong>{{ stats.pendientes_qc1 }}</strong> OCR pendiente</span>
+    <span class="m360-badge m360-badge-success"><strong>{{ stats.convertidos_pdfa }}</strong> PDF/A</span>
+  </div>
+
+<div class="m360-grid m360-grid-cards" id="grid">
+  {% for doc in docs %}
+  <div class="m360-card" data-type="{{ doc.tipo }}" data-ocr="{{ doc.ocr_engine }}" data-pdfa="{{ doc.converted_to_pdf_a|lower }}">
+    <div class="m360-card-body">
+      <div class="m360-d-flex m360-justify-between m360-items-start m360-mb-2">
+        <div>
+          <div class="m360-text-lg m360-fw-bold m360-text-primary">{{ doc.titulo }}</div>
+          <div class="m360-text-sm m360-text-muted">{{ doc.document_id }}</div>
+        </div>
+      </div>
+      <div class="m360-d-flex m360-flex-wrap m360-gap-1 m360-text-sm m360-text-secondary m360-mb-3">
+        <span>Fecha: {{ doc.fecha_documento|default:"—" }}</span>
+        <span>OCR: <span class="m360-status-pill m360-{% if doc.ocr_engine != 'pending' %}done{% else %}idle{% endif %}">{{ doc.ocr_engine|default:"pending" }}</span></span>
+        <span>Confianza: {% if doc.ocr_confidence %}{{ doc.ocr_confidence|floatformat:0 }}%{% else %}N/A{% endif %}</span>
+        <span>PDF/A: <span class="m360-status-pill m360-{% if doc.converted_to_pdf_a %}done{% else %}idle{% endif %}">{% if doc.converted_to_pdf_a %}Sí{% else %}No{% endif %}</span></span>
+      </div>
+      <div class="m360-d-flex m360-flex-wrap m360-gap-1">
+        {% if doc.ocr_engine != 'pending' %}
+          <span class="m360-badge m360-badge-success" title="OCR">OCR</span>
+        {% else %}
+          <span class="m360-badge m360-badge-warning" title="OCR">OCR</span>
+        {% endif %}
+        {% if doc.converted_to_pdf_a %}
+          <span class="m360-badge m360-badge-success" title="PDF/A">PDF/A</span>
+        {% else %}
+          <span class="m360-badge m360-badge-warning" title="PDF/A">PDF/A</span>
+        {% endif %}
+        <span class="m360-badge m360-badge-info" title="Microformato">Micro</span>
+      </div>
+    </div>
+    <div class="m360-card-body m360-pt-0 m360-border-top">
+      <div class="m360-d-flex m360-flex-wrap m360-gap-1">
+        <a href="/admin/digitalizacion/documentodigital/{{ doc.id }}/change/" target="_blank" class="m360-btn m360-btn-sm m360-btn-ghost" title="Admin">Admin</a>
+        <a href="{% url 'digitalizacion:digitalizar_documento' documento_id=doc.id %}" class="m360-btn m360-btn-sm m360-btn-ghost" title="Digitalizar">Digitalizar</a>
+        <a href="{% url 'digitalizacion:metadatos_documento' documento_id=doc.id %}" class="m360-btn m360-btn-sm m360-btn-ghost" title="Metadatos">Metadatos</a>
+        <a href="{% url 'digitalizacion:certificar_documento' documento_id=doc.id %}" class="m360-btn m360-btn-sm m360-btn-ghost" title="Certificar">Certificar</a>
+        {% if doc.ruta_acceso %}
+          <a href="{% url 'digitalizacion:acceso_pdf' documento_id=doc.id %}" target="_blank" class="m360-btn m360-btn-sm m360-btn-primary" title="Ver PDF/A">PDF/A</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="m360-card m360-col-span-full">
+    <div class="m360-card-body m360-text-center m360-py-6">
+      <div class="m360-icon-xl">📄</div>
+      <div class="m360-text-xl m360-fw-bold m360-text-primary m360-mt-3">Sin documentos</div>
+      <div class="m360-text-md m360-text-secondary m360-mt-2">No hay microformatos registrados aún. Escanea un documento para iniciar el pipeline.</div>
+    </div>
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}
