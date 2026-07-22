@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'analyst.apps.AnalystConfig',
     'sim',
     'simcity',
+    'digitalizacion.apps.DigitalizacionConfig',
 ]
 
 CLIPBOARD_TIMEOUT = 3600  # 1 hora

@@ -330,4 +330,46 @@ class CourseSerializer(serializers.ModelSerializer):
             "price", "duration_hours", "students_count", "average_rating",
             "thumbnail", "is_published", "is_featured", "published_at",
             "created_at", "updated_at",
+            # Metadatos UPN
+            "codigo", "creditos", "ht", "hp", "hl", "pc", "requisitos",
+            "naturaleza", "competencia_general", "componentes", "sumilla",
+            "logro_curso", "sistema_evaluacion", "bibliografia",
         ]
+
+# ======================
+# COURSES EXTENDED API v1
+# ======================
+from courses.models import Course, CourseCategory, Module, Lesson, Evaluation, Bibliografia
+
+class ModuleSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
+    
+    class Meta:
+        model = Module
+        fields = ["id", "course", "title", "description", "order", "logro_unidad"]
+
+class LessonSerializer(serializers.ModelSerializer):
+    module = serializers.PrimaryKeyRelatedField(queryset=Module.objects.all(), allow_null=True, required=False)
+    
+    class Meta:
+        model = Lesson
+        fields = [
+            "id", "module", "title", "lesson_type", "order", "is_free", "duration_minutes",
+            "content", "structured_content", "video_url", "quiz_questions",
+            "logro_semana", "saberes_esenciales", "actividades", "trabajo_campo",
+            "created_at", "updated_at",
+        ]
+
+class EvaluationSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
+    
+    class Meta:
+        model = Evaluation
+        fields = ["id", "course", "nombre", "peso", "semana", "descripcion", "created_at", "updated_at"]
+
+class BibliografiaSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
+    
+    class Meta:
+        model = Bibliografia
+        fields = ["id", "course", "autor", "titulo", "anio", "enlace", "created_at"]

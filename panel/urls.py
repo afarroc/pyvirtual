@@ -25,6 +25,7 @@ urlpatterns = [
     path('chat/',      include('chat.urls',     namespace='chat')),
     path('courses/',   include('courses.urls')),
     path('cv/',        include('cv.urls',       namespace='cv')),
+    path('digitalizacion/', include('digitalizacion.urls', namespace='digitalizacion')),
     path('events/',    include('events.urls')),
     path('help/',      include('help.urls',     namespace='help')),
     path('kpis/',      include('kpis.urls')),

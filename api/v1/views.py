@@ -34,8 +34,14 @@ from rest_framework.viewsets import ModelViewSet
 
 from events.models import Event, InboxItem, Project, Reminder, Status, Task, TaskStatus
 from .serializers import (
+    BibliografiaSerializer,
+    CourseCategorySerializer,
+    CourseSerializer,
     EventSerializer,
+    EvaluationSerializer,
     InboxItemSerializer,
+    LessonSerializer,
+    ModuleSerializer,
     ProjectSerializer,
     ReminderSerializer,
     TaskSerializer,
@@ -282,8 +288,8 @@ class InboxItemViewSet(_PageableMixin, ModelViewSet):
 # ======================
 # COURSES API v1
 # ======================
-from courses.models import Course, CourseCategory
-from .serializers import CourseCategorySerializer, CourseSerializer
+from courses.models import Course, CourseCategory, Module, Lesson, Evaluation, Bibliografia
+from .serializers import CourseCategorySerializer, CourseSerializer, ModuleSerializer, LessonSerializer, EvaluationSerializer, BibliografiaSerializer
 
 
 class CourseCategoryViewSet(ModelViewSet):
@@ -310,3 +316,55 @@ class CourseViewSet(_PageableMixin, ModelViewSet):
 
     def get_serializer_class(self):
         return CourseSerializer
+
+
+class ModuleViewSet(ModelViewSet):
+    queryset = Module.objects.select_related("course").all()
+    serializer_class = ModuleSerializer
+    search_fields = ["title", "description", "course__title"]
+
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        course_id = request.query_params.get("course_id")
+        if course_id:
+            self.queryset = self.queryset.filter(course_id=course_id)
+        serializer = self.get_serializer(self.queryset, many=True, context={"request": request})
+        return Response(serializer.data)
+
+
+class LessonViewSet(ModelViewSet):
+    queryset = Lesson.objects.select_related("module__course").all()
+    serializer_class = LessonSerializer
+    search_fields = ["title", "content", "saberes_esenciales"]
+
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        module_id = request.query_params.get("module_id")
+        if module_id:
+            self.queryset = self.queryset.filter(module_id=module_id)
+        serializer = self.get_serializer(self.queryset, many=True, context={"request": request})
+        return Response(serializer.data)
+
+
+class EvaluationViewSet(ModelViewSet):
+    queryset = Evaluation.objects.select_related("course").all()
+    serializer_class = EvaluationSerializer
+    search_fields = ["nombre", "descripcion", "course__title"]
+
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        course_id = request.query_params.get("course_id")
+        if course_id:
+            self.queryset = self.queryset.filter(course_id=course_id)
+        serializer = self.get_serializer(self.queryset, many=True, context={"request": request})
+        return Response(serializer.data)
+
+
+class BibliografiaViewSet(ModelViewSet):
+    queryset = Bibliografia.objects.select_related("course").all()
+    serializer_class = BibliografiaSerializer
+    search_fields = ["autor", "titulo", "course__title"]
+
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        course_id = request.query_params.get("course_id")
+        if course_id:
+            self.queryset = self.queryset.filter(course_id=course_id)
+        serializer = self.get_serializer(self.queryset, many=True, context={"request": request})
+        return Response(serializer.data)
