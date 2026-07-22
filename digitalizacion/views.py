@@ -219,6 +219,63 @@ def preparacion(request):
 from django.http import FileResponse, Http404
 from pathlib import Path
 
+def preparacion_lote_detail(request, lote_id):
+    lote = get_object_or_404(LoteDigitalizacion, pk=lote_id, estado='preparacion')
+    documentos = lote.documentos.all().order_by('-created_at')
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'cerrar_preparacion':
+            return redirect('digitalizacion:preparacion')
+        if action == 'editar_lote':
+            form = LoteDigitalizacionForm(request.POST, instance=lote)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Lote actualizado.')
+                return redirect('digitalizacion:preparacion_lote_detail', lote_id=lote.id)
+            else:
+                messages.error(request, 'Error al actualizar lote. Verifica los datos.')
+        elif action == 'eliminar_lote':
+            if lote.documentos.exists():
+                messages.error(request, 'No se puede eliminar un lote con documentos.')
+                return redirect('digitalizacion:preparacion_lote_detail', lote_id=lote.id)
+            lote.delete()
+            messages.success(request, 'Lote eliminado.')
+            return redirect('digitalizacion:preparacion')
+    else:
+        form = LoteDigitalizacionForm(instance=lote)
+    return render(request, 'digitalizacion/preparacion_lote_detail.html', {
+        'lote': lote,
+        'documentos': documentos,
+        'form': form,
+    })
+
+
+def preparacion_documento_detail(request, documento_id):
+    doc = get_object_or_404(DocumentoDigital, pk=documento_id, lote__estado='preparacion')
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'editar_documento':
+            form = DocumentoDigitalForm(request.POST, instance=doc, lote=doc.lote)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Documento actualizado.')
+                return redirect('digitalizacion:preparacion_documento_detail', documento_id=doc.id)
+            else:
+                messages.error(request, 'Error al actualizar documento. Verifica los datos.')
+        elif action == 'eliminar_documento':
+            lote_id = doc.lote.id
+            doc.delete()
+            messages.success(request, 'Documento eliminado.')
+            return redirect('digitalizacion:preparacion_lote_detail', lote_id=lote_id)
+    else:
+        form = DocumentoDigitalForm(instance=doc, lote=doc.lote)
+    return render(request, 'digitalizacion/preparacion_documento_detail.html', {
+        'doc': doc,
+        'lote': doc.lote,
+        'form': form,
+    })
+
+
 def acceso_pdf(request, documento_id, filename=None):
     try:
         doc = DocumentoDigital.objects.get(id=documento_id)

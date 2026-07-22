@@ -1,0 +1,122 @@
+{% extends "digitalizacion/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="m360-page-header">
+  <div>
+    <h1>Lote: {{ lote.nombre }}</h1>
+    <p>Preparación · {{ lote.documentos.count }} documentos · Estado: {{ lote.get_estado_display }}</p>
+  </div>
+</div>
+
+{% if messages %}
+{% for message in messages %}
+<div class="m360-alert m360-alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}{{ message.tags }}{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="m360-grid m360-grid-3 m360-gap-4 m360-mb-4">
+  <div class="m360-card">
+    <div class="m360-card-header"><i class="m360-icon">📋</i> Datos del lote</div>
+    <div class="m360-card-body">
+      <form method="post" class="m360-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="editar_lote">
+        {% for field in form %}
+          {% if not field.is_hidden %}
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        {% endfor %}
+        {% for field in form %}
+          {% if field.is_hidden %}
+            {{ field }}
+          {% endif %}
+        {% endfor %}
+        <div class="m360-flex m360-gap-2">
+          <button type="submit" class="m360-btn m360-btn-primary">Guardar</button>
+          <a href="{% url 'digitalizacion:preparacion' %}" class="m360-btn m360-btn-ghost">Volver</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="m360-card">
+    <div class="m360-card-header"><i class="m360-icon">✅</i> Acciones del lote</div>
+    <div class="m360-card-body">
+      <form method="post" class="m360-form" onsubmit="return confirm('¿Cerrar preparación del lote {{ lote.nombre|escapejs }}?');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="cerrar_preparacion">
+        <input type="hidden" name="lote_id" value="{{ lote.id }}">
+        <button type="submit" class="m360-btn m360-btn-primary m360-mb-2">Cerrar preparación</button>
+      </form>
+      <form method="post" class="m360-form" onsubmit="return confirm('¿Eliminar lote {{ lote.nombre|escapejs }}? Esta acción no se puede deshacer.');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="eliminar_lote">
+        <button type="submit" class="m360-btn m360-btn-danger">Eliminar lote</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="m360-card">
+    <div class="m360-card-header"><i class="m360-icon">📎</i> Metadatos rápidos</div>
+    <div class="m360-card-body">
+      <div class="m360-text-sm"><strong>Ruta base:</strong> {{ lote.ruta_base|default:"—" }}</div>
+      <div class="m360-text-sm"><strong>Acta recepción:</strong> {{ lote.acta_recepcion|default:"—" }}</div>
+      <div class="m360-text-sm"><strong>Proyecto M360:</strong> {{ lote.proyecto_m360|default:"—" }}</div>
+      <div class="m360-text-sm"><strong>Curso M360:</strong> {{ lote.curso_m360|default:"—" }}</div>
+      <div class="m360-text-sm m360-mt-2"><a class="m360-link" href="/admin/digitalizacion/lotedigitalizacion/{{ lote.id }}/change/" target="_blank">Ver en admin →</a></div>
+    </div>
+  </div>
+</div>
+
+<div class="m360-card m360-mb-4">
+  <div class="m360-card-header">
+    <i class="m360-icon">📄</i>
+    Documentos del lote
+    <a href="{% url 'digitalizacion:preparacion' %}" class="m360-btn m360-btn-sm m360-btn-ghost m360-ml-auto">+ Agregar documento</a>
+  </div>
+  <div class="m360-card-body m360-p-0">
+    {% if documentos %}
+    <div class="m360-table-responsive">
+      <table class="m360-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Tipo</th>
+            <th>Estado conservación</th>
+            <th>Foliado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in documentos %}
+          <tr>
+            <td>{{ doc.document_id }}</td>
+            <td>{{ doc.titulo }}</td>
+            <td>{{ doc.tipo }}</td>
+            <td>{{ doc.estado_conservacion|default:"—" }}</td>
+            <td>{% if doc.foliado_aplicado %}Sí{% else %}No{% endif %}</td>
+            <td>
+              <a href="{% url 'digitalizacion:preparacion_documento_detail' doc.id %}" class="m360-btn m360-btn-sm m360-btn-ghost">Editar</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="m360-text-center m360-py-6">
+      <div class="m360-text-xl m360-fw-bold m360-text-primary m360-mb-2">Sin documentos</div>
+      <div class="m360-text-md m360-text-secondary">Agrega documentos para continuar con la preparación.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

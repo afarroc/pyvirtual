@@ -45,8 +45,10 @@ class DocumentoDigitalForm(forms.ModelForm):
             'observaciones_preparacion': forms.Textarea(attrs={'class': 'm360-form-control', 'rows': 2, 'placeholder': 'Reparaciones mínimas, retiros, observaciones del archivero.'}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, lote=None, **kwargs):
         super().__init__(*args, **kwargs)
+        if lote and 'lote' in self.fields:
+            self.fields['lote'].queryset = LoteDigitalizacion.objects.filter(pk=lote.pk)
         for name, field in self.fields.items():
             field.label_suffix = ''
             existing = field.widget.attrs.get('class', '')
@@ -59,7 +61,7 @@ class DocumentoDigitalForm(forms.ModelForm):
     def clean_document_id(self):
         doc_id = self.cleaned_data['document_id']
         lote = self.cleaned_data.get('lote')
-        if lote and DocumentoDigital.objects.filter(lote=lote, document_id=doc_id).exists():
+        if lote and DocumentoDigital.objects.filter(lote=lote, document_id=doc_id).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError(f"El documento '{doc_id}' ya está registrado en este lote.")
         return doc_id
 

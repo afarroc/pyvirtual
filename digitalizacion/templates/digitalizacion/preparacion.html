@@ -240,6 +240,7 @@
           </div>
         </div>
         <div class="m360-lote-footer">
+          <a href="{% url 'digitalizacion:preparacion_lote_detail' lote.id %}" class="m360-btn m360-btn-sm m360-btn-primary m360-mr-2">Detalle</a>
           <a href="/admin/digitalizacion/lotedigitalizacion/{{ lote.id }}/change/" target="_blank" class="m360-btn m360-btn-sm m360-btn-ghost">Ver en admin</a>
         </div>
       </div>
@@ -272,6 +273,7 @@
             <th>Estado conservación</th>
             <th>Foliado</th>
             <th>Creador</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -285,6 +287,7 @@
             <td>{{ doc.estado_conservacion|default:"—" }}</td>
             <td>{% if doc.foliado_aplicado %}Sí{% else %}No{% endif %}</td>
             <td>{{ doc.creator|default:"—" }}</td>
+            <td><a href="{% url 'digitalizacion:preparacion_documento_detail' doc.id %}" class="m360-btn m360-btn-sm m360-btn-ghost">Editar</a></td>
           </tr>
           {% endfor %}
         </tbody>

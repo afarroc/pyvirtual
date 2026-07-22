@@ -1,0 +1,79 @@
+{% extends "digitalizacion/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="m360-page-header">
+  <div>
+    <h1>Documento: {{ doc.document_id }}</h1>
+    <p>Lote: {{ lote.nombre }} · Tipo: {{ doc.tipo }} · Estado: {{ lote.get_estado_display }}</p>
+  </div>
+</div>
+
+{% if messages %}
+{% for message in messages %}
+<div class="m360-alert m360-alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}{{ message.tags }}{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="m360-grid m360-grid-2 m360-gap-4">
+  <div class="m360-card">
+    <div class="m360-card-header"><i class="m360-icon">📝</i> Editar documento</div>
+    <div class="m360-card-body">
+      <form method="post" class="m360-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="editar_documento">
+        {% for field in form %}
+          {% if not field.is_hidden %}
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        {% endfor %}
+        {% for field in form %}
+          {% if field.is_hidden %}
+            {{ field }}
+          {% endif %}
+        {% endfor %}
+        <div class="m360-flex m360-gap-2">
+          <button type="submit" class="m360-btn m360-btn-primary">Guardar</button>
+          <a href="{% url 'digitalizacion:preparacion_lote_detail' lote.id %}" class="m360-btn m360-btn-ghost">Volver al lote</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="m360-card">
+    <div class="m360-card-header"><i class="m360-icon">⚠️</i> Acciones</div>
+    <div class="m360-card-body">
+      <form method="post" class="m360-form" onsubmit="return confirm('¿Eliminar documento {{ doc.document_id|escapejs }}? Esta acción no se puede deshacer.');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="eliminar_documento">
+        <button type="submit" class="m360-btn m360-btn-danger">Eliminar documento</button>
+      </form>
+      <div class="m360-text-sm m360-text-muted m360-mt-2">Al eliminarlo, el lote seguirá existiendo. Si era el último documento, podés eliminar el lote desde su detalle.</div>
+    </div>
+  </div>
+</div>
+
+<div class="m360-card m360-mb-4">
+  <div class="m360-card-header"><i class="m360-icon">📊</i> Estado actual</div>
+  <div class="m360-card-body">
+    <div class="m360-grid m360-grid-2 m360-gap-2">
+      <div class="m360-text-sm"><strong>Ruta inbox:</strong> {{ doc.ruta_inbox|default:"—" }}</div>
+      <div class="m360-text-sm"><strong>Ruta preprocessed:</strong> {{ doc.ruta_preprocessed|default:"—" }}</div>
+      <div class="m360-text-sm"><strong>OCR engine:</strong> {{ doc.ocr_engine|default:"pending" }}</div>
+      <div class="m360-text-sm"><strong>PDF/A:</strong> {% if doc.converted_to_pdf_a %}Sí{% else %}No{% endif %}</div>
+      <div class="m360-text-sm"><strong>Creador:</strong> {{ doc.creator|default:"—" }}</div>
+      <div class="m360-text-sm"><strong>Fecha documento:</strong> {{ doc.fecha_documento|default:"—" }}</div>
+      <div class="m360-text-sm"><strong>Grapas:</strong> {% if doc.grapas_detectadas %}Sí{% else %}No{% endif %}</div>
+      <div class="m360-text-sm"><strong>Objetos ajenos:</strong> {{ doc.objetos_ajenos|default:"—" }}</div>
+      <div class="m360-text-sm"><strong>Foliado:</strong> {% if doc.foliado_aplicado %}Sí{% else %}No{% endif %}</div>
+      <div class="m360-text-sm"><strong>Observaciones:</strong> {{ doc.observaciones_preparacion|default:"—" }}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
