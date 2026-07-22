@@ -110,6 +110,21 @@ def preparacion(request):
     form_lote = LoteDigitalizacionForm()
     form_doc = DocumentoDigitalForm()
 
+    helpers = {
+        'checklist': [
+            'Sin grapas ni clips',
+            'Sin objetos ajenos',
+            'Orden verificado',
+            'Foliado aplicado si corresponde',
+            'Estado de conservación documentado',
+        ],
+        'nomenclatura': {
+            'documento': 'upn_YYYY-MM-DD_NNN',
+            'lote': 'LOTE_YYYYMMDD_NNN',
+        },
+        'manual_link': '/digitalizacion/docs/PIPELINE.md',
+    }
+
     if request.method == 'POST':
         action = request.POST.get('action')
 
@@ -138,19 +153,53 @@ def preparacion(request):
             if lote_id:
                 try:
                     lote = LoteDigitalizacion.objects.get(id=lote_id, estado='preparacion')
-                    lote.estado = 'digitalizacion'
-                    lote.save()
-                    EtapaPipeline.objects.create(
-                        lote=lote,
-                        documento=None,
-                        etapa='preparacion',
-                        estado='ok',
-                        inicio=timezone.now(),
-                        fin=timezone.now(),
-                        usuario=request.user if request.user.is_authenticated else None,
-                        observaciones=f'Preparación cerrada. {lote.documentos.count()} documentos registrados.',
-                    )
-                    messages.success(request, f"Lote '{lote.nombre}' cerrado y pasado a digitalización.")
+                    docs_qs = lote.documentos.all()
+                    checklist_ok = True
+                    checklist_detalle = []
+                    for doc in docs_qs:
+                        faltantes = []
+                        if doc.grapas_detectadas:
+                            faltantes.append('grapas detectadas')
+                        if doc.objetos_ajenos:
+                            faltantes.append('objetos ajenos')
+                        if not doc.foliado_aplicado and doc.tipo.lower() in [
+                            'plan de estudios', 'examen', 'acta', 'certificado', 'resolución'
+                        ]:
+                            faltantes.append('foliado pendiente')
+                        if not doc.estado_conservacion:
+                            faltantes.append('estado de conservación vacío')
+                        if faltantes:
+                            checklist_ok = False
+                            checklist_detalle.append(f"{doc.document_id}: {', '.join(faltantes)}")
+                    if not checklist_ok:
+                        messages.error(
+                            request,
+                            'No se puede cerrar preparación: ' + '; '.join(checklist_detalle)
+                        )
+                    else:
+                        lote.estado = 'digitalizacion'
+                        lote.acta_recepcion = (
+                            f"Acta de recepción — lote {lote.nombre}. "
+                            f"Documentos: {docs_qs.count()}. "
+                            f"Responsable: {request.user.get_full_name() if request.user.is_authenticated else 'Anónimo'}. "
+                            f"Fecha: {timezone.now().date().isoformat()}."
+                        )
+                        lote.save()
+                        EtapaPipeline.objects.create(
+                            lote=lote,
+                            documento=None,
+                            etapa='preparacion',
+                            estado='ok',
+                            inicio=timezone.now(),
+                            fin=timezone.now(),
+                            usuario=request.user if request.user.is_authenticated else None,
+                            observaciones=f"Preparación cerrada. {docs_qs.count()} documentos registrados.",
+                            metadata={
+                                'documentos': docs_qs.count(),
+                                'checklist': helpers['checklist'],
+                            },
+                        )
+                        messages.success(request, f"Lote '{lote.nombre}' cerrado y pasado a digitalización.")
                 except LoteDigitalizacion.DoesNotExist:
                     messages.error(request, "Lote no encontrado o ya fue cerrado.")
             else:
@@ -163,6 +212,7 @@ def preparacion(request):
         'stats': stats,
         'form_lote': form_lote,
         'form_doc': form_doc,
+        'helpers': helpers,
     })
 
 

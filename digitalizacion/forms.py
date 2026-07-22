@@ -23,7 +23,12 @@ class LoteDigitalizacionForm(forms.ModelForm):
 class DocumentoDigitalForm(forms.ModelForm):
     class Meta:
         model = DocumentoDigital
-        fields = ['lote', 'document_id', 'tipo', 'titulo', 'creator', 'fecha_documento', 'language', 'rights']
+        fields = [
+            'lote', 'document_id', 'tipo', 'titulo', 'creator',
+            'fecha_documento', 'language', 'rights',
+            'estado_conservacion', 'grapas_detectadas', 'objetos_ajenos',
+            'foliado_aplicado', 'observaciones_preparacion',
+        ]
         widgets = {
             'lote': forms.Select(attrs={'class': 'm360-form-control'}),
             'document_id': forms.TextInput(attrs={'class': 'm360-form-control', 'placeholder': 'upn_YYYY-MM-DD_NNN'}),
@@ -33,14 +38,23 @@ class DocumentoDigitalForm(forms.ModelForm):
             'fecha_documento': forms.DateInput(attrs={'class': 'm360-form-control', 'type': 'date'}),
             'language': forms.TextInput(attrs={'class': 'm360-form-control', 'value': 'es'}),
             'rights': forms.TextInput(attrs={'class': 'm360-form-control', 'value': 'Derechos reservados UPN'}),
+            'estado_conservacion': forms.TextInput(attrs={'class': 'm360-form-control', 'placeholder': 'Bueno / Regular / Crítico'}),
+            'grapas_detectadas': forms.CheckboxInput(attrs={'class': 'm360-checkbox'}),
+            'objetos_ajenos': forms.Textarea(attrs={'class': 'm360-form-control', 'rows': 2, 'placeholder': 'Post-its, clips, notas...'}),
+            'foliado_aplicado': forms.CheckboxInput(attrs={'class': 'm360-checkbox'}),
+            'observaciones_preparacion': forms.Textarea(attrs={'class': 'm360-form-control', 'rows': 2, 'placeholder': 'Reparaciones mínimas, retiros, observaciones del archivero.'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
+        for name, field in self.fields.items():
             field.label_suffix = ''
             existing = field.widget.attrs.get('class', '')
-            field.widget.attrs['class'] = (existing + ' m360-form-control').strip()
+            widget_type = field.widget.__class__.__name__
+            if widget_type in {'CheckboxInput', 'RadioSelect', 'CheckboxSelectMultiple'}:
+                field.widget.attrs['class'] = (existing + ' m360-checkbox').strip()
+            else:
+                field.widget.attrs['class'] = (existing + ' m360-form-control').strip()
 
     def clean_document_id(self):
         doc_id = self.cleaned_data['document_id']
@@ -48,4 +62,5 @@ class DocumentoDigitalForm(forms.ModelForm):
         if lote and DocumentoDigital.objects.filter(lote=lote, document_id=doc_id).exists():
             raise forms.ValidationError(f"El documento '{doc_id}' ya está registrado en este lote.")
         return doc_id
+
 

@@ -9,69 +9,202 @@
   </div>
 </div>
 
-<div class="m360-card m360-mb-4">
-  <div class="m360-card-header">
-    <i class="m360-icon">📦</i>
-    Crear nuevo lote
+{% if messages %}
+{% for message in messages %}
+<div class="m360-alert m360-alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}{{ message.tags }}{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="m360-grid m360-grid-3 m360-gap-4 m360-mb-4">
+  <div class="m360-card">
+    <div class="m360-card-header">
+      <i class="m360-icon">📘</i>
+      Manual rápido
+    </div>
+    <div class="m360-card-body">
+      <p class="m360-text-sm m360-text-secondary m360-mb-2">Referencia operativa de la etapa.</p>
+      <ul class="m360-list m360-text-sm">
+        <li>Inspección física: grapas, clips, post-its, humedad, roturas.</li>
+        <li>Reparación mínima: desgrapar, alisar, limpiar manchas superficiales.</li>
+        <li>Foliado si el documento no tiene numeración propia.</li>
+        <li>Cadena de custodia: registrar entrada y estado del original.</li>
+      </ul>
+      <a class="m360-link m360-text-sm" href="{{ helpers.manual_link }}" target="_blank">Ver pipeline completo →</a>
+    </div>
   </div>
-  <div class="m360-card-body">
-    <form method="post" class="m360-form">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="crear_lote">
-      {% for field in form_lote %}
-        {% if not field.is_hidden %}
-        <div class="m360-form-group">
-          <label class="m360-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }}
-          {% if field.help_text %}
-            <small class="m360-form-hint">{{ field.help_text }}</small>
-          {% endif %}
-          {% for error in field.errors %}
-            <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-          {% endfor %}
-        </div>
-        {% endif %}
-      {% endfor %}
-      {% for field in form_lote %}
-        {% if field.is_hidden %}
-          {{ field }}
-        {% endif %}
-      {% endfor %}
-      <button type="submit" class="m360-btn m360-btn-primary">Crear lote</button>
-    </form>
+
+  <div class="m360-card">
+    <div class="m360-card-header">
+      <i class="m360-icon">✅</i>
+      Checklist de cierre
+    </div>
+    <div class="m360-card-body">
+      <ul class="m360-list m360-text-sm">
+        {% for item in helpers.checklist %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+      <p class="m360-text-xs m360-text-muted m360-mt-2">El cierre valida estos puntos por documento antes de pasar a digitalización.</p>
+    </div>
+  </div>
+
+  <div class="m360-card">
+    <div class="m360-card-header">
+      <i class="m360-icon">🏷️</i>
+      Nomenclatura
+    </div>
+    <div class="m360-card-body">
+      <div class="m360-text-sm"><strong>Documento:</strong> <code>{{ helpers.nomenclatura.documento }}</code></div>
+      <div class="m360-text-sm"><strong>Lote:</strong> <code>{{ helpers.nomenclatura.lote }}</code></div>
+      <p class="m360-text-xs m360-text-muted m360-mt-2">Usá estos patrones para conservar trazabilidad y búsqueda posterior.</p>
+    </div>
   </div>
 </div>
 
-<div class="m360-card m360-mb-4">
-  <div class="m360-card-header">
-    <i class="m360-icon">📄</i>
-    Agregar documento a lote
-  </div>
-  <div class="m360-card-body">
-    <form method="post" class="m360-form">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="agregar_documento">
-      {% for field in form_doc %}
-        {% if not field.is_hidden %}
-        <div class="m360-form-group">
-          <label class="m360-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }}
-          {% if field.help_text %}
-            <small class="m360-form-hint">{{ field.help_text }}</small>
+<div class="m360-grid m360-grid-2 m360-gap-4 m360-mb-4">
+  <div class="m360-card">
+    <div class="m360-card-header">
+      <i class="m360-icon">📦</i>
+      Crear nuevo lote
+    </div>
+    <div class="m360-card-body">
+      <form method="post" class="m360-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="crear_lote">
+        {% for field in form_lote %}
+          {% if not field.is_hidden %}
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+              <small class="m360-form-hint">{{ field.help_text }}</small>
+            {% endif %}
+            {% for error in field.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
           {% endif %}
-          {% for error in field.errors %}
-            <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-          {% endfor %}
+        {% endfor %}
+        {% for field in form_lote %}
+          {% if field.is_hidden %}
+            {{ field }}
+          {% endif %}
+        {% endfor %}
+        <button type="submit" class="m360-btn m360-btn-primary">Crear lote</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="m360-card">
+    <div class="m360-card-header">
+      <i class="m360-icon">📄</i>
+      Agregar documento a lote
+    </div>
+    <div class="m360-card-body">
+      <form method="post" class="m360-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="agregar_documento">
+        <div class="m360-grid m360-grid-2 m360-gap-2">
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ form_doc.lote.id_for_label }}">{{ form_doc.lote.label }}</label>
+            {{ form_doc.lote }}
+            {% for error in form_doc.lote.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ form_doc.document_id.id_for_label }}">{{ form_doc.document_id.label }}</label>
+            {{ form_doc.document_id }}
+            {% for error in form_doc.document_id.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
         </div>
-        {% endif %}
-      {% endfor %}
-      {% for field in form_doc %}
-        {% if field.is_hidden %}
-          {{ field }}
-        {% endif %}
-      {% endfor %}
-      <button type="submit" class="m360-btn m360-btn-primary">Agregar documento</button>
-    </form>
+        <div class="m360-grid m360-grid-2 m360-gap-2">
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ form_doc.tipo.id_for_label }}">{{ form_doc.tipo.label }}</label>
+            {{ form_doc.tipo }}
+            {% for error in form_doc.tipo.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ form_doc.titulo.id_for_label }}">{{ form_doc.titulo.label }}</label>
+            {{ form_doc.titulo }}
+            {% for error in form_doc.titulo.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="m360-grid m360-grid-2 m360-gap-2">
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ form_doc.creator.id_for_label }}">{{ form_doc.creator.label }}</label>
+            {{ form_doc.creator }}
+            {% for error in form_doc.creator.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ form_doc.fecha_documento.id_for_label }}">{{ form_doc.fecha_documento.label }}</label>
+            {{ form_doc.fecha_documento }}
+            {% for error in form_doc.fecha_documento.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="m360-card m360-mb-2">
+          <div class="m360-card-header">
+            <i class="m360-icon">🧭</i>
+            Preparación física
+          </div>
+          <div class="m360-card-body">
+            <div class="m360-grid m360-grid-2 m360-gap-2">
+              <div class="m360-form-group">
+                <label class="m360-form-label" for="{{ form_doc.estado_conservacion.id_for_label }}">{{ form_doc.estado_conservacion.label }}</label>
+                {{ form_doc.estado_conservacion }}
+                {% for error in form_doc.estado_conservacion.errors %}
+                  <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="m360-form-group m360-d-flex m360-items-center m360-mt-4">
+                <label class="m360-checkbox m360-mr-2">
+                  {{ form_doc.grapas_detectadas }}
+                  <span>{{ form_doc.grapas_detectadas.label }}</span>
+                </label>
+              </div>
+            </div>
+            <div class="m360-form-group">
+              <label class="m360-form-label" for="{{ form_doc.objetos_ajenos.id_for_label }}">{{ form_doc.objetos_ajenos.label }}</label>
+              {{ form_doc.objetos_ajenos }}
+              {% for error in form_doc.objetos_ajenos.errors %}
+                <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="m360-grid m360-grid-2 m360-gap-2">
+              <div class="m360-form-group m360-flex m360-items-center">
+                <label class="m360-checkbox m360-mr-2">
+                  {{ form_doc.foliado_aplicado }}
+                  <span>{{ form_doc.foliado_aplicado.label }}</span>
+                </label>
+              </div>
+              <div class="m360-form-group">
+                <label class="m360-form-label" for="{{ form_doc.observaciones_preparacion.id_for_label }}">{{ form_doc.observaciones_preparacion.label }}</label>
+                {{ form_doc.observaciones_preparacion }}
+                {% for error in form_doc.observaciones_preparacion.errors %}
+                  <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% for field in form_doc %}
+          {% if field.is_hidden %}
+            {{ field }}
+          {% endif %}
+        {% endfor %}
+        <button type="submit" class="m360-btn m360-btn-primary">Agregar documento</button>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -136,6 +269,8 @@
             <th>Tipo</th>
             <th>Lote</th>
             <th>Fecha documento</th>
+            <th>Estado conservación</th>
+            <th>Foliado</th>
             <th>Creador</th>
           </tr>
         </thead>
@@ -147,6 +282,8 @@
             <td>{{ doc.tipo }}</td>
             <td>{{ doc.lote.nombre|truncatechars:30 }}</td>
             <td>{{ doc.fecha_documento|default:"—" }}</td>
+            <td>{{ doc.estado_conservacion|default:"—" }}</td>
+            <td>{% if doc.foliado_aplicado %}Sí{% else %}No{% endif %}</td>
             <td>{{ doc.creator|default:"—" }}</td>
           </tr>
           {% endfor %}

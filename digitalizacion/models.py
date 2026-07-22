@@ -24,6 +24,7 @@ class LoteDigitalizacion(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='preparacion')
     ruta_base = models.CharField(max_length=512)
     metadata_proyecto = models.JSONField(default=dict, blank=True)
+    acta_recepcion = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='lotes_digitalizacion')
@@ -58,6 +59,12 @@ class DocumentoDigital(models.Model):
     ocr_confidence = models.FloatField(null=True, blank=True)
     converted_to_pdf_a = models.BooleanField(default=False)
     microformato_json = models.JSONField(default=dict, blank=True)
+    # Preparación
+    estado_conservacion = models.CharField(max_length=128, blank=True)
+    grapas_detectadas = models.BooleanField(default=False)
+    objetos_ajenos = models.TextField(blank=True)
+    foliado_aplicado = models.BooleanField(default=False)
+    observaciones_preparacion = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
