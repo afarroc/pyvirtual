@@ -1,0 +1,29 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 5. Layout
+   File: _footer.css — site footer
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-site-footer {
+  width: 100%;
+  padding: var(--m360-space-6) var(--m360-space-4);
+  text-align: center;
+  border-top: 1px solid var(--m360-border);
+  background: var(--m360-surface);
+}
+
+.m360-root .m360-site-footer-inner {
+  max-width: var(--m360-max-width);
+  margin: 0 auto;
+  padding: 0 var(--m360-space-4);
+}
+
+.m360-root .m360-site-footer p {
+  font-size: var(--m360-text-sm);
+  color: var(--m360-text-muted);
+  margin: 0;
+}
+
+.m360-root .m360-site-footer strong {
+  color: var(--m360-text);
+}

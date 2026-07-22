@@ -1,0 +1,50 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _spinner.css — loading spinners and animations
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--m360-gray-200);
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: m360-spin .7s linear infinite;
+  margin: 0 auto;
+}
+
+.m360-root .m360-spinner-sm {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+  border-top-color: #2563eb;
+}
+
+.m360-root .m360-spinner-inline {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes m360-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Utility animations */
+.m360-root .m360-fade-in {
+  animation: m360-fade-in .25s ease;
+}
+
+.m360-root .m360-slide-in {
+  animation: m360-slide-in .2s ease;
+}
+
+@keyframes m360-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes m360-slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}

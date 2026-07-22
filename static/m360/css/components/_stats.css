@@ -1,0 +1,43 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _stats.css — summary stats, stat items, data summaries
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-summary {
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-lg);
+  padding: var(--m360-space-4) var(--m360-space-5);
+  margin-bottom: var(--m360-space-4);
+  box-shadow: var(--m360-shadow-sm);
+}
+
+.m360-root .m360-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--m360-space-3);
+  margin-top: var(--m360-space-3);
+}
+
+.m360-root .m360-stat-item {
+  background: var(--m360-gray-50);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  padding: var(--m360-space-3) var(--m360-space-3);
+  text-align: center;
+}
+
+.m360-root .m360-stat-value {
+  font-size: var(--m360-text-2xl);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-primary);
+  line-height: 1.2;
+}
+
+.m360-root .m360-stat-label {
+  font-size: var(--m360-text-xs);
+  color: var(--m360-text-muted);
+  margin-top: var(--m360-space-1);
+  font-weight: var(--m360-font-weight-medium);
+}

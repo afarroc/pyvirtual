@@ -1,0 +1,32 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _tooltip.css — pure CSS tooltips
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root [data-m360-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+.m360-root [data-m360-tooltip]::before {
+  content: attr(data-m360-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--m360-space-1) var(--m360-space-2);
+  background: var(--m360-text);
+  color: #fff;
+  border-radius: 4px;
+  font-size: var(--m360-text-xs);
+  white-space: nowrap;
+  display: none;
+  z-index: 100;
+  margin-bottom: var(--m360-space-1);
+  pointer-events: none;
+}
+
+.m360-root [data-m360-tooltip]:hover::before {
+  display: block;
+}

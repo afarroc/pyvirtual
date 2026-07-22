@@ -1,0 +1,236 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _modal.css — modal dialogs, confirm modals
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .35);
+  backdrop-filter: blur(2px);
+  z-index: var(--m360-z-modal);
+  align-items: center;
+  justify-content: center;
+  padding: var(--m360-space-4);
+}
+
+.m360-root .m360-modal.m360-active,
+.m360-root .m360-modal[style*="flex"] {
+  display: flex;
+}
+
+.m360-root .m360-modal-content {
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-modal-radius);
+  box-shadow: var(--m360-modal-shadow);
+  width: 100%;
+  max-width: var(--m360-modal-width);
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: m360-modal-in .18s ease;
+}
+
+.m360-root .m360-modal-content.m360-lg {
+  max-width: var(--m360-modal-width-lg);
+}
+
+@keyframes m360-modal-in {
+  from { opacity: 0; transform: scale(.96) translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.m360-root .m360-modal-header {
+  background: var(--m360-gray-50);
+  border-bottom: 1px solid var(--m360-border);
+  padding: var(--m360-space-4) var(--m360-space-5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.m360-root .m360-modal-header h3 {
+  margin: 0;
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+}
+
+.m360-root .m360-modal-header h3 i {
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-close-modal {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--m360-radius-sm);
+  color: var(--m360-text-muted);
+  font-size: var(--m360-text-lg);
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--m360-transition), color var(--m360-transition);
+}
+
+.m360-root .m360-close-modal:hover {
+  background: var(--m360-gray-100);
+  color: var(--m360-text);
+}
+
+.m360-root .m360-modal-body {
+  padding: var(--m360-space-5);
+  overflow-y: auto;
+  max-height: calc(80vh - 110px);
+  font-size: var(--m360-text-md);
+  color: var(--m360-text-secondary);
+  line-height: 1.6;
+}
+
+.m360-root .m360-modal-footer {
+  padding: var(--m360-space-3) var(--m360-space-5);
+  border-top: 1px solid var(--m360-border);
+  background: var(--m360-gray-50);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--m360-space-2);
+}
+
+/* Confirm modal variant */
+.m360-root .m360-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  backdrop-filter: blur(3px);
+  z-index: var(--m360-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--m360-space-4);
+  opacity: 0;
+  transition: opacity var(--m360-transition-slow) ease;
+}
+
+.m360-root .m360-confirm-overlay.m360-open {
+  opacity: 1;
+}
+
+.m360-root .m360-confirm-box {
+  background: var(--m360-surface);
+  border-radius: var(--m360-modal-radius);
+  box-shadow: var(--m360-shadow-xl);
+  width: 100%;
+  max-width: 480px;
+  transform: translateY(12px);
+  transition: transform var(--m360-transition-slow) ease;
+  overflow: hidden;
+}
+
+.m360-root .m360-confirm-overlay.m360-open .m360-confirm-box {
+  transform: translateY(0);
+}
+
+.m360-root .m360-confirm-header {
+  background: var(--m360-primary);
+  color: #fff;
+  padding: var(--m360-space-4) var(--m360-space-5);
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-bold);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+}
+
+.m360-root .m360-confirm-body {
+  padding: var(--m360-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--m360-space-3);
+}
+
+.m360-root .m360-confirm-footer {
+  padding: var(--m360-space-4) var(--m360-space-5);
+  border-top: 1px solid var(--m360-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--m360-space-2);
+}
+
+.m360-root .m360-confirm-stats-row {
+  display: flex;
+  gap: var(--m360-space-3);
+  justify-content: center;
+}
+
+.m360-root .m360-confirm-stat {
+  flex: 1;
+  text-align: center;
+  padding: var(--m360-space-3) var(--m360-space-2);
+  background: var(--m360-gray-50);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+}
+
+.m360-root .m360-confirm-stat-value {
+  font-size: var(--m360-text-2xl);
+  font-weight: var(--m360-font-weight-extrabold);
+  color: var(--m360-primary);
+  line-height: 1;
+}
+
+.m360-root .m360-confirm-stat-label {
+  font-size: var(--m360-text-xs);
+  color: var(--m360-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--m360-tracking-wide);
+  margin-top: var(--m360-space-1);
+}
+
+.m360-root .m360-confirm-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--m360-text-md);
+  padding: var(--m360-space-2) var(--m360-space-3);
+  background: var(--m360-gray-50);
+  border-radius: var(--m360-radius-sm);
+  gap: var(--m360-space-3);
+}
+
+.m360-root .m360-confirm-info-row span:last-child {
+  color: var(--m360-text);
+  font-weight: var(--m360-font-weight-semibold);
+  text-align: right;
+  max-width: 60%;
+  word-break: break-all;
+}
+
+.m360-root .m360-confirm-clear-section {
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  overflow: hidden;
+  transition: border-color var(--m360-transition);
+}
+
+.m360-root .m360-confirm-clear-label {
+  display: block;
+  padding: var(--m360-space-3) var(--m360-space-4);
+  background: var(--m360-gray-50);
+  cursor: pointer;
+  transition: background var(--m360-transition);
+}
+
+.m360-root .m360-confirm-clear-label:hover {
+  background: var(--m360-gray-100);
+}

@@ -1,8 +1,0 @@
-/* digitalizacion/main.css — ITCSS overrides específicos de la app digitalizacion */
-/* Este archivo carga DESPUÉS de courses/css/main.css para overrides */
-/* Si necesitas estilos específicos de digitalizacion, agrégalos aquí */
-
-/* Ejemplo de estructura para estilos futuros: */
-@layer components {
-  /* Estilos específicos de pipeline/etapas digitalizacion */
-}

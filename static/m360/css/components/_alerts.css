@@ -1,0 +1,111 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _alerts.css — alert messages, banners, notices
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-alert {
+  padding: var(--m360-space-3) var(--m360-space-4);
+  border-radius: var(--m360-radius);
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-medium);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+  margin-bottom: var(--m360-space-2);
+}
+
+.m360-root .m360-alert-info {
+  background: var(--m360-primary-light);
+  color: var(--m360-primary);
+  border: 1px solid #93c5fd;
+}
+
+.m360-root .m360-alert-warning {
+  background: var(--m360-warning-light);
+  color: var(--m360-warning);
+  border: 1px solid var(--m360-warning-border);
+}
+
+.m360-root .m360-alert-success {
+  background: var(--m360-success-light);
+  color: var(--m360-success);
+  border: 1px solid var(--m360-success-border);
+}
+
+.m360-root .m360-alert-danger {
+  background: var(--m360-danger-light);
+  color: var(--m360-danger);
+  border: 1px solid var(--m360-danger-border);
+}
+
+/* Django messages wrapper */
+.m360-root .messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m360-space-2);
+  margin-bottom: var(--m360-space-4);
+}
+
+/* Skip link */
+.m360-root .skip-link {
+  position: absolute;
+  top: -4rem;
+  left: var(--m360-space-4);
+  z-index: 200;
+  background: var(--m360-primary);
+  color: #fff;
+  padding: var(--m360-space-2) var(--m360-space-3);
+  border-radius: var(--m360-radius-md);
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 150ms ease;
+}
+
+.m360-root .skip-link:focus {
+  top: var(--m360-space-2);
+}
+
+/* Security/context banners */
+.m360-root .m360-sec-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--m360-space-2);
+  padding: var(--m360-space-3) var(--m360-space-4);
+  border-radius: var(--m360-radius-sm);
+  font-size: var(--m360-text-sm);
+  margin-bottom: var(--m360-space-4);
+  line-height: 1.5;
+}
+
+.m360-root .m360-sec-banner-info {
+  background: var(--m360-primary-light);
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+}
+
+.m360-root .m360-sec-banner-super {
+  background: var(--m360-purple-light);
+  border: 1px solid #ddd6fe;
+  color: var(--m360-purple);
+}
+
+/* Scope hints */
+.m360-root .m360-scope-hint {
+  margin-top: var(--m360-space-2);
+  padding: var(--m360-space-2) var(--m360-space-3);
+  background: var(--m360-warning-light);
+  border: 1px solid var(--m360-warning-border);
+  border-radius: var(--m360-radius-sm);
+  font-size: var(--m360-text-sm);
+  color: var(--m360-warning);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-1);
+}
+
+.m360-root .m360-scope-hint.m360-scope-all {
+  background: var(--m360-danger-light);
+  border-color: var(--m360-danger-border);
+  color: var(--m360-danger);
+}

@@ -1,0 +1,162 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 7. Sections
+   File: _etl.css — ETL manager specific components
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-etl-wrap {
+  width: 100%;
+  max-width: 100%;
+  padding: var(--m360-space-4) var(--m360-space-3) var(--m360-space-10);
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.m360-root .m360-etl-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: var(--m360-space-4);
+  align-items: start;
+  width: 100%;
+}
+
+.m360-root .m360-etl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--m360-space-3);
+  margin-bottom: var(--m360-space-4);
+  padding-bottom: var(--m360-space-3);
+  border-bottom: 1px solid var(--m360-border);
+}
+
+.m360-root .m360-etl-header h1 {
+  font-size: var(--m360-text-lg);
+  font-weight: var(--m360-font-weight-extrabold);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-3);
+}
+
+.m360-root .m360-header-actions {
+  display: flex;
+  gap: var(--m360-space-2);
+  flex-wrap: wrap;
+}
+
+/* Run card */
+.m360-root .m360-run-card {
+  background: var(--m360-primary-light);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--m360-radius);
+  padding: var(--m360-space-3) var(--m360-space-4);
+  margin-top: var(--m360-space-4);
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.m360-root .m360-run-card h4 {
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-extrabold);
+  margin: 0 0 var(--m360-space-3);
+  color: var(--m360-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+}
+
+/* Field checklist */
+.m360-root .m360-field-list {
+  max-height: 170px;
+  overflow-y: auto;
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  padding: var(--m360-space-1) var(--m360-space-2);
+  background: var(--m360-bg);
+}
+
+.m360-root .m360-field-list label {
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+  padding: var(--m360-space-1) var(--m360-space-1);
+  font-size: var(--m360-text-sm);
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.m360-root .m360-field-list label:hover {
+  background: var(--m360-primary-light);
+}
+
+.m360-root .m360-empty-hint {
+  text-align: center;
+  padding: var(--m360-space-9) var(--m360-space-4);
+  color: var(--m360-text-muted);
+  font-size: var(--m360-text-md);
+}
+
+/* Source icon variants */
+.m360-root .m360-source-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--m360-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--m360-icon-md);
+  flex-shrink: 0;
+}
+
+.m360-root .m360-source-icon-orm { background: #dbeafe; color: #1d4ed8; }
+.m360-root .m360-source-icon-sql { background: #f3e8ff; color: var(--m360-purple); }
+
+.m360-root .m360-sim-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m360-space-1);
+  padding: 3px 9px;
+  border-radius: var(--m360-badge-radius);
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+}
+
+.m360-root .m360-sim-badge-canal {
+  background: #fffbeb;
+  color: var(--m360-warning);
+  border: 1px solid #fde68a;
+}
+
+.m360-root .m360-sim-badge-type {
+  background: var(--m360-primary-light);
+  color: var(--m360-primary);
+  border: 1px solid #bfdbfe;
+}
+
+.m360-root .m360-events-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m360-space-1);
+  padding: 3px 9px;
+  border-radius: var(--m360-badge-radius);
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+@media (max-width: 900px) {
+  .m360-root .m360-etl-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .m360-root .m360-etl-wrap {
+    padding: var(--m360-space-2) var(--m360-space-1) var(--m360-space-6);
+  }
+}

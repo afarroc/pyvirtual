@@ -1,0 +1,194 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _forms.css — form controls, labels, checkboxes, input groups
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-form-group {
+  margin-bottom: var(--m360-space-4);
+}
+
+.m360-root .m360-form-group:last-child {
+  margin-bottom: 0;
+}
+
+.m360-root .m360-form-label {
+  display: block;
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-semibold);
+  color: var(--m360-text);
+  margin-bottom: var(--m360-space-1);
+}
+
+.m360-root .m360-form-hint {
+  font-size: var(--m360-text-xs);
+  color: var(--m360-text-muted);
+  margin-top: var(--m360-space-1);
+}
+
+.m360-root .m360-form-control,
+.m360-root select.m360-form-control,
+.m360-root textarea.m360-form-control {
+  width: 100%;
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-gray-300);
+  border-radius: var(--m360-input-radius);
+  font-family: inherit;
+  font-size: var(--m360-input-font-size);
+  padding: var(--m360-input-padding-y) var(--m360-input-padding-x);
+  color: var(--m360-text);
+  outline: none;
+  transition: border-color var(--m360-transition), box-shadow var(--m360-transition);
+  line-height: 1.5;
+}
+
+.m360-root .m360-form-control:focus,
+.m360-root select.m360-form-control:focus,
+.m360-root textarea.m360-form-control:focus {
+  border-color: var(--m360-primary);
+  box-shadow: 0 0 0 3px var(--m360-primary-ring);
+}
+
+.m360-root textarea.m360-form-control {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.m360-root .m360-form-control-file {
+  padding: var(--m360-space-2) 0;
+}
+
+.m360-root .m360-form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--m360-space-2);
+  padding: var(--m360-space-1) 0;
+}
+
+.m360-root .m360-form-check-input {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  accent-color: var(--m360-primary);
+  margin-top: 2px;
+}
+
+.m360-root .m360-form-check-label {
+  font-size: var(--m360-text-md);
+  color: var(--m360-text);
+  cursor: pointer;
+}
+
+/* Compact form variant (ETL style) */
+.m360-root .m360-form-row {
+  margin-bottom: var(--m360-space-3);
+}
+
+.m360-root .m360-form-label-compact {
+  display: block;
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text-secondary);
+  margin-bottom: var(--m360-space-1);
+}
+
+.m360-root .m360-form-control-compact {
+  width: 100%;
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  padding: var(--m360-space-1) var(--m360-space-2);
+  font-size: var(--m360-text-md);
+  font-family: inherit;
+  color: var(--m360-text);
+  background: var(--m360-surface);
+}
+
+.m360-root .m360-form-control-compact:focus {
+  outline: none;
+  border-color: var(--m360-primary);
+  box-shadow: 0 0 0 2px var(--m360-primary-ring);
+}
+
+.m360-root .m360-form-row-inline {
+  display: flex;
+  gap: var(--m360-space-3);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.m360-root .m360-form-row-inline > .m360-form-group {
+  flex: 1;
+  min-width: 110px;
+}
+
+/* Filter/agg builder rows */
+.m360-root .m360-filter-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: var(--m360-space-1);
+  margin-bottom: var(--m360-space-1);
+  align-items: end;
+}
+
+.m360-root .m360-agg-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: var(--m360-space-1);
+  margin-bottom: var(--m360-space-1);
+  align-items: end;
+}
+
+.m360-root .m360-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m360-space-1);
+}
+
+.m360-root .m360-filter-label {
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--m360-tracking-wide);
+  color: var(--m360-text-muted);
+}
+
+.m360-root .m360-filter-actions {
+  display: flex;
+  gap: var(--m360-space-2);
+  flex-wrap: wrap;
+  padding-top: var(--m360-space-1);
+}
+
+@media (max-width: 600px) {
+  .m360-root .m360-filter-row,
+  .m360-root .m360-agg-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: var(--m360-space-1);
+  }
+  .m360-root .m360-filter-row > .m360-btn,
+  .m360-root .m360-agg-row > .m360-btn {
+    grid-column: 2;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 400px) {
+  .m360-root .m360-filter-row,
+  .m360-root .m360-agg-row {
+    grid-template-columns: 1fr;
+  }
+  .m360-root .m360-filter-row > .m360-btn,
+  .m360-root .m360-agg-row > .m360-btn {
+    grid-column: 1;
+    justify-self: start;
+  }
+}
+
+/* ── Full-width form wrapper ── */
+.m360-root .m360-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--m360-space-3);
+}

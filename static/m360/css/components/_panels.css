@@ -1,0 +1,119 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _panels.css — generic panel, source list, data panels
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-panel {
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  box-shadow: var(--m360-shadow);
+  overflow: visible;
+  width: 100%;
+  min-width: 0;
+}
+
+.m360-root .m360-panel-header {
+  padding: var(--m360-space-3) var(--m360-space-4);
+  background: #f8fafc;
+  border-bottom: 1px solid var(--m360-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--m360-space-2);
+  flex-wrap: wrap;
+}
+
+.m360-root .m360-panel-header h3 {
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-extrabold);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: var(--m360-tracking-wide);
+  color: var(--m360-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+}
+
+.m360-root .m360-panel-body {
+  padding: var(--m360-space-3) var(--m360-space-4);
+  overflow: visible;
+  min-width: 0;
+}
+
+/* Source list items */
+.m360-root .m360-source-item {
+  padding: var(--m360-space-2) var(--m360-space-3);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  margin-bottom: var(--m360-space-1);
+  cursor: pointer;
+  transition: border-color var(--m360-transition), background var(--m360-transition);
+  display: flex;
+  gap: var(--m360-space-2);
+  align-items: flex-start;
+}
+
+.m360-root .m360-source-item:hover {
+  border-color: var(--m360-primary);
+  background: var(--m360-primary-light);
+}
+
+.m360-root .m360-source-item.m360-active {
+  border-color: var(--m360-primary);
+  background: var(--m360-primary-light);
+  box-shadow: 0 0 0 2px var(--m360-primary-ring);
+}
+
+.m360-root .m360-source-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--m360-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--m360-icon-md);
+  flex-shrink: 0;
+}
+
+.m360-root .m360-source-icon-orm { background: #dbeafe; color: #1d4ed8; }
+.m360-root .m360-source-icon-sql { background: #f3e8ff; color: var(--m360-purple); }
+.m360-root .m360-source-icon-sim { background: #fffbeb; color: var(--m360-warning); }
+.m360-root .m360-source-icon-events { background: #f0fdf4; color: #16a34a; }
+
+.m360-root .m360-source-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.m360-root .m360-source-name {
+  font-weight: var(--m360-font-weight-bold);
+  font-size: var(--m360-text-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.m360-root .m360-source-sub {
+  font-size: var(--m360-text-xs);
+  color: var(--m360-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.m360-root .m360-source-badge {
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+  padding: 2px 7px;
+  border-radius: var(--m360-badge-radius);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.m360-root .m360-badge-idle    { background: #f3f4f6; color: #6b7280; }
+.m360-root .m360-badge-done    { background: var(--m360-success-light); color: var(--m360-success); }
+.m360-root .m360-badge-error   { background: var(--m360-danger-light); color: var(--m360-danger); }
+.m360-root .m360-badge-running { background: var(--m360-warning-light); color: var(--m360-warning); }

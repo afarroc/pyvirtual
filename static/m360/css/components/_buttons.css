@@ -1,0 +1,164 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _buttons.css — button system with variants and sizes
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--m360-btn-gap);
+  padding: var(--m360-btn-padding-y) var(--m360-btn-padding-x);
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-btn-radius);
+  font-family: inherit;
+  font-size: var(--m360-btn-font-size);
+  font-weight: var(--m360-btn-font-weight);
+  cursor: pointer;
+  color: var(--m360-text);
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background var(--m360-transition), border-color var(--m360-transition), color var(--m360-transition), opacity var(--m360-transition);
+  line-height: 1;
+}
+
+.m360-root .m360-btn:hover:not(:disabled) {
+  background: var(--m360-gray-50);
+}
+
+.m360-root .m360-btn:active:not(:disabled) {
+  opacity: .85;
+}
+
+.m360-root .m360-btn:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+.m360-root .m360-btn:focus-visible {
+  outline: 2px solid var(--m360-primary);
+  outline-offset: 2px;
+}
+
+.m360-root .m360-btn i {
+  font-size: var(--m360-btn-font-size);
+}
+
+/* Button variants */
+.m360-root .m360-btn-primary {
+  background: var(--m360-primary);
+  color: #fff;
+  border-color: var(--m360-primary);
+}
+
+.m360-root .m360-btn-primary:hover:not(:disabled) {
+  background: var(--m360-primary-dark);
+  border-color: var(--m360-primary-dark);
+}
+
+.m360-root .m360-btn-success {
+  background: var(--m360-success);
+  color: #fff;
+  border-color: var(--m360-success);
+}
+
+.m360-root .m360-btn-success:hover:not(:disabled) {
+  background: var(--m360-color-success-dark);
+  border-color: var(--m360-color-success-dark);
+}
+
+.m360-root .m360-btn-warning {
+  background: var(--m360-warning-light);
+  color: var(--m360-warning);
+  border-color: var(--m360-warning-border);
+}
+
+.m360-root .m360-btn-warning:hover:not(:disabled) {
+  background: #fef3c7;
+}
+
+.m360-root .m360-btn-danger {
+  background: var(--m360-danger-light);
+  color: var(--m360-danger);
+  border-color: var(--m360-danger-border);
+}
+
+.m360-root .m360-btn-danger:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.m360-root .m360-btn-outline-secondary {
+  background: #fff;
+  color: var(--m360-text-secondary);
+  border-color: var(--m360-gray-300);
+}
+
+.m360-root .m360-btn-outline-secondary:hover:not(:disabled) {
+  background: var(--m360-gray-50);
+}
+
+.m360-root .m360-btn-ghost {
+  background: transparent;
+  border: 1px solid var(--m360-border);
+  color: var(--m360-text-secondary);
+}
+
+.m360-root .m360-btn-ghost:hover:not(:disabled) {
+  background: var(--m360-bg);
+}
+
+/* Button sizes */
+.m360-root .m360-btn-sm {
+  --m360-btn-padding-y: 5px;
+  --m360-btn-padding-x: 10px;
+  --m360-btn-font-size: 12px;
+}
+
+.m360-root .m360-btn-sm i {
+  font-size: 12px;
+}
+
+/* Icon buttons */
+.m360-root .m360-btn-icon {
+  width: 29px;
+  height: 29px;
+  padding: 0;
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  background: var(--m360-surface);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--m360-icon-md);
+  color: var(--m360-danger);
+  transition: background var(--m360-transition-fast);
+  flex-shrink: 0;
+}
+
+.m360-root .m360-btn-icon:hover {
+  background: var(--m360-danger-light);
+  border-color: var(--m360-danger);
+}
+
+/* Add button */
+.m360-root .m360-btn-add {
+  font-size: var(--m360-text-sm);
+  color: var(--m360-primary);
+  cursor: pointer;
+  background: none;
+  border: 1px dashed var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  padding: var(--m360-space-1) var(--m360-space-3);
+  width: 100%;
+  text-align: center;
+  margin-top: var(--m360-space-1);
+  transition: background var(--m360-transition), border-color var(--m360-transition);
+}
+
+.m360-root .m360-btn-add:hover {
+  background: var(--m360-primary-light);
+  border-color: var(--m360-primary);
+}

@@ -1,0 +1,28 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 2. Tools (native CSS functions/mixins)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Native CSS color manipulation helpers (using color-mix where supported) */
+:root {
+  --m360-tint-primary-10: color-mix(in srgb, var(--m360-primary) 10%, transparent);
+  --m360-tint-primary-20: color-mix(in srgb, var(--m360-primary) 20%, transparent);
+  --m360-tint-success-10: color-mix(in srgb, var(--m360-success) 10%, transparent);
+  --m360-tint-warning-10: color-mix(in srgb, var(--m360-warning) 10%, transparent);
+  --m360-tint-danger-10:  color-mix(in srgb, var(--m360-danger)  10%, transparent);
+}
+
+/* Conditional class helpers */
+[data-theme="dark"] {
+  --m360-color-bg:            #0f172a;
+  --m360-color-surface:       #1e293b;
+  --m360-color-border:        #334155;
+  --m360-color-border-light:  #1e293b;
+  --m360-color-text:          #f1f5f9;
+  --m360-color-text-secondary:#94a3b8;
+  --m360-color-text-muted:    #64748b;
+  --m360-color-gray-50:       #1e293b;
+  --m360-color-gray-100:      #334155;
+  --m360-color-gray-200:      #475569;
+  --m360-color-gray-300:      #64748b;
+}

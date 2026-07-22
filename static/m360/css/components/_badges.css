@@ -1,0 +1,104 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _badges.css — badge variants, status pills, data type badges
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--m360-badge-padding);
+  font-size: var(--m360-badge-font-size);
+  font-weight: var(--m360-badge-font-weight);
+  border-radius: var(--m360-badge-radius);
+  border: 1px solid var(--m360-border);
+  background: var(--m360-gray-100);
+  color: var(--m360-text-secondary);
+}
+
+.m360-root .m360-badge-success {
+  background: var(--m360-success-light);
+  border-color: var(--m360-success-border);
+  color: var(--m360-success);
+}
+
+.m360-root .m360-badge-warning {
+  background: var(--m360-warning-light);
+  border-color: var(--m360-warning-border);
+  color: var(--m360-warning);
+}
+
+.m360-root .m360-badge-danger {
+  background: var(--m360-danger-light);
+  border-color: var(--m360-danger-border);
+  color: var(--m360-danger);
+}
+
+.m360-root .m360-badge-info {
+  background: var(--m360-primary-light);
+  border-color: #93c5fd;
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-badge-required {
+  background: var(--m360-danger-light);
+  border: 1px solid var(--m360-danger-border);
+  color: var(--m360-danger);
+  padding: 2px 6px;
+  font-size: var(--m360-badge-font-size);
+  font-weight: var(--m360-badge-font-weight);
+  border-radius: var(--m360-badge-radius);
+  margin-left: var(--m360-space-1);
+}
+
+/* Status pills (ETL-style) */
+.m360-root .m360-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m360-space-1);
+  padding: var(--m360-space-1) var(--m360-space-2);
+  border-radius: var(--m360-badge-radius);
+  font-size: var(--m360-badge-font-size);
+  font-weight: var(--m360-font-weight-bold);
+}
+
+.m360-root .m360-status-pill.m360-done {
+  background: var(--m360-success-light);
+  color: var(--m360-success);
+}
+
+.m360-root .m360-status-pill.m360-error {
+  background: var(--m360-danger-light);
+  color: var(--m360-danger);
+}
+
+.m360-root .m360-status-pill.m360-running {
+  background: var(--m360-warning-light);
+  color: var(--m360-warning);
+}
+
+.m360-root .m360-status-pill.m360-idle {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Data type badges */
+.m360-root .m360-dtype-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--m360-badge-radius);
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+  background: var(--m360-gray-100);
+  color: var(--m360-text-secondary);
+  border: 1px solid var(--m360-border);
+  text-transform: uppercase;
+  letter-spacing: var(--m360-tracking-wide);
+}
+
+.m360-root .m360-dtype-text  { background: #f3e8ff; color: #7c3aed; border-color: #ddd6fe; }
+.m360-root .m360-dtype-num   { background: var(--m360-success-light); color: var(--m360-success); border-color: var(--m360-success-border); }
+.m360-root .m360-dtype-bool  { background: var(--m360-warning-light); color: var(--m360-warning); border-color: var(--m360-warning-border); }
+.m360-root .m360-dtype-date  { background: var(--m360-primary-light); color: var(--m360-primary); border-color: #bfdbfe; }
+.m360-root .m360-dtype-unique { background: #fef9c3; color: #854d0e; border-color: #fef08a; }

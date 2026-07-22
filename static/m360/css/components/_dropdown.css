@@ -1,0 +1,69 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _dropdown.css — dropdown menus, select wrappers
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-dropdown {
+  position: relative;
+}
+
+.m360-root .m360-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 210px;
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  box-shadow: var(--m360-shadow);
+  z-index: var(--m360-z-dropdown);
+  padding: var(--m360-space-1) 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.m360-root .m360-dropdown-menu.m360-open {
+  display: block;
+  animation: m360-fade-down .12s ease;
+}
+
+.m360-root .m360-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+  padding: var(--m360-space-2) var(--m360-space-4);
+  font-size: var(--m360-text-md);
+  color: var(--m360-text);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--m360-transition);
+}
+
+.m360-root .m360-dropdown-item:hover {
+  background: var(--m360-gray-50);
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-dropdown-item i {
+  width: 16px;
+  text-align: center;
+  color: var(--m360-text-muted);
+  font-size: var(--m360-icon-md);
+}
+
+.m360-root .m360-dropdown-sep {
+  height: 1px;
+  background: var(--m360-border);
+  margin: var(--m360-space-1) 0;
+}
+
+.m360-root .m360-dropdown-header {
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+  text-transform: uppercase;
+  color: var(--m360-text-muted);
+  letter-spacing: var(--m360-tracking-wider);
+  padding: var(--m360-space-1) var(--m360-space-4);
+}

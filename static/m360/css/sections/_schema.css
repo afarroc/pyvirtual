@@ -1,0 +1,105 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 7. Sections
+   File: _schema.css — schema builder, column entries, type badges
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-schema-builder {
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  padding: var(--m360-space-4) var(--m360-space-4);
+}
+
+.m360-root .m360-schema-header {
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-3);
+  margin-bottom: var(--m360-space-3);
+}
+
+.m360-root .m360-schema-title {
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+  margin: 0;
+}
+
+.m360-root .m360-schema-actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--m360-space-2);
+}
+
+.m360-root .m360-col-entry {
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  padding: var(--m360-space-3) var(--m360-space-4);
+  margin-bottom: var(--m360-space-1);
+  transition: border-color var(--m360-transition);
+}
+
+.m360-root .m360-col-entry:hover {
+  border-color: #93c5fd;
+}
+
+.m360-root .m360-col-entry-header {
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+  margin-bottom: var(--m360-space-2);
+}
+
+.m360-root .m360-col-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--m360-primary);
+  color: #fff;
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.m360-root .m360-col-remove {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--m360-text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+  transition: color var(--m360-transition);
+}
+
+.m360-root .m360-col-remove:hover {
+  color: var(--m360-danger);
+}
+
+.m360-root .m360-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--m360-space-3);
+}
+
+.m360-root .m360-col-checks {
+  display: flex;
+  gap: var(--m360-space-4);
+}
+
+.m360-root .m360-col-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+  border-radius: var(--m360-badge-radius);
+  background: var(--m360-primary-light);
+  color: var(--m360-primary);
+  border: 1px solid #93c5fd;
+}

@@ -1,0 +1,33 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 8. Utilities
+   File: _text.css — typography and text utilities
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.m360-root .m360-text-balance {
+  text-wrap: balance;
+}
+
+.m360-root .m360-underline {
+  text-decoration: underline;
+}
+
+.m360-root .m360-no-underline {
+  text-decoration: none;
+}
+
+.m360-root .m360-list-unstyled {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.m360-root .m360-mono {
+  font-family: 'Courier New', monospace;
+}

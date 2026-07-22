@@ -1,0 +1,47 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _pagination.css — pagination controls, page buttons
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-pg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 var(--m360-space-2);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  background: var(--m360-surface);
+  color: var(--m360-text);
+  font-size: var(--m360-text-sm);
+  font-weight: var(--m360-font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--m360-transition-fast), color var(--m360-transition-fast);
+  font-family: inherit;
+  line-height: 1;
+}
+
+.m360-root .m360-pg-btn:hover:not(:disabled) {
+  background: var(--m360-primary-light);
+  color: var(--m360-primary);
+  border-color: var(--m360-primary);
+}
+
+.m360-root .m360-pg-btn.m360-active {
+  background: var(--m360-primary);
+  color: #fff;
+  border-color: var(--m360-primary);
+}
+
+.m360-root .m360-pg-btn:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+.m360-root .m360-pg-btn.m360-ellipsis {
+  cursor: default;
+  border-color: transparent;
+  background: none;
+}

@@ -1,0 +1,74 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _tables.css — data tables, preview tables, responsive wrappers
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-table-responsive {
+  overflow-x: auto;
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  background: var(--m360-surface);
+}
+
+.m360-root .m360-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--m360-text-sm);
+}
+
+.m360-root .m360-table thead th {
+  background: var(--m360-gray-50);
+  border-bottom: 2px solid var(--m360-border);
+  border-right: 1px solid var(--m360-border-light);
+  padding: var(--m360-space-2) var(--m360-space-3);
+  font-weight: var(--m360-font-weight-bold);
+  text-align: left;
+  white-space: nowrap;
+  font-size: var(--m360-text-xs);
+  position: sticky;
+  top: 0;
+  color: var(--m360-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+
+.m360-root .m360-table tbody td {
+  border-bottom: 1px solid var(--m360-border-light);
+  border-right: 1px solid var(--m360-border-light);
+  padding: var(--m360-space-2) var(--m360-space-3);
+  white-space: nowrap;
+}
+
+.m360-root .m360-table tbody tr:nth-child(even) td {
+  background: var(--m360-gray-50);
+}
+
+.m360-root .m360-table tbody tr:hover td {
+  background: var(--m360-primary-light);
+}
+
+.m360-root .m360-table th,
+.m360-root .m360-table td {
+  border-top-width: 0;
+}
+
+/* Compact table variant */
+.m360-root .m360-table-sm thead th {
+  padding: var(--m360-space-1) var(--m360-space-2);
+  font-size: 11px;
+  font-weight: var(--m360-font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--m360-text-secondary);
+}
+
+.m360-root .m360-table-sm tbody td {
+  padding: var(--m360-space-1) var(--m360-space-2);
+  font-size: var(--m360-text-sm);
+}
+
+.m360-root .m360-table-wrap {
+  overflow-x: auto;
+  width: 100%;
+}

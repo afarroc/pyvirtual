@@ -1,0 +1,37 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _notifications.css — toast notifications, notification container
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root #m360-notification-container {
+  position: fixed;
+  top: calc(var(--m360-z-sticky, 60px) + 6px);
+  right: 1.2rem;
+  z-index: var(--m360-z-fixed);
+  display: flex;
+  flex-direction: column;
+  gap: var(--m360-space-2);
+}
+
+.m360-root #m360-notif {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: var(--m360-z-fixed);
+  max-width: 340px;
+  padding: var(--m360-space-3) var(--m360-space-4);
+  border-radius: var(--m360-radius);
+  box-shadow: var(--m360-shadow-md);
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-semibold);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+  transition: opacity var(--m360-transition-slow);
+}
+
+.m360-root #m360-notif.m360-success { background: var(--m360-success); color: #fff; }
+.m360-root #m360-notif.m360-error   { background: var(--m360-danger);  color: #fff; }
+.m360-root #m360-notif.m360-info    { background: #1e40af;             color: #fff; }
+.m360-root #m360-notif.m360-warning { background: var(--m360-warning); color: #fff; }

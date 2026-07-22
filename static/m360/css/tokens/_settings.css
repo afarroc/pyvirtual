@@ -1,0 +1,174 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 1. Settings / Tokens
+   Scope: Global (:root) — cascade-safe, no layout impact
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Palette ────────────────────────────────────────────────────────────── */
+  --m360-color-bg:            #f4f6f9;
+  --m360-color-surface:       #ffffff;
+  --m360-color-border:        #e5e7eb;
+  --m360-color-border-light:  #f3f4f6;
+
+  --m360-color-primary:       #2563eb;
+  --m360-color-primary-light: #eff6ff;
+  --m360-color-primary-dark:  #1d4ed8;
+  --m360-color-primary-ring:  rgba(37, 99, 235, .15);
+
+  --m360-color-success:       #059669;
+  --m360-color-success-light: #ecfdf5;
+  --m360-color-success-border:#6ee7b7;
+  --m360-color-success-dark:  #047857;
+
+  --m360-color-warning:       #d97706;
+  --m360-color-warning-light: #fffbeb;
+  --m360-color-warning-border:#fcd34d;
+
+  --m360-color-danger:        #dc2626;
+  --m360-color-danger-light:  #fef2f2;
+  --m360-color-danger-border: #fca5a5;
+
+  --m360-color-text:          #111827;
+  --m360-color-text-secondary:#4b5563;
+  --m360-color-text-muted:    #9ca3af;
+
+  --m360-color-gray-50:       #f9fafb;
+  --m360-color-gray-100:      #f3f4f6;
+  --m360-color-gray-200:      #e5e7eb;
+  --m360-color-gray-300:      #d1d5db;
+
+  --m360-color-purple:        #7c3aed;
+  --m360-color-purple-light:  #f5f3ff;
+
+  --m360-color-glass:         #f9fafb;
+
+  /* ── Semantic aliases (internal use) ───────────────────────────────────── */
+  --m360-bg:            var(--m360-color-bg);
+  --m360-surface:       var(--m360-color-surface);
+  --m360-border:        var(--m360-color-border);
+  --m360-border-light:  var(--m360-color-border-light);
+  --m360-primary:       var(--m360-color-primary);
+  --m360-primary-light: var(--m360-color-primary-light);
+  --m360-primary-dark:  var(--m360-color-primary-dark);
+  --m360-primary-ring:  var(--m360-color-primary-ring);
+  --m360-success:       var(--m360-color-success);
+  --m360-success-light: var(--m360-color-success-light);
+  --m360-success-border:var(--m360-color-success-border);
+  --m360-warning:       var(--m360-color-warning);
+  --m360-warning-light: var(--m360-color-warning-light);
+  --m360-warning-border:var(--m360-color-warning-border);
+  --m360-danger:        var(--m360-color-danger);
+  --m360-danger-light: var(--m360-color-danger-light);
+  --m360-danger-border: var(--m360-color-danger-border);
+  --m360-text:          var(--m360-color-text);
+  --m360-text-secondary:var(--m360-color-text-secondary);
+  --m360-text-muted:    var(--m360-color-text-muted);
+  --m360-gray-50:       var(--m360-color-gray-50);
+  --m360-gray-100:      var(--m360-color-gray-100);
+  --m360-gray-200:      var(--m360-color-gray-200);
+  --m360-gray-300:      var(--m360-color-gray-300);
+  --m360-glass-bg:      var(--m360-color-glass);
+  --m360-purple:        var(--m360-color-purple);
+  --m360-purple-light:  var(--m360-color-purple-light);
+
+  /* ── Border radius ──────────────────────────────────────────────────────── */
+  --m360-radius-sm:     6px;
+  --m360-radius:        8px;
+  --m360-radius-md:     10px;
+  --m360-radius-lg:     12px;
+  --m360-radius-pill:   9999px;
+
+  /* ── Shadows ────────────────────────────────────────────────────────────── */
+  --m360-shadow-sm:     0 1px 3px rgba(0, 0, 0, .07);
+  --m360-shadow:        0 2px 8px rgba(0, 0, 0, .08);
+  --m360-shadow-md:     0 4px 16px rgba(0, 0, 0, .10);
+  --m360-shadow-lg:     0 20px 40px rgba(0, 0, 0, .14);
+  --m360-shadow-xl:     0 20px 60px rgba(0, 0, 0, .25);
+
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+  --m360-font-family: 'Nunito', system-ui, sans-serif;
+  --m360-font-size-base: 14px;
+  --m360-font-weight-normal: 400;
+  --m360-font-weight-medium: 500;
+  --m360-font-weight-semibold: 600;
+  --m360-font-weight-bold: 700;
+  --m360-font-weight-extrabold: 800;
+  --m360-line-height: 1.5;
+
+  --m360-text-xs:   11px;
+  --m360-text-sm:   12px;
+  --m360-text-base: 14px;
+  --m360-text-md:   13px;
+  --m360-text-lg:   19px;
+  --m360-text-xl:   20px;
+  --m360-text-2xl:  22px;
+  --m360-text-3xl:  28px;
+
+  --m360-tracking-tight: -.01em;
+  --m360-tracking-normal: 0;
+  --m360-tracking-wide:   .04em;
+  --m360-tracking-wider:  .06em;
+
+  /* ── Transitions ────────────────────────────────────────────────────────── */
+  --m360-transition:       .15s ease;
+  --m360-transition-fast:  .12s ease;
+  --m360-transition-slow:  .2s ease;
+
+  /* ── Z-index scale ──────────────────────────────────────────────────────── */
+  --m360-z-dropdown:  9900;
+  --m360-z-sticky:    9998;
+  --m360-z-fixed:     9999;
+  --m360-z-modal:     10000;
+
+  /* ── Spacing scale (4px base) ───────────────────────────────────────────── */
+  --m360-space-1: 4px;
+  --m360-space-2: 8px;
+  --m360-space-3: 12px;
+  --m360-space-4: 16px;
+  --m360-space-5: 20px;
+  --m360-space-6: 24px;
+  --m360-space-8: 32px;
+  --m360-space-10:40px;
+
+  /* ── Icon sizes ─────────────────────────────────────────────────────────── */
+  --m360-icon-xs:  12px;
+  --m360-icon-sm:  13px;
+  --m360-icon-md:  16px;
+  --m360-icon-lg:  18px;
+  --m360-icon-xl:  22px;
+  --m360-icon-2xl: 48px;
+
+  /* ── Component-specific tokens ──────────────────────────────────────────── */
+  --m360-btn-padding-y: 8px;
+  --m360-btn-padding-x: 16px;
+  --m360-btn-font-size: 13px;
+  --m360-btn-font-weight: 600;
+  --m360-btn-radius: var(--m360-radius-sm);
+  --m360-btn-gap: 6px;
+
+  --m360-input-padding-y: 8px;
+  --m360-input-padding-x: 10px;
+  --m360-input-font-size: 13px;
+  --m360-input-radius: var(--m360-radius-sm);
+  --m360-input-height: 40px;
+
+  --m360-card-radius: var(--m360-radius-lg);
+  --m360-card-shadow: var(--m360-shadow-sm);
+  --m360-card-padding: var(--m360-space-4);
+  --m360-card-gap: var(--m360-space-4);
+
+  --m360-modal-radius: var(--m360-radius-lg);
+  --m360-modal-shadow: var(--m360-shadow-lg);
+  --m360-modal-width: 580px;
+  --m360-modal-width-lg: 720px;
+
+  --m360-pill-size: 28px;
+  --m360-pill-radius: 8px;
+  --m360-pill-font-size: 13px;
+
+  --m360-badge-font-size: 11px;
+  --m360-badge-font-weight: 600;
+  --m360-badge-padding: 2px 8px;
+  --m360-badge-radius: var(--m360-radius-pill);
+}

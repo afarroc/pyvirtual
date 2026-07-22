@@ -1,0 +1,76 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _cards.css — card containers, card headers, card bodies
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-card {
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-card-radius);
+  box-shadow: var(--m360-card-shadow);
+  margin-bottom: var(--m360-space-4);
+}
+
+.m360-root .m360-card:hover {
+  box-shadow: var(--m360-card-shadow);
+  transform: none;
+}
+
+.m360-root .m360-card-header {
+  padding: var(--m360-space-3) var(--m360-space-4);
+  background: var(--m360-gray-50);
+  border-bottom: 1px solid var(--m360-border);
+  border-radius: var(--m360-card-radius) var(--m360-card-radius) 0 0;
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+}
+
+.m360-root .m360-card-header i {
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-card-body {
+  padding: var(--m360-card-padding);
+}
+
+/* List card (sidebar list items) */
+.m360-root .m360-list-card {
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-left: 3px solid var(--m360-primary);
+  border-radius: var(--m360-radius);
+  padding: var(--m360-space-3) var(--m360-space-4);
+  cursor: pointer;
+  transition: border-color var(--m360-transition), box-shadow var(--m360-transition);
+  display: flex;
+  flex-direction: column;
+  gap: var(--m360-space-1);
+}
+
+.m360-root .m360-list-card:hover {
+  border-color: var(--m360-primary);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, .1);
+}
+
+.m360-root .m360-list-card-title {
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+}
+
+.m360-root .m360-list-card-title i {
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-list-card-meta {
+  font-size: var(--m360-text-sm);
+  color: var(--m360-text-secondary);
+}

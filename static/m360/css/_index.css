@@ -1,0 +1,51 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Entry point — imports all layers in strict order
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Layer 1: Settings / Tokens */
+@import 'tokens/_settings.css';
+@import 'tokens/_tools.css';
+
+/* Layer 2: Generic / Reset */
+@import 'base/_normalize.css';
+
+/* Layer 3: Base / Elements */
+@import 'base/_typography.css';
+@import 'base/_helpers.css';
+
+/* Layer 4: Layout */
+@import 'layout/_grid.css';
+@import 'layout/_page.css';
+@import 'layout/_sidebar.css';
+@import 'layout/_toolbar.css';
+@import 'layout/_tabs.css';
+@import 'layout/_header.css';
+@import 'layout/_footer.css';
+
+/* Layer 5: Components */
+@import 'components/_buttons.css';
+@import 'components/_forms.css';
+@import 'components/_cards.css';
+@import 'components/_badges.css';
+@import 'components/_alerts.css';
+@import 'components/_modal.css';
+@import 'components/_tables.css';
+@import 'components/_panels.css';
+@import 'components/_progress.css';
+@import 'components/_spinner.css';
+@import 'components/_notifications.css';
+@import 'components/_pagination.css';
+@import 'components/_tooltip.css';
+@import 'components/_stats.css';
+@import 'components/_dropdown.css';
+
+/* Layer 6: Sections */
+@import 'sections/_analyst.css';
+@import 'sections/_upload.css';
+@import 'sections/_etl.css';
+@import 'sections/_schema.css';
+
+/* Layer 7: Utilities */
+@import 'utilities/_helpers.css';
+@import 'utilities/_text.css';

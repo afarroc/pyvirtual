@@ -1,0 +1,185 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 5. Layout
+   File: _header.css — site header
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Layout ── */
+.m360-root .m360-site-header {
+  width: 100%;
+  background: var(--m360-surface);
+  border-bottom: 1px solid var(--m360-border);
+  padding: var(--m360-space-3) var(--m360-space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--m360-space-4);
+}
+
+.m360-root .m360-site-header-inner {
+  width: 100%;
+  max-width: var(--m360-max-width);
+  margin: 0 auto;
+  padding: 0 var(--m360-space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--m360-space-4);
+}
+
+/* ── Brand ── */
+.m360-root .m360-site-header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+  font-size: var(--m360-text-lg);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+  text-decoration: none;
+  line-height: 1;
+  padding: var(--m360-space-1) 0;
+}
+
+.m360-root .m360-site-header-brand i {
+  color: var(--m360-primary);
+  font-size: var(--m360-icon-lg);
+  line-height: 1;
+}
+
+.m360-root .m360-site-header-brand:hover {
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-site-header-brand:focus-visible {
+  outline: 2px solid var(--m360-primary);
+  outline-offset: 2px;
+  border-radius: var(--m360-radius-sm);
+}
+
+/* ── Actions / nav container ── */
+.m360-root .m360-site-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+}
+
+/* ── Nav toggle button ── */
+.m360-root .m360-site-header-actions [data-nav-toggle] {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  padding: var(--m360-space-2);
+  color: var(--m360-text-secondary);
+  cursor: pointer;
+  line-height: 0;
+  transition: background var(--m360-transition), color var(--m360-transition), border-color var(--m360-transition);
+}
+
+.m360-root .m360-site-header-actions [data-nav-toggle]:hover {
+  background: var(--m360-gray-50);
+  color: var(--m360-text);
+  border-color: var(--m360-text-muted);
+}
+
+.m360-root .m360-site-header-actions [data-nav-toggle]:focus-visible {
+  outline: 2px solid var(--m360-primary);
+  outline-offset: 2px;
+}
+
+/* ── Desktop nav list ── */
+.m360-root .m360-site-header-actions [data-nav-menu] {
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.m360-root .m360-site-header-actions [data-nav-menu] li {
+  display: flex;
+  align-items: center;
+}
+
+.m360-root .m360-site-header-actions [data-nav-menu] .m360-btn {
+  white-space: nowrap;
+}
+
+.m360-root .m360-site-header-actions [data-nav-menu] .m360-btn[aria-current="page"] {
+  background: var(--m360-primary-light);
+  color: var(--m360-primary);
+  border-color: var(--m360-primary);
+}
+
+/* ── Mobile nav ── */
+@media (max-width: 768px) {
+  .m360-root .m360-site-header-actions {
+    position: relative;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--m360-space-2);
+  }
+
+  .m360-root .m360-site-header-actions [data-nav-toggle] {
+    display: inline-flex;
+  }
+
+  .m360-root .m360-site-header-actions [data-nav-menu] {
+    display: none;
+    position: absolute;
+    top: calc(100% + var(--m360-space-1));
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--m360-space-1);
+    width: 220px;
+    background: var(--m360-surface);
+    border: 1px solid var(--m360-border);
+    border-radius: var(--m360-radius);
+    box-shadow: var(--m360-shadow);
+    padding: var(--m360-space-2) 0;
+    z-index: var(--m360-z-dropdown);
+    list-style: none;
+    margin: 0;
+  }
+
+  .m360-root .m360-site-header-actions [data-nav-menu].is-open {
+    display: flex;
+  }
+
+  .m360-root .m360-site-header-actions [data-nav-menu] li {
+    width: 100%;
+  }
+
+  .m360-root .m360-site-header-actions [data-nav-menu] .m360-btn {
+    width: 100%;
+    justify-content: flex-start;
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    padding: var(--m360-space-2) var(--m360-space-3);
+  }
+
+  .m360-root .m360-site-header-actions [data-nav-menu] .m360-btn:hover {
+    background: var(--m360-gray-50);
+  }
+}
+
+/* ── Dropdowns inside header (optional) ── */
+.m360-root .m360-site-header-actions .m360-dropdown {
+  position: relative;
+}
+
+.m360-root .m360-site-header-actions .m360-dropdown-menu {
+  min-width: 210px;
+}
+
+@media (max-width: 768px) {
+  .m360-root .m360-site-header-actions .m360-dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: 1px solid var(--m360-border);
+    margin-top: var(--m360-space-1);
+  }
+}
