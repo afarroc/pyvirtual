@@ -170,7 +170,11 @@
 
   <div class="m360-d-flex m360-flex-column m360-gap-2">
     <a href="{% url 'digitalizacion:preparacion' %}" class="m360-btn m360-btn-ghost">← Volver</a>
-    <a href="{% url 'digitalizacion:cc1_documento' documento_id=doc.id %}" class="m360-btn m360-btn-primary">Avanzar a CC1 →</a>
+    <form method="post" class="m360-form" onsubmit="return confirm('¿Marcar digitalización como completada y avanzar a CC1?');">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="completar_digitalizacion">
+      <button type="submit" class="m360-btn m360-btn-primary">Completar digitalización y avanzar a CC1 →</button>
+    </form>
   </div>
 </div>
 {% endblock %}

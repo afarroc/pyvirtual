@@ -592,6 +592,20 @@ def digitalizar_documento(request, documento_id):
     upload_message = None
     
     if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'completar_digitalizacion':
+            usuario = request.user if request.user.is_authenticated else None
+            from digitalizacion.services.pipeline import PipelineDigitalizacion
+            pipeline = PipelineDigitalizacion(doc.lote)
+            resultado = pipeline.ejecutar_etapa(documento=doc, etapa='digitalizacion', usuario=usuario, estado='ok')
+            if resultado.get('ok'):
+                messages.success(request, "Digitalización completada. Avanzando a CC1.")
+                return redirect('digitalizacion:cc1_documento', documento_id=doc.id)
+            else:
+                messages.error(request, f"Error al completar digitalización: {resultado.get('error')}")
+                return redirect('digitalizacion:digitalizar_documento', documento_id=doc.id)
+        
         # Manejar subida de archivos a inbox
         if request.FILES.getlist('inbox_files'):
             if not doc.ruta_inbox:
