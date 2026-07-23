@@ -47,7 +47,7 @@ class DocumentoDigital(models.Model):
     subject = models.JSONField(default=list, blank=True)
     description = models.TextField(blank=True)
     fecha_documento = models.DateField(null=True, blank=True)
-    language = models.CharField(max_length=8, default='es')
+    language = models.CharField(max_length=8, default='es', blank=True)
     rights = models.CharField(max_length=255, blank=True)
     ruta_inbox = models.CharField(max_length=512)
     ruta_preprocessed = models.CharField(max_length=512)
