@@ -100,7 +100,7 @@ def ejemplo_m360(request):
 
 
 def recepcion(request):
-    lotes = LoteDigitalizacion.objects.filter(estado='preparacion').order_by('-created_at').annotate(total_folios=Sum('documentos__folios'))
+    lotes = LoteDigitalizacion.objects.filter(estado='preparacion').order_by('-created_at')
     documentos = DocumentoDigital.objects.filter(lote__estado='preparacion').order_by('-created_at')
     stats = {
         'lotes': lotes.count(),
@@ -109,17 +109,14 @@ def recepcion(request):
     }
 
     form_lote = LoteDigitalizacionForm()
-    form_doc = DocumentoDigitalForm()
 
     helpers = {
         'checklist': [
             'Inventario físico verificado contra registros declarados',
-            'Sin grapas ni clips',
-            'Sin objetos ajenos',
-            'Orden verificado',
-            'Foliado aplicado si corresponde',
-            'Estado de conservación documentado',
-            'Total de folios declarado coincide con físico',
+            'Archivo de origen documentado',
+            'Responsable de entrega registrado',
+            'Fecha y hora de recepción registrada',
+            'Condición general del lote evaluada',
         ],
         'nomenclatura': {
             'documento': 'upn_YYYY-MM-DD_NNN',
@@ -127,6 +124,7 @@ def recepcion(request):
         },
         'manual_link': '/digitalizacion/docs/PIPELINE.md',
         'qm_plan': 'NARA 36 CFR 1236 Subpart E',
+        'siguiente_etapa': 'preparacion',
     }
 
     if request.method == 'POST':
@@ -139,51 +137,19 @@ def recepcion(request):
                 lote.estado = 'preparacion'
                 lote.created_by = request.user if request.user.is_authenticated else None
                 lote.save()
-                messages.success(request, f"Lote '{lote.nombre}' creado correctamente.")
+                messages.success(request, f"Lote '{lote.nombre}' creado y registrado en recepción.")
                 return redirect('digitalizacion:recepcion')
             else:
                 messages.error(request, "Error al crear lote. Verifica los datos.")
-        elif action == 'agregar_documento':
-            form_doc = DocumentoDigitalForm(request.POST)
-            if form_doc.is_valid():
-                doc = form_doc.save(commit=False)
-                doc.save()
-                messages.success(request, f"Documento '{doc.document_id}' agregado al lote.")
-                return redirect('digitalizacion:recepcion')
-            else:
-                messages.error(request, "Error al agregar documento. Verifica los datos.")
         elif action == 'cerrar_recepcion':
             lote_id = request.POST.get('lote_id')
             if lote_id:
                 try:
                     lote = LoteDigitalizacion.objects.get(id=lote_id, estado='preparacion')
                     docs_qs = lote.documentos.all()
-                    checklist_ok = True
-                    checklist_detalle = []
-                    for doc in docs_qs:
-                        faltantes = []
-                        if doc.grapas_detectadas:
-                            faltantes.append('grapas detectadas')
-                        if doc.objetos_ajenos:
-                            faltantes.append('objetos ajenos')
-                        if not doc.foliado_aplicado and doc.tipo.lower() in [
-                            'plan de estudios', 'examen', 'acta', 'certificado', 'resolución'
-                        ]:
-                            faltantes.append('foliado pendiente')
-                        if not doc.estado_conservacion:
-                            faltantes.append('estado de conservación vacío')
-                        if not doc.folios or doc.folios < 1:
-                            faltantes.append('folios no declarados')
-                        if faltantes:
-                            checklist_ok = False
-                            checklist_detalle.append(f"{doc.document_id}: {', '.join(faltantes)}")
-                    if not checklist_ok:
-                        messages.error(
-                            request,
-                            'No se puede cerrar recepción: ' + '; '.join(checklist_detalle)
-                        )
+                    if docs_qs.count() == 0:
+                        messages.error(request, "No se puede cerrar recepción: el lote no tiene documentos.")
                     else:
-                        lote.estado = 'digitalizacion'
                         lote.acta_recepcion = (
                             f"Acta de recepción — lote {lote.nombre}. "
                             f"Documentos: {docs_qs.count()}. "
@@ -196,7 +162,7 @@ def recepcion(request):
                         EtapaPipeline.objects.create(
                             lote=lote,
                             documento=None,
-                            etapa='preparacion',
+                            etapa='recepcion',
                             estado='ok',
                             inicio=timezone.now(),
                             fin=timezone.now(),
@@ -212,30 +178,29 @@ def recepcion(request):
                         EtapaPipeline.objects.create(
                             lote=lote,
                             documento=None,
-                            etapa='digitalizacion',
+                            etapa='preparacion',
                             estado='en_progreso',
                             inicio=timezone.now(),
                             fin=None,
                             usuario=request.user if request.user.is_authenticated else None,
-                            observaciones=f"Digitalización iniciada. {docs_qs.count()} documentos pendientes de captura.",
+                            observaciones=f"Preparación iniciada. {docs_qs.count()} documentos pendientes de acondicionamiento físico.",
                             metadata={
                                 'documentos_pendientes': docs_qs.count(),
                                 'folios_esperados': sum(d.folios or 0 for d in docs_qs),
                             },
                         )
-                        messages.success(request, f"Lote '{lote.nombre}' cerrado y pasado a digitalización.")
+                        messages.success(request, f"Lote '{lote.nombre}' recibido formalmente. Ahora debe realizar la preparación física.")
                 except LoteDigitalizacion.DoesNotExist:
                     messages.error(request, "Lote no encontrado o ya fue cerrado.")
             else:
                 messages.error(request, "Debes seleccionar un lote para cerrar.")
-            return redirect('digitalizacion:recepcion_lote_detail', lote_id=lote.id)
+            return redirect('digitalizacion:recepcion')
 
     return render(request, 'digitalizacion/recepcion.html', {
         'lotes': lotes,
         'documentos': documentos,
         'stats': stats,
         'form_lote': form_lote,
-        'form_doc': form_doc,
         'helpers': helpers,
     })
 
@@ -273,12 +238,195 @@ def recepcion_lote_detail(request, lote_id):
     })
 
 
+def recepcion_lote_detail(request, lote_id):
+    lote = get_object_or_404(LoteDigitalizacion, pk=lote_id)
+    documentos = lote.documentos.all().order_by('-created_at')
+    total_folios = sum(d.folios or 0 for d in documentos)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'cerrar_recepcion':
+            return redirect('digitalizacion:recepcion')
+        if action == 'editar_lote':
+            form = LoteDigitalizacionForm(request.POST, instance=lote)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Lote actualizado.')
+                return redirect('digitalizacion:recepcion_lote_detail', lote_id=lote.id)
+            else:
+                messages.error(request, 'Error al actualizar lote. Verifica los datos.')
+        elif action == 'eliminar_lote':
+            if lote.documentos.exists():
+                messages.error(request, 'No se puede eliminar un lote con documentos.')
+                return redirect('digitalizacion:recepcion_lote_detail', lote_id=lote.id)
+            lote.delete()
+            messages.success(request, 'Lote eliminado.')
+            return redirect('digitalizacion:recepcion')
+    else:
+        form = LoteDigitalizacionForm(instance=lote)
+    return render(request, 'digitalizacion/recepcion_lote_detail.html', {
+        'lote': lote,
+        'documentos': documentos,
+        'form': form,
+        'total_folios': total_folios,
+    })
+
+
+def recepcion_documento_detail(request, documento_id):
+    doc = get_object_or_404(DocumentoDigital, pk=documento_id)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'editar_documento':
+            form = DocumentoDigitalForm(request.POST, instance=doc, lote=doc.lote)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Documento actualizado.')
+                return redirect('digitalizacion:recepcion_documento_detail', documento_id=doc.id)
+            else:
+                messages.error(request, 'Error al actualizar documento. Verifica los datos.')
+        elif action == 'eliminar_documento':
+            lote_id = doc.lote.id
+            doc.delete()
+            messages.success(request, 'Documento eliminado.')
+            return redirect('digitalizacion:recepcion_lote_detail', lote_id=lote_id)
+    else:
+        form = DocumentoDigitalForm(instance=doc, lote=doc.lote)
+    return render(request, 'digitalizacion/recepcion_documento_detail.html', {
+        'doc': doc,
+        'lote': doc.lote,
+        'form': form,
+    })
+
+
 def preparacion(request):
-    return redirect('digitalizacion:recepcion')
+    lotes = LoteDigitalizacion.objects.filter(estado='preparacion').order_by('-created_at')
+    documentos = DocumentoDigital.objects.filter(lote__estado='preparacion').order_by('-created_at')
+    stats = {
+        'lotes': lotes.count(),
+        'documentos': documentos.count(),
+        'folios_pendientes': sum(d.folios or 0 for d in documentos),
+    }
 
+    form_lote = LoteDigitalizacionForm()
+    form_doc = DocumentoDigitalForm()
 
-from django.http import FileResponse, Http404
-from pathlib import Path
+    helpers = {
+        'checklist': [
+            'Sin grapas ni clips',
+            'Sin objetos ajenos',
+            'Orden verificado',
+            'Foliado aplicado si corresponde',
+            'Estado de conservación documentado',
+        ],
+        'nomenclatura': {
+            'documento': 'upn_YYYY-MM-DD_NNN',
+            'lote': 'LOTE_YYYYMMDD_NNN',
+        },
+        'manual_link': '/digitalizacion/docs/PIPELINE.md',
+        'qm_plan': 'NARA 36 CFR 1236 Subpart E',
+    }
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'crear_lote':
+            form_lote = LoteDigitalizacionForm(request.POST)
+            if form_lote.is_valid():
+                lote = form_lote.save(commit=False)
+                lote.estado = 'preparacion'
+                lote.created_by = request.user if request.user.is_authenticated else None
+                lote.save()
+                messages.success(request, f"Lote '{lote.nombre}' creado correctamente.")
+                return redirect('digitalizacion:preparacion')
+            else:
+                messages.error(request, "Error al crear lote. Verifica los datos.")
+        elif action == 'agregar_documento':
+            form_doc = DocumentoDigitalForm(request.POST)
+            if form_doc.is_valid():
+                doc = form_doc.save(commit=False)
+                doc.save()
+                messages.success(request, f"Documento '{doc.document_id}' agregado al lote.")
+                return redirect('digitalizacion:preparacion')
+            else:
+                messages.error(request, "Error al agregar documento. Verifica los datos.")
+        elif action == 'cerrar_preparacion':
+            lote_id = request.POST.get('lote_id')
+            if lote_id:
+                try:
+                    lote = LoteDigitalizacion.objects.get(id=lote_id, estado='preparacion')
+                    docs_qs = lote.documentos.all()
+                    checklist_ok = True
+                    checklist_detalle = []
+                    for doc in docs_qs:
+                        faltantes = []
+                        if doc.grapas_detectadas:
+                            faltantes.append('grapas detectadas')
+                        if doc.objetos_ajenos:
+                            faltantes.append('objetos ajenos')
+                        if not doc.foliado_aplicado and doc.tipo.lower() in [
+                            'plan de estudios', 'examen', 'acta', 'certificado', 'resolución'
+                        ]:
+                            faltantes.append('foliado pendiente')
+                        if not doc.estado_conservacion:
+                            faltantes.append('estado de conservación vacío')
+                        if faltantes:
+                            checklist_ok = False
+                            checklist_detalle.append(f"{doc.document_id}: {', '.join(faltantes)}")
+                    if not checklist_ok:
+                        messages.error(
+                            request,
+                            'No se puede cerrar preparación: ' + '; '.join(checklist_detalle)
+                        )
+                    else:
+                        lote.estado = 'digitalizacion'
+                        lote.acta_recepcion = (
+                            f"Acta de recepción — lote {lote.nombre}. "
+                            f"Documentos: {docs_qs.count()}. "
+                            f"Responsable: {request.user.get_full_name() if request.user.is_authenticated else 'Anónimo'}. "
+                            f"Fecha: {timezone.now().date().isoformat()}."
+                        )
+                        lote.save()
+                        EtapaPipeline.objects.create(
+                            lote=lote,
+                            documento=None,
+                            etapa='preparacion',
+                            estado='ok',
+                            inicio=timezone.now(),
+                            fin=timezone.now(),
+                            usuario=request.user if request.user.is_authenticated else None,
+                            observaciones=f"Preparación cerrada. {docs_qs.count()} documentos registrados.",
+                            metadata={
+                                'documentos': docs_qs.count(),
+                                'checklist': helpers['checklist'],
+                            },
+                        )
+                        EtapaPipeline.objects.create(
+                            lote=lote,
+                            documento=None,
+                            etapa='digitalizacion',
+                            estado='en_progreso',
+                            inicio=timezone.now(),
+                            fin=None,
+                            usuario=request.user if request.user.is_authenticated else None,
+                            observaciones=f"Digitalización iniciada. {docs_qs.count()} documentos pendientes de captura.",
+                            metadata={
+                                'documentos_pendientes': docs_qs.count(),
+                            },
+                        )
+                        messages.success(request, f"Lote '{lote.nombre}' cerrado y pasado a digitalización.")
+                except LoteDigitalizacion.DoesNotExist:
+                    messages.error(request, "Lote no encontrado o ya fue cerrado.")
+            else:
+                messages.error(request, "Debes seleccionar un lote para cerrar.")
+            return redirect('digitalizacion:preparacion_lote_detail', lote_id=lote.id)
+
+    return render(request, 'digitalizacion/preparacion.html', {
+        'lotes': lotes,
+        'documentos': documentos,
+        'stats': stats,
+        'form_lote': form_lote,
+        'helpers': helpers,
+    })
+
 
 def preparacion_lote_detail(request, lote_id):
     lote = get_object_or_404(LoteDigitalizacion, pk=lote_id)

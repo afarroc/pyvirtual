@@ -5,7 +5,7 @@
 <div class="m360-page-header">
   <div>
     <h1>Recepción de documentos</h1>
-    <p>Etapa 1 — Recepción y preparación · {{ stats.lotes }} lotes · {{ stats.documentos }} documentos · {{ stats.folios_pendientes }} folios pendientes</p>
+    <p>Etapa 1a — Registro de entrada · {{ stats.lotes }} lotes · {{ stats.documentos }} documentos · {{ stats.folios_pendientes }} folios pendientes</p>
   </div>
 </div>
 
@@ -22,12 +22,12 @@
       Manual rápido
     </div>
     <div class="m360-card-body">
-      <p class="m360-text-sm m360-text-secondary m360-mb-2">Referencia operativa de la etapa.</p>
+      <p class="m360-text-sm m360-text-secondary m360-mb-2">Registro formal de entrada al pipeline.</p>
       <ul class="m360-list m360-text-sm">
-        <li>Inspección física: grapas, clips, post-its, humedad, roturas.</li>
-        <li>Reparación mínima: desgrapar, alisar, limpiar manchas superficiales.</li>
-        <li>Foliado si el documento no tiene numeración propia.</li>
-        <li>Cadena de custodia: registrar entrada y estado del original.</li>
+        <li>Verificar inventario físico contra registros declarados.</li>
+        <li>Documentar archivo de origen y responsable de entrega.</li>
+        <li>Evaluar condición general del lote.</li>
+        <li>Generar acta de recepción con trazabilidad.</li>
       </ul>
       <a class="m360-link m360-text-sm" href="{{ helpers.manual_link }}" target="_blank">Ver pipeline completo →</a>
     </div>
@@ -36,7 +36,7 @@
   <div class="m360-card">
     <div class="m360-card-header">
       <i class="m360-icon">✅</i>
-      Checklist de cierre
+      Checklist de recepción
     </div>
     <div class="m360-card-body">
       <ul class="m360-list m360-text-sm">
@@ -44,7 +44,7 @@
         <li>{{ item }}</li>
         {% endfor %}
       </ul>
-      <p class="m360-text-xs m360-text-muted m360-mt-2">El cierre valida estos puntos por documento antes de pasar a digitalización.</p>
+      <p class="m360-text-xs m360-text-muted m360-mt-2">Recepción cerró al validar estos puntos. Luego sigue la preparación física.</p>
     </div>
   </div>
 
@@ -65,7 +65,7 @@
   <div class="m360-card">
     <div class="m360-card-header">
       <i class="m360-icon">📦</i>
-      Crear nuevo lote
+      Registrar nuevo lote
     </div>
     <div class="m360-card-body">
       <form method="post" class="m360-form">
@@ -90,127 +90,24 @@
             {{ field }}
           {% endif %}
         {% endfor %}
-        <button type="submit" class="m360-btn m360-btn-primary">Crear lote</button>
+        <button type="submit" class="m360-btn m360-btn-primary">Registrar lote en recepción</button>
       </form>
     </div>
   </div>
 
   <div class="m360-card">
     <div class="m360-card-header">
-      <i class="m360-icon">📄</i>
-      Agregar documento a lote
+      <i class="m360-icon">📋</i>
+      Próximo paso
     </div>
     <div class="m360-card-body">
-      <form method="post" class="m360-form">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="agregar_documento">
-        <div class="m360-grid m360-grid-2 m360-gap-2">
-          <div class="m360-form-group">
-            <label class="m360-form-label" for="{{ form_doc.lote.id_for_label }}">{{ form_doc.lote.label }}</label>
-            {{ form_doc.lote }}
-            {% for error in form_doc.lote.errors %}
-              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-            {% endfor %}
-          </div>
-          <div class="m360-form-group">
-            <label class="m360-form-label" for="{{ form_doc.document_id.id_for_label }}">{{ form_doc.document_id.label }}</label>
-            {{ form_doc.document_id }}
-            {% for error in form_doc.document_id.errors %}
-              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="m360-grid m360-grid-2 m360-gap-2">
-          <div class="m360-form-group">
-            <label class="m360-form-label" for="{{ form_doc.tipo.id_for_label }}">{{ form_doc.tipo.label }}</label>
-            {{ form_doc.tipo }}
-            {% for error in form_doc.tipo.errors %}
-              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-            {% endfor %}
-          </div>
-          <div class="m360-form-group">
-            <label class="m360-form-label" for="{{ form_doc.titulo.id_for_label }}">{{ form_doc.titulo.label }}</label>
-            {{ form_doc.titulo }}
-            {% for error in form_doc.titulo.errors %}
-              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="m360-grid m360-grid-2 m360-gap-2">
-          <div class="m360-form-group">
-            <label class="m360-form-label" for="{{ form_doc.creator.id_for_label }}">{{ form_doc.creator.label }}</label>
-            {{ form_doc.creator }}
-            {% for error in form_doc.creator.errors %}
-              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-            {% endfor %}
-          </div>
-          <div class="m360-form-group">
-            <label class="m360-form-label" for="{{ form_doc.fecha_documento.id_for_label }}">{{ form_doc.fecha_documento.label }}</label>
-            {{ form_doc.fecha_documento }}
-            {% for error in form_doc.fecha_documento.errors %}
-              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="m360-card m360-mb-2">
-          <div class="m360-card-header">
-            <i class="m360-icon">🧭</i>
-            Preparación física
-          </div>
-          <div class="m360-card-body">
-            <div class="m360-grid m360-grid-2 m360-gap-2">
-              <div class="m360-form-group">
-                <label class="m360-form-label" for="{{ form_doc.estado_conservacion.id_for_label }}">{{ form_doc.estado_conservacion.label }}</label>
-                {{ form_doc.estado_conservacion }}
-                {% for error in form_doc.estado_conservacion.errors %}
-                  <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-                {% endfor %}
-              </div>
-              <div class="m360-form-group m360-d-flex m360-items-center m360-mt-4">
-                <label class="m360-checkbox m360-mr-2">
-                  {{ form_doc.grapas_detectadas }}
-                  <span>{{ form_doc.grapas_detectadas.label }}</span>
-                </label>
-              </div>
-            </div>
-            <div class="m360-form-group">
-              <label class="m360-form-label" for="{{ form_doc.objetos_ajenos.id_for_label }}">{{ form_doc.objetos_ajenos.label }}</label>
-              {{ form_doc.objetos_ajenos }}
-              {% for error in form_doc.objetos_ajenos.errors %}
-                <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-              {% endfor %}
-            </div>
-            <div class="m360-grid m360-grid-2 m360-gap-2">
-              <div class="m360-form-group m360-flex m360-items-center">
-                <label class="m360-checkbox m360-mr-2">
-                  {{ form_doc.foliado_aplicado }}
-                  <span>{{ form_doc.foliado_aplicado.label }}</span>
-                </label>
-              </div>
-              <div class="m360-form-group">
-                <label class="m360-form-label" for="{{ form_doc.folios.id_for_label }}">{{ form_doc.folios.label }}</label>
-                {{ form_doc.folios }}
-                {% for error in form_doc.folios.errors %}
-                  <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="m360-form-group">
-              <label class="m360-form-label" for="{{ form_doc.observaciones_preparacion.id_for_label }}">{{ form_doc.observaciones_preparacion.label }}</label>
-              {{ form_doc.observaciones_preparacion }}
-              {% for error in form_doc.observaciones_preparacion.errors %}
-                <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-        {% for field in form_doc %}
-          {% if field.is_hidden %}
-            {{ field }}
-          {% endif %}
-        {% endfor %}
-        <button type="submit" class="m360-btn m360-btn-primary">Agregar documento</button>
-      </form>
+      <p class="m360-text-sm m360-text-secondary m360-mb-2">Después de registrar el lote en recepción, debes:</p>
+      <ul class="m360-list m360-text-sm">
+        <li>Asignar documentos al lote desde la preparación.</li>
+        <li>Declarar folios, estado de conservación y preparación física.</li>
+        <li>Cerrar preparación antes de digitalizar.</li>
+      </ul>
+      <a class="m360-link m360-text-sm" href="{% url 'digitalizacion:preparacion' %}">Ir a Preparación →</a>
     </div>
   </div>
 </div>
@@ -233,7 +130,7 @@
             {% csrf_token %}
             <input type="hidden" name="action" value="cerrar_recepcion">
             <input type="hidden" name="lote_id" value="{{ lote.id }}">
-            <button type="submit" class="m360-btn m360-btn-primary m360-btn-sm" onclick="return confirm('¿Cerrar recepción del lote {{ lote.nombre|escapejs }}? Los folios pasarán a digitalización.');">Cerrar recepción</button>
+            <button type="submit" class="m360-btn m360-btn-primary m360-btn-sm" onclick="return confirm('¿Cerrar recepción del lote {{ lote.nombre|escapejs }}?');">Cerrar recepción</button>
           </form>
         </div>
         <div class="m360-lote-meta">
@@ -256,7 +153,7 @@
     {% else %}
       <div class="m360-text-center m360-py-6">
         <div class="m360-text-xl m360-fw-bold m360-text-primary m360-mb-2">Sin lotes en recepción</div>
-        <div class="m360-text-md m360-text-secondary">Crea un lote para comenzar a registrar folios desde Archivo Central.</div>
+        <div class="m360-text-md m360-text-secondary">Registra un nuevo lote para comenzar el pipeline de digitalización.</div>
       </div>
     {% endif %}
   </div>
@@ -276,11 +173,7 @@
             <th>ID</th>
             <th>Título</th>
             <th>Tipo</th>
-            <th>Lote</th>
             <th>Fecha documento</th>
-            <th>Folios</th>
-            <th>Estado conservación</th>
-            <th>Foliado</th>
             <th>Creador</th>
             <th>Acciones</th>
           </tr>
@@ -291,13 +184,9 @@
             <td>{{ doc.document_id }}</td>
             <td>{{ doc.titulo }}</td>
             <td>{{ doc.tipo }}</td>
-            <td>{{ doc.lote.nombre|truncatechars:30 }}</td>
             <td>{{ doc.fecha_documento|default:"—" }}</td>
-            <td>{{ doc.folios|default:"—" }}</td>
-            <td>{{ doc.estado_conservacion|default:"—" }}</td>
-            <td>{% if doc.foliado_aplicado %}Sí{% else %}No{% endif %}</td>
             <td>{{ doc.creator|default:"—" }}</td>
-            <td><a href="{% url 'digitalizacion:recepcion_documento_detail' doc.id %}" class="m360-btn m360-btn-sm m360-btn-ghost">Editar</a></td>
+            <td><a href="{% url 'digitalizacion:recepcion_lote_detail' doc.lote.id %}" class="m360-btn m360-btn-sm m360-btn-ghost">Ver lote</a></td>
           </tr>
           {% endfor %}
         </tbody>
@@ -306,7 +195,7 @@
     {% else %}
     <div class="m360-text-center m360-py-6">
       <div class="m360-text-xl m360-fw-bold m360-text-primary m360-mb-2">Sin documentos en recepción</div>
-      <div class="m360-text-md m360-text-secondary">Agrega documentos a un lote para comenzar.</div>
+      <div class="m360-text-md m360-text-secondary">Agrega documentos desde la preparación del lote.</div>
     </div>
     {% endif %}
   </div>
