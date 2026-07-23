@@ -420,7 +420,7 @@ def preparacion_lote_detail(request, lote_id):
     lote = get_object_or_404(LoteDigitalizacion, pk=lote_id)
     if not lote.etapas.filter(etapa='recepcion', estado='ok').exists():
         messages.error(request, 'El lote no tiene recepción cerrada. Cierre la recepción primero.')
-        return redirect('digitalizacion:prepcion')
+        return redirect('digitalizacion:recepcion')
     documentos = lote.documentos.all().order_by('-created_at')
     total_folios = sum(d.folios or 0 for d in documentos)
     if request.method == 'POST':
