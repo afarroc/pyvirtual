@@ -199,12 +199,25 @@ def preparacion(request):
                                 'checklist': helpers['checklist'],
                             },
                         )
+                        EtapaPipeline.objects.create(
+                            lote=lote,
+                            documento=None,
+                            etapa='digitalizacion',
+                            estado='en_progreso',
+                            inicio=timezone.now(),
+                            fin=None,
+                            usuario=request.user if request.user.is_authenticated else None,
+                            observaciones=f"Digitalización iniciada. {docs_qs.count()} documentos pendientes de captura.",
+                            metadata={
+                                'documentos_pendientes': docs_qs.count(),
+                            },
+                        )
                         messages.success(request, f"Lote '{lote.nombre}' cerrado y pasado a digitalización.")
                 except LoteDigitalizacion.DoesNotExist:
                     messages.error(request, "Lote no encontrado o ya fue cerrado.")
             else:
                 messages.error(request, "Debes seleccionar un lote para cerrar.")
-            return redirect('digitalizacion:preparacion')
+            return redirect('digitalizacion:preparacion_lote_detail', lote_id=lote.id)
 
     return render(request, 'digitalizacion/preparacion.html', {
         'lotes': lotes,
@@ -220,8 +233,9 @@ from django.http import FileResponse, Http404
 from pathlib import Path
 
 def preparacion_lote_detail(request, lote_id):
-    lote = get_object_or_404(LoteDigitalizacion, pk=lote_id, estado='preparacion')
+    lote = get_object_or_404(LoteDigitalizacion, pk=lote_id)
     documentos = lote.documentos.all().order_by('-created_at')
+    total_folios = sum(d.folios or 0 for d in documentos)
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'cerrar_preparacion':
@@ -247,11 +261,12 @@ def preparacion_lote_detail(request, lote_id):
         'lote': lote,
         'documentos': documentos,
         'form': form,
+        'total_folios': total_folios,
     })
 
 
 def preparacion_documento_detail(request, documento_id):
-    doc = get_object_or_404(DocumentoDigital, pk=documento_id, lote__estado='preparacion')
+    doc = get_object_or_404(DocumentoDigital, pk=documento_id)
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'editar_documento':
@@ -648,6 +663,7 @@ def digitalizar_documento(request, documento_id):
     ctx['inbox_files'] = inbox_files
     ctx['scan_result'] = scan_result
     ctx['upload_message'] = upload_message
+    ctx['folios_esperados'] = doc.folios or 0
     
     if scan_result and scan_result.get('ok'):
         messages.success(request, f"Escaneo completado: {scan_result.get('files', 0)} páginas generadas.")

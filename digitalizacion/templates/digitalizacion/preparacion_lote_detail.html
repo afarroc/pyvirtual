@@ -70,7 +70,17 @@
       <div class="m360-text-sm"><strong>Acta recepción:</strong> {{ lote.acta_recepcion|default:"—" }}</div>
       <div class="m360-text-sm"><strong>Proyecto M360:</strong> {{ lote.proyecto_m360|default:"—" }}</div>
       <div class="m360-text-sm"><strong>Curso M360:</strong> {{ lote.curso_m360|default:"—" }}</div>
+      <div class="m360-text-sm"><strong>Total folios estimados:</strong> {{ total_folios|default:"—" }}</div>
       <div class="m360-text-sm m360-mt-2"><a class="m360-link" href="/admin/digitalizacion/lotedigitalizacion/{{ lote.id }}/change/" target="_blank">Ver en admin →</a></div>
+      {% if lote.estado == 'digitalizacion' %}
+      <div class="m360-text-sm m360-mt-2">
+        {% with primer_doc=lote.documentos.all.first %}
+          {% if primer_doc %}
+          <a class="m360-link m360-fw-bold" href="{% url 'digitalizacion:digitalizar_documento' documento_id=primer_doc.id %}">Iniciar digitalización del lote →</a>
+          {% endif %}
+        {% endwith %}
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -90,6 +100,7 @@
             <th>ID</th>
             <th>Título</th>
             <th>Tipo</th>
+            <th>Folios</th>
             <th>Estado conservación</th>
             <th>Foliado</th>
             <th>Acciones</th>
@@ -101,10 +112,14 @@
             <td>{{ doc.document_id }}</td>
             <td>{{ doc.titulo }}</td>
             <td>{{ doc.tipo }}</td>
+            <td>{{ doc.folios|default:"—" }}</td>
             <td>{{ doc.estado_conservacion|default:"—" }}</td>
             <td>{% if doc.foliado_aplicado %}Sí{% else %}No{% endif %}</td>
             <td>
               <a href="{% url 'digitalizacion:preparacion_documento_detail' doc.id %}" class="m360-btn m360-btn-sm m360-btn-ghost">Editar</a>
+              {% if lote.estado != 'preparacion' %}
+              <a href="{% url 'digitalizacion:digitalizar_documento' documento_id=doc.id %}" class="m360-btn m360-btn-sm m360-btn-primary">Digitalizar</a>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}

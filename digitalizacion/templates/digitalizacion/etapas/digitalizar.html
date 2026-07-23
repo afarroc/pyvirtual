@@ -20,6 +20,9 @@
         <div class="m360-d-flex m360-flex-wrap m360-gap-2 m360-text-sm m360-mb-3">
           <span class="m360-badge">Ruta inbox: {{ doc.ruta_inbox|default:"No definida" }}</span>
           <span class="m360-badge m360-badge-info">{{ inbox_files|length }} archivo{{ inbox_files|pluralize }}</span>
+          {% if folios_esperados %}
+          <span class="m360-badge m360-badge-warning">Se esperan {{ folios_esperados }} página{{ folios_esperados|pluralize }}</span>
+          {% endif %}
         </div>
         {% if scan_error %}
         <div class="m360-alert m360-alert-danger m360-mb-3">

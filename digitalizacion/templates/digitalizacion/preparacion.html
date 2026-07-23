@@ -270,6 +270,7 @@
             <th>Tipo</th>
             <th>Lote</th>
             <th>Fecha documento</th>
+            <th>Folios</th>
             <th>Estado conservación</th>
             <th>Foliado</th>
             <th>Creador</th>
@@ -284,6 +285,7 @@
             <td>{{ doc.tipo }}</td>
             <td>{{ doc.lote.nombre|truncatechars:30 }}</td>
             <td>{{ doc.fecha_documento|default:"—" }}</td>
+            <td>{{ doc.folios|default:"—" }}</td>
             <td>{{ doc.estado_conservacion|default:"—" }}</td>
             <td>{% if doc.foliado_aplicado %}Sí{% else %}No{% endif %}</td>
             <td>{{ doc.creator|default:"—" }}</td>

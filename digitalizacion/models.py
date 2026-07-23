@@ -65,6 +65,7 @@ class DocumentoDigital(models.Model):
     objetos_ajenos = models.TextField(blank=True)
     foliado_aplicado = models.BooleanField(default=False)
     observaciones_preparacion = models.TextField(blank=True)
+    folios = models.PositiveIntegerField(default=1, blank=True, null=True, help_text='Número de páginas/folios a digitalizar')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -79,6 +80,7 @@ class DocumentoDigital(models.Model):
 
 class EtapaPipeline(models.Model):
     ESTADO_CHOICES = [
+        ('en_progreso', 'En progreso'),
         ('ok', 'OK'),
         ('error', 'Error'),
         ('rechazado', 'Rechazado'),

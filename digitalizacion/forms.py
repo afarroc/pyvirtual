@@ -27,7 +27,7 @@ class DocumentoDigitalForm(forms.ModelForm):
             'lote', 'document_id', 'tipo', 'titulo', 'creator',
             'fecha_documento', 'language', 'rights',
             'estado_conservacion', 'grapas_detectadas', 'objetos_ajenos',
-            'foliado_aplicado', 'observaciones_preparacion',
+            'foliado_aplicado', 'folios', 'observaciones_preparacion',
         ]
         widgets = {
             'lote': forms.Select(attrs={'class': 'm360-form-control'}),
@@ -42,6 +42,7 @@ class DocumentoDigitalForm(forms.ModelForm):
             'grapas_detectadas': forms.CheckboxInput(attrs={'class': 'm360-checkbox'}),
             'objetos_ajenos': forms.Textarea(attrs={'class': 'm360-form-control', 'rows': 2, 'placeholder': 'Post-its, clips, notas...'}),
             'foliado_aplicado': forms.CheckboxInput(attrs={'class': 'm360-checkbox'}),
+            'folios': forms.NumberInput(attrs={'class': 'm360-form-control', 'placeholder': 'Ej: 7', 'min': '1'}),
             'observaciones_preparacion': forms.Textarea(attrs={'class': 'm360-form-control', 'rows': 2, 'placeholder': 'Reparaciones mínimas, retiros, observaciones del archivero.'}),
         }
 
