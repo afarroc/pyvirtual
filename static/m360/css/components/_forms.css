@@ -54,6 +54,19 @@
   min-height: 60px;
 }
 
+.m360-root .m360-form-control.error,
+.m360-root select.m360-form-control.error,
+.m360-root textarea.m360-form-control.error {
+  border-color: var(--m360-danger);
+  box-shadow: 0 0 0 3px var(--m360-primary-ring);
+}
+
+.m360-root .m360-text-danger {
+  font-size: var(--m360-text-sm);
+  margin-top: var(--m360-space-1);
+  display: block;
+}
+
 .m360-root .m360-form-control-file {
   padding: var(--m360-space-2) 0;
 }
