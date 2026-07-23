@@ -241,7 +241,7 @@
             <div class="m360-text-sm"><strong>ID:</strong> {{ lote.id }}</div>
             <div class="m360-text-sm"><strong>Estado:</strong> {{ lote.get_estado_display }}</div>
             <div class="m360-text-sm"><strong>Documentos:</strong> {{ lote.documentos.count }}</div>
-            <div class="m360-text-sm"><strong>Folios declarados:</strong> {{ lote.documentos.all|sum_by_folios:"folios"|default:"—" }}</div>
+            <div class="m360-text-sm"><strong>Folios declarados:</strong> {{ lote.total_folios|default:"—" }}</div>
             <div class="m360-text-sm"><strong>Proyecto M360:</strong> {{ lote.proyecto_m360|default:"—" }}</div>
             <div class="m360-text-sm"><strong>Curso M360:</strong> {{ lote.curso_m360|default:"—" }}</div>
             <div class="m360-text-sm m360-col-span-full"><strong>Ruta:</strong> {{ lote.ruta_base|truncatechars:60|default:"—" }}</div>

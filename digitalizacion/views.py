@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.contrib import messages
 from django.utils import timezone
 from django.http import FileResponse, Http404
@@ -100,7 +100,7 @@ def ejemplo_m360(request):
 
 
 def recepcion(request):
-    lotes = LoteDigitalizacion.objects.filter(estado='preparacion').order_by('-created_at')
+    lotes = LoteDigitalizacion.objects.filter(estado='preparacion').order_by('-created_at').annotate(total_folios=Sum('documentos__folios'))
     documentos = DocumentoDigital.objects.filter(lote__estado='preparacion').order_by('-created_at')
     stats = {
         'lotes': lotes.count(),
@@ -164,7 +164,7 @@ def recepcion(request):
                         faltantes = []
                         if doc.grapas_detectadas:
                             faltantes.append('grapas detectadas')
-                        if doc.objetos_jenos:
+                        if doc.objetos_ajenos:
                             faltantes.append('objetos ajenos')
                         if not doc.foliado_aplicado and doc.tipo.lower() in [
                             'plan de estudios', 'examen', 'acta', 'certificado', 'resolución'
