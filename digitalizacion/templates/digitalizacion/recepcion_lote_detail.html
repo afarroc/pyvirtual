@@ -59,6 +59,7 @@
         <input type="hidden" name="action" value="eliminar_lote">
         <button type="submit" class="m360-btn m360-btn-danger">Eliminar lote</button>
       </form>
+      <div class="m360-text-sm m360-text-muted m360-mt-2">Al eliminar el lote se borran también los documentos asociados.</div>
     </div>
   </div>
 </div>
@@ -82,7 +83,7 @@
   <div class="m360-card-header">
     <i class="m360-icon">📄</i>
     Documentos del lote
-    <a href="{% url 'digitalizacion:preparacion' %}" class="m360-btn m360-btn-sm m360-btn-ghost m360-ml-auto">+ Agregar documento</a>
+    <a href="{% url 'digitalizacion:preparacion' %}" class="m360-btn m360-btn-sm m360-btn-ghost m360-ml-auto">Ir a Preparación para agregar</a>
   </div>
   <div class="m360-card-body m360-p-0">
     {% if documentos %}

@@ -5,7 +5,7 @@
 <div class="m360-page-header">
   <div>
     <h1>Recepción de documentos</h1>
-    <p>Etapa 1a — Registro de entrada · {{ stats.lotes }} lotes · {{ stats.documentos }} documentos · {{ stats.folios_pendientes }} folios pendientes</p>
+    <p>Etapa 1a — Registro de entrada · {{ stats.lotes }} lotes pendientes</p>
   </div>
 </div>
 
@@ -155,48 +155,6 @@
         <div class="m360-text-xl m360-fw-bold m360-text-primary m360-mb-2">Sin lotes en recepción</div>
         <div class="m360-text-md m360-text-secondary">Registra un nuevo lote para comenzar el pipeline de digitalización.</div>
       </div>
-    {% endif %}
-  </div>
-</div>
-
-<div class="m360-card">
-  <div class="m360-card-header">
-    <i class="m360-icon">📊</i>
-    Documentos registrados en recepción
-  </div>
-  <div class="m360-card-body m360-p-0">
-    {% if documentos %}
-    <div class="m360-table-responsive">
-      <table class="m360-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Tipo</th>
-            <th>Fecha documento</th>
-            <th>Creador</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for doc in documentos %}
-          <tr>
-            <td>{{ doc.document_id }}</td>
-            <td>{{ doc.titulo }}</td>
-            <td>{{ doc.tipo }}</td>
-            <td>{{ doc.fecha_documento|default:"—" }}</td>
-            <td>{{ doc.creator|default:"—" }}</td>
-            <td><a href="{% url 'digitalizacion:recepcion_lote_detail' doc.lote.id %}" class="m360-btn m360-btn-sm m360-btn-ghost">Ver lote</a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="m360-text-center m360-py-6">
-      <div class="m360-text-xl m360-fw-bold m360-text-primary m360-mb-2">Sin documentos en recepción</div>
-      <div class="m360-text-md m360-text-secondary">Agrega documentos desde la preparación del lote.</div>
-    </div>
     {% endif %}
   </div>
 </div>

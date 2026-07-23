@@ -101,11 +101,8 @@ def ejemplo_m360(request):
 
 def recepcion(request):
     lotes = LoteDigitalizacion.objects.filter(estado='preparacion').order_by('-created_at')
-    documentos = DocumentoDigital.objects.filter(lote__estado='preparacion').order_by('-created_at')
     stats = {
         'lotes': lotes.count(),
-        'documentos': documentos.count(),
-        'folios_pendientes': sum(d.folios or 0 for d in documentos),
     }
 
     form_lote = LoteDigitalizacionForm()
@@ -146,14 +143,14 @@ def recepcion(request):
             if lote_id:
                 try:
                     lote = LoteDigitalizacion.objects.get(id=lote_id, estado='preparacion')
-                    docs_qs = lote.documentos.all()
-                    if docs_qs.count() == 0:
+                    docs_count = lote.documentos.count()
+                    if docs_count == 0:
                         messages.error(request, "No se puede cerrar recepción: el lote no tiene documentos.")
                     else:
                         lote.acta_recepcion = (
                             f"Acta de recepción — lote {lote.nombre}. "
-                            f"Documentos: {docs_qs.count()}. "
-                            f"Folios totales: {sum(d.folios or 0 for d in docs_qs)}. "
+                            f"Documentos: {docs_count}. "
+                            f"Folios totales: {sum(d.folios or 0 for d in lote.documentos.all())}. "
                             f"Responsable: {request.user.get_full_name() if request.user.is_authenticated else 'Anónimo'}. "
                             f"Fecha: {timezone.now().date().isoformat()}. "
                             f"QM plan: NARA 36 CFR 1236 Subpart E."
@@ -167,10 +164,10 @@ def recepcion(request):
                             inicio=timezone.now(),
                             fin=timezone.now(),
                             usuario=request.user if request.user.is_authenticated else None,
-                            observaciones=f"Recepción cerrada. {docs_qs.count()} documentos registrados. {sum(d.folios or 0 for d in docs_qs)} folios declarados.",
+                            observaciones=f"Recepción cerrada. {docs_count} documentos registrados.",
                             metadata={
-                                'documentos': docs_qs.count(),
-                                'folios': sum(d.folios or 0 for d in docs_qs),
+                                'documentos': docs_count,
+                                'folios': sum(d.folios or 0 for d in lote.documentos.all()),
                                 'checklist': helpers['checklist'],
                                 'qm_plan': helpers['qm_plan'],
                             },
@@ -183,10 +180,10 @@ def recepcion(request):
                             inicio=timezone.now(),
                             fin=None,
                             usuario=request.user if request.user.is_authenticated else None,
-                            observaciones=f"Preparación iniciada. {docs_qs.count()} documentos pendientes de acondicionamiento físico.",
+                            observaciones=f"Preparación iniciada. {docs_count} documentos pendientes de acondicionamiento físico.",
                             metadata={
-                                'documentos_pendientes': docs_qs.count(),
-                                'folios_esperados': sum(d.folios or 0 for d in docs_qs),
+                                'documentos_pendientes': docs_count,
+                                'folios_esperados': sum(d.folios or 0 for d in lote.documentos.all()),
                             },
                         )
                         messages.success(request, f"Lote '{lote.nombre}' recibido formalmente. Ahora debe realizar la preparación física.")
@@ -198,7 +195,6 @@ def recepcion(request):
 
     return render(request, 'digitalizacion/recepcion.html', {
         'lotes': lotes,
-        'documentos': documentos,
         'stats': stats,
         'form_lote': form_lote,
         'helpers': helpers,
@@ -298,15 +294,15 @@ def recepcion_documento_detail(request, documento_id):
 
 
 def preparacion(request):
-    lotes = LoteDigitalizacion.objects.filter(estado='preparacion').order_by('-created_at')
-    documentos = DocumentoDigital.objects.filter(lote__estado='preparacion').order_by('-created_at')
+    lotes_qs = LoteDigitalizacion.objects.filter(estado='preparacion').order_by('-created_at')
+    lotes = [l for l in lotes_qs if l.etapas.filter(etapa='recepcion', estado='ok').exists()]
+    documentos = DocumentoDigital.objects.filter(lote__estado='preparacion', lote__etapas__etapa='recepcion', lote__etapas__estado='ok').distinct().order_by('-created_at')
     stats = {
-        'lotes': lotes.count(),
+        'lotes': len(lotes),
         'documentos': documentos.count(),
         'folios_pendientes': sum(d.folios or 0 for d in documentos),
     }
 
-    form_lote = LoteDigitalizacionForm()
     form_doc = DocumentoDigitalForm()
 
     helpers = {
@@ -328,18 +324,7 @@ def preparacion(request):
     if request.method == 'POST':
         action = request.POST.get('action')
 
-        if action == 'crear_lote':
-            form_lote = LoteDigitalizacionForm(request.POST)
-            if form_lote.is_valid():
-                lote = form_lote.save(commit=False)
-                lote.estado = 'preparacion'
-                lote.created_by = request.user if request.user.is_authenticated else None
-                lote.save()
-                messages.success(request, f"Lote '{lote.nombre}' creado correctamente.")
-                return redirect('digitalizacion:preparacion')
-            else:
-                messages.error(request, "Error al crear lote. Verifica los datos.")
-        elif action == 'agregar_documento':
+        if action == 'agregar_documento':
             form_doc = DocumentoDigitalForm(request.POST)
             if form_doc.is_valid():
                 doc = form_doc.save(commit=False)
@@ -353,6 +338,9 @@ def preparacion(request):
             if lote_id:
                 try:
                     lote = LoteDigitalizacion.objects.get(id=lote_id, estado='preparacion')
+                    if not lote.etapas.filter(etapa='recepcion', estado='ok').exists():
+                        messages.error(request, "El lote no tiene recepción cerrada. Cierre la recepción primero.")
+                        return redirect('digitalizacion:preparacion')
                     docs_qs = lote.documentos.all()
                     checklist_ok = True
                     checklist_detalle = []
@@ -423,13 +411,16 @@ def preparacion(request):
         'lotes': lotes,
         'documentos': documentos,
         'stats': stats,
-        'form_lote': form_lote,
+        'form_doc': form_doc,
         'helpers': helpers,
     })
 
 
 def preparacion_lote_detail(request, lote_id):
     lote = get_object_or_404(LoteDigitalizacion, pk=lote_id)
+    if not lote.etapas.filter(etapa='recepcion', estado='ok').exists():
+        messages.error(request, 'El lote no tiene recepción cerrada. Cierre la recepción primero.')
+        return redirect('digitalizacion:prepcion')
     documentos = lote.documentos.all().order_by('-created_at')
     total_folios = sum(d.folios or 0 for d in documentos)
     if request.method == 'POST':

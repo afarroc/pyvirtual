@@ -64,39 +64,6 @@
 <div class="m360-grid m360-grid-2 m360-gap-4 m360-mb-4">
   <div class="m360-card">
     <div class="m360-card-header">
-      <i class="m360-icon">📦</i>
-      Crear nuevo lote
-    </div>
-    <div class="m360-card-body">
-      <form method="post" class="m360-form">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="crear_lote">
-        {% for field in form_lote %}
-          {% if not field.is_hidden %}
-          <div class="m360-form-group">
-            <label class="m360-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}
-              <small class="m360-form-hint">{{ field.help_text }}</small>
-            {% endif %}
-            {% for error in field.errors %}
-              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
-            {% endfor %}
-          </div>
-          {% endif %}
-        {% endfor %}
-        {% for field in form_lote %}
-          {% if field.is_hidden %}
-            {{ field }}
-          {% endif %}
-        {% endfor %}
-        <button type="submit" class="m360-btn m360-btn-primary">Crear lote</button>
-      </form>
-    </div>
-  </div>
-
-  <div class="m360-card">
-    <div class="m360-card-header">
       <i class="m360-icon">📄</i>
       Agregar documento a lote
     </div>
@@ -213,6 +180,23 @@
       </form>
     </div>
   </div>
+
+  <div class="m360-card">
+    <div class="m360-card-header">
+      <i class="m360-icon">📋</i>
+      Flujo recomendado
+    </div>
+    <div class="m360-card-body">
+      <p class="m360-text-sm m360-text-secondary m360-mb-2">Orden sugerido para acondicionar el lote:</p>
+      <ol class="m360-list m360-list-decimal m360-text-sm">
+        <li>Ir al detalle del lote.</li>
+        <li>Registrar cada documento con su tipo, título y folios.</li>
+        <li>Marcar grapas, objetos ajenos y foliado.</li>
+        <li>Cerrar preparación cuando el checklist esté completo.</li>
+      </ol>
+      <a class="m360-link m360-text-sm" href="{% url 'digitalizacion:recepcion' %}">Ir a Recepción →</a>
+    </div>
+  </div>
 </div>
 
 <div class="m360-card m360-mb-4">
@@ -241,7 +225,7 @@
             <div class="m360-text-sm"><strong>ID:</strong> {{ lote.id }}</div>
             <div class="m360-text-sm"><strong>Estado:</strong> {{ lote.get_estado_display }}</div>
             <div class="m360-text-sm"><strong>Documentos:</strong> {{ lote.documentos.count }}</div>
-            <div class="m360-text-sm"><strong>Folios declarados:</strong> {{ total_folios|default:"—" }}</div>
+            <div class="m360-text-sm"><strong>Folios declarados:</strong> {{ lote.total_folios|default:"—" }}</div>
             <div class="m360-text-sm"><strong>Proyecto M360:</strong> {{ lote.proyecto_m360|default:"—" }}</div>
             <div class="m360-text-sm"><strong>Curso M360:</strong> {{ lote.curso_m360|default:"—" }}</div>
             <div class="m360-text-sm m360-col-span-full"><strong>Ruta:</strong> {{ lote.ruta_base|truncatechars:60|default:"—" }}</div>
@@ -256,7 +240,7 @@
     {% else %}
       <div class="m360-text-center m360-py-6">
         <div class="m360-text-xl m360-fw-bold m360-text-primary m360-mb-2">Sin lotes en preparación</div>
-        <div class="m360-text-md m360-text-secondary">Crea un lote para comenzar a registrar folios desde Archivo Central.</div>
+        <div class="m360-text-md m360-text-secondary">Primero registra el lote en Recepción. Desde ahí podrás agregar documentos y cerrar la preparación.</div>
       </div>
     {% endif %}
   </div>
@@ -306,7 +290,7 @@
     {% else %}
     <div class="m360-text-center m360-py-6">
       <div class="m360-text-xl m360-fw-bold m360-text-primary m360-mb-2">Sin documentos en preparación</div>
-      <div class="m360-text-md m360-text-secondary">Agrega documentos a un lote para comenzar.</div>
+      <div class="m360-text-md m360-text-secondary">Agrega documentos a un lote con recepción cerrada para comenzar.</div>
     </div>
     {% endif %}
   </div>

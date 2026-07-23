@@ -22,7 +22,8 @@ Definir la línea de producción end-to-end desde la recepción del documento f�
 
 | # | Etapa | Estado Django | Entrada | Salida | Responsable | Criterio de aceptación |
 |---|---|---|---|---|---|---|
-| 1 | Recepción y preparación | `preparacion` | Documento físico | Lote preparado | Archivista/Asistente | Inventario verificado, sin grapas/clips, objetos ajenos retirados, orden verificado, foliado aplicado si corresponde, estado de conservación documentado, total de folios declarado. |
+| 1a | Recepción | `recepcion` | Documento físico | Lote registrado con acta de recepción | Archivista/Asistente | Inventario verificado, archivo de origen documentado, responsable de entrega registrado, fecha/hora registrada, condición general evaluada. |
+| 1b | Preparación | `preparacion` | Lote recibido | Lote preparado con checklist completado | Archivista/Asistente | Sin grapas/clips, sin objetos ajenos, orden verificado, foliado aplicado si corresponde, estado de conservación documentado, total de folios declarado. |
 | 2 | Digitalización / captura | `digitalizacion` | Lote preparado | Imágenes crudas en `inbox` | Operador de escáner | DPI ≥ 300, formato TIFF/JPEG, perfil de color, metadata técnica embebida, cantidad de imágenes = folios declarados. |
 | 3 | Control de calidad 1 | `qc1` | Imágenes crudas | Imágenes aprobadas o rechazadas | Inspector independiente | Imagen completa, skew < 1°, contraste/brillo legibles, sin sombras/reflejos/ruido excesivo, resolución ≥ 300 DPI. |
 | 4 | Preprocesamiento | `preprocesamiento` | Imágenes aprobadas | Imágenes normalizadas en `preprocessed` | Procesamiento automático | Deskew ±1°, denoise sin perder trazo, crop sin recortes, binarización adaptativa si B/N, resolucion preservada. |
@@ -35,9 +36,9 @@ Definir la línea de producción end-to-end desde la recepción del documento f�
 ## 4. Estados y transiciones
 
 ```
-[preparacion] → [digitalizacion] → [qc1] → [preprocesamiento] → [metadatos] → [qc2] → [auditoria] → [fedatacion] → [certificado]
-                                                                                                                                         ↓
-                                                                                                                                [rechazado]
+[recepcion] → [preparacion] → [digitalizacion] → [qc1] → [preprocesamiento] → [metadatos] → [qc2] → [auditoria] → [fedatacion] → [certificado]
+                                                                                                                                                          ↓
+                                                                                                                                                     [rechazado]
 ```
 
 Reglas:
@@ -47,9 +48,17 @@ Reglas:
 
 ## 5. Criterios de rechazo
 
-### Recepción / Preparación
+### Recepción
 - Inventario físico no coincide con registros declarados.
 - Daño estructural irreparable que impide escaneo legible.
+- Falta de documentación de archivo de origen o responsable.
+
+### Preparación
+- Grapas o clips no retirados.
+- Objetos ajenos presentes (post-its, notas, clips).
+- Foliado pendiente en documentos que lo requieren.
+- Estado de conservación no documentado.
+- Folios no declarados o no coinciden con físico.
 
 ### QC1
 - Imagen incompleta (cortada, falta contenido).

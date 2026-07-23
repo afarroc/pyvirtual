@@ -10,7 +10,7 @@ URL: `http://127.0.0.1:8001/digitalizacion/dashboard/`
 
 | Rol | Acciones permitidas | Responsabilidad |
 |---|---|---|
-| Archivista / Asistente | Recepción, preparación, cierre de preparación | Recibir lotes físicos, preparar folios, registrar estado de conservación, declarar folios, cerrar preparación y generar acta de recepción. |
+| Archivista / Asistente | Recepción, preparación, cierre de recepción/preparación | Registrar entrada de lotes, generar acta de recepción, acondicionar folios, declarar estado de conservación y folios, cerrar preparación. |
 | Operador de escáner | Captura, carga de imágenes | Digitalizar según parámetros técnicos: DPI ≥ 300, formato TIFF/JPEG, perfil de color. |
 | Inspector QC1 | Revisión y aprobación/rechazo | Verificar calidad de imagen y completitud contra folios declarados. |
 | Catalogador | Edición de metadatos | Completar Dublin Core, controlled vocabularies, OCR, generar microformato JSON canonical. |
@@ -25,22 +25,40 @@ URL: `http://127.0.0.1:8001/digitalizacion/dashboard/`
 
 ### 2.1 Recepción de lote desde Archivo Central
 
-**Ruta:** `http://127.0.0.1:8001/digitalizacion/preparacion/`
+**Ruta:** `http://127.0.0.1:8001/digitalizacion/recepcion/`
 
-1. Abrir la sección **Preparación** en el dashboard de digitalización.
-2. Completar el formulario **Crear nuevo lote**:
+1. Abrir la sección **Recepción** en el dashboard de digitalización.
+2. Completar el formulario **Registrar nuevo lote**:
    - **Nombre del lote:** `LOTE_YYYYMMDD_NNN - Archivo Central - Descripción`
    - **Proyecto M360 / Curso M360:** asociar si aplica
    - **Ruta base de archivos:** `/ruta/a/documentos`
    - **Metadata de proyecto (JSON):** incluir origen, fecha recepción, responsable archivo central
-3. Click en **Crear lote**.
+3. Click en **Registrar lote en recepción**.
 
-**Resultado:** el lote queda en estado `preparacion` visible en la lista inferior.
+**Resultado:** el lote queda en estado `preparacion` visible en la lista inferior, pendiente de preparación física.
 
-### 2.2 Registrar folios/documents en preparación
+4. Verificar checklist de recepción por lote:
+   - Inventario físico verificado contra registros declarados
+   - Archivo de origen documentado
+   - Responsable de entrega registrado
+   - Fecha y hora de recepción registrada
+   - Condición general del lote evaluada
+5. Click en **Cerrar recepción**.
+6. Confirmar la acción en el diálogo.
+7. El sistema registra automáticamente:
+   - Etapa `recepcion` con estado `ok`
+   - Etapa `preparacion` con estado `en_progreso`
+   - Acta de recepción con responsable, fecha y cantidad de documentos
+   - Timestamp de cierre
+8. El lote queda listo para **preparación física**.
 
-1. En la misma página **Preparación**, completar el formulario **Agregar documento a lote**:
-   - **Lote:** seleccionar el lote creado
+### 2.2 Preparación física de documentos
+
+**Ruta:** `http://127.0.0.1:8001/digitalizacion/preparacion/`
+
+1. Abrir la sección **Preparación** en el dashboard de digitalización.
+2. Completar el formulario **Agregar documento a lote**:
+   - **Lote:** seleccionar el lote con recepción cerrada
    - **Document ID:** `upn_YYYY-MM-DD_NNN`
    - **Título:** descripción del documento
    - **Tipo:** `Plan de estudios`, `Examen`, `Acta`, etc.
@@ -52,8 +70,8 @@ URL: `http://127.0.0.1:8001/digitalizacion/dashboard/`
    - **Objetos ajenos:** post-its, clips, notas
    - **Foliado aplicado:** sí/no
    - **Observaciones:** reparaciones mínimas, retiros, observaciones del archivero
-2. Click en **Agregar documento**.
-3. Repetir por cada folio o grupo de folios que conforman un documento.
+3. Click en **Agregar documento**.
+4. Repetir por cada folio o grupo de folios que conforman un documento.
 
 **Resultado:** el lote queda en estado `preparacion` con N documentos registrados, cada uno con su ID único pero sin rutas de archivo todavía. La tabla inferior muestra todos los documentos registrados.
 
