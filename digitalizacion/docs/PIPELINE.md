@@ -2,74 +2,167 @@
 
 ## 1. Propósito
 
-Definir la línea de producción end-to-end desde la captura del documento físico hasta la publicación del microformato JSON canonical.
+Definir la línea de producción end-to-end desde la recepción del documento físico hasta la publicación del microformato JSON canonical, alineada a 36 CFR 1236 Subpart E, Dublin Core, PREMIS y PDF/A-2b.
 
-## 2. Etapas
+## 2. Roles y responsabilidades
+
+| Rol | Responsabilidades en el pipeline |
+|---|---|
+| Archivista / Asistente | Recepción, preparación física, checklist, cierre de `preparacion`, generación de acta de recepción. |
+| Operador de escáner | Captura de imágenes, configuración de DPI/modo color/formato, entrega en `inbox`. |
+| Inspector QC1 | Aprobación/rechazo de imágenes crudas según criterios NARA/FADGI. |
+| Motor de preprocesamiento | Deskew, denoise, crop, binarización; salida en `preprocessed`. |
+| Catalogador | Dublin Core + PREMIS, controlled vocabularies, OCR, generación de microformato JSON. |
+| Inspector QC2 | Validación de metadatos, checksums, naming convention, PDF/A, confianza OCR. |
+| Auditor | Trazabilidad completa, cumplimiento de estándares, aprobación formal. |
+| Fedatario | Certificación de integridad: SHA-256 + timestamp + actas. |
+| Administrador | Configuración, asignación de roles, supervisión de pipeline, despliegue. |
+
+## 3. Etapas
 
 | # | Etapa | Estado Django | Entrada | Salida | Responsable | Criterio de aceptación |
 |---|---|---|---|---|---|---|
-| 1 | Preparación de documentos | `preparacion` | Documento físico | Lote preparado | Archivista/Asistente | Sin grapas, sin objetos ajenos, orden verificado, foliado aplicado, estado de conservación documentado |
-| 2 | Digitalización | `digitalizacion` | Lote preparado | Imágenes crudas | Operador de escáner | Resolución/DPI, formato TIFF/JPEG, perfil de color, metadata técnica embebida |
-| 3 | Control de calidad 1 | `qc1` | Imágenes crudas | Imágenes aprobadas o rechazadas | Inspector independiente | Imagen nítida, completa, sin distorsión, contraste adecuado; rechazo si error > 1% (NARA) |
-| 4 | Preprocesamiento | `preprocesamiento` | Imágenes aprobadas | Imágenes normalizadas | Procesamiento automático | Deskew, denoise, crop, OCR-ready; se preserva original |
-| 5 | Metadatos | `metadatos` | Imágenes normalizadas | Metadatos aplicados | Catalogador | Dublin Core + PREMIS + metadata técnica; schema validado |
-| 6 | Control de calidad 2 | `qc2` | Metadatos + imágenes | Registro validado | Inspector independiente | Metadatos precisos, completos, checksums correctos, naming convention ok |
-| 7 | Auditoría | `auditoria` | Registro validado | Lote certificado | Auditor | Trazabilidad completa, cumplimiento de estándares, aprobación formal |
-| 8 | Fedatación | `fedatacion` | Lote certificado | Lote fedatado | Fedatario juramentado | Firma digital, sello de tiempo, actas de apertura/cierre |
-| 9 | Certificación | `certificado` | Lote fedatado | Microformato JSON + PDF/A | Sistema | JSON schema válido, PDF/A-2b generado, indexado en dashboard |
+| 1 | Recepción y preparación | `preparacion` | Documento físico | Lote preparado | Archivista/Asistente | Inventario verificado, sin grapas/clips, objetos ajenos retirados, orden verificado, foliado aplicado si corresponde, estado de conservación documentado, total de folios declarado. |
+| 2 | Digitalización / captura | `digitalizacion` | Lote preparado | Imágenes crudas en `inbox` | Operador de escáner | DPI ≥ 300, formato TIFF/JPEG, perfil de color, metadata técnica embebida, cantidad de imágenes = folios declarados. |
+| 3 | Control de calidad 1 | `qc1` | Imágenes crudas | Imágenes aprobadas o rechazadas | Inspector independiente | Imagen completa, skew < 1°, contraste/brillo legibles, sin sombras/reflejos/ruido excesivo, resolución ≥ 300 DPI. |
+| 4 | Preprocesamiento | `preprocesamiento` | Imágenes aprobadas | Imágenes normalizadas en `preprocessed` | Procesamiento automático | Deskew ±1°, denoise sin perder trazo, crop sin recortes, binarización adaptativa si B/N, resolucion preservada. |
+| 5 | Metadatos | `metadatos` | Imágenes normalizadas | Microformato JSON + metadatos aplicados | Catalogador | Dublin Core completo, PREMIS embedido, OCR ejecutado, confianza ≥ umbral, microformato JSON validado contra schema. |
+| 6 | Control de calidad 2 | `qc2` | Metadatos + imágenes | Registro validado | Inspector independiente | Metadatos precisos y completos, checksums MD5/SHA256 calculados, naming convention ok, PDF/A-2b generado. |
+| 7 | Auditoría | `auditoria` | Registro validado | Lote certificado | Auditor | Trazabilidad completa, cumplimiento de estándares, aprobación formal, eventos PREMIS completos. |
+| 8 | Fedatación | `fedatacion` | Lote certificado | Lote fedatado | Fedatario juramentado | Firma digital, sello de tiempo, actas de apertura/cierre, hash SHA-256 del lote. |
+| 9 | Certificación | `certificado` | Lote fedatado | Microformato JSON + PDF/A-2b + reporte de calidad | Sistema | JSON schema válido, PDF/A-2b generado, indexado en dashboard/memory_index. |
 
-## 3. Estados y transiciones
+## 4. Estados y transiciones
 
 ```
 [preparacion] → [digitalizacion] → [qc1] → [preprocesamiento] → [metadatos] → [qc2] → [auditoria] → [fedatacion] → [certificado]
-                                                                                                                                        ↓
-                                                                                                                               [rechazado]
+                                                                                                                                         ↓
+                                                                                                                                [rechazado]
 ```
 
 Reglas:
 - Un documento puede rechazarse en QC1 o QC2 y volver a la etapa anterior.
-- La fedatación es opcional por documento, según su tipo.
+- La fedatación es opcional por documento, según su tipo y valor legal.
 - El dashboard muestra el estado actual del lote y de cada documento.
 
-## 4. Criterios de rechazo
+## 5. Criterios de rechazo
+
+### Recepción / Preparación
+- Inventario físico no coincide con registros declarados.
+- Daño estructural irreparable que impide escaneo legible.
 
 ### QC1
-- Imagen incompleta (cortada, falta contenido)
-- Skew > 1°
-- Contraste insuficiente para legibilidad
-- Resolución < 300 DPI (para documentos institucionales)
-- Presencia de sombras, reflejos o ruido excesivo
+- Imagen incompleta (cortada, falta contenido).
+- Skew > 1°.
+- Contraste insuficiente para legibilidad.
+- Resolución < 300 DPI (para documentos institucionales).
+- Presencia de sombras, reflejos o ruido excesivo.
 
 ### QC2
-- Metadatos Dublin Core incompletos
-- Nomenclatura de archivo incorrecta
-- Checksum no calculado
-- OCR no ejecutado (cuando es requerido)
-- PDF/A no generado (cuando es requerido)
+- Metadatos Dublin Core incompletos.
+- Nomenclatura de archivo incorrecta.
+- Checksum no calculado o no coincide.
+- OCR no ejecutado (cuando es requerido).
+- PDF/A no generado o inválido.
 
-## 5. Metadatos
+## 6. Microformato JSON canonical
+
+Cada documento produce un JSON canonical con esta estructura:
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "documentId": "upn_20260719_009",
+  "type": "Plan de estudios",
+  "source": {
+    "physicalLocation": "Archivo Central UPN",
+    "lote": "LOTE_20260722_001",
+    "folios": 7,
+    "estado_conservacion": "Bueno",
+    "grapas_detectadas": false,
+    "objetos_ajenos": "",
+    "foliado_aplicado": true,
+    "observaciones_preparacion": "Reparación mínima, sin objetos ajenos."
+  },
+  "dublinCore": {
+    "title": "Plan de estudios 2016-1",
+    "creator": "UPN",
+    "subject": ["Educación", "Plan de estudios"],
+    "description": "Sílabo oficial del curso",
+    "date": "2016-01-01",
+    "type": "Plan de estudios",
+    "format": "application/pdf",
+    "language": "es",
+    "rights": "Derechos reservados UPN",
+    "identifier": "upn_20260719_009"
+  },
+  "premis": {
+    "agent": "M360 Digitalization Pipeline",
+    "events": [
+      {
+        "eventType": "digitization",
+        "eventDateTime": "2026-07-22T10:00:00Z",
+        "eventOutcome": "success",
+        "linkingAgent": "Operador escáner",
+        "eventDetail": "DPI=300, formato=JPEG, modo=color"
+      },
+      {
+        "eventType": "ocr",
+        "eventDateTime": "2026-07-22T11:00:00Z",
+        "eventOutcome": "success",
+        "linkingAgent": "Tesseract 5",
+        "eventDetail": "confidence=0.96"
+      }
+    ]
+  },
+  "processing": {
+    "ocrEngine": "tesseract",
+    "ocrConfidence": 0.96,
+    "convertedToPdfA": true,
+    "pdfAPath": "/ruta/a/upn_20260719_009.pdf",
+    "masterTiffPath": "/ruta/a/preprocessed/upn_20260719_009.tiff",
+    "checksum": {
+      "md5": "d41d8cd98f00b204e9800998ecf8427e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "structuredContent": {},
+  "relations": {}
+}
+```
+
+## 7. Metadatos
 
 ### Dublin Core (mínimo)
 
-- `title`: título del documento
-- `creator`: autor o entidad responsable
-- `subject`: lista de temas
-- `description`: descripción del contenido
-- `date`: fecha del documento
-- `type`: tipo de documento
-- `format`: formato MIME
-- `language`: idioma
-- `rights`: derechos
-- `identifier`: ID único
+| Elemento | Uso en M360 |
+|---|---|
+| `title` | `DocumentoDigital.titulo` |
+| `creator` | `DocumentoDigital.creator` |
+| `subject` | `DocumentoDigital.subject` (lista) |
+| `description` | `DocumentoDigital.description` |
+| `date` | `DocumentoDigital.fecha_documento` |
+| `type` | `DocumentoDigital.tipo` |
+| `format` | MIME del archivo maestro |
+| `language` | `DocumentoDigital.language` |
+| `rights` | `DocumentoDigital.rights` |
+| `identifier` | `DocumentoDigital.document_id` |
 
 ### PREMIS (preservación)
 
-- `agent`: agente de preservación
-- `object`: entidad preservada
-- `event`: acción de preservación
-- `rights`: derechos de preservación
+| Entidad | Uso en M360 |
+|---|---|
+| `agent` | Usuario o sistema que ejecuta la etapa |
+| `object` | Documento digital (`document_id`, checksums, rutas) |
+| `event` | Cada etapa del pipeline registrada en `EtapaPipeline` |
+| `rights` | Derechos asociados al documento |
 
-## 6. Nomenclatura
+### JSON Canonicalization
+
+- El microformato JSON se serializa según **RFC 8785** antes de generar checksums o firmar.
+- Esto garantiza que pequeñas diferencias de orden de claves no alteren el hash criptográfico.
+
+## 8. Nomenclatura
 
 | Elemento | Patrón |
 |---|---|
@@ -80,7 +173,7 @@ Reglas:
 
 `NNN` es secuencia correlativa por día.
 
-## 7. Checksums
+## 9. Checksums
 
 Para cada documento se calculan:
 - MD5
@@ -88,41 +181,35 @@ Para cada documento se calculan:
 
 Se registran en `checksum_md5` y `checksum_sha256` del modelo `DocumentoDigital`.
 
-## 8. Microformato JSON
-
-Cada documento produce un JSON canonical con esta estructura:
-
-```json
-{
-  "schemaVersion": "1.0.0",
-  "documentId": "upn_20260719_009",
-  "type": "Plan de estudios",
-  "source": {...},
-  "dublinCore": {...},
-  "processing": {
-    "ocrEngine": "tesseract",
-    "ocrConfidence": 0.96,
-    "convertedToPdfA": true,
-    "pdfAPath": "...",
-    "masterTiffPath": "...",
-    "checksum": {
-      "md5": "...",
-      "sha256": "..."
-    }
-  },
-  "structuredContent": {...},
-  "relations": {...}
-}
-```
-
-## 9. Integración con M360
+## 10. Integración con M360
 
 - Cada `LoteDigitalizacion` se asocia a un `project_id` o `course_id` de M360.
 - El dashboard se sirve en `/digitalizacion/`.
 - La API se expone en `/api/v1/digitalizacion/`.
 - Los microformatos JSON se indexan en `memory_index.json` como entries tipo `MICROFORMATO`.
 
-## 10. Comandos
+## 11. Quality Management (NARA / 36 CFR 1236)
+
+### 11.1 QM plan
+El pipeline implementa un Quality Management plan mínimo que incluye:
+- Políticas y funciones por rol.
+- Especificaciones de imagen (DPI, formato, perfil de color).
+- Especificaciones de metadatos (Dublin Core + PREMIS).
+- Especificaciones de formato de archivo (PDF/A-2b).
+- Procedimientos de inspección por etapa.
+- Acciones correctivas y trazabilidad.
+
+### 11.2 Roles
+- QA: Archivista en preparación + Catalogador en metadatos.
+- QC: Inspector QC1 + Inspector QC2.
+- Validación: Auditor + Fedatario.
+
+### 11.3 Trazabilidad
+- Cada transición de estado queda registrada en `EtapaPipeline`.
+- Cada evento de preservación queda registrado en el bloque `premis.events` del microformato JSON.
+- Los checksums se calculan sobre rutas maestras y se validan en QC2 y certificación.
+
+## 12. Comandos
 
 ```bash
 # Migrar microformatos JSON existentes
