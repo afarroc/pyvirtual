@@ -9,12 +9,6 @@
   </div>
 </div>
 
-{% if messages %}
-{% for message in messages %}
-<div class="m360-alert m360-alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}{{ message.tags }}{% endif %}">{{ message }}</div>
-{% endfor %}
-{% endif %}
-
 <div class="m360-grid m360-grid-2 m360-gap-4 m360-mb-4">
   <div class="m360-card">
     <div class="m360-card-header"><i class="m360-icon">📋</i> Datos del lote</div>

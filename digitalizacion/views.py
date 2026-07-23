@@ -332,7 +332,11 @@ def preparacion(request):
                 messages.success(request, f"Documento '{doc.document_id}' agregado al lote.")
                 return redirect('digitalizacion:preparacion')
             else:
-                messages.error(request, "Error al agregar documento. Verifica los datos.")
+                non_field_errors = list(form_doc.non_field_errors())
+                if non_field_errors:
+                    messages.error(request, '; '.join(non_field_errors))
+                else:
+                    messages.error(request, "Error al agregar documento. Verifica los datos marcados en rojo.")
         elif action == 'cerrar_preparacion':
             lote_id = request.POST.get('lote_id')
             if lote_id:
