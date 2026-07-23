@@ -388,8 +388,8 @@ class ProjectAdmin(admin.ModelAdmin):
         ('Basic Information', {
             'fields': ('title', 'description', 'host', 'assigned_to', 'project_status')
         }),
-        ('Event & Classification', {
-            'fields': ('event', 'classification', 'done')
+        ('Event', {
+            'fields': ('event', 'done')
         }),
         ('Attendees & Pricing', {
             'fields': ('ticket_price', 'attendees_count_display')  # Removed 'attendees' from here
