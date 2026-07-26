@@ -1,25 +1,21 @@
-<!-- Reports -->
-<div class="col-12">
-    <div class="card">
-        <div class="filter">
-            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                    <h6>Options</h6>
-                </li>
-                <li><a class="dropdown-item" href="#">Opt1</a></li>
-            </ul>
+<div class="events-col-12">
+    <div class="m360-card">
+        <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+            <h5 class="m360-card-title events-mb-0">
+                <i class="bi bi-calendar-check" style="margin-right: var(--m360-space-1);"></i>Active Events <span>| Today</span>
+            </h5>
+            <div class="m360-dropdown">
+                <button class="m360-btn m360-btn-sm m360-btn-outline-secondary" data-m360-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+                <div class="m360-dropdown-menu m360-dropdown-menu-end">
+                    <div class="m360-dropdown-header"><h6>Options</h6></div>
+                    <a class="m360-dropdown-item" href="#">Opt1</a>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <h5 class="card-title">Active Events <span>| Today</span></h5>
-
-            <!-- Line Content -->
-
+        <div class="m360-card-body">
             {% include 'events/control/frame.html' %}
-
-            <!-- End Line Content -->
-
         </div>
-
     </div>
-</div><!-- End Reports -->
+</div>

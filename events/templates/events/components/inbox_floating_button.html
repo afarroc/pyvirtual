@@ -1,24 +1,6 @@
 {% load static %}
 <!-- ============================================================================
      INBOX GTD FLOATING BUTTON - GLOBAL ACCESS COMPONENT
-     ============================================================================
-     This template contains the HTML structure for the global inbox GTD
-     floating button that provides quick access to inbox functionality from any page.
-
-     Features:
-     - Floating button with pulse animation
-     - Expandable panel with quick capture form
-     - Real-time statistics display
-     - Toast notifications integration
-     - Responsive design for all screen sizes
-     - Accessibility features (keyboard navigation, ARIA labels)
-
-     Dependencies:
-     - Bootstrap 5.x
-     - Bootstrap Icons
-     - inbox_floating_button.css
-     - inbox_floating_button.js
-
      ============================================================================ -->
 
 <!-- Inbox GTD Floating Container -->
@@ -40,7 +22,7 @@
                 <i class="bi bi-inbox-fill"></i>
                 Inbox GTD
             </h3>
-            <button class="inbox-panel-close" id="inboxPanelClose" aria-label="Cerrar">
+            <button class="inbox-panel-close" id="inboxPanelClose" aria-label="Cerrar" data-m360-close>
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
@@ -95,7 +77,6 @@
     </div>
 </div>
 
-<!-- Overlay se crea dinámicamente en JavaScript -->
 <!-- Toast Notification Container -->
 <div class="toast-container position-fixed top-0 end-0 p-3">
     <div id="inboxToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -103,7 +84,7 @@
             <i class="bi bi-info-circle me-2"></i>
             <strong class="me-auto">Inbox GTD</strong>
             <small>Ahora</small>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            <button type="button" class="btn-close" data-m360-close aria-label="Cerrar"></button>
         </div>
         <div class="toast-body" id="inboxToastBody">
             <!-- Notification message will go here -->
@@ -122,34 +103,27 @@
     </div>
 </div>
 
-<!-- ============================================================================
-     ACCESSIBILITY ENHANCEMENTS
-     ============================================================================ -->
-
 <!-- Screen Reader Announcements -->
 <div id="inboxAnnouncements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
-<!-- ============================================================================
-     STYLE OVERRIDES (for specific customizations)
-     ============================================================================ -->
 <style>
 /* Custom styles that complement the main CSS file */
 
 /* Enhanced focus styles for better accessibility */
 .inbox-floating-button:focus-visible {
-    outline: 3px solid #007bff;
+    outline: 3px solid var(--m360-primary);
     outline-offset: 3px;
 }
 
 /* Button styles */
 .inbox-btn {
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: var(--m360-radius);
     border: none;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: var(--m360-text-base);
+    font-weight: var(--m360-font-weight-medium);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--m360-transition);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -159,7 +133,7 @@
 
 .inbox-btn-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    color: #fff;
 }
 
 .inbox-btn-primary:hover {
@@ -168,8 +142,8 @@
 }
 
 .inbox-btn-secondary {
-    background: #6c757d;
-    color: white;
+    background: var(--m360-text-muted);
+    color: #fff;
 }
 
 .inbox-btn-secondary:hover {
@@ -179,21 +153,21 @@
 
 .inbox-btn-outline {
     background: transparent;
-    border: 1px solid #dee2e6;
-    color: #495057;
+    border: 1px solid var(--m360-border);
+    color: var(--m360-text-secondary);
 }
 
 .inbox-btn-outline:hover {
-    background: #f8f9fa;
-    border-color: #667eea;
-    color: #667eea;
+    background: var(--m360-gray-50);
+    border-color: var(--m360-primary);
+    color: var(--m360-primary);
 }
 
 /* Form actions */
 .inbox-form-actions {
     display: flex;
-    gap: 10px;
-    margin-top: 20px;
+    gap: var(--m360-space-2);
+    margin-top: var(--m360-space-4);
     flex-wrap: wrap;
 }
 
@@ -205,16 +179,16 @@
 /* Quick actions */
 .inbox-quick-actions {
     display: flex;
-    gap: 8px;
-    margin-top: 20px;
+    gap: var(--m360-space-2);
+    margin-top: var(--m360-space-4);
     flex-wrap: wrap;
 }
 
 .inbox-quick-actions .inbox-btn {
     flex: 1;
     min-width: 100px;
-    font-size: 13px;
-    padding: 6px 12px;
+    font-size: var(--m360-text-sm);
+    padding: var(--m360-space-1) var(--m360-space-2);
 }
 
 /* Loading animation for the submit button */
@@ -246,13 +220,13 @@
     bottom: 80px;
     right: 70px;
     background: rgba(0, 0, 0, 0.9);
-    color: white;
+    color: #fff;
     padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
+    border-radius: var(--m360-radius);
+    font-size: var(--m360-text-sm);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.2s ease;
+    transition: all var(--m360-transition);
     z-index: 1052;
     white-space: nowrap;
 }
@@ -358,12 +332,11 @@
     }
 
     .inbox-btn {
-        min-height: 44px; /* Better touch target for mobile */
-        font-size: 16px; /* Prevent iOS zoom */
+        min-height: 44px;
+        font-size: 16px;
     }
 }
 
-/* Mobile keyboard specific */
 @media (max-width: 768px) {
     .inbox-panel-body {
         padding-bottom: env(safe-area-inset-bottom, 20px);
@@ -376,20 +349,8 @@
 }
 </style>
 
-<!-- ============================================================================
-     INITIALIZATION SCRIPT
-     ============================================================================ -->
 <script>
-// Initialize tooltips and other Bootstrap components when document is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Bootstrap tooltips if available
-    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    }
-
     // Add keyboard shortcut hint on first visit
     const hasSeenShortcut = localStorage.getItem('inboxGTD_shortcut_shown');
     if (!hasSeenShortcut) {
