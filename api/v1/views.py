@@ -32,7 +32,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from events.models import Event, InboxItem, Project, Reminder, Status, Task, TaskStatus
+from events.models import Event, InboxItem, Project, ProjectState, Reminder, Status, Task, TaskStatus
+from events.management.project_manager import ProjectManager
 from .serializers import (
     BibliografiaSerializer,
     CourseCategorySerializer,
@@ -155,6 +156,61 @@ class ProjectViewSet(_PageableMixin, ModelViewSet):
 
     def get_serializer_class(self):
         return ProjectSerializer
+
+    def perform_create(self, serializer):
+        validated = serializer.validated_data
+        request = self.request
+
+        title = validated.get("title", "Sin título")
+        description = validated.get("description") or f"Evento para proyecto: {title}"
+        assigned_to = validated.get("assigned_to") or request.user
+        host = validated.get("host") or request.user
+        project_status = validated.get("project_status")
+        ticket_price = validated.get("ticket_price", 0.07)
+
+        created_status = Status.objects.filter(status_name="Created").first()
+        if not created_status:
+            created_status = Status.objects.create(
+                status_name="Created",
+                icon="bi-star",
+                active=True,
+                color="#28a745",
+            )
+
+        event = Event.objects.create(
+            title=title,
+            description=description,
+            event_status=created_status,
+            venue="Por definir",
+            host=host,
+            assigned_to=assigned_to,
+            event_category="project",
+            max_attendees=1,
+            ticket_price=0.07,
+        )
+
+        if project_status is None:
+            project_status = ProjectStatus.objects.filter(status_name="Created").first()
+            if project_status is None:
+                project_status = ProjectStatus.objects.first()
+
+        project = Project.objects.create(
+            title=title,
+            description=description,
+            project_status=project_status,
+            host=host,
+            assigned_to=assigned_to,
+            ticket_price=ticket_price,
+            event=event,
+        )
+
+        ProjectState.objects.create(
+            project=project,
+            status=project_status,
+            start_time=timezone.now(),
+        )
+
+        serializer.instance = project
 
 
 class TaskViewSet(_PageableMixin, ModelViewSet):
