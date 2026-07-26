@@ -1,67 +1,69 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="bi bi-graph-up me-2"></i>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center events-flex-wrap">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-graph-up" style="margin-right: var(--m360-space-2);"></i>
                         {{ title }}
-                    </h3>
-                    <div class="card-tools">
-                        <a href="{% url 'events:task_dependencies_list' task.id %}" class="btn btn-secondary btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i>
+                    </h5>
+                    <div class="events-d-flex events-gap-2">
+                        <a href="{% url 'events:task_dependencies_list' task.id %}" class="m360-btn m360-btn-outline-secondary">
+                            <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>
                             Volver a Dependencias
                         </a>
-                        <button type="button" class="btn btn-info btn-sm" onclick="refreshGraph()">
-                            <i class="bi bi-arrow-clockwise me-1"></i>
+                        <button type="button" class="m360-btn m360-btn-outline-info" onclick="refreshGraph()">
+                            <i class="bi bi-arrow-clockwise" style="margin-right: var(--m360-space-1);"></i>
                             Actualizar
                         </button>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="m360-card-body">
                     {% if task %}
                         <!-- Información de la tarea principal -->
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <div class="task-info-card" style="border-left: 4px solid {{ task.task_status.color }};">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-8">
-                                            <h4>{{ task.title }}</h4>
-                                            {% if task.description %}
-                                                <p class="text-muted">{{ task.description }}</p>
-                                            {% endif %}
-                                            <div class="task-meta">
-                                                <span class="badge task-status-badge" data-color="{{ task.task_status.color }}">
-                                                    <i class="bi bi-circle-fill me-1"></i>
-                                                    {{ task.task_status.status_name }}
-                                                </span>
-                                                {% if task.important %}
-                                                    <span class="badge bg-warning">
-                                                        <i class="bi bi-star-fill me-1"></i>
+                        <div class="events-row events-mb-4">
+                            <div class="events-col-12">
+                                <div class="m360-card" style="border-left: 4px solid {{ task.task_status.color }}; background: var(--m360-gray-50);">
+                                    <div class="m360-card-body">
+                                        <div class="events-row events-align-center">
+                                            <div class="events-col-md-8">
+                                                <h4 class="events-mb-2">{{ task.title }}</h4>
+                                                {% if task.description %}
+                                                <p class="events-text-muted events-mb-2">{{ task.description }}</p>
+                                                {% endif %}
+                                                <div class="events-d-flex events-flex-wrap events-align-center events-gap-2">
+                                                    <span class="m360-badge" style="background: {{ task.task_status.color }}; color: #fff;">
+                                                        <i class="bi bi-circle-fill" style="margin-right: var(--m360-space-1);"></i>
+                                                        {{ task.task_status.status_name }}
+                                                    </span>
+                                                    {% if task.important %}
+                                                    <span class="m360-badge m360-badge-warning">
+                                                        <i class="bi bi-star-fill" style="margin-right: var(--m360-space-1);"></i>
                                                         Importante
                                                     </span>
-                                                {% endif %}
-                                                <small class="text-muted">
-                                                    <i class="bi bi-calendar me-1"></i>
-                                                    Creada: {{ task.created_at|date:"d/m/Y H:i" }}
-                                                </small>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-end">
-                                            <div class="graph-stats">
-                                                <div class="stat-item">
-                                                    <h5 class="text-primary">{{ nodes|length }}</h5>
-                                                    <small class="text-muted">Tareas</small>
+                                                    {% endif %}
+                                                    <small class="events-text-muted">
+                                                        <i class="bi bi-calendar" style="margin-right: var(--m360-space-1);"></i>
+                                                        Creada: {{ task.created_at|date:"d/m/Y H:i" }}
+                                                    </small>
                                                 </div>
-                                                <div class="stat-item">
-                                                    <h5 class="text-success">{{ edges|length }}</h5>
-                                                    <small class="text-muted">Dependencias</small>
+                                            </div>
+                                            <div class="events-col-md-4 events-text-end">
+                                                <div class="events-d-flex events-justify-end events-gap-4">
+                                                    <div class="events-text-center">
+                                                        <h5 class="events-text-primary events-mb-1">{{ nodes|length }}</h5>
+                                                        <small class="events-text-muted">Tareas</small>
+                                                    </div>
+                                                    <div class="events-text-center">
+                                                        <h5 class="events-text-success events-mb-1">{{ edges|length }}</h5>
+                                                        <small class="events-text-muted">Dependencias</small>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -71,17 +73,17 @@
                         </div>
 
                         <!-- Contenedor del gráfico -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">
-                                            <i class="bi bi-diagram-3 me-2"></i>
+                        <div class="events-row">
+                            <div class="events-col-12">
+                                <div class="m360-card">
+                                    <div class="m360-card-header">
+                                        <h5 class="m360-card-title events-mb-0">
+                                            <i class="bi bi-diagram-3" style="margin-right: var(--m360-space-1);"></i>
                                             Gráfico de Dependencias
                                         </h5>
                                     </div>
-                                    <div class="card-body">
-                                        <div id="dependency-graph" style="width: 100%; height: 600px; border: 1px solid #dee2e6; border-radius: 0.5rem;">
+                                    <div class="m360-card-body">
+                                        <div id="dependency-graph" style="width: 100%; height: 600px; border: 1px solid var(--m360-border); border-radius: var(--m360-radius);">
                                             <!-- El gráfico se renderizará aquí -->
                                         </div>
                                     </div>
@@ -90,59 +92,59 @@
                         </div>
 
                         <!-- Leyenda -->
-                        <div class="row mt-4">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="card-title mb-0">
-                                            <i class="bi bi-info-circle me-1"></i>
+                        <div class="events-row events-mt-4 events-gap-4">
+                            <div class="events-col-md-6">
+                                <div class="m360-card">
+                                    <div class="m360-card-header">
+                                        <h6 class="m360-card-title events-mb-0">
+                                            <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
                                             Leyenda
                                         </h6>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="legend-item">
-                                            <div class="legend-color" style="background-color: #007bff;"></div>
+                                    <div class="m360-card-body">
+                                        <div class="events-d-flex events-align-center events-gap-2 events-mb-2">
+                                            <div style="width: 20px; height: 20px; border-radius: 50%; background: #007bff; border: 1px solid var(--m360-border);"></div>
                                             <small>Tarea actual ({{ task.title }})</small>
                                         </div>
-                                        <div class="legend-item">
-                                            <div class="legend-color" style="background-color: #28a745;"></div>
+                                        <div class="events-d-flex events-align-center events-gap-2 events-mb-2">
+                                            <div style="width: 20px; height: 20px; border-radius: 50%; background: #28a745; border: 1px solid var(--m360-border);"></div>
                                             <small>Tareas de las que depende</small>
                                         </div>
-                                        <div class="legend-item">
-                                            <div class="legend-color" style="background-color: #ffc107;"></div>
+                                        <div class="events-d-flex events-align-center events-gap-2 events-mb-2">
+                                            <div style="width: 20px; height: 20px; border-radius: 50%; background: #ffc107; border: 1px solid var(--m360-border);"></div>
                                             <small>Tareas que bloquea</small>
                                         </div>
-                                        <div class="legend-item">
-                                            <div class="legend-color" style="background-color: #6c757d;"></div>
+                                        <div class="events-d-flex events-align-center events-gap-2">
+                                            <div style="width: 20px; height: 20px; border-radius: 50%; background: #6c757d; border: 1px solid var(--m360-border);"></div>
                                             <small>Otras tareas relacionadas</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="card-title mb-0">
-                                            <i class="bi bi-lightbulb me-1"></i>
+                            <div class="events-col-md-6">
+                                <div class="m360-card">
+                                    <div class="m360-card-header">
+                                        <h6 class="m360-card-title events-mb-0">
+                                            <i class="bi bi-lightbulb" style="margin-right: var(--m360-space-1);"></i>
                                             Consejos
                                         </h6>
                                     </div>
-                                    <div class="card-body">
-                                        <ul class="list-unstyled small">
-                                            <li class="mb-2">
-                                                <i class="bi bi-arrows-expand text-primary me-1"></i>
+                                    <div class="m360-card-body">
+                                        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--m360-space-2); font-size: var(--m360-text-sm);">
+                                            <li class="events-d-flex events-align-center events-gap-2">
+                                                <i class="bi bi-arrows-expand events-text-primary"></i>
                                                 Usa el mouse para navegar y hacer zoom
                                             </li>
-                                            <li class="mb-2">
-                                                <i class="bi bi-cursor text-info me-1"></i>
+                                            <li class="events-d-flex events-align-center events-gap-2">
+                                                <i class="bi bi-cursor events-text-info"></i>
                                                 Haz clic en los nodos para ver detalles
                                             </li>
-                                            <li class="mb-2">
-                                                <i class="bi bi-arrow-down-up text-success me-1"></i>
+                                            <li class="events-d-flex events-align-center events-gap-2">
+                                                <i class="bi bi-arrow-down-up events-text-success"></i>
                                                 Las flechas indican dirección de dependencia
                                             </li>
-                                            <li class="mb-0">
-                                                <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+                                            <li class="events-d-flex events-align-center events-gap-2">
+                                                <i class="bi bi-exclamation-triangle events-text-warning"></i>
                                                 Evita dependencias circulares
                                             </li>
                                         </ul>
@@ -151,8 +153,8 @@
                             </div>
                         </div>
                     {% else %}
-                        <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
+                        <div class="m360-alert m360-alert-warning">
+                            <i class="bi bi-exclamation-triangle" style="margin-right: var(--m360-space-1);"></i>
                             Tarea no encontrada o no tienes permisos para ver el gráfico.
                         </div>
                     {% endif %}
@@ -166,108 +168,11 @@
 <script src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
 <link href="https://unpkg.com/vis-network@9.1.2/dist/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
 
-<style>
-.task-info-card {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.task-meta {
-    margin-top: 1rem;
-}
-
-.task-meta .badge {
-    margin-right: 0.5rem;
-    margin-bottom: 0.25rem;
-}
-
-.graph-stats {
-    display: flex;
-    gap: 2rem;
-    justify-content: flex-end;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-item h5 {
-    margin-bottom: 0.25rem;
-    font-weight: bold;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.legend-color {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    margin-right: 0.5rem;
-    border: 1px solid #dee2e6;
-}
-
-.task-status-badge {
-    background-color: attr(data-color) !important;
-    color: white !important;
-}
-
-/* Estilos para el gráfico */
-#dependency-graph {
-    background: white;
-}
-
-.vis-network {
-    border-radius: 0.5rem;
-}
-
-.vis-node {
-    border-radius: 8px;
-    border: 2px solid;
-    padding: 8px 12px;
-    font-size: 12px;
-    font-weight: bold;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.vis-node.important {
-    border-width: 3px;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    50% { box-shadow: 0 2px 4px rgba(255,193,7,0.4); }
-    100% { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-}
-
-.vis-edge {
-    font-size: 10px;
-    font-weight: bold;
-}
-
-.vis-tooltip {
-    background: rgba(0,0,0,0.8);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-}
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Datos del gráfico pasados desde Django
     const graphNodes = {{ nodes|safe }};
     const graphEdges = {{ edges|safe }};
 
-    // Crear nodos con colores basados en el estado
     const visNodes = new vis.DataSet(graphNodes.map(node => ({
         id: node.id,
         label: node.label,
@@ -289,7 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
         class: node.important ? 'important' : ''
     })));
 
-    // Crear aristas con diferentes colores según el tipo
     const visEdges = new vis.DataSet(graphEdges.map(edge => ({
         from: edge.from,
         to: edge.to,
@@ -308,12 +212,8 @@ document.addEventListener('DOMContentLoaded', function() {
         width: 2
     })));
 
-    // Configuración del gráfico
     const container = document.getElementById('dependency-graph');
-    const data = {
-        nodes: visNodes,
-        edges: visEdges
-    };
+    const data = { nodes: visNodes, edges: visEdges };
 
     const options = {
         layout: {
@@ -325,9 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 treeSpacing: 200
             }
         },
-        physics: {
-            enabled: false
-        },
+        physics: { enabled: false },
         interaction: {
             navigationButtons: true,
             keyboard: true,
@@ -347,23 +245,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Crear la red
     const network = new vis.Network(container, data, options);
 
-    // Evento para mostrar información al hacer clic en un nodo
     network.on('click', function(params) {
         if (params.nodes.length > 0) {
             const nodeId = params.nodes[0];
             const node = graphNodes.find(n => n.id === nodeId);
             if (node) {
-                // Redirigir a la página de la tarea
                 window.location.href = `/events/tasks/${nodeId}/`;
             }
         }
     });
 });
 
-// Función para actualizar el gráfico
 function refreshGraph() {
     location.reload();
 }

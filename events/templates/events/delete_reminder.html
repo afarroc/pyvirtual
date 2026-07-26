@@ -1,78 +1,75 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h3 class="card-title mb-0">
-                        <i class="bi bi-trash me-2"></i>{{ title }}
-                    </h3>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-md-6 events-col-lg-6 events-mx-auto">
+            <div class="m360-card" style="border-left: 4px solid var(--m360-danger);">
+                <div class="m360-card-header" style="background: var(--m360-danger); color: #fff; border: none;">
+                    <h5 class="m360-card-title events-mb-0" style="color: inherit;">
+                        <i class="bi bi-trash" style="margin-right: var(--m360-space-2);"></i>
+                        {{ title }}
+                    </h5>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
+                <div class="m360-card-body">
+                    <div class="m360-alert m360-alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
                         <strong>¡Atención!</strong> Esta acción no se puede deshacer.
                     </div>
 
-                    <div class="mb-4">
+                    <div class="events-mb-4">
                         <h5>Detalles del Recordatorio:</h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
-                                <strong>Título:</strong> {{ reminder.title }}
-                            </li>
-                            {% if reminder.description %}
-                            <li class="list-group-item">
-                                <strong>Descripción:</strong> {{ reminder.description }}
-                            </li>
-                            {% endif %}
-                            <li class="list-group-item">
-                                <strong>Fecha del Recordatorio:</strong>
-                                <span class="badge bg-info">{{ reminder.remind_at|date:"d/m/Y H:i" }}</span>
-                            </li>
-                            <li class="list-group-item">
-                                <strong>Tipo de Notificación:</strong>
-                                {% if reminder.reminder_type == 'email' %}
-                                <i class="bi bi-envelope text-primary"></i> Email
-                                {% elif reminder.reminder_type == 'push' %}
-                                <i class="bi bi-bell text-warning"></i> Push
-                                {% else %}
-                                <i class="bi bi-chat-text text-success"></i> Ambos
-                                {% endif %}
-                            </li>
-                            <li class="list-group-item">
-                                <strong>Estado:</strong>
-                                {% if reminder.is_sent %}
-                                <span class="badge bg-success">Enviado</span>
-                                {% else %}
-                                <span class="badge bg-warning">Pendiente</span>
-                                {% endif %}
-                            </li>
-                            <li class="list-group-item">
-                                <strong>Relacionado con:</strong>
-                                {% if reminder.task %}
-                                <span class="badge bg-primary">Tarea: {{ reminder.task.title }}</span>
-                                {% elif reminder.project %}
-                                <span class="badge bg-success">Proyecto: {{ reminder.project.title }}</span>
-                                {% elif reminder.event %}
-                                <span class="badge bg-warning">Evento: {{ reminder.event.title }}</span>
-                                {% else %}
-                                <span class="text-muted">General</span>
-                                {% endif %}
-                            </li>
-                        </ul>
+                        <div class="m360-panel">
+                            <div class="m360-panel-body">
+                                <div class="events-d-flex events-flex-col events-gap-2">
+                                    <div><strong>Título:</strong> {{ reminder.title }}</div>
+                                    {% if reminder.description %}
+                                    <div><strong>Descripción:</strong> {{ reminder.description }}</div>
+                                    {% endif %}
+                                    <div><strong>Fecha del Recordatorio:</strong>
+                                        <span class="m360-badge m360-badge-info">{{ reminder.remind_at|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <div><strong>Tipo de Notificación:</strong>
+                                        {% if reminder.reminder_type == 'email' %}
+                                        <i class="bi bi-envelope events-text-primary"></i> Email
+                                        {% elif reminder.reminder_type == 'push' %}
+                                        <i class="bi bi-bell events-text-warning"></i> Push
+                                        {% else %}
+                                        <i class="bi bi-chat-text events-text-success"></i> Ambos
+                                        {% endif %}
+                                    </div>
+                                    <div><strong>Estado:</strong>
+                                        {% if reminder.is_sent %}
+                                        <span class="m360-badge m360-badge-success">Enviado</span>
+                                        {% else %}
+                                        <span class="m360-badge m360-badge-warning">Pendiente</span>
+                                        {% endif %}
+                                    </div>
+                                    <div><strong>Relacionado con:</strong>
+                                        {% if reminder.task %}
+                                        <span class="m360-badge m360-badge-info">Tarea: {{ reminder.task.title }}</span>
+                                        {% elif reminder.project %}
+                                        <span class="m360-badge m360-badge-success">Proyecto: {{ reminder.project.title }}</span>
+                                        {% elif reminder.event %}
+                                        <span class="m360-badge m360-badge-warning">Evento: {{ reminder.event.title }}</span>
+                                        {% else %}
+                                        <span class="events-text-muted">General</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <form method="post">
                         {% csrf_token %}
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'events:reminders_dashboard' %}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left me-1"></i>Cancelar
+                        <div class="events-d-flex events-justify-between">
+                            <a href="{% url 'events:reminders_dashboard' %}" class="m360-btn m360-btn-outline-secondary">
+                                <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>Cancelar
                             </a>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash me-1"></i>Eliminar Recordatorio
+                            <button type="submit" class="m360-btn m360-btn-danger">
+                                <i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i>Eliminar Recordatorio
                             </button>
                         </div>
                     </form>

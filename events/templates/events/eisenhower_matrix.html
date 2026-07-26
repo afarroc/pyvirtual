@@ -1,380 +1,293 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">
-                        <i class="bi bi-grid-3x3-gap me-2"></i>
+<div class="events-container">
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+                    <h5 class="events-card-title events-mb-0">
+                        <i class="bi bi-grid-3x3-gap" style="margin-right: var(--m360-space-2);"></i>
                         {{ title }}
-                    </h3>
-                    <div>
-                        <a href="{% url 'events:kanban_board' %}" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-kanban me-1"></i>
-                            Kanban
+                    </h5>
+                    <div class="m360-btn-group">
+                        <a href="{% url 'events:kanban_board' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
+                            <i class="bi bi-kanban" style="margin-right: var(--m360-space-1);"></i>Kanban
                         </a>
-                        <a href="{% url 'events:tasks' %}" class="btn btn-outline-secondary btn-sm">
-                            <i class="bi bi-list-task me-1"></i>
-                            Lista
+                        <a href="{% url 'events:tasks' %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
+                            <i class="bi bi-list-task" style="margin-right: var(--m360-space-1);"></i>Lista
                         </a>
                     </div>
                 </div>
-                <div class="card-body">
-                    <!-- Leyenda de la matriz -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="alert alert-info d-flex align-items-center">
-                                <i class="bi bi-info-circle me-2"></i>
-                                <div>
-                                    <strong>¿Cómo funciona?</strong> Las tareas se organizan automáticamente según su urgencia e importancia.
-                                    Usa los botones para mover tareas entre cuadrantes o cambiar su prioridad.
+                <div class="m360-card-body">
+                    <div class="m360-alert m360-alert-info events-mb-4">
+                        <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
+                        <div>
+                            <strong>¿Cómo funciona?</strong> Las tareas se organizan automáticamente según su urgencia e importancia.
+                            Usa los botones para mover tareas entre cuadrantes o cambiar su prioridad.
+                        </div>
+                    </div>
+
+                    <div class="events-row events-gap-3">
+                        <div class="events-col-12 events-col-md-6">
+                            <div class="m360-card" style="border: 2px solid var(--m360-danger); border-radius: var(--m360-radius);">
+                                <div class="m360-card-header" style="background: var(--m360-danger); color: #fff; border: none;">
+                                    <div class="events-d-flex events-justify-between events-align-center">
+                                        <div>
+                                            <h6 class="events-mb-1"><i class="bi bi-exclamation-triangle-fill" style="margin-right: var(--m360-space-2);"></i>Urgente e Importante</h6>
+                                            <small style="opacity: .8;">¡Hacer inmediatamente!</small>
+                                        </div>
+                                        <span class="m360-badge m360-badge-light">{{ eisenhower_quadrants.urgent_important.tasks|length }}</span>
+                                    </div>
+                                </div>
+                                <div class="m360-card-body">
+                                    {% for item in eisenhower_quadrants.urgent_important.tasks %}
+                                    <div class="m360-card events-mb-2" style="border-left: 4px solid var(--m360-danger);">
+                                        <div class="m360-card-body" style="padding: var(--m360-space-3);">
+                                            <div class="events-d-flex events-justify-between events-align-start events-gap-2">
+                                                <div class="events-flex-grow">
+                                                    <h6 class="events-mb-1">
+                                                        <a href="{% url 'events:tasks_with_id' item.task.id %}" class="events-text-dark" style="text-decoration: none;">{{ item.task.title }}</a>
+                                                    </h6>
+                                                    {% if item.task.description %}
+                                                    <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);">{{ item.task.description|truncatechars:60 }}</p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="m360-dropdown">
+                                                    <button class="m360-btn m360-btn-sm m360-btn-outline-secondary" data-m360-toggle="dropdown" aria-expanded="false">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <div class="m360-dropdown-menu m360-dropdown-menu-end">
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'important_not_urgent')"><i class="bi bi-calendar-check" style="margin-right: var(--m360-space-1);"></i>Mover a Planificar</a>
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_not_important')"><i class="bi bi-people" style="margin-right: var(--m360-space-1);"></i>Mover a Delegar</a>
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'not_urgent_important')"><i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i>Mover a Eliminar</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="events-d-flex events-justify-between events-align-center events-mt-2">
+                                                <small class="events-text-muted">
+                                                    {% if item.task.assigned_to %}
+                                                    <i class="bi bi-person" style="margin-right: var(--m360-space-1);"></i>{{ item.task.assigned_to.username }}
+                                                    {% endif %}
+                                                </small>
+                                                {% if item.task.important %}
+                                                <i class="bi bi-star-fill events-text-warning" title="Prioridad alta"></i>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="events-text-center events-text-muted events-py-3">
+                                        <i class="bi bi-check-circle" style="font-size: var(--m360-icon-xl); color: var(--m360-success);"></i>
+                                        <p class="events-mt-2">¡Excelente! No hay tareas urgentes pendientes</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="events-col-12 events-col-md-6">
+                            <div class="m360-card" style="border: 2px solid var(--m360-warning); border-radius: var(--m360-radius);">
+                                <div class="m360-card-header" style="background: var(--m360-warning); color: var(--m360-text-dark); border: none;">
+                                    <div class="events-d-flex events-justify-between events-align-center">
+                                        <div>
+                                            <h6 class="events-mb-1"><i class="bi bi-calendar-check" style="margin-right: var(--m360-space-2);"></i>Importante pero No Urgente</h6>
+                                            <small style="opacity: .8;">Planificar para hacer</small>
+                                        </div>
+                                        <span class="m360-badge m360-badge-dark">{{ eisenhower_quadrants.important_not_urgent.tasks|length }}</span>
+                                    </div>
+                                </div>
+                                <div class="m360-card-body">
+                                    {% for item in eisenhower_quadrants.important_not_urgent.tasks %}
+                                    <div class="m360-card events-mb-2" style="border-left: 4px solid var(--m360-warning);">
+                                        <div class="m360-card-body" style="padding: var(--m360-space-3);">
+                                            <div class="events-d-flex events-justify-between events-align-start events-gap-2">
+                                                <div class="events-flex-grow">
+                                                    <h6 class="events-mb-1">
+                                                        <a href="{% url 'events:tasks_with_id' item.task.id %}" class="events-text-dark" style="text-decoration: none;">{{ item.task.title }}</a>
+                                                    </h6>
+                                                    {% if item.task.description %}
+                                                    <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);">{{ item.task.description|truncatechars:60 }}</p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="m360-dropdown">
+                                                    <button class="m360-btn m360-btn-sm m360-btn-outline-secondary" data-m360-toggle="dropdown" aria-expanded="false">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <div class="m360-dropdown-menu m360-dropdown-menu-end">
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_important')"><i class="bi bi-exclamation-triangle-fill" style="margin-right: var(--m360-space-1);"></i>Mover a Urgente</a>
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_not_important')"><i class="bi bi-people" style="margin-right: var(--m360-space-1);"></i>Mover a Delegar</a>
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'not_urgent_important')"><i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i>Mover a Eliminar</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="events-d-flex events-justify-between events-align-center events-mt-2">
+                                                <small class="events-text-muted">
+                                                    {% if item.task.assigned_to %}
+                                                    <i class="bi bi-person" style="margin-right: var(--m360-space-1);"></i>{{ item.task.assigned_to.username }}
+                                                    {% endif %}
+                                                </small>
+                                                {% if item.task.important %}
+                                                <i class="bi bi-star-fill events-text-warning" title="Prioridad alta"></i>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="events-text-center events-text-muted events-py-3">
+                                        <i class="bi bi-calendar-plus" style="font-size: var(--m360-icon-xl); color: var(--m360-primary);"></i>
+                                        <p class="events-mt-2">No hay tareas planificadas</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="events-col-12 events-col-md-6">
+                            <div class="m360-card" style="border: 2px solid var(--m360-info); border-radius: var(--m360-radius);">
+                                <div class="m360-card-header" style="background: var(--m360-info); color: #fff; border: none;">
+                                    <div class="events-d-flex events-justify-between events-align-center">
+                                        <div>
+                                            <h6 class="events-mb-1"><i class="bi bi-people" style="margin-right: var(--m360-space-2);"></i>Urgente pero No Importante</h6>
+                                            <small style="opacity: .8;">Delegar si es posible</small>
+                                        </div>
+                                        <span class="m360-badge m360-badge-light">{{ eisenhower_quadrants.urgent_not_important.tasks|length }}</span>
+                                    </div>
+                                </div>
+                                <div class="m360-card-body">
+                                    {% for item in eisenhower_quadrants.urgent_not_important.tasks %}
+                                    <div class="m360-card events-mb-2" style="border-left: 4px solid var(--m360-info);">
+                                        <div class="m360-card-body" style="padding: var(--m360-space-3);">
+                                            <div class="events-d-flex events-justify-between events-align-start events-gap-2">
+                                                <div class="events-flex-grow">
+                                                    <h6 class="events-mb-1">
+                                                        <a href="{% url 'events:tasks_with_id' item.task.id %}" class="events-text-dark" style="text-decoration: none;">{{ item.task.title }}</a>
+                                                    </h6>
+                                                    {% if item.task.description %}
+                                                    <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);">{{ item.task.description|truncatechars:60 }}</p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="m360-dropdown">
+                                                    <button class="m360-btn m360-btn-sm m360-btn-outline-secondary" data-m360-toggle="dropdown" aria-expanded="false">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <div class="m360-dropdown-menu m360-dropdown-menu-end">
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_important')"><i class="bi bi-exclamation-triangle-fill" style="margin-right: var(--m360-space-1);"></i>Mover a Urgente</a>
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'important_not_urgent')"><i class="bi bi-calendar-check" style="margin-right: var(--m360-space-1);"></i>Mover a Planificar</a>
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'not_urgent_important')"><i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i>Mover a Eliminar</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="events-d-flex events-justify-between events-align-center events-mt-2">
+                                                <small class="events-text-muted">
+                                                    {% if item.task.assigned_to %}
+                                                    <i class="bi bi-person" style="margin-right: var(--m360-space-1);"></i>{{ item.task.assigned_to.username }}
+                                                    {% endif %}
+                                                </small>
+                                                {% if item.task.important %}
+                                                <i class="bi bi-star-fill events-text-warning" title="Prioridad alta"></i>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="events-text-center events-text-muted events-py-3">
+                                        <i class="bi bi-person-check" style="font-size: var(--m360-icon-xl); color: var(--m360-info);"></i>
+                                        <p class="events-mt-2">No hay tareas para delegar</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="events-col-12 events-col-md-6">
+                            <div class="m360-card" style="border: 2px solid var(--m360-secondary); border-radius: var(--m360-radius);">
+                                <div class="m360-card-header" style="background: var(--m360-secondary); color: #fff; border: none;">
+                                    <div class="events-d-flex events-justify-between events-align-center">
+                                        <div>
+                                            <h6 class="events-mb-1"><i class="bi bi-trash" style="margin-right: var(--m360-space-2);"></i>No Urgente ni Importante</h6>
+                                            <small style="opacity: .8;">Eliminar o posponer</small>
+                                        </div>
+                                        <span class="m360-badge m360-badge-light">{{ eisenhower_quadrants.not_urgent_important.tasks|length }}</span>
+                                    </div>
+                                </div>
+                                <div class="m360-card-body">
+                                    {% for item in eisenhower_quadrants.not_urgent_important.tasks %}
+                                    <div class="m360-card events-mb-2" style="border-left: 4px solid var(--m360-secondary);">
+                                        <div class="m360-card-body" style="padding: var(--m360-space-3);">
+                                            <div class="events-d-flex events-justify-between events-align-start events-gap-2">
+                                                <div class="events-flex-grow">
+                                                    <h6 class="events-mb-1">
+                                                        <a href="{% url 'events:tasks_with_id' item.task.id %}" class="events-text-dark" style="text-decoration: none;">{{ item.task.title }}</a>
+                                                    </h6>
+                                                    {% if item.task.description %}
+                                                    <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);">{{ item.task.description|truncatechars:60 }}</p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="m360-dropdown">
+                                                    <button class="m360-btn m360-btn-sm m360-btn-outline-secondary" data-m360-toggle="dropdown" aria-expanded="false">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <div class="m360-dropdown-menu m360-dropdown-menu-end">
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_important')"><i class="bi bi-exclamation-triangle-fill" style="margin-right: var(--m360-space-1);"></i>Mover a Urgente</a>
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'important_not_urgent')"><i class="bi bi-calendar-check" style="margin-right: var(--m360-space-1);"></i>Mover a Planificar</a>
+                                                        <a class="m360-dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_not_important')"><i class="bi bi-people" style="margin-right: var(--m360-space-1);"></i>Mover a Delegar</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="events-d-flex events-justify-between events-align-center events-mt-2">
+                                                <small class="events-text-muted">
+                                                    {% if item.task.assigned_to %}
+                                                    <i class="bi bi-person" style="margin-right: var(--m360-space-1);"></i>{{ item.task.assigned_to.username }}
+                                                    {% endif %}
+                                                </small>
+                                                {% if item.task.important %}
+                                                <i class="bi bi-star-fill events-text-warning" title="Prioridad alta"></i>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="events-text-center events-text-muted events-py-3">
+                                        <i class="bi bi-check2-all" style="font-size: var(--m360-icon-xl); color: var(--m360-success);"></i>
+                                        <p class="events-mt-2">¡Perfecto! No hay tareas innecesarias</p>
+                                    </div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Matriz de Eisenhower -->
-                    <div class="eisenhower-matrix">
-                        <div class="row g-2">
-                            <!-- Cuadrante 1: Urgente e Importante -->
-                            <div class="col-12 col-md-6">
-                                <div class="quadrant urgent-important" data-quadrant="urgent_important">
-                                    <div class="quadrant-header">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h5 class="quadrant-title">
-                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                                    Urgente e Importante
-                                                </h5>
-                                                <p class="quadrant-subtitle">¡Hacer inmediatamente!</p>
-                                            </div>
-                                            <span class="quadrant-count badge bg-danger">
-                                                {{ eisenhower_quadrants.urgent_important.tasks|length }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="quadrant-body">
-                                        {% for item in eisenhower_quadrants.urgent_important.tasks %}
-                                        <div class="task-card" data-task-id="{{ item.task.id }}">
-                                            <div class="card mb-2 border-danger">
-                                                <div class="card-body p-2">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="card-title mb-1">
-                                                                <a href="{% url 'events:tasks_with_id' item.task.id %}" class="text-decoration-none">
-                                                                    {{ item.task.title }}
-                                                                </a>
-                                                            </h6>
-                                                            {% if item.task.description %}
-                                                            <p class="card-text small text-muted mb-2">
-                                                                {{ item.task.description|truncatechars:60 }}
-                                                            </p>
-                                                            {% endif %}
-                                                        </div>
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                                    type="button" data-bs-toggle="dropdown">
-                                                                <i class="bi bi-three-dots-vertical"></i>
-                                                            </button>
-                                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'important_not_urgent')">
-                                                                    <i class="bi bi-calendar-check me-2"></i>Mover a Planificar
-                                                                </a></li>
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_not_important')">
-                                                                    <i class="bi bi-people me-2"></i>Mover a Delegar
-                                                                </a></li>
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'not_urgent_important')">
-                                                                    <i class="bi bi-trash me-2"></i>Mover a Eliminar
-                                                                </a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between align-items-center mt-2">
-                                                        <small class="text-muted">
-                                                            {% if item.task.assigned_to %}
-                                                            <i class="bi bi-person me-1"></i>{{ item.task.assigned_to.username }}
-                                                            {% endif %}
-                                                        </small>
-                                                        {% if item.task.important %}
-                                                        <i class="bi bi-star-fill text-warning" title="Prioridad alta"></i>
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% empty %}
-                                        <div class="text-center text-muted p-3">
-                                            <i class="bi bi-check-circle display-4 text-success"></i>
-                                            <p class="mt-2">¡Excelente! No hay tareas urgentes pendientes</p>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Cuadrante 2: Importante pero No Urgente -->
-                            <div class="col-12 col-md-6">
-                                <div class="quadrant important-not-urgent" data-quadrant="important_not_urgent">
-                                    <div class="quadrant-header">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h5 class="quadrant-title">
-                                                    <i class="bi bi-calendar-check me-2"></i>
-                                                    Importante pero No Urgente
-                                                </h5>
-                                                <p class="quadrant-subtitle">Planificar para hacer</p>
-                                            </div>
-                                            <span class="quadrant-count badge bg-warning">
-                                                {{ eisenhower_quadrants.important_not_urgent.tasks|length }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="quadrant-body">
-                                        {% for item in eisenhower_quadrants.important_not_urgent.tasks %}
-                                        <div class="task-card" data-task-id="{{ item.task.id }}">
-                                            <div class="card mb-2 border-warning">
-                                                <div class="card-body p-2">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="card-title mb-1">
-                                                                <a href="{% url 'events:tasks_with_id' item.task.id %}" class="text-decoration-none">
-                                                                    {{ item.task.title }}
-                                                                </a>
-                                                            </h6>
-                                                            {% if item.task.description %}
-                                                            <p class="card-text small text-muted mb-2">
-                                                                {{ item.task.description|truncatechars:60 }}
-                                                            </p>
-                                                            {% endif %}
-                                                        </div>
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                                    type="button" data-bs-toggle="dropdown">
-                                                                <i class="bi bi-three-dots-vertical"></i>
-                                                            </button>
-                                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_important')">
-                                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Mover a Urgente
-                                                                </a></li>
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_not_important')">
-                                                                    <i class="bi bi-people me-2"></i>Mover a Delegar
-                                                                </a></li>
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'not_urgent_important')">
-                                                                    <i class="bi bi-trash me-2"></i>Mover a Eliminar
-                                                                </a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between align-items-center mt-2">
-                                                        <small class="text-muted">
-                                                            {% if item.task.assigned_to %}
-                                                            <i class="bi bi-person me-1"></i>{{ item.task.assigned_to.username }}
-                                                            {% endif %}
-                                                        </small>
-                                                        {% if item.task.important %}
-                                                        <i class="bi bi-star-fill text-warning" title="Prioridad alta"></i>
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% empty %}
-                                        <div class="text-center text-muted p-3">
-                                            <i class="bi bi-calendar-plus display-4 text-primary"></i>
-                                            <p class="mt-2">No hay tareas planificadas</p>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Cuadrante 3: Urgente pero No Importante -->
-                            <div class="col-12 col-md-6">
-                                <div class="quadrant urgent-not-important" data-quadrant="urgent_not_important">
-                                    <div class="quadrant-header">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h5 class="quadrant-title">
-                                                    <i class="bi bi-people me-2"></i>
-                                                    Urgente pero No Importante
-                                                </h5>
-                                                <p class="quadrant-subtitle">Delegar si es posible</p>
-                                            </div>
-                                            <span class="quadrant-count badge bg-info">
-                                                {{ eisenhower_quadrants.urgent_not_important.tasks|length }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="quadrant-body">
-                                        {% for item in eisenhower_quadrants.urgent_not_important.tasks %}
-                                        <div class="task-card" data-task-id="{{ item.task.id }}">
-                                            <div class="card mb-2 border-info">
-                                                <div class="card-body p-2">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="card-title mb-1">
-                                                                <a href="{% url 'events:tasks_with_id' item.task.id %}" class="text-decoration-none">
-                                                                    {{ item.task.title }}
-                                                                </a>
-                                                            </h6>
-                                                            {% if item.task.description %}
-                                                            <p class="card-text small text-muted mb-2">
-                                                                {{ item.task.description|truncatechars:60 }}
-                                                            </p>
-                                                            {% endif %}
-                                                        </div>
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                                    type="button" data-bs-toggle="dropdown">
-                                                                <i class="bi bi-three-dots-vertical"></i>
-                                                            </button>
-                                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_important')">
-                                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Mover a Urgente
-                                                                </a></li>
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'important_not_urgent')">
-                                                                    <i class="bi bi-calendar-check me-2"></i>Mover a Planificar
-                                                                </a></li>
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'not_urgent_important')">
-                                                                    <i class="bi bi-trash me-2"></i>Mover a Eliminar
-                                                                </a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between align-items-center mt-2">
-                                                        <small class="text-muted">
-                                                            {% if item.task.assigned_to %}
-                                                            <i class="bi bi-person me-1"></i>{{ item.task.assigned_to.username }}
-                                                            {% endif %}
-                                                        </small>
-                                                        {% if item.task.important %}
-                                                        <i class="bi bi-star-fill text-warning" title="Prioridad alta"></i>
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% empty %}
-                                        <div class="text-center text-muted p-3">
-                                            <i class="bi bi-person-check display-4 text-info"></i>
-                                            <p class="mt-2">No hay tareas para delegar</p>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Cuadrante 4: No Urgente ni Importante -->
-                            <div class="col-12 col-md-6">
-                                <div class="quadrant not-urgent-important" data-quadrant="not_urgent_important">
-                                    <div class="quadrant-header">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h5 class="quadrant-title">
-                                                    <i class="bi bi-trash me-2"></i>
-                                                    No Urgente ni Importante
-                                                </h5>
-                                                <p class="quadrant-subtitle">Eliminar o posponer</p>
-                                            </div>
-                                            <span class="quadrant-count badge bg-secondary">
-                                                {{ eisenhower_quadrants.not_urgent_important.tasks|length }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="quadrant-body">
-                                        {% for item in eisenhower_quadrants.not_urgent_important.tasks %}
-                                        <div class="task-card" data-task-id="{{ item.task.id }}">
-                                            <div class="card mb-2 border-secondary">
-                                                <div class="card-body p-2">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="card-title mb-1">
-                                                                <a href="{% url 'events:tasks_with_id' item.task.id %}" class="text-decoration-none">
-                                                                    {{ item.task.title }}
-                                                                </a>
-                                                            </h6>
-                                                            {% if item.task.description %}
-                                                            <p class="card-text small text-muted mb-2">
-                                                                {{ item.task.description|truncatechars:60 }}
-                                                            </p>
-                                                            {% endif %}
-                                                        </div>
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                                    type="button" data-bs-toggle="dropdown">
-                                                                <i class="bi bi-three-dots-vertical"></i>
-                                                            </button>
-                                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_important')">
-                                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Mover a Urgente
-                                                                </a></li>
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'important_not_urgent')">
-                                                                    <i class="bi bi-calendar-check me-2"></i>Mover a Planificar
-                                                                </a></li>
-                                                                <li><a class="dropdown-item" href="#" onclick="moveTask('{{ item.task.id }}', 'urgent_not_important')">
-                                                                    <i class="bi bi-people me-2"></i>Mover a Delegar
-                                                                </a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between align-items-center mt-2">
-                                                        <small class="text-muted">
-                                                            {% if item.task.assigned_to %}
-                                                            <i class="bi bi-person me-1"></i>{{ item.task.assigned_to.username }}
-                                                            {% endif %}
-                                                        </small>
-                                                        {% if item.task.important %}
-                                                        <i class="bi bi-star-fill text-warning" title="Prioridad alta"></i>
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% empty %}
-                                        <div class="text-center text-muted p-3">
-                                            <i class="bi bi-check2-all display-4 text-success"></i>
-                                            <p class="mt-2">¡Perfecto! No hay tareas innecesarias</p>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Resumen -->
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h6 class="card-title">Resumen de Priorización</h6>
-                                    <div class="row text-center">
-                                        <div class="col-3">
-                                            <div class="p-2 bg-danger text-white rounded">
-                                                <h4>{{ eisenhower_quadrants.urgent_important.tasks|length }}</h4>
+                    <div class="events-row events-mt-4">
+                        <div class="events-col-12">
+                            <div class="m360-card" style="background: var(--m360-gray-50);">
+                                <div class="m360-card-body">
+                                    <h6 class="events-card-title events-mb-3">Resumen de Priorización</h6>
+                                    <div class="events-row events-gap-3">
+                                        <div class="events-col-6 events-col-md-3">
+                                            <div class="events-text-center events-p-3" style="background: var(--m360-danger); color: #fff; border-radius: var(--m360-radius);">
+                                                <h4 class="events-mb-0">{{ eisenhower_quadrants.urgent_important.tasks|length }}</h4>
                                                 <small>Urgente</small>
                                             </div>
                                         </div>
-                                        <div class="col-3">
-                                            <div class="p-2 bg-warning text-dark rounded">
-                                                <h4>{{ eisenhower_quadrants.important_not_urgent.tasks|length }}</h4>
+                                        <div class="events-col-6 events-col-md-3">
+                                            <div class="events-text-center events-p-3" style="background: var(--m360-warning); color: var(--m360-text-dark); border-radius: var(--m360-radius);">
+                                                <h4 class="events-mb-0">{{ eisenhower_quadrants.important_not_urgent.tasks|length }}</h4>
                                                 <small>Planificar</small>
                                             </div>
                                         </div>
-                                        <div class="col-3">
-                                            <div class="p-2 bg-info text-white rounded">
-                                                <h4>{{ eisenhower_quadrants.urgent_not_important.tasks|length }}</h4>
+                                        <div class="events-col-6 events-col-md-3">
+                                            <div class="events-text-center events-p-3" style="background: var(--m360-info); color: #fff; border-radius: var(--m360-radius);">
+                                                <h4 class="events-mb-0">{{ eisenhower_quadrants.urgent_not_important.tasks|length }}</h4>
                                                 <small>Delegar</small>
                                             </div>
                                         </div>
-                                        <div class="col-3">
-                                            <div class="p-2 bg-secondary text-white rounded">
-                                                <h4>{{ eisenhower_quadrants.not_urgent_important.tasks|length }}</h4>
+                                        <div class="events-col-6 events-col-md-3">
+                                            <div class="events-text-center events-p-3" style="background: var(--m360-secondary); color: #fff; border-radius: var(--m360-radius);">
+                                                <h4 class="events-mb-0">{{ eisenhower_quadrants.not_urgent_important.tasks|length }}</h4>
                                                 <small>Eliminar</small>
                                             </div>
                                         </div>
@@ -388,184 +301,36 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-.quadrant {
-    border: 2px solid;
-    border-radius: 0.5rem;
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-}
-
-.quadrant-header {
-    padding: 1rem;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    flex-shrink: 0;
-}
-
-.quadrant-title {
-    margin: 0 0 0.25rem 0;
-    font-weight: 600;
-    font-size: 1.1rem;
-}
-
-.quadrant-subtitle {
-    margin: 0;
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
-.quadrant-body {
-    padding: 1rem;
-    flex-grow: 1;
-    overflow-y: auto;
-}
-
-.task-card {
-    transition: transform 0.2s;
-}
-
-.task-card:hover {
-    transform: translateY(-2px);
-}
-
-.task-card .card {
-    transition: box-shadow 0.2s;
-}
-
-.task-card .card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* Colores específicos para cada cuadrante */
-.urgent-important {
-    border-color: #dc3545;
-    background-color: #ffebee;
-}
-
-.important-not-urgent {
-    border-color: #ffc107;
-    background-color: #fff8e1;
-}
-
-.urgent-not-important {
-    border-color: #fd7e14;
-    background-color: #fff3e0;
-}
-
-.not-urgent-important {
-    border-color: #6c757d;
-    background-color: #f8f9fa;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .quadrant {
-        margin-bottom: 1rem;
-        min-height: 300px;
-    }
-
-    .quadrant-header {
-        padding: 0.75rem;
-    }
-
-    .quadrant-body {
-        padding: 0.75rem;
-    }
-}
-</style>
-
+{% block extra_js %}
 <script>
-// Función para mover tareas entre cuadrantes
 function moveTask(taskId, newQuadrant) {
-    const quadrantNames = {
-        'urgent_important': 'Urgente e Importante',
-        'important_not_urgent': 'Importante pero No Urgente',
-        'urgent_not_important': 'Urgente pero No Importante',
-        'not_urgent_important': 'No Urgente ni Importante'
-    };
-
-    // Mostrar loading
-    const button = event.target.closest('.dropdown-item');
+    const quadrantNames = { urgent_important: 'Urgente e Importante', important_not_urgent: 'Importante pero No Urgente', urgent_not_important: 'Urgente pero No Importante', not_urgent_important: 'No Urgente ni Importante' };
+    const button = event.target.closest('.m360-dropdown-item');
     const originalText = button.innerHTML;
-    button.innerHTML = '<i class="bi bi-arrow-clockwise spinning me-2"></i>Moviendo...';
+    button.innerHTML = '<i class="bi bi-arrow-clockwise spin" style="margin-right: var(--m360-space-1);"></i>Moviendo...';
     button.style.pointerEvents = 'none';
 
-    // Hacer petición AJAX
     fetch(`/events/eisenhower/move/${taskId}/${newQuadrant}/`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
-        }
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '' }
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            // Mostrar notificación de éxito
-            if (typeof showNotification !== 'undefined') {
-                showNotification(data.message, 'success');
-            } else {
-                alert(data.message);
-            }
-
-            // Remover la tarjeta del DOM
-            const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
-            if (taskCard) {
-                taskCard.style.transition = 'all 0.3s ease';
-                taskCard.style.opacity = '0';
-                taskCard.style.transform = 'scale(0.8)';
-
-                setTimeout(() => {
-                    taskCard.remove();
-                    // Actualizar contadores
-                    updateQuadrantCounts();
-                }, 300);
-            }
-        } else {
-            // Mostrar error
-            if (typeof showNotification !== 'undefined') {
-                showNotification(data.error, 'error');
-            } else {
-                alert('Error: ' + data.error);
-            }
-        }
+        if (data.success) { alert(data.message); const taskCard = document.querySelector(`[data-task-id="${taskId}"]`); if (taskCard) { taskCard.style.transition = 'all 0.3s ease'; taskCard.style.opacity = '0'; taskCard.style.transform = 'scale(0.8)'; setTimeout(() => { taskCard.remove(); updateQuadrantCounts(); }, 300); } }
+        else { alert('Error: ' + data.error); }
     })
-    .catch(error => {
-        console.error('Error:', error);
-        if (typeof showNotification !== 'undefined') {
-            showNotification('Error al mover la tarea', 'error');
-        } else {
-            alert('Error al mover la tarea');
-        }
-    })
-    .finally(() => {
-        // Restaurar botón
-        button.innerHTML = originalText;
-        button.style.pointerEvents = 'auto';
-    });
+    .catch(error => { console.error('Error:', error); alert('Error al mover la tarea'); })
+    .finally(() => { button.innerHTML = originalText; button.style.pointerEvents = 'auto'; });
 }
 
-// Función para actualizar contadores de cuadrantes
 function updateQuadrantCounts() {
-    const quadrants = document.querySelectorAll('[data-quadrant]');
-    quadrants.forEach(quadrant => {
+    document.querySelectorAll('[data-quadrant]').forEach(quadrant => {
         const countBadge = quadrant.querySelector('.quadrant-count');
         const taskCards = quadrant.querySelectorAll('.task-card');
-        if (countBadge) {
-            countBadge.textContent = taskCards.length;
-        }
+        if (countBadge) countBadge.textContent = taskCards.length;
     });
 }
-
-// Inicializar tooltips si Bootstrap 5 está disponible
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-});
 </script>
 {% endblock %}

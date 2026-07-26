@@ -40,6 +40,12 @@
   color: var(--m360-primary);
 }
 
+.m360-root .m360-badge-secondary {
+  background: var(--m360-gray-100);
+  border-color: var(--m360-border);
+  color: var(--m360-text-secondary);
+}
+
 .m360-root .m360-badge-required {
   background: var(--m360-danger-light);
   border: 1px solid var(--m360-danger-border);

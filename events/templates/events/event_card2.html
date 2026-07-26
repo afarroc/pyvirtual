@@ -1,71 +1,63 @@
+<div class="events-col-12 events-col-md-6 events-col-xxl-4">
+    <div class="m360-card events-h-100">
+        <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+            <h5 class="m360-card-title events-mb-0">{{ event.title }} <span>| Today</span></h5>
+            <div class="m360-dropdown">
+                <button class="m360-btn m360-btn-sm m360-btn-outline-secondary" data-m360-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+                <div class="m360-dropdown-menu m360-dropdown-menu-end">
+                    <div class="m360-dropdown-header"><h6>More Options</h6></div>
+                    <a class="m360-dropdown-item" href="#">op1</a>
+                    <a class="m360-dropdown-item" href="#">op2</a>
+                    <a class="m360-dropdown-item" href="#">op3</a>
+                </div>
+            </div>
+        </div>
 
-<!-- Sales Card -->
-<div class="col-xxl-4 col-md-6">
-	<div class="card info-card sales-card">
+        <div class="m360-card-body">
+            <div class="events-d-flex events-align-center events-gap-2">
+                <div class="events-avatar-sm" style="color: {{event.event_status.color}};">
+                    <div class="events-avatar-title">
+                        <i class="bi bi-calendar2-event-fill"></i>
+                    </div>
+                </div>
+                <div>
+                    <h6 class="events-mb-1">{{count_events}}</h6>
+                    <span class="events-text-success" style="font-size: var(--m360-text-sm); font-weight: var(--m360-font-weight-bold);">12%</span>
+                    <span class="events-text-muted" style="font-size: var(--m360-text-sm);">increase</span>
+                </div>
+            </div>
 
-		<div class="filter">
-			<a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-			<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-				<li class="dropdown-header text-start">
-					<h6>More Options</h6>
-				</li>
+            <p class="events-mb-1">{{ event.description }}</p> 
+            {% if event.attendees.all %}
+            <p class="events-mb-1"><strong>Asistentes:</strong>
+                {% for attendee in event.attendees.all %}
+                    {{ attendee.username|title }}{% if not forloop.last %},{% else %}.{% endif %}
+                {% endfor %}
+            {% endif %}
+            </p>
 
-				<li><a class="dropdown-item" href="#">op1</a></li>
-				<li><a class="dropdown-item" href="#">op2</a></li>
-				<li><a class="dropdown-item" href="#">op3</a></li>
-			</ul>
-		</div>
+            <form id="form-{{ event.id }}" action="{% url 'events:change_event_status' event.id %}" method="POST">
+                {% csrf_token %}
+                <div class="events-mb-3">
+                    <label for="id_new_status_id" class="m360-form-label">Estado</label>
+                    <select name="new_status_id" class="m360-form-control" aria-label="Default select example">
+                        {% for status in event_statuses %}
+                            <option value="{{ status.id }}" {% if status.id|stringformat:"s" == event.event_status.id|stringformat:"s" %}selected{% endif %}>
+                            {{ status.status_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="m360-btn m360-btn-primary">Cambiar Estado</button>
+            </form> 
+        </div>
 
-		<div class="card-body">
-			<h5 class="card-title">{{ event.title }} <span>| Today</span></h5>
-
-			<div class="d-flex align-items-center">
-				<div
-					style="color: {{event.event_status.color}};"
-					class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-					<i class="bi bi-calendar2-event-fill"></i>
-				</div>
-				<div class="ps-3">
-					<h6>{{count_events}}</h6>
-					<span class="text-success small pt-1 fw-bold">12%</span> <span
-						class="text-muted small pt-2 ps-1">increase</span>
-
-				</div>
-			</div>
-			<p class="card-text mb-1">{{ event.description }}</p> 
-			{% if event.attendees.all %}
-			<p class="card-text mb-1"><strong>Asistentes:</strong>
-				{% for attendee in event.attendees.all %}
-					{{ attendee.username|title }}{% if not forloop.last %},{% else %}.{% endif %}
-				{% endfor %}
-			{% endif %}
-			</p>
-
-				<form id="form-{{ event.id }}" action="{% url 'events:change_event_status' event.id %}" method="POST">
-					{% csrf_token %}
-					<div class="form-floating mb-3">
-	
-						<select name="new_status_id" class="form-select" aria-label="Default select example">
-							{% for status in event_statuses %}
-								<option value="{{ status.id }}" {% if status.id|stringformat:"s" == event.event_status.id|stringformat:"s" %}selected{% endif %}>
-								{{ status.status_name }}
-								</option>
-							{% endfor %}
-						</select>
-						<label for="floatingSelect">Estado</label>
-					</div>
-					<button type="submit" class="btn btn-primary">Cambiar Estado</button>
-				</form> 
-
-
-
-		</div>
-		<div class="card-footer">
-			<p class="card-text mb-3"><strong>Updated:</strong> {{ event.updated_at|date:"d-M H:i" }}</p>
-			<p class="card-text mb-3"><strong>Created:</strong> {{ event.created_at|date:"d-M H:i" }}</p>
-			<p>{{ event.host.get_full_name|title }}</p>
-		</div>
-	</div>
-</div><!-- End Sales Card -->
-
-
+        <div class="m360-card-footer">
+            <p class="events-mb-3"><strong>Updated:</strong> {{ event.updated_at|date:"d-M H:i" }}</p>
+            <p class="events-mb-3"><strong>Created:</strong> {{ event.created_at|date:"d-M H:i" }}</p>
+            <p>{{ event.host.get_full_name|title }}</p>
+        </div>
+    </div>
+</div>

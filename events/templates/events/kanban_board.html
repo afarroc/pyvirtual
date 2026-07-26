@@ -1,4 +1,4 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 {% load custom_tags %}
 
@@ -6,6 +6,7 @@
 
 {% block extra_css %}
 <style>
+/* Kanban Board Modern - Migrated to ITCSS M360 */
 .kanban-container {
     display: flex;
     gap: 1rem;
@@ -17,10 +18,10 @@
 .kanban-column {
     flex: 1;
     min-width: 300px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    background: var(--m360-gray-50);
+    border-radius: var(--m360-radius);
     padding: 1rem;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--m360-border);
 }
 
 .kanban-column-header {
@@ -49,9 +50,9 @@
 }
 
 .kanban-task-card {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
+    background: #fff;
+    border: 1px solid var(--m360-border);
+    border-radius: var(--m360-radius);
     padding: 1rem;
     margin-bottom: 0.75rem;
     cursor: pointer;
@@ -67,19 +68,19 @@
 .task-title {
     font-weight: 500;
     margin-bottom: 0.5rem;
-    color: #2c3e50;
+    color: var(--m360-text);
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
 .task-title.important {
-    color: #dc3545;
+    color: var(--m360-danger);
 }
 
 .task-meta {
-    font-size: 0.85rem;
-    color: #6c757d;
+    font-size: var(--m360-text-sm);
+    color: var(--m360-text-muted);
     margin-bottom: 0.5rem;
 }
 
@@ -94,8 +95,9 @@
     font-size: 0.7rem;
     padding: 0.2rem 0.4rem;
     border-radius: 12px;
-    background: #e9ecef;
-    color: #495057;
+    background: var(--m360-gray-50);
+    color: var(--m360-text);
+    border: 1px solid var(--m360-border);
 }
 
 .task-priority {
@@ -108,25 +110,10 @@
     font-weight: 500;
 }
 
-.priority-high {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.priority-medium {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.priority-low {
-    background: #d1ecf1;
-    color: #0c5460;
-}
-
 .task-actions {
     margin-top: 0.75rem;
     padding-top: 0.5rem;
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid var(--m360-border);
     display: flex;
     gap: 0.5rem;
     justify-content: space-between;
@@ -135,17 +122,17 @@
 .btn-task-action {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
-    border-radius: 4px;
+    border-radius: var(--m360-radius);
 }
 
 .task-project {
-    font-size: 0.8rem;
-    color: #6c757d;
+    font-size: var(--m360-text-sm);
+    color: var(--m360-text-muted);
     margin-top: 0.25rem;
 }
 
 .task-project a {
-    color: #007bff;
+    color: var(--m360-primary);
     text-decoration: none;
 }
 
@@ -154,9 +141,9 @@
 }
 
 .kanban-filters {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
+    background: #fff;
+    border: 1px solid var(--m360-border);
+    border-radius: var(--m360-radius);
     padding: 1rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -173,7 +160,7 @@
 .filter-title {
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: #495057;
+    color: var(--m360-text);
 }
 
 .filter-tags {
@@ -187,22 +174,22 @@
     align-items: center;
     gap: 0.25rem;
     padding: 0.25rem 0.5rem;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
+    background: var(--m360-gray-50);
+    border: 1px solid var(--m360-border);
+    border-radius: var(--m360-radius);
     cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 0.85rem;
+    font-size: var(--m360-text-sm);
 }
 
 .filter-tag:hover {
-    background: #e9ecef;
+    background: var(--m360-gray-50);
 }
 
 .filter-tag.active {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
+    background: var(--m360-primary);
+    color: #fff;
+    border-color: var(--m360-primary);
 }
 
 .filter-tag-icon {
@@ -216,10 +203,11 @@
     align-items: center;
     gap: 1rem;
     padding: 0.5rem;
-    background: #f8f9fa;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    color: #6c757d;
+    background: var(--m360-gray-50);
+    border-radius: var(--m360-radius);
+    font-size: var(--m360-text-sm);
+    color: var(--m360-text-muted);
+    margin-top: 1rem;
 }
 
 .legend-item {
@@ -236,22 +224,10 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .kanban-container {
-        flex-direction: column;
-    }
-
-    .kanban-column {
-        min-width: 100%;
-    }
-
-    .filter-tags {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .filter-tag {
-        justify-content: center;
-    }
+    .kanban-container { flex-direction: column; }
+    .kanban-column { min-width: 100%; }
+    .filter-tags { flex-direction: column; }
+    .filter-tag { justify-content: center; }
 }
 
 /* Loading animation */
@@ -260,14 +236,14 @@
     justify-content: center;
     align-items: center;
     min-height: 200px;
-    color: #6c757d;
+    color: var(--m360-text-muted);
 }
 
 .loading-spinner {
     width: 20px;
     height: 20px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #007bff;
+    border: 2px solid var(--m360-gray-50);
+    border-top: 2px solid var(--m360-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-right: 0.5rem;
@@ -285,7 +261,7 @@
 }
 
 .kanban-column.drag-over {
-    border-color: #007bff;
+    border-color: var(--m360-primary);
     background: rgba(0, 123, 255, 0.1);
 }
 
@@ -293,7 +269,7 @@
 .kanban-empty {
     text-align: center;
     padding: 2rem;
-    color: #6c757d;
+    color: var(--m360-text-muted);
 }
 
 .kanban-empty-icon {
@@ -311,50 +287,38 @@
     font-size: 0.9rem;
     opacity: 0.7;
 }
-
-/* Dynamic styles will be applied via JavaScript */
-.kanban-column-header.todo { border-color: #6c757d; }
-.kanban-column-header.in-progress { border-color: #007bff; }
-.kanban-column-header.in-review { border-color: #fd7e14; }
-.kanban-column-header.completed { border-color: #28a745; }
-
-.kanban-column-header .column-icon.todo { color: #6c757d; }
-.kanban-column-header .column-icon.in-progress { color: #007bff; }
-.kanban-column-header .column-icon.in-review { color: #fd7e14; }
-.kanban-column-header .column-icon.completed { color: #28a745; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="mb-1">
-                <i class="bi bi-kanban text-primary me-2"></i>
-                {{ title }}
-            </h1>
-            {% if project %}
-                <p class="text-muted mb-0">
-                    <i class="bi bi-folder me-1"></i>
-                    Proyecto: <a href="{% url 'events:projects_with_id' project.id %}" class="text-decoration-none">{{ project.title }}</a>
-                </p>
-            {% endif %}
-        </div>
-
-        <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
-                <i class="bi bi-funnel me-1"></i>
-                Filtros
-            </button>
-            <a href="{% url 'events:unified_dashboard' %}" class="btn btn-outline-primary">
-                <i class="bi bi-speedometer2 me-1"></i>
-                Dashboard
-            </a>
+<div class="events-container">
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="events-d-flex events-justify-between events-align-center events-flex-wrap events-gap-3">
+                <div>
+                    <h1 class="events-h3 events-mb-1">
+                        <i class="bi bi-kanban events-text-primary" style="margin-right: var(--m360-space-2);"></i>
+                        {{ title }}
+                    </h1>
+                    {% if project %}
+                        <p class="events-text-muted events-mb-0">
+                            <i class="bi bi-folder" style="margin-right: var(--m360-space-1);"></i>
+                            Proyecto: <a href="{% url 'events:projects_with_id' project.id %}" class="events-text-primary" style="text-decoration: none;">{{ project.title }}</a>
+                        </p>
+                    {% endif %}
+                </div>
+                <div class="m360-btn-group">
+                    <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-toggle="modal" data-m360-target="#filterModal">
+                        <i class="bi bi-funnel" style="margin-right: var(--m360-space-1);"></i>Filtros
+                    </button>
+                    <a href="{% url 'events:unified_dashboard' %}" class="m360-btn m360-btn-outline-primary">
+                        <i class="bi bi-speedometer2" style="margin-right: var(--m360-space-1);"></i>Dashboard
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Kanban Board -->
     <div class="kanban-container" id="kanbanBoard">
         {% for status_name, column in kanban_columns.items %}
         <div class="kanban-column" data-status="{{ status_name }}">
@@ -371,7 +335,7 @@
                 <div class="kanban-task-card" data-task-id="{{ task_data.task.id }}" draggable="true">
                     <div class="task-title {% if task_data.task.important %}important{% endif %}">
                         {% if task_data.task.important %}
-                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill events-text-warning"></i>
                         {% endif %}
                         <span>{{ task_data.task.title|truncatechars:50 }}</span>
                     </div>
@@ -382,13 +346,10 @@
                     </div>
                     {% endif %}
 
-                    <!-- Task Tags -->
                     {% if task_data.task.tags.all %}
                     <div class="task-tags">
                         {% for tag in task_data.task.tags.all|slice:":3" %}
-                        <span class="task-tag" data-tag-color="{{ tag.color }}">
-                            {{ tag.name }}
-                        </span>
+                        <span class="task-tag" data-tag-color="{{ tag.color }}">{{ tag.name }}</span>
                         {% endfor %}
                         {% if task_data.task.tags.all|length > 3 %}
                         <span class="task-tag">+{{ task_data.task.tags.all|length|add:"-3" }}</span>
@@ -396,34 +357,28 @@
                     </div>
                     {% endif %}
 
-                    <!-- Task Project -->
                     {% if task_data.task.project %}
                     <div class="task-project">
-                        <i class="bi bi-folder me-1"></i>
+                        <i class="bi bi-folder" style="margin-right: var(--m360-space-1);"></i>
                         <a href="{% url 'events:projects_with_id' task_data.task.project.id %}">{{ task_data.task.project.title|truncatechars:30 }}</a>
                     </div>
                     {% endif %}
 
-                    <!-- Task Actions -->
                     <div class="task-actions">
-                        <div class="d-flex gap-1">
-                            <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="btn btn-sm btn-outline-primary btn-task-action">
+                        <div class="events-d-flex events-gap-1">
+                            <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="m360-btn m360-btn-sm m360-btn-outline-primary btn-task-action">
                                 <i class="bi bi-eye"></i>
                             </a>
-                            <a href="{% url 'events:task_edit' task_data.task.id %}" class="btn btn-sm btn-outline-secondary btn-task-action">
+                            <a href="{% url 'events:task_edit' task_data.task.id %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary btn-task-action">
                                 <i class="bi bi-pencil"></i>
                             </a>
                         </div>
-                        <small class="text-muted">
-                            {{ task_data.task.updated_at|date:"d/m/Y" }}
-                        </small>
+                        <small class="events-text-muted">{{ task_data.task.updated_at|date:"d/m/Y" }}</small>
                     </div>
                 </div>
                 {% empty %}
                 <div class="kanban-empty">
-                    <div class="kanban-empty-icon">
-                        <i class="bi bi-clipboard-x"></i>
-                    </div>
+                    <div class="kanban-empty-icon"><i class="bi bi-clipboard-x"></i></div>
                     <div class="kanban-empty-text">No hay tareas</div>
                     <div class="kanban-empty-subtext">Las tareas aparecerán aquí cuando tengan este estado</div>
                 </div>
@@ -433,40 +388,36 @@
         {% endfor %}
     </div>
 
-    <!-- Kanban Legend -->
-    <div class="kanban-legend mt-3">
+    <div class="kanban-legend">
         <div class="legend-item">
-            <div class="legend-color" style="background: #dc3545;"></div>
+            <div class="legend-color" style="background: var(--m360-danger);"></div>
             <span>Alta Prioridad</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #ffc107;"></div>
+            <div class="legend-color" style="background: var(--m360-warning);"></div>
             <span>Media Prioridad</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #17a2b8;"></div>
+            <div class="legend-color" style="background: var(--m360-info);"></div>
             <span>Baja Prioridad</span>
         </div>
     </div>
 </div>
 
-<!-- Filter Modal -->
-<div class="modal fade" id="filterModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-funnel me-2"></i>
-                    Filtros Kanban
+<div class="m360-modal" id="filterModal" tabindex="-1" aria-hidden="true">
+    <div class="m360-modal-dialog">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title">
+                    <i class="bi bi-funnel" style="margin-right: var(--m360-space-1);"></i>Filtros Kanban
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="m360-modal-body">
                 {% for category in tag_categories %}
-                <div class="filter-section">
-                    <div class="filter-title">
-                        <i class="bi bi-tag me-1"></i>
-                        {{ category.name }}
+                <div class="events-mb-3">
+                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-text-muted);">
+                        <i class="bi bi-tag" style="margin-right: var(--m360-space-1);"></i>{{ category.name }}
                     </div>
                     <div class="filter-tags">
                         {% for tag in category.tag_set.all %}
@@ -479,268 +430,64 @@
                 </div>
                 {% endfor %}
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="clearAllFilters()">
-                    <i class="bi bi-x-circle me-1"></i>
-                    Limpiar Filtros
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-outline-secondary" onclick="clearAllFilters()">
+                    <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>Limpiar Filtros
                 </button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                    <i class="bi bi-check me-1"></i>
-                    Aplicar
+                <button type="button" class="m360-btn m360-btn-primary" data-m360-close>
+                    <i class="bi bi-check" style="margin-right: var(--m360-space-1);"></i>Aplicar
                 </button>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Drag and drop functionality
     initializeDragAndDrop();
-
-    // Filter functionality
     initializeFilters();
-
-    // Task card click handlers
     initializeTaskCards();
 });
 
 function initializeDragAndDrop() {
     const taskCards = document.querySelectorAll('.kanban-task-card[draggable="true"]');
     const columns = document.querySelectorAll('.kanban-column');
-
-    taskCards.forEach(card => {
-        card.addEventListener('dragstart', handleDragStart);
-        card.addEventListener('dragend', handleDragEnd);
-    });
-
-    columns.forEach(column => {
-        column.addEventListener('dragover', handleDragOver);
-        column.addEventListener('drop', handleDrop);
-    });
+    taskCards.forEach(card => { card.addEventListener('dragstart', handleDragStart); card.addEventListener('dragend', handleDragEnd); });
+    columns.forEach(column => { column.addEventListener('dragover', handleDragOver); column.addEventListener('drop', handleDrop); });
 }
 
-function handleDragStart(e) {
-    e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
-    e.target.classList.add('dragging');
-}
-
-function handleDragEnd(e) {
-    e.target.classList.remove('dragging');
-    document.querySelectorAll('.kanban-column').forEach(col => {
-        col.classList.remove('drag-over');
-    });
-}
-
-function handleDragOver(e) {
-    e.preventDefault();
-    e.currentTarget.classList.add('drag-over');
-}
-
-function handleDrop(e) {
-    e.preventDefault();
-    e.currentTarget.classList.remove('drag-over');
-
-    const taskId = e.dataTransfer.getData('text/plain');
-    const newStatus = e.currentTarget.dataset.status;
-
-    if (taskId && newStatus) {
-        moveTaskToColumn(taskId, newStatus);
-    }
-}
+function handleDragStart(e) { e.dataTransfer.setData('text/plain', e.target.dataset.taskId); e.target.classList.add('dragging'); }
+function handleDragEnd(e) { e.target.classList.remove('dragging'); document.querySelectorAll('.kanban-column').forEach(col => col.classList.remove('drag-over')); }
+function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function handleDrop(e) { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); const taskId = e.dataTransfer.getData('text/plain'); const newStatus = e.currentTarget.dataset.status; if (taskId && newStatus) moveTaskToColumn(taskId, newStatus); }
 
 function moveTaskToColumn(taskId, newStatus) {
-    // Show loading state
-    const card = document.querySelector(`[data-task-id="${taskId}"]`);
-    if (!card) return;
-
+    const card = document.querySelector(`[data-task-id="${taskId}"]`); if (!card) return;
     const originalContent = card.innerHTML;
-    card.innerHTML = '<div class="d-flex align-items-center"><div class="loading-spinner"></div> Moviendo...</div>';
-
-    // Make AJAX request to update task status
-    fetch(`/events/tasks/change-status-ajax/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        },
-        body: `task_id=${taskId}&new_status_name=${newStatus}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Move the card to the new column
-            const newColumn = document.querySelector(`[data-status="${newStatus}"] .kanban-column-tasks`);
-            if (newColumn) {
-                newColumn.appendChild(card);
-
-                // Update task count
-                updateTaskCounts();
-
-                // Show success message
-                showToast('Tarea movida exitosamente', 'success');
-            }
-        } else {
-            // Restore original content
-            card.innerHTML = originalContent;
-            showToast(data.error || 'Error al mover la tarea', 'error');
-        }
-    })
-    .catch(error => {
-        // Restore original content
-        card.innerHTML = originalContent;
-        showToast('Error de conexión', 'error');
-        console.error('Error:', error);
-    });
+    card.innerHTML = '<div class="events-d-flex events-align-center events-justify-center events-p-3"><div class="loading-spinner"></div> Moviendo...</div>';
+    fetch(`/events/tasks/change-status-ajax/`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value }, body: `task_id=${taskId}&new_status_name=${newStatus}` })
+    .then(response => response.json()).then(data => {
+        if (data.success) { const newColumn = document.querySelector(`[data-status="${newStatus}"] .kanban-column-tasks`); if (newColumn) { newColumn.appendChild(card); updateTaskCounts(); } }
+        else { card.innerHTML = originalContent; }
+    }).catch(error => { card.innerHTML = originalContent; console.error('Error:', error); });
 }
 
-function updateTaskCounts() {
-    document.querySelectorAll('.kanban-column').forEach(column => {
-        const count = column.querySelectorAll('.kanban-task-card').length;
-        const countElement = column.querySelector('.task-count');
-        if (countElement) {
-            countElement.textContent = count;
-        }
-    });
-}
+function updateTaskCounts() { document.querySelectorAll('.kanban-column').forEach(column => { const count = column.querySelectorAll('.kanban-task-card').length; const countElement = column.querySelector('.task-count'); if (countElement) countElement.textContent = count; }); }
+function initializeFilters() { const filterTags = document.querySelectorAll('.filter-tag'); filterTags.forEach(tag => { tag.addEventListener('click', function() { this.classList.toggle('active'); applyFilters(); }); }); }
+function applyFilters() { const activeFilters = Array.from(document.querySelectorAll('.filter-tag.active')).map(tag => tag.dataset.tagId); const taskCards = document.querySelectorAll('.kanban-task-card'); taskCards.forEach(card => { const taskTags = Array.from(card.querySelectorAll('.task-tag')).map(tag => tag.textContent.trim()); const shouldShow = activeFilters.length === 0 || activeFilters.some(filterId => taskTags.includes(filterId)); card.style.display = shouldShow ? 'block' : 'none'; }); updateTaskCounts(); }
+function clearAllFilters() { document.querySelectorAll('.filter-tag.active').forEach(tag => { tag.classList.remove('active'); }); applyFilters(); }
+function initializeTaskCards() { const taskCards = document.querySelectorAll('.kanban-task-card'); taskCards.forEach(card => { card.addEventListener('click', function(e) { if (e.target.closest('.task-actions')) return; const taskId = this.dataset.taskId; if (taskId) window.location.href = `/events/tasks/${taskId}/`; }); }); }
 
-function initializeFilters() {
-    const filterTags = document.querySelectorAll('.filter-tag');
-
-    filterTags.forEach(tag => {
-        tag.addEventListener('click', function() {
-            this.classList.toggle('active');
-            applyFilters();
-        });
-    });
-}
-
-function applyFilters() {
-    const activeFilters = Array.from(document.querySelectorAll('.filter-tag.active')).map(tag => ({
-        tagId: tag.dataset.tagId,
-        category: tag.dataset.category
-    }));
-
-    const taskCards = document.querySelectorAll('.kanban-task-card');
-
-    taskCards.forEach(card => {
-        const taskTags = Array.from(card.querySelectorAll('.task-tag')).map(tag => tag.textContent.trim());
-        const shouldShow = activeFilters.length === 0 ||
-            activeFilters.some(filter => taskTags.includes(filter.tagId));
-
-        card.style.display = shouldShow ? 'block' : 'none';
-    });
-
-    // Update task counts after filtering
-    updateTaskCounts();
-}
-
-function clearAllFilters() {
-    document.querySelectorAll('.filter-tag.active').forEach(tag => {
-        tag.classList.remove('active');
-    });
-    applyFilters();
-}
-
-function initializeTaskCards() {
-    const taskCards = document.querySelectorAll('.kanban-task-card');
-
-    taskCards.forEach(card => {
-        card.addEventListener('click', function(e) {
-            // Don't trigger if clicking on action buttons
-            if (e.target.closest('.task-actions')) {
-                return;
-            }
-
-            const taskId = this.dataset.taskId;
-            if (taskId) {
-                window.location.href = `/events/tasks/${taskId}/`;
-            }
-        });
-    });
-}
-
-function showToast(message, type = 'info') {
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.className = `toast align-items-center text-white bg-${type} border-0`;
-    toast.setAttribute('role', 'alert');
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-                ${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    `;
-
-    // Add to page
-    document.body.appendChild(toast);
-
-    // Initialize and show toast
-    const bsToast = new bootstrap.Toast(toast);
-    bsToast.show();
-
-    // Remove after showing
-    toast.addEventListener('hidden.bs.toast', function() {
-        document.body.removeChild(toast);
-    });
-}
-
-// Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-    // ESC to clear filters
-    if (e.key === 'Escape') {
-        clearAllFilters();
-    }
-
-    // F to focus filter modal
-    if (e.key === 'f' && !e.ctrlKey && !e.altKey) {
-        e.preventDefault();
-        const filterButton = document.querySelector('[data-bs-target="#filterModal"]');
-        if (filterButton) {
-            filterButton.click();
-        }
-    }
+    if (e.key === 'Escape') clearAllFilters();
+    if (e.key === 'f' && !e.ctrlKey && !e.altKey) { e.preventDefault(); document.querySelector('[data-m360-target="#filterModal"]')?.click(); }
 });
 
-// Apply dynamic styles
 document.addEventListener('DOMContentLoaded', function() {
-    // Apply column colors
-    document.querySelectorAll('.kanban-column-header').forEach(header => {
-        const color = header.dataset.columnColor;
-        if (color) {
-            header.style.borderColor = color;
-            const icon = header.querySelector('.column-icon');
-            if (icon) {
-                icon.style.color = color;
-            }
-        }
-    });
-
-    // Apply tag colors
-    document.querySelectorAll('.task-tag').forEach(tag => {
-        const color = tag.dataset.tagColor;
-        if (color) {
-            tag.style.backgroundColor = color + '20'; // Add transparency
-            tag.style.color = color;
-        }
-    });
-
-    // Apply filter tag colors
-    document.querySelectorAll('.filter-tag').forEach(tag => {
-        const color = tag.dataset.tagColor;
-        if (color) {
-            const icon = tag.querySelector('.filter-tag-icon');
-            if (icon) {
-                icon.style.backgroundColor = color;
-            }
-        }
-    });
+    document.querySelectorAll('.kanban-column-header').forEach(header => { const color = header.dataset.columnColor; if (color) { header.style.borderColor = color; const icon = header.querySelector('.column-icon'); if (icon) icon.style.color = color; } });
+    document.querySelectorAll('.task-tag').forEach(tag => { const color = tag.dataset.tagColor; if (color) { tag.style.backgroundColor = color + '20'; tag.style.color = color; } });
 });
 </script>
 {% endblock %}

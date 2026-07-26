@@ -1,59 +1,59 @@
 {% load widget_tweaks %}
 
-<div class="card mb-4">
-    <div class="card-header">
-        <h5>Información del Evento</h5>
+<div class="m360-card events-mb-4">
+    <div class="m360-card-header">
+        <h5 class="m360-card-title">Información del Evento</h5>
     </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="{{ form.title.id_for_label }}" class="form-label">Título</label>
-                {{ form.title|add_class:"form-control" }}
+    <div class="m360-card-body">
+        <div class="events-row">
+            <div class="events-col-md-6 events-mb-4">
+                <label for="{{ form.title.id_for_label }}" class="m360-form-label">Título</label>
+                {{ form.title|add_class:"m360-form-control" }}
                 {{ form.title.errors }}
             </div>
-            <div class="col-md-6 mb-3">
-                <label for="{{ form.venue.id_for_label }}" class="form-label">Lugar</label>
-                {{ form.venue|add_class:"form-control" }}
+            <div class="events-col-md-6 events-mb-4">
+                <label for="{{ form.venue.id_for_label }}" class="m360-form-label">Lugar</label>
+                {{ form.venue|add_class:"m360-form-control" }}
                 {{ form.venue.errors }}
             </div>
         </div>
-        <div class="mb-3">
-            <label for="{{ form.description.id_for_label }}" class="form-label">Descripción</label>
-            {{ form.description|add_class:"form-control"|attr:"rows:3" }}
+        <div class="events-mb-4">
+            <label for="{{ form.description.id_for_label }}" class="m360-form-label">Descripción</label>
+            {{ form.description|add_class:"m360-form-control"|attr:"rows:3" }}
             {{ form.description.errors }}
         </div>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="{{ form.event_status.id_for_label }}" class="form-label">Estado</label>
-                {{ form.event_status|add_class:"form-select" }}
+        <div class="events-row">
+            <div class="events-col-md-6 events-mb-4">
+                <label for="{{ form.event_status.id_for_label }}" class="m360-form-label">Estado</label>
+                {{ form.event_status|add_class:"m360-form-control" }}
                 {{ form.event_status.errors }}
             </div>
-            <div class="col-md-6 mb-3">
-                <label for="{{ form.assigned_to.id_for_label }}" class="form-label">Asignado a</label>
-                {{ form.assigned_to|add_class:"form-select" }}
+            <div class="events-col-md-6 events-mb-4">
+                <label for="{{ form.assigned_to.id_for_label }}" class="m360-form-label">Asignado a</label>
+                {{ form.assigned_to|add_class:"m360-form-control" }}
                 {{ form.assigned_to.errors }}
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="{{ form.event_category.id_for_label }}" class="form-label">Categoría</label>
-                {{ form.event_category|add_class:"form-control" }}
+        <div class="events-row">
+            <div class="events-col-md-6 events-mb-4">
+                <label for="{{ form.event_category.id_for_label }}" class="m360-form-label">Categoría</label>
+                {{ form.event_category|add_class:"m360-form-control" }}
                 {{ form.event_category.errors }}
             </div>
-            <div class="col-md-3 mb-3">
-                <label for="{{ form.max_attendees.id_for_label }}" class="form-label">Máx. asistentes</label>
-                {{ form.max_attendees|add_class:"form-control" }}
+            <div class="events-col-md-3 events-mb-4">
+                <label for="{{ form.max_attendees.id_for_label }}" class="m360-form-label">Máx. asistentes</label>
+                {{ form.max_attendees|add_class:"m360-form-control" }}
                 {{ form.max_attendees.errors }}
             </div>
-            <div class="col-md-3 mb-3">
-                <label for="{{ form.ticket_price.id_for_label }}" class="form-label">Precio</label>
-                {{ form.ticket_price|add_class:"form-control" }}
+            <div class="events-col-md-3 events-mb-4">
+                <label for="{{ form.ticket_price.id_for_label }}" class="m360-form-label">Precio</label>
+                {{ form.ticket_price|add_class:"m360-form-control" }}
                 {{ form.ticket_price.errors }}
             </div>
         </div>
-        <div class="mb-3">
-            <label for="{{ form.attendees.id_for_label }}" class="form-label">Asistentes</label>
-            {{ form.attendees|add_class:"form-select" }}
+        <div class="events-mb-4">
+            <label for="{{ form.attendees.id_for_label }}" class="m360-form-label">Asistentes</label>
+            {{ form.attendees|add_class:"m360-form-control" }}
             {{ form.attendees.errors }}
         </div>
     </div>

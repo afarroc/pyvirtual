@@ -33,18 +33,20 @@
 @import 'components/_tables.css';
 @import 'components/_panels.css';
 @import 'components/_progress.css';
-@import 'components/_spinner.css';
 @import 'components/_notifications.css';
 @import 'components/_pagination.css';
 @import 'components/_tooltip.css';
 @import 'components/_stats.css';
 @import 'components/_dropdown.css';
+@import 'components/_accordion.css';
 
 /* Layer 6: Sections */
 @import 'sections/_analyst.css';
 @import 'sections/_upload.css';
 @import 'sections/_etl.css';
 @import 'sections/_schema.css';
+@import 'sections/_events.css';
+@import 'sections/_kanban.css';
 
 /* Layer 7: Utilities */
 @import 'utilities/_helpers.css';

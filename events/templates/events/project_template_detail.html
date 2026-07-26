@@ -1,79 +1,78 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="bi bi-info-circle me-2"></i>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center events-flex-wrap">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-info-circle" style="margin-right: var(--m360-space-2);"></i>
                         {{ title }}
-                    </h3>
-                    <div class="card-tools">
-                        <a href="{% url 'events:project_templates' %}" class="btn btn-secondary btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i>
+                    </h5>
+                    <div class="events-d-flex events-gap-2">
+                        <a href="{% url 'events:project_templates' %}" class="m360-btn m360-btn-outline-secondary">
+                            <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>
                             Volver a Plantillas
                         </a>
                         {% if can_edit %}
-                            <a href="{% url 'events:edit_project_template' template.id %}" class="btn btn-warning btn-sm">
-                                <i class="bi bi-pencil me-1"></i>
+                            <a href="{% url 'events:edit_project_template' template.id %}" class="m360-btn m360-btn-warning">
+                                <i class="bi bi-pencil" style="margin-right: var(--m360-space-1);"></i>
                                 Editar
                             </a>
                         {% endif %}
                         {% if can_use %}
-                            <a href="{% url 'events:use_project_template' template.id %}" class="btn btn-success btn-sm">
-                                <i class="bi bi-play-circle me-1"></i>
+                            <a href="{% url 'events:use_project_template' template.id %}" class="m360-btn m360-btn-success">
+                                <i class="bi bi-play-circle" style="margin-right: var(--m360-space-1);"></i>
                                 Usar Plantilla
                             </a>
                         {% endif %}
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <!-- Información de la plantilla -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">
-                                        <i class="bi bi-info-circle me-2"></i>
+                <div class="m360-card-body">
+                    <div class="events-row events-gap-4">
+                        <div class="events-col-md-8">
+                            <div class="m360-card">
+                                <div class="m360-card-header">
+                                    <h5 class="m360-card-title events-mb-0">
+                                        <i class="bi bi-info-circle" style="margin-right: var(--m360-space-2);"></i>
                                         Información de la Plantilla
                                     </h5>
                                 </div>
-                                <div class="card-body">
-                                    <h4>{{ template.name }}</h4>
-                                    <p class="text-muted">{{ template.description }}</p>
-                                    <div class="template-meta">
-                                        <span class="badge bg-primary">
-                                            <i class="bi bi-tag me-1"></i>
+                                <div class="m360-card-body">
+                                    <h4 class="events-mb-2">{{ template.name }}</h4>
+                                    <p class="events-text-muted events-mb-3">{{ template.description }}</p>
+                                    <div class="events-d-flex events-flex-wrap events-align-center events-gap-2">
+                                        <span class="m360-badge m360-badge-primary">
+                                            <i class="bi bi-tag" style="margin-right: var(--m360-space-1);"></i>
                                             {{ template.category }}
                                         </span>
-                                        <span class="badge bg-info">
-                                            <i class="bi bi-clock me-1"></i>
+                                        <span class="m360-badge m360-badge-info">
+                                            <i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i>
                                             {{ template.estimated_duration }} días
                                         </span>
-                                        <span class="badge bg-success">
-                                            <i class="bi bi-list-task me-1"></i>
+                                        <span class="m360-badge m360-badge-info">
+                                            <i class="bi bi-list-task" style="margin-right: var(--m360-space-1);"></i>
                                             {{ template.templatetask_set.count }} tareas
                                         </span>
                                         {% if template.is_public %}
-                                            <span class="badge bg-warning">
-                                                <i class="bi bi-globe me-1"></i>
+                                            <span class="m360-badge m360-badge-success">
+                                                <i class="bi bi-globe" style="margin-right: var(--m360-space-1);"></i>
                                                 Pública
                                             </span>
                                         {% else %}
-                                            <span class="badge bg-secondary">
-                                                <i class="bi bi-lock me-1"></i>
+                                            <span class="m360-badge m360-badge-secondary">
+                                                <i class="bi bi-lock" style="margin-right: var(--m360-space-1);"></i>
                                                 Privada
                                             </span>
                                         {% endif %}
                                     </div>
-                                    <div class="mt-3">
-                                        <small class="text-muted">
-                                            <i class="bi bi-person me-1"></i>
+                                    <div class="events-mt-3">
+                                        <small class="events-text-muted">
+                                            <i class="bi bi-person" style="margin-right: var(--m360-space-1);"></i>
                                             Creada por {{ template.created_by.username }}
                                             el {{ template.created_at|date:"d/m/Y" }} a las {{ template.created_at|time:"H:i" }}
                                         </small>
@@ -81,45 +80,44 @@
                                 </div>
                             </div>
 
-                            <!-- Tareas de la plantilla -->
-                            <div class="card mt-4">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">
-                                        <i class="bi bi-list-task me-2"></i>
+                            <div class="m360-card events-mt-4">
+                                <div class="m360-card-header">
+                                    <h5 class="m360-card-title events-mb-0">
+                                        <i class="bi bi-list-task" style="margin-right: var(--m360-space-2);"></i>
                                         Tareas Incluidas ({{ template.templatetask_set.count }})
                                     </h5>
                                 </div>
-                                <div class="card-body">
+                                <div class="m360-card-body">
                                     {% for task in template.templatetask_set.all %}
-                                        <div class="task-detail-item">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div class="flex-grow-1">
-                                                    <h6 class="mb-2">{{ task.title }}</h6>
+                                        <div class="events-task-detail-item" style="padding: var(--m360-space-3) 0; border-bottom: 1px solid var(--m360-border);">
+                                            <div class="events-d-flex events-justify-between events-align-start events-gap-3">
+                                                <div class="events-flex-grow">
+                                                    <h6 class="events-mb-2">{{ task.title }}</h6>
                                                     {% if task.description %}
-                                                        <p class="text-muted small">{{ task.description }}</p>
+                                                        <p class="events-text-muted" style="font-size: var(--m360-text-sm);">{{ task.description }}</p>
                                                     {% endif %}
                                                     {% if task.required_skills.all %}
-                                                        <div class="mb-2">
-                                                            <small class="text-muted">Habilidades requeridas:</small>
+                                                        <div class="events-mb-2">
+                                                            <small class="events-text-muted">Habilidades requeridas:</small>
                                                             {% for skill in task.required_skills.all %}
-                                                                <span class="badge bg-light text-dark small me-1">
+                                                                <span class="m360-badge m360-badge-light" style="font-size: var(--m360-text-sm); margin-right: var(--m360-space-1);">
                                                                     {{ skill.name }}
                                                                 </span>
                                                             {% endfor %}
                                                         </div>
                                                     {% endif %}
                                                 </div>
-                                                <div class="text-end">
-                                                    <span class="badge bg-info">{{ task.estimated_hours }}h</span>
+                                                <div class="events-text-end">
+                                                    <span class="m360-badge m360-badge-info">{{ task.estimated_hours }}h</span>
                                                 </div>
                                             </div>
                                         </div>
                                         {% if not forloop.last %}
-                                            <hr>
+                                            <hr style="border: none; border-top: 1px solid var(--m360-border); margin: 0;">
                                         {% endif %}
                                     {% empty %}
-                                        <div class="text-center text-muted py-3">
-                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                        <div class="events-text-center events-text-muted" style="padding: var(--m360-space-3) 0;">
+                                            <i class="bi bi-exclamation-triangle" style="margin-right: var(--m360-space-1);"></i>
                                             Esta plantilla no tiene tareas definidas.
                                         </div>
                                     {% endfor %}
@@ -127,91 +125,88 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
-                            <!-- Estadísticas -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0">
-                                        <i class="bi bi-bar-chart me-1"></i>
+                        <div class="events-col-md-4">
+                            <div class="m360-card">
+                                <div class="m360-card-header">
+                                    <h6 class="m360-card-title events-mb-0">
+                                        <i class="bi bi-bar-chart" style="margin-right: var(--m360-space-1);"></i>
                                         Estadísticas
                                     </h6>
                                 </div>
-                                <div class="card-body text-center">
-                                    <div class="stat-item mb-3">
-                                        <h4 class="text-primary">{{ template.templatetask_set.count }}</h4>
-                                        <small class="text-muted">Tareas Totales</small>
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-mb-3">
+                                        <h4 class="events-text-primary">{{ template.templatetask_set.count }}</h4>
+                                        <small class="events-text-muted">Tareas Totales</small>
                                     </div>
-                                    <div class="stat-item mb-3">
-                                        <h4 class="text-success">
+                                    <div class="events-mb-3">
+                                        <h4 class="events-text-success">
                                             {% if template.templatetask_set.exists %}
                                                 {{ template.templatetask_set.aggregate(total=Sum('estimated_hours')).total|floatformat:1 }}
                                             {% else %}
                                                 0
                                             {% endif %}
                                         </h4>
-                                        <small class="text-muted">Horas Totales</small>
+                                        <small class="events-text-muted">Horas Totales</small>
                                     </div>
-                                    <div class="stat-item">
-                                        <h4 class="text-info">{{ template.estimated_duration }}</h4>
-                                        <small class="text-muted">Días Estimados</small>
+                                    <div>
+                                        <h4 class="events-text-info">{{ template.estimated_duration }}</h4>
+                                        <small class="events-text-muted">Días Estimados</small>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Acciones disponibles -->
-                            <div class="card mt-3">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0">
-                                        <i class="bi bi-gear me-1"></i>
+                            <div class="m360-card events-mt-3">
+                                <div class="m360-card-header">
+                                    <h6 class="m360-card-title events-mb-0">
+                                        <i class="bi bi-gear" style="margin-right: var(--m360-space-1);"></i>
                                         Acciones
                                     </h6>
                                 </div>
-                                <div class="card-body">
-                                    <div class="d-grid gap-2">
+                                <div class="m360-card-body">
+                                    <div class="events-d-grid events-gap-2">
                                         {% if can_use %}
-                                            <a href="{% url 'events:use_project_template' template.id %}" class="btn btn-success">
-                                                <i class="bi bi-play-circle me-1"></i>
+                                            <a href="{% url 'events:use_project_template' template.id %}" class="m360-btn m360-btn-success">
+                                                <i class="bi bi-play-circle" style="margin-right: var(--m360-space-1);"></i>
                                                 Usar Esta Plantilla
                                             </a>
                                         {% endif %}
                                         {% if can_edit %}
-                                            <a href="{% url 'events:edit_project_template' template.id %}" class="btn btn-outline-warning">
-                                                <i class="bi bi-pencil me-1"></i>
+                                            <a href="{% url 'events:edit_project_template' template.id %}" class="m360-btn m360-btn-outline-warning">
+                                                <i class="bi bi-pencil" style="margin-right: var(--m360-space-1);"></i>
                                                 Editar Plantilla
                                             </a>
                                         {% endif %}
-                                        <button type="button" class="btn btn-outline-info" onclick="copyTemplateUrl()">
-                                            <i class="bi bi-share me-1"></i>
+                                        <button type="button" class="m360-btn m360-btn-outline-info" onclick="copyTemplateUrl()">
+                                            <i class="bi bi-share" style="margin-right: var(--m360-space-1);"></i>
                                             Compartir Enlace
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Consejos -->
-                            <div class="card mt-3">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0">
-                                        <i class="bi bi-lightbulb me-1"></i>
+                            <div class="m360-card events-mt-3">
+                                <div class="m360-card-header">
+                                    <h6 class="m360-card-title events-mb-0">
+                                        <i class="bi bi-lightbulb" style="margin-right: var(--m360-space-1);"></i>
                                         Consejos
                                     </h6>
                                 </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled small">
-                                        <li class="mb-2">
-                                            <i class="bi bi-check-circle text-success me-1"></i>
+                                <div class="m360-card-body">
+                                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--m360-space-2); font-size: var(--m360-text-sm);">
+                                        <li class="events-d-flex events-align-center events-gap-2">
+                                            <i class="bi bi-check-circle events-text-success"></i>
                                             Revisa todas las tareas antes de usar
                                         </li>
-                                        <li class="mb-2">
-                                            <i class="bi bi-clock text-info me-1"></i>
+                                        <li class="events-d-flex events-align-center events-gap-2">
+                                            <i class="bi bi-clock events-text-info"></i>
                                             Las horas estimadas son aproximadas
                                         </li>
-                                        <li class="mb-2">
-                                            <i class="bi bi-person text-warning me-1"></i>
+                                        <li class="events-d-flex events-align-center events-gap-2">
+                                            <i class="bi bi-person events-text-warning"></i>
                                             Puedes modificar asignaciones después
                                         </li>
-                                        <li class="mb-0">
-                                            <i class="bi bi-repeat text-primary me-1"></i>
+                                        <li class="events-d-flex events-align-center events-gap-2">
+                                            <i class="bi bi-repeat events-text-primary"></i>
                                             Puedes reutilizar esta plantilla múltiples veces
                                         </li>
                                     </ul>
@@ -225,60 +220,20 @@
     </div>
 </div>
 
-<style>
-.card {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.template-meta {
-    margin-top: 1rem;
-}
-
-.template-meta .badge {
-    margin-right: 0.5rem;
-    margin-bottom: 0.25rem;
-}
-
-.task-detail-item {
-    padding: 1rem 0;
-}
-
-.task-detail-item h6 {
-    margin-bottom: 0.5rem;
-    color: #495057;
-}
-
-.stat-item h4 {
-    margin-bottom: 0.25rem;
-    font-weight: bold;
-}
-
-.btn-success:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
-}
-
-.btn-outline-warning:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
-}
-</style>
-
 <script>
 function copyTemplateUrl() {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(function() {
-        // Mostrar mensaje de éxito
         const btn = event.target.closest('button');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Copiado!';
-        btn.classList.remove('btn-outline-info');
-        btn.classList.add('btn-success');
+        btn.innerHTML = '<i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Copiado!';
+        btn.classList.remove('m360-btn-outline-info');
+        btn.classList.add('m360-btn-success');
 
         setTimeout(() => {
             btn.innerHTML = originalText;
-            btn.classList.remove('btn-success');
-            btn.classList.add('btn-outline-info');
+            btn.classList.remove('m360-btn-success');
+            btn.classList.add('m360-btn-outline-info');
         }, 2000);
     }).catch(function(err) {
         console.error('Error al copiar: ', err);

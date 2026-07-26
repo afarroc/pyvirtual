@@ -1,0 +1,9 @@
+<header class="m360-site-header">
+  <div class="m360-site-header-inner">
+    <a href="{% url 'events:event_panel' %}" class="m360-site-header-brand" aria-label="Events · Inicio">
+      <i class="bi bi-calendar-event"></i>
+      <span>Events</span>
+    </a>
+    {% include "events/components/_navbar.html" %}
+  </div>
+</header>

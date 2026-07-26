@@ -1,64 +1,64 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block content %}
 
-<div class="pagetitle">
+<div class="events-page-title">
     <h1>{{ title }}</h1>
     <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-            <li class="breadcrumb-item active">{{ title }}</li>
+        <ol class="events-breadcrumb">
+            <li class="events-breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+            <li class="events-breadcrumb-item active">{{ title }}</li>
         </ol>
     </nav>
 </div><!-- End Page Title -->
 
 <!-- Mensajes de confirmación y éxito -->
 {% if messages %}
-<div id="message-container" class="alert alert-info" role="alert">
+<div id="message-container" class="m360-alert m360-alert-info" role="alert">
     {% for message in messages %}
     <p{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
         {% endfor %}
 </div>
 {% endif %}
 
-<section class="section">
+<section class="events-section">
     <!-- Información del Usuario Actual -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-primary">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-person-circle me-2"></i>
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="m360-card events-border-primary" style="border-left: 4px solid var(--m360-primary);">
+                <div class="m360-card-header m360-bg-primary events-text-white">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-person-circle events-me-2"></i>
                         Información del Usuario Actual
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div class="row">
+                <div class="m360-card-body">
+                    <div class="events-row">
                         <!-- Información Básica del Usuario -->
-                        <div class="col-lg-6 col-md-6">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-person-fill me-2"></i>Datos Personales
+                        <div class="events-col-lg-6 events-col-md-6">
+                            <h6 class="events-text-primary events-mb-3">
+                                <i class="bi bi-person-fill events-me-2"></i>Datos Personales
                             </h6>
-                            <div class="row">
-                                <div class="col-sm-4"><strong>Usuario:</strong></div>
-                                <div class="col-sm-8">{{ user_info.username }}</div>
+                            <div class="events-row">
+                                <div class="events-col-sm-4"><strong>Usuario:</strong></div>
+                                <div class="events-col-sm-8">{{ user_info.username }}</div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-4"><strong>Nombre:</strong></div>
-                                <div class="col-sm-8">{{ user_info.first_name }} {{ user_info.last_name }}</div>
+                            <div class="events-row">
+                                <div class="events-col-sm-4"><strong>Nombre:</strong></div>
+                                <div class="events-col-sm-8">{{ user_info.first_name }} {{ user_info.last_name }}</div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-4"><strong>Email:</strong></div>
-                                <div class="col-sm-8">{{ user_info.email }}</div>
+                            <div class="events-row">
+                                <div class="events-col-sm-4"><strong>Email:</strong></div>
+                                <div class="events-col-sm-8">{{ user_info.email }}</div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-4"><strong>Registro:</strong></div>
-                                <div class="col-sm-8">{{ user_info.date_joined|date:"d/m/Y H:i" }}</div>
+                            <div class="events-row">
+                                <div class="events-col-sm-4"><strong>Registro:</strong></div>
+                                <div class="events-col-sm-8">{{ user_info.date_joined|date:"d/m/Y H:i" }}</div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-4"><strong>Último acceso:</strong></div>
-                                <div class="col-sm-8">
+                            <div class="events-row">
+                                <div class="events-col-sm-4"><strong>Último acceso:</strong></div>
+                                <div class="events-col-sm-8">
                                     {% if user_info.last_login %}
                                         {{ user_info.last_login|date:"d/m/Y H:i" }}
                                     {% else %}
@@ -69,58 +69,58 @@
                         </div>
 
                         <!-- Estado del Sistema y Rol -->
-                        <div class="col-lg-6 col-md-6">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-shield-check me-2"></i>Estado del Sistema
+                        <div class="events-col-lg-6 events-col-md-6">
+                            <h6 class="events-text-primary events-mb-3">
+                                <i class="bi bi-shield-check events-me-2"></i>Estado del Sistema
                             </h6>
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Tipo de Usuario:</strong></div>
-                                <div class="col-sm-8">
-                                    <span class="badge bg-{{ role_badge_class }} fs-6">{{ user_role }}</span>
+                            <div class="events-row events-mb-2">
+                                <div class="events-col-sm-4"><strong>Tipo de Usuario:</strong></div>
+                                <div class="events-col-sm-8">
+                                    <span class="m360-badge bg-{{ role_badge_class }} events-fs-6">{{ user_role }}</span>
                                 </div>
                             </div>
 
                             {% if profile_info.role %}
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Rol del Sistema:</strong></div>
-                                <div class="col-sm-8">
+                            <div class="events-row events-mb-2">
+                                <div class="events-col-sm-4"><strong>Rol del Sistema:</strong></div>
+                                <div class="events-col-sm-8">
                                     <code>{{ profile_info.role }}</code>
                                 </div>
                             </div>
                             {% endif %}
 
                             {% if profile_info.profession %}
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Profesión:</strong></div>
-                                <div class="col-sm-8">{{ profile_info.profession }}</div>
+                            <div class="events-row events-mb-2">
+                                <div class="events-col-sm-4"><strong>Profesión:</strong></div>
+                                <div class="events-col-sm-8">{{ profile_info.profession }}</div>
                             </div>
                             {% endif %}
 
-                            <div class="row mb-2">
-                                <div class="col-sm-4"><strong>Estado:</strong></div>
-                                <div class="col-sm-8">
+                            <div class="events-row events-mb-2">
+                                <div class="events-col-sm-4"><strong>Estado:</strong></div>
+                                <div class="events-col-sm-8">
                                     {% if user_info.is_active %}
-                                        <span class="badge bg-success">Activo</span>
+                                        <span class="m360-badge m360-badge-success">Activo</span>
                                     {% else %}
-                                        <span class="badge bg-danger">Inactivo</span>
+                                        <span class="m360-badge m360-badge-danger">Inactivo</span>
                                     {% endif %}
                                     {% if user_info.is_staff %}
-                                        <span class="badge bg-info ms-1">Staff</span>
+                                        <span class="m360-badge m360-badge-info ms-1">Staff</span>
                                     {% endif %}
                                     {% if user_info.is_superuser %}
-                                        <span class="badge bg-warning ms-1">Superuser</span>
+                                        <span class="m360-badge m360-badge-warning ms-1">Superuser</span>
                                     {% endif %}
                                 </div>
                             </div>
 
                             {% if player_info %}
-                            <div class="row">
-                                <div class="col-sm-4"><strong>Habitación Actual:</strong></div>
-                                <div class="col-sm-8">
+                            <div class="events-row">
+                                <div class="events-col-sm-4"><strong>Habitación Actual:</strong></div>
+                                <div class="events-col-sm-8">
                                     {% if player_info.current_room %}
-                                        <span class="badge bg-secondary">{{ player_info.current_room }}</span>
+                                        <span class="m360-badge m360-badge-secondary">{{ player_info.current_room }}</span>
                                     {% else %}
-                                        <span class="text-muted">Ninguna</span>
+                                        <span class="events-text-muted">Ninguna</span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -130,41 +130,41 @@
 
                     {% if player_info %}
                     <hr>
-                    <h6 class="text-success mb-3">
-                        <i class="bi bi-controller me-2"></i>Estado del Player (3D)
+                    <h6 class="events-text-success events-mb-3">
+                        <i class="bi bi-controller events-me-2"></i>Estado del Player (3D)
                     </h6>
-                    <div class="row">
-                        <div class="col-lg-3 col-md-6">
-                            <div class="text-center">
-                                <div class="text-success fs-4">{{ player_info.energy }}%</div>
-                                <small class="text-muted">Energía</small>
+                    <div class="events-row">
+                        <div class="col-lg-3 events-col-md-6">
+                            <div class="events-text-center">
+                                <div class="events-text-success fs-4">{{ player_info.energy }}%</div>
+                                <small class="events-text-muted">Energía</small>
                                 <div class="progress mt-1" style="height: 4px;">
                                     <div class="progress-bar bg-success" style="width: {{ player_info.energy }}%"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="text-center">
+                        <div class="col-lg-3 events-col-md-6">
+                            <div class="events-text-center">
                                 <div class="text-info fs-4">{{ player_info.productivity }}%</div>
-                                <small class="text-muted">Productividad</small>
+                                <small class="events-text-muted">Productividad</small>
                                 <div class="progress mt-1" style="height: 4px;">
                                     <div class="progress-bar bg-info" style="width: {{ player_info.productivity }}%"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="text-center">
-                                <div class="text-warning fs-4">{{ player_info.social }}%</div>
-                                <small class="text-muted">Social</small>
+                        <div class="col-lg-3 events-col-md-6">
+                            <div class="events-text-center">
+                                <div class="events-text-warning fs-4">{{ player_info.social }}%</div>
+                                <small class="events-text-muted">Social</small>
                                 <div class="progress mt-1" style="height: 4px;">
                                     <div class="progress-bar bg-warning" style="width: {{ player_info.social }}%"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="text-center">
-                                <div class="text-muted fs-6">({{ player_info.position_x }}, {{ player_info.position_y }})</div>
-                                <small class="text-muted">Posición</small>
+                        <div class="col-lg-3 events-col-md-6">
+                            <div class="events-text-center">
+                                <div class="events-text-muted events-fs-6">({{ player_info.position_x }}, {{ player_info.position_y }})</div>
+                                <small class="events-text-muted">Posición</small>
                             </div>
                         </div>
                     </div>
@@ -174,26 +174,26 @@
         </div>
     </div>
     <!-- Dashboard de Métricas y Resumen Ejecutivo -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-success">
-                <div class="card-header bg-success text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-graph-up me-2"></i>
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="m360-card border-success">
+                <div class="m360-card-header bg-success events-text-white">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-graph-up events-me-2"></i>
                         Dashboard Ejecutivo - Resumen del Sistema
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div class="row">
+                <div class="m360-card-body">
+                    <div class="events-row">
                         <!-- Estadísticas del Inbox -->
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <div class="card h-100 border-info card-dashboard">
-                                <div class="card-body text-center">
-                                    <div class="text-info mb-2">
+                        <div class="col-lg-3 events-col-md-6 events-mb-4">
+                            <div class="m360-card h-100 border-info card-dashboard">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="text-info events-mb-2">
                                         <i class="bi bi-inbox fs-1"></i>
                                     </div>
                                     <h4 class="text-info mb-1">{{ all_inbox_items|length }}</h4>
-                                    <small class="text-muted">Items en Inbox</small>
+                                    <small class="events-text-muted">Items en Inbox</small>
                                     <div class="progress mt-2" style="height: 4px;">
                                         <div class="progress-bar bg-info" style="width: 100%"></div>
                                     </div>
@@ -202,14 +202,14 @@
                         </div>
 
                         <!-- Items Procesados Hoy -->
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <div class="card h-100 border-success card-dashboard">
-                                <div class="card-body text-center">
-                                    <div class="text-success mb-2">
+                        <div class="col-lg-3 events-col-md-6 events-mb-4">
+                            <div class="m360-card h-100 border-success card-dashboard">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-success events-mb-2">
                                         <i class="bi bi-check-circle-fill fs-1"></i>
                                     </div>
-                                    <h4 class="text-success mb-1">{{ processed_today_count|default:0 }}</h4>
-                                    <small class="text-muted">Procesados Hoy</small>
+                                    <h4 class="events-text-success mb-1">{{ processed_today_count|default:0 }}</h4>
+                                    <small class="events-text-muted">Procesados Hoy</small>
                                     <div class="progress mt-2" style="height: 4px;">
                                         <div class="progress-bar bg-success" style="width: {{ processed_percentage|default:0 }}%"></div>
                                     </div>
@@ -218,30 +218,30 @@
                         </div>
 
                         <!-- Emails Procesados -->
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <div class="card h-100 border-primary card-dashboard">
-                                <div class="card-body text-center">
-                                    <div class="text-primary mb-2">
+                        <div class="col-lg-3 events-col-md-6 events-mb-4">
+                            <div class="m360-card h-100 events-border-primary card-dashboard" style="border-left: 4px solid var(--m360-primary);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-primary events-mb-2">
                                         <i class="bi bi-envelope fs-1"></i>
                                     </div>
-                                    <h4 class="text-primary mb-1">{{ emails_processed_today|default:0 }}</h4>
-                                    <small class="text-muted">Emails CX Hoy</small>
+                                    <h4 class="events-text-primary mb-1">{{ emails_processed_today|default:0 }}</h4>
+                                    <small class="events-text-muted">Emails CX Hoy</small>
                                     <div class="progress mt-2" style="height: 4px;">
-                                        <div class="progress-bar bg-primary" style="width: {{ email_processing_rate|default:0 }}%"></div>
+                                        <div class="progress-bar m360-bg-primary" style="width: {{ email_processing_rate|default:0 }}%"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Eficiencia del Sistema -->
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <div class="card h-100 border-warning card-dashboard">
-                                <div class="card-body text-center">
-                                    <div class="text-warning mb-2">
+                        <div class="col-lg-3 events-col-md-6 events-mb-4">
+                            <div class="m360-card h-100 border-warning card-dashboard">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-warning events-mb-2">
                                         <i class="bi bi-speedometer2 fs-1"></i>
                                     </div>
-                                    <h4 class="text-warning mb-1">{{ system_efficiency|default:85 }}%</h4>
-                                    <small class="text-muted">Eficiencia</small>
+                                    <h4 class="events-text-warning mb-1">{{ system_efficiency|default:85 }}%</h4>
+                                    <small class="events-text-muted">Eficiencia</small>
                                     <div class="progress mt-2" style="height: 4px;">
                                         <div class="progress-bar bg-warning" style="width: {{ system_efficiency|default:85 }}%"></div>
                                     </div>
@@ -251,44 +251,44 @@
                     </div>
 
                     <!-- Información del Sistema -->
-                    <div class="row mt-4">
+                    <div class="events-row events-mt-4">
                         <div class="col-lg-8">
-                            <h6 class="text-success mb-3">
-                                <i class="bi bi-info-circle me-2"></i>Estado del Sistema GTD
+                            <h6 class="events-text-success events-mb-3">
+                                <i class="bi bi-info-circle events-me-2"></i>Estado del Sistema GTD
                             </h6>
-                            <div class="row text-center">
+                            <div class="events-row events-text-center">
                                 <div class="col-3">
-                                    <div class="text-success fs-4">●</div>
-                                    <small class="text-muted">Inbox Activo</small>
+                                    <div class="events-text-success fs-4">●</div>
+                                    <small class="events-text-muted">Inbox Activo</small>
                                 </div>
                                 <div class="col-3">
-                                    <div class="text-primary fs-4">●</div>
-                                    <small class="text-muted">Procesamiento OK</small>
+                                    <div class="events-text-primary fs-4">●</div>
+                                    <small class="events-text-muted">Procesamiento OK</small>
                                 </div>
                                 <div class="col-3">
                                     <div class="text-info fs-4">●</div>
-                                    <small class="text-muted">Emails CX OK</small>
+                                    <small class="events-text-muted">Emails CX OK</small>
                                 </div>
                                 <div class="col-3">
-                                    <div class="text-warning fs-4">●</div>
-                                    <small class="text-muted">Sistema Optimizado</small>
+                                    <div class="events-text-warning fs-4">●</div>
+                                    <small class="events-text-muted">Sistema Optimizado</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-4">
-                            <h6 class="text-success mb-3">
-                                <i class="bi bi-clock me-2"></i>Última Actividad
+                            <h6 class="events-text-success events-mb-3">
+                                <i class="bi bi-clock events-me-2"></i>Última Actividad
                             </h6>
-                            <div class="small text-muted">
+                            <div class="small events-text-muted">
                                 <div class="mb-1">
-                                    <i class="bi bi-check-circle text-success me-1"></i>
+                                    <i class="bi bi-check-circle events-text-success me-1"></i>
                                     Inbox actualizado: <strong>{{ last_inbox_update|default:"Nunca" }}</strong>
                                 </div>
                                 <div class="mb-1">
-                                    <i class="bi bi-envelope text-primary me-1"></i>
+                                    <i class="bi bi-envelope events-text-primary me-1"></i>
                                     Emails procesados: <strong>{{ last_email_check|default:"Nunca" }}</strong>
                                 </div>
-                                <div class="mb-0">
+                                <div class="events-mb-0">
                                     <i class="bi bi-robot text-info me-1"></i>
                                     Sistema optimizado: <strong>{{ last_optimization|default:"Reciente" }}</strong>
                                 </div>
@@ -303,38 +303,38 @@
 
     <!-- Gestión Completa del Inbox GTD -->
     <!-- Panel de Acciones Rápidas -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-secondary">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-rocket me-2"></i>
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="m360-card border-secondary">
+                <div class="m360-card-header bg-secondary events-text-white">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-rocket events-me-2"></i>
                         Acciones Rápidas del Sistema
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-lg-3 col-md-6">
-                            <button class="btn btn-outline-primary w-100 p-3 h-100 d-flex flex-column align-items-center" onclick="refreshInboxItems()">
-                                <i class="bi bi-arrow-clockwise fs-2 mb-2"></i>
+                <div class="m360-card-body">
+                    <div class="events-row g-3">
+                        <div class="col-lg-3 events-col-md-6">
+                            <button class="m360-btn m360-btn-outline-primary w-100 events-p-3 h-100 events-d-flex flex-column events-align-center" onclick="refreshInboxItems()">
+                                <i class="bi bi-arrow-clockwise fs-2 events-mb-2"></i>
                                 <span>Actualizar Inbox</span>
                             </button>
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <button class="btn btn-outline-info w-100 p-3 h-100 d-flex flex-column align-items-center" onclick="checkNewEmails()">
-                                <i class="bi bi-envelope-arrow-down fs-2 mb-2"></i>
+                        <div class="col-lg-3 events-col-md-6">
+                            <button class="m360-btn btn-outline-info w-100 events-p-3 h-100 events-d-flex flex-column events-align-center" onclick="checkNewEmails()">
+                                <i class="bi bi-envelope-arrow-down fs-2 events-mb-2"></i>
                                 <span>Verificar Emails</span>
                             </button>
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <button class="btn btn-outline-success w-100 p-3 h-100 d-flex flex-column align-items-center" onclick="processEmailsManually()">
-                                <i class="bi bi-robot fs-2 mb-2"></i>
+                        <div class="col-lg-3 events-col-md-6">
+                            <button class="m360-btn btn-outline-success w-100 events-p-3 h-100 events-d-flex flex-column events-align-center" onclick="processEmailsManually()">
+                                <i class="bi bi-robot fs-2 events-mb-2"></i>
                                 <span>Procesar Emails</span>
                             </button>
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <button class="btn btn-outline-warning w-100 p-3 h-100 d-flex flex-column align-items-center" data-bs-toggle="modal" data-bs-target="#createInboxItemModal">
-                                <i class="bi bi-plus-circle fs-2 mb-2"></i>
+                        <div class="col-lg-3 events-col-md-6">
+                            <button class="m360-btn btn-outline-warning w-100 events-p-3 h-100 events-d-flex flex-column events-align-center" data-m360-open="#createInboxItemModal">
+                                <i class="bi bi-plus-circle fs-2 events-mb-2"></i>
                                 <span>Crear Item</span>
                             </button>
                         </div>
@@ -343,84 +343,84 @@
             </div>
         </div>
     </div>
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-info">
-                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-inbox me-2"></i>
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="m360-card border-info">
+                <div class="m360-card-header bg-info events-text-white events-d-flex events-justify-between events-align-center">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-inbox events-me-2"></i>
                         Gestión Completa del Inbox GTD
                     </h5>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#createInboxItemModal">
+                    <div class="events-d-flex events-gap-2">
+                        <button class="m360-btn m360-btn-sm btn-light" data-m360-open="#createInboxItemModal">
                             <i class="bi bi-plus-circle"></i> Crear Item
                         </button>
-                        <button class="btn btn-sm btn-outline-light" onclick="refreshInboxItems()">
+                        <button class="m360-btn m360-btn-sm btn-outline-light" onclick="refreshInboxItems()">
                             <i class="bi bi-arrow-clockwise"></i> Actualizar
                         </button>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="m360-card-body">
                     <!-- Filtros para la tabla de Inbox -->
-                    <div class="row mb-3">
-                        <div class="col-md-2 mb-2">
-                            <label for="filterCategory" class="form-label small">Categoría GTD</label>
-                            <select class="form-select form-select-sm" id="filterCategory">
+                    <div class="events-row events-mb-3">
+                        <div class="col-md-2 events-mb-2">
+                            <label for="filterCategory" class="m360-form-label small">Categoría GTD</label>
+                            <select class="m360-form-select form-select-sm" id="filterCategory">
                                 <option value="">Todas</option>
                                 <option value="accionable">Accionable</option>
                                 <option value="no_accionable">No Accionable</option>
                                 <option value="pendiente">Pendiente</option>
                             </select>
                         </div>
-                        <div class="col-md-2 mb-2">
-                            <label for="filterPriority" class="form-label small">Prioridad</label>
-                            <select class="form-select form-select-sm" id="filterPriority">
+                        <div class="col-md-2 events-mb-2">
+                            <label for="filterPriority" class="m360-form-label small">Prioridad</label>
+                            <select class="m360-form-select form-select-sm" id="filterPriority">
                                 <option value="">Todas</option>
                                 <option value="alta">Alta</option>
                                 <option value="media">Media</option>
                                 <option value="baja">Baja</option>
                             </select>
                         </div>
-                        <div class="col-md-2 mb-2">
-                            <label for="filterStatus" class="form-label small">Estado</label>
-                            <select class="form-select form-select-sm" id="filterStatus">
+                        <div class="col-md-2 events-mb-2">
+                            <label for="filterStatus" class="m360-form-label small">Estado</label>
+                            <select class="m360-form-select form-select-sm" id="filterStatus">
                                 <option value="">Todos</option>
                                 <option value="processed">Procesado</option>
                                 <option value="pending">Pendiente</option>
                             </select>
                         </div>
-                        <div class="col-md-2 mb-2">
-                            <label for="filterUser" class="form-label small">Creado por</label>
-                            <select class="form-select form-select-sm" id="filterUser">
+                        <div class="col-md-2 events-mb-2">
+                            <label for="filterUser" class="m360-form-label small">Creado por</label>
+                            <select class="m360-form-select form-select-sm" id="filterUser">
                                 <option value="">Todos</option>
                                 {% for user in users_for_filter %}
                                 <option value="{{ user.username }}">{{ user.username }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-2 mb-2">
-                            <label for="filterDateFrom" class="form-label small">Desde</label>
-                            <input type="date" class="form-control form-control-sm" id="filterDateFrom">
+                        <div class="col-md-2 events-mb-2">
+                            <label for="filterDateFrom" class="m360-form-label small">Desde</label>
+                            <input type="date" class="m360-form-control form-control-sm" id="filterDateFrom">
                         </div>
-                        <div class="col-md-2 mb-2">
-                            <label for="filterDateTo" class="form-label small">Hasta</label>
-                            <input type="date" class="form-control form-control-sm" id="filterDateTo">
+                        <div class="col-md-2 events-mb-2">
+                            <label for="filterDateTo" class="m360-form-label small">Hasta</label>
+                            <input type="date" class="m360-form-control form-control-sm" id="filterDateTo">
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-10 mb-2">
-                            <label for="filterSearch" class="form-label small">Buscar</label>
-                            <input type="text" class="form-control form-control-sm" id="filterSearch" placeholder="Título o descripción...">
+                    <div class="events-row events-mb-3">
+                        <div class="col-md-10 events-mb-2">
+                            <label for="filterSearch" class="m360-form-label small">Buscar</label>
+                            <input type="text" class="m360-form-control form-control-sm" id="filterSearch" placeholder="Título o descripción...">
                         </div>
-                        <div class="col-md-2 mb-2 d-flex align-items-end">
-                            <button class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters()">
+                        <div class="col-md-2 events-mb-2 events-d-flex align-items-end">
+                            <button class="m360-btn m360-btn-outline-secondary m360-btn-sm w-100" onclick="clearFilters()">
                                 <i class="bi bi-x-circle"></i> Limpiar
                             </button>
                         </div>
                     </div>
                     {% if all_inbox_items %}
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover table-sm">
+                        <table class="m360-table m360-table-striped m360-table-hover table-sm">
                             <thead class="table-dark">
                                 <tr>
                                     <th class="d-none d-md-table-cell"><i class="bi bi-hash"></i></th>
@@ -436,16 +436,16 @@
                                 {% for item in all_inbox_items %}
                                 <tr>
                                     <td class="d-none d-md-table-cell">
-                                        <code class="text-muted small">#{{ item.id }}</code>
+                                        <code class="events-text-muted small">#{{ item.id }}</code>
                                     </td>
                                     <td>
                                         <div>
                                             <strong class="d-block">{{ item.title|truncatechars:35 }}</strong>
                                             {% if item.description %}
-                                            <small class="text-muted d-block">{{ item.description|truncatechars:45 }}</small>
+                                            <small class="events-text-muted d-block">{{ item.description|truncatechars:45 }}</small>
                                             {% endif %}
                                             {% if item.user_context and item.user_context.source == 'cx_email' %}
-                                            <span class="badge bg-primary badge-sm">CX</span>
+                                            <span class="m360-badge m360-badge-primary badge-sm">CX</span>
                                             {% endif %}
                                         </div>
                                     </td>
@@ -453,26 +453,26 @@
                                         <small>{{ item.created_by.username }}</small>
                                     </td>
                                     <td>
-                                        <div class="d-flex flex-column gap-1">
+                                        <div class="events-d-flex flex-column gap-1">
                                             {% if item.gtd_category == 'accionable' %}
-                                                <span class="badge bg-success badge-sm">
+                                                <span class="m360-badge m360-badge-success badge-sm">
                                                     <i class="bi bi-check-circle"></i> Acción
                                                 </span>
                                             {% elif item.gtd_category == 'no_accionable' %}
-                                                <span class="badge bg-secondary badge-sm">
+                                                <span class="m360-badge m360-badge-secondary badge-sm">
                                                     <i class="bi bi-x-circle"></i> Ref
                                                 </span>
                                             {% else %}
-                                                <span class="badge bg-warning text-dark badge-sm">
+                                                <span class="m360-badge m360-badge-warning text-dark badge-sm">
                                                     <i class="bi bi-question-circle"></i> Pend
                                                 </span>
                                             {% endif %}
                                             {% if item.is_processed %}
-                                                <span class="badge bg-success badge-sm">
+                                                <span class="m360-badge m360-badge-success badge-sm">
                                                     <i class="bi bi-check-circle-fill"></i> OK
                                                 </span>
                                             {% else %}
-                                                <span class="badge bg-warning text-dark badge-sm">
+                                                <span class="m360-badge m360-badge-warning text-dark badge-sm">
                                                     <i class="bi bi-clock"></i> Pend
                                                 </span>
                                             {% endif %}
@@ -480,15 +480,15 @@
                                     </td>
                                     <td>
                                         {% if item.priority == 'alta' %}
-                                            <span class="badge bg-danger badge-sm">
+                                            <span class="m360-badge m360-badge-danger badge-sm">
                                                 <i class="bi bi-exclamation-triangle-fill"></i>
                                             </span>
                                         {% elif item.priority == 'media' %}
-                                            <span class="badge bg-warning text-dark badge-sm">
+                                            <span class="m360-badge m360-badge-warning text-dark badge-sm">
                                                 <i class="bi bi-dash-circle"></i>
                                             </span>
                                         {% else %}
-                                            <span class="badge bg-secondary badge-sm">
+                                            <span class="m360-badge m360-badge-secondary badge-sm">
                                                 <i class="bi bi-arrow-down-circle"></i>
                                             </span>
                                         {% endif %}
@@ -497,14 +497,14 @@
                                         <small class="text-nowrap">{{ item.created_at|date:"d/m H:i" }}</small>
                                     </td>
                                     <td>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <button class="btn btn-outline-primary btn-sm" onclick="viewInboxItem({{ item.id }})" title="Ver detalles">
+                                        <div class="m360-btn-group m360-btn-group-sm" role="group">
+                                            <button class="m360-btn m360-btn-outline-primary m360-btn-sm" onclick="viewInboxItem({{ item.id }})" title="Ver detalles">
                                                 <i class="bi bi-eye"></i>
                                             </button>
-                                            <button class="btn btn-outline-warning btn-sm d-none d-md-inline-block" onclick="editInboxItem({{ item.id }})" title="Editar">
+                                            <button class="m360-btn btn-outline-warning m360-btn-sm d-none d-md-inline-block" onclick="editInboxItem({{ item.id }})" title="Editar">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <button class="btn btn-outline-danger btn-sm" onclick="deleteInboxItem({{ item.id }}, '{{ item.title|escapejs }}')" title="Eliminar">
+                                            <button class="m360-btn m360-btn-outline-danger m360-btn-sm" onclick="deleteInboxItem({{ item.id }}, '{{ item.title|escapejs }}')" title="Eliminar">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -515,31 +515,31 @@
                         </table>
                     </div>
 
-                    <div class="mt-3 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
-                        <div class="d-flex flex-column flex-sm-row gap-2 align-items-start align-items-sm-center">
-                            <small class="text-muted">
+                    <div class="events-mt-3 events-d-flex flex-column flex-md-row events-justify-between events-align-start align-items-md-center events-gap-2">
+                        <div class="events-d-flex flex-column flex-sm-row events-gap-2 events-align-start align-items-sm-center">
+                            <small class="events-text-muted">
                                 <strong>{{ all_inbox_items|length }}</strong> items en inbox
                             </small>
-                            <a href="{% url 'events:inbox_management_panel' %}" class="btn btn-outline-primary btn-sm">
+                            <a href="{% url 'events:inbox_management_panel' %}" class="m360-btn m360-btn-outline-primary m360-btn-sm">
                                 <i class="bi bi-gear me-1"></i>Panel Completo
                             </a>
                         </div>
-                        <div class="btn-group btn-group-sm flex-wrap" role="group">
-                            <button class="btn btn-outline-success btn-sm" onclick="bulkProcessInboxItems()">
+                        <div class="m360-btn-group m360-btn-group-sm events-flex-wrap" role="group">
+                            <button class="m360-btn btn-outline-success m360-btn-sm" onclick="bulkProcessInboxItems()">
                                 <i class="bi bi-check-all me-1"></i>Procesar
                             </button>
-                            <button class="btn btn-outline-danger btn-sm" onclick="bulkDeleteInboxItems()">
+                            <button class="m360-btn m360-btn-outline-danger m360-btn-sm" onclick="bulkDeleteInboxItems()">
                                 <i class="bi bi-trash-fill me-1"></i>Eliminar
                             </button>
                         </div>
                     </div>
                     {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-inbox display-4 text-muted mb-3"></i>
-                        <h5 class="text-muted">No hay items en el inbox</h5>
-                        <p class="text-muted">El inbox está vacío. Los emails CX y otras interacciones aparecerán aquí automáticamente.</p>
-                        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#createInboxItemModal">
-                            <i class="bi bi-plus-circle me-2"></i>Crear Primer Item
+                    <div class="events-text-center events-py-5">
+                        <i class="bi bi-inbox display-4 events-text-muted events-mb-3"></i>
+                        <h5 class="events-text-muted">No hay items en el inbox</h5>
+                        <p class="events-text-muted">El inbox está vacío. Los emails CX y otras interacciones aparecerán aquí automáticamente.</p>
+                        <button class="m360-btn m360-btn-primary events-mt-3" data-m360-open="#createInboxItemModal">
+                            <i class="bi bi-plus-circle events-me-2"></i>Crear Primer Item
                         </button>
                     </div>
                     {% endif %}
@@ -554,40 +554,40 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="createInboxItemModalLabel">
-                        <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Item del Inbox
+                        <i class="bi bi-plus-circle events-me-2"></i>Crear Nuevo Item del Inbox
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
                 </div>
                 <form id="createInboxItemForm">
                     <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label for="itemTitle" class="form-label">Título *</label>
-                                <input type="text" class="form-control" id="itemTitle" name="title" required>
+                        <div class="events-row">
+                            <div class="col-md-12 events-mb-3">
+                                <label for="itemTitle" class="m360-form-label">Título *</label>
+                                <input type="text" class="m360-form-control" id="itemTitle" name="title" required>
                             </div>
-                            <div class="col-md-12 mb-3">
-                                <label for="itemDescription" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="itemDescription" name="description" rows="3"></textarea>
+                            <div class="col-md-12 events-mb-3">
+                                <label for="itemDescription" class="m360-form-label">Descripción</label>
+                                <textarea class="m360-form-control" id="itemDescription" name="description" rows="3"></textarea>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="itemCategory" class="form-label">Categoría GTD</label>
-                                <select class="form-select" id="itemCategory" name="gtd_category">
+                            <div class="events-col-md-6 events-mb-3">
+                                <label for="itemCategory" class="m360-form-label">Categoría GTD</label>
+                                <select class="m360-form-select" id="itemCategory" name="gtd_category">
                                     <option value="pendiente">Pendiente de Categorizar</option>
                                     <option value="accionable">Accionable</option>
                                     <option value="no_accionable">No Accionable</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="itemPriority" class="form-label">Prioridad</label>
-                                <select class="form-select" id="itemPriority" name="priority">
+                            <div class="events-col-md-6 events-mb-3">
+                                <label for="itemPriority" class="m360-form-label">Prioridad</label>
+                                <select class="m360-form-select" id="itemPriority" name="priority">
                                     <option value="media">Media</option>
                                     <option value="alta">Alta</option>
                                     <option value="baja">Baja</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="itemActionType" class="form-label">Tipo de Acción</label>
-                                <select class="form-select" id="itemActionType" name="action_type">
+                            <div class="events-col-md-6 events-mb-3">
+                                <label for="itemActionType" class="m360-form-label">Tipo de Acción</label>
+                                <select class="m360-form-select" id="itemActionType" name="action_type">
                                     <option value="">Seleccionar...</option>
                                     <option value="hacer">Hacer</option>
                                     <option value="delegar">Delegar</option>
@@ -599,16 +599,16 @@
                                     <option value="esperar">Esperar Más Información</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="itemContext" class="form-label">Contexto</label>
-                                <input type="text" class="form-control" id="itemContext" name="context" placeholder="@casa, @trabajo, etc.">
+                            <div class="events-col-md-6 events-mb-3">
+                                <label for="itemContext" class="m360-form-label">Contexto</label>
+                                <input type="text" class="m360-form-control" id="itemContext" name="context" placeholder="@casa, @trabajo, etc.">
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle me-2"></i>Crear Item
+                        <button type="button" class="m360-btn m360-btn-secondary" data-m360-close>Cancelar</button>
+                        <button type="submit" class="m360-btn m360-btn-primary">
+                            <i class="bi bi-check-circle events-me-2"></i>Crear Item
                         </button>
                     </div>
                 </form>
@@ -622,79 +622,79 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="alertModalLabel">
-                        <i class="bi bi-info-circle me-2"></i>Notificación
+                        <i class="bi bi-info-circle events-me-2"></i>Notificación
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="alertModalBody">
                     <!-- El mensaje se insertará aquí dinámicamente -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+                    <button type="button" class="m360-btn m360-btn-primary" data-m360-close>Aceptar</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Sincronización de Correos CX -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-primary">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-envelope-arrow-down me-2"></i>
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="m360-card events-border-primary" style="border-left: 4px solid var(--m360-primary);">
+                <div class="m360-card-header m360-bg-primary events-text-white events-d-flex events-justify-between events-align-center">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-envelope-arrow-down events-me-2"></i>
                         Sincronización de Correos CX
                     </h5>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-light" id="checkEmailsBtn" onclick="checkNewEmails()">
+                    <div class="events-d-flex events-gap-2">
+                        <button class="m360-btn m360-btn-sm btn-light" id="checkEmailsBtn" onclick="checkNewEmails()">
                             <i class="bi bi-envelope-arrow-down"></i> Verificar Correos Nuevos
                         </button>
-                        <button class="btn btn-sm btn-outline-light" id="processEmailsBtn" onclick="processEmailsManually()">
+                        <button class="m360-btn m360-btn-sm btn-outline-light" id="processEmailsBtn" onclick="processEmailsManually()">
                             <i class="bi bi-robot"></i> Procesar Emails CX
                         </button>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
+                <div class="m360-card-body">
+                    <div class="events-row">
                         <!-- Estado de Sincronización -->
-                        <div class="col-lg-4 col-md-6 mb-3">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-info-circle me-2"></i>Estado Actual
+                        <div class="col-lg-4 events-col-md-6 events-mb-3">
+                            <h6 class="events-text-primary events-mb-3">
+                                <i class="bi bi-info-circle events-me-2"></i>Estado Actual
                             </h6>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="events-d-flex events-justify-between events-align-center events-mb-2">
                                 <span class="small">Servicio:</span>
-                                <span class="badge bg-success" id="syncStatus">Activo</span>
+                                <span class="m360-badge m360-badge-success" id="syncStatus">Activo</span>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="events-d-flex events-justify-between events-align-center events-mb-2">
                                 <span class="small">Última verificación:</span>
-                                <small class="text-muted" id="lastCheckTime">Nunca</small>
+                                <small class="events-text-muted" id="lastCheckTime">Nunca</small>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center">
+                            <div class="events-d-flex events-justify-between events-align-center">
                                 <span class="small">Procesados hoy:</span>
-                                <strong class="text-primary" id="emailsProcessedToday">0</strong>
+                                <strong class="events-text-primary" id="emailsProcessedToday">0</strong>
                             </div>
                         </div>
 
                         <!-- Configuración Rápida -->
-                        <div class="col-lg-4 col-md-6 mb-3">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-gear me-2"></i>Configuración
+                        <div class="col-lg-4 events-col-md-6 events-mb-3">
+                            <h6 class="events-text-primary events-mb-3">
+                                <i class="bi bi-gear events-me-2"></i>Configuración
                             </h6>
-                            <div class="form-check form-switch mb-2">
+                            <div class="form-check form-switch events-mb-2">
                                 <input class="form-check-input" type="checkbox" id="autoSyncToggle" checked>
                                 <label class="form-check-label small" for="autoSyncToggle">
                                     Auto-sincronización
                                 </label>
                             </div>
-                            <div class="form-check form-switch mb-2">
+                            <div class="form-check form-switch events-mb-2">
                                 <input class="form-check-input" type="checkbox" id="notificationsToggle" checked>
                                 <label class="form-check-label small" for="notificationsToggle">
                                     Notificaciones
                                 </label>
                             </div>
-                            <div class="mb-2">
-                                <label for="syncInterval" class="form-label small mb-1">Intervalo:</label>
-                                <select class="form-select form-select-sm" id="syncInterval">
+                            <div class="events-mb-2">
+                                <label for="syncInterval" class="m360-form-label small mb-1">Intervalo:</label>
+                                <select class="m360-form-select form-select-sm" id="syncInterval">
                                     <option value="5">5 min</option>
                                     <option value="15" selected>15 min</option>
                                     <option value="30">30 min</option>
@@ -705,19 +705,19 @@
 
                         <!-- Estado de Procesamiento -->
                         <div class="col-lg-4 col-md-12">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-activity me-2"></i>Actividad
+                            <h6 class="events-text-primary events-mb-3">
+                                <i class="bi bi-activity events-me-2"></i>Actividad
                             </h6>
-                            <div id="emailCheckStatus" class="alert alert-info d-none py-2" role="alert">
-                                <div class="d-flex align-items-center">
-                                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                            <div id="emailCheckStatus" class="m360-alert m360-alert-info d-none py-2" role="alert">
+                                <div class="events-d-flex events-align-center">
+                                    <div class="spinner-border spinner-border-sm events-me-2" role="status">
                                         <span class="sr-only">Cargando...</span>
                                     </div>
                                     <small id="emailCheckMessage">Procesando...</small>
                                 </div>
                             </div>
-                            <div class="text-center text-muted small" id="noActivityMessage">
-                                <i class="bi bi-check-circle-fill text-success me-1"></i>
+                            <div class="events-text-center events-text-muted small" id="noActivityMessage">
+                                <i class="bi bi-check-circle-fill events-text-success me-1"></i>
                                 Servicio activo - Procesamiento automático
                             </div>
                         </div>
@@ -728,20 +728,20 @@
     </div>
 
     <!-- Centro de Bots -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-info">
-                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-robot me-2"></i>Centro de Bots
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="m360-card border-info">
+                <div class="m360-card-header bg-info events-text-white events-d-flex events-justify-between events-align-center">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-robot events-me-2"></i>Centro de Bots
                     </h5>
                     <small class="text-light">Simulación de tareas con credenciales reales</small>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-4 mb-3">
-                            <label for="botSelect" class="form-label fw-bold">Seleccionar Bot</label>
-                            <select class="form-select" id="botSelect" onchange="updateBotTasks()">
+                <div class="m360-card-body">
+                    <div class="events-row">
+                        <div class="col-lg-4 events-mb-3">
+                            <label for="botSelect" class="m360-form-label events-fw-bold">Seleccionar Bot</label>
+                            <select class="m360-form-select" id="botSelect" onchange="updateBotTasks()">
                                 <option value="">-- Seleccionar Bot --</option>
                                 {% for bot in available_bots %}
                                 <option value="{{ bot.id }}" data-icon="{{ bot.icon }}" data-color="{{ bot.color }}">
@@ -750,21 +750,21 @@
                                 {% endfor %}
                             </select>
                             <div class="form-text">
-                                <small id="botDescription" class="text-muted">Selecciona un bot para ver su descripción y tareas disponibles.</small>
+                                <small id="botDescription" class="events-text-muted">Selecciona un bot para ver su descripción y tareas disponibles.</small>
                             </div>
                         </div>
-                        <div class="col-lg-5 mb-3">
-                            <label class="form-label fw-bold">Seleccionar Tareas</label>
-                            <div id="taskOptions" class="border rounded p-3 bg-light" style="min-height: 120px;">
-                                <small class="text-muted">Selecciona un bot para ver las tareas disponibles.</small>
+                        <div class="col-lg-5 events-mb-3">
+                            <label class="m360-form-label events-fw-bold">Seleccionar Tareas</label>
+                            <div id="taskOptions" class="border rounded events-p-3 bg-light" style="min-height: 120px;">
+                                <small class="events-text-muted">Selecciona un bot para ver las tareas disponibles.</small>
                             </div>
                         </div>
-                        <div class="col-lg-3 mb-3 d-flex align-items-end">
+                        <div class="col-lg-3 events-mb-3 events-d-flex align-items-end">
                             <div class="w-100">
-                                <button class="btn btn-primary w-100 mb-2" id="activateBotBtn" onclick="activateBot()" disabled>
-                                    <i class="bi bi-play-circle me-2"></i>Activar Bot
+                                <button class="m360-btn m360-btn-primary w-100 events-mb-2" id="activateBotBtn" onclick="activateBot()" disabled>
+                                    <i class="bi bi-play-circle events-me-2"></i>Activar Bot
                                 </button>
-                                <div id="activationStatus" class="small text-muted text-center">
+                                <div id="activationStatus" class="small events-text-muted events-text-center">
                                     <!-- Estado de activación se mostrará aquí -->
                                 </div>
                             </div>
@@ -772,10 +772,10 @@
                     </div>
 
                     <!-- Resultados de la activación -->
-                    <div id="activationResults" class="mt-3" style="display: none;">
-                        <div class="alert alert-success" role="alert">
+                    <div id="activationResults" class="events-mt-3" style="display: none;">
+                        <div class="m360-alert m360-alert-success" role="alert">
                             <h6 class="alert-heading">
-                                <i class="bi bi-check-circle-fill me-2"></i>Activación Completada
+                                <i class="bi bi-check-circle-fill events-me-2"></i>Activación Completada
                             </h6>
                             <div id="activationSummary"></div>
                         </div>
@@ -791,6 +791,7 @@
 
 {% block extra_css %}
 <style>
+
 /* Estilos personalizados para el dashboard root */
 .badge-sm {
     font-size: 0.7em;
@@ -811,18 +812,18 @@
     overflow: hidden;
 }
 
-.btn-group-sm .btn {
+.m360-btn-group-sm .m360-btn {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
 }
 
 @media (max-width: 768px) {
-    .btn-group-sm {
+    .m360-btn-group-sm {
         flex-direction: column;
         width: 100%;
     }
 
-    .btn-group-sm .btn {
+    .m360-btn-group-sm .m360-btn {
         margin-bottom: 0.25rem;
     }
 
@@ -847,15 +848,16 @@
     border-radius: 0.25rem;
 }
 
-.input-group-sm .form-select {
+.input-group-sm .m360-form-select {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
 
-.input-group-sm .btn {
+.input-group-sm .m360-btn {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
+
 </style>
 {% endblock %}
 
@@ -866,22 +868,22 @@ const availableBots = {{ available_bots_json|safe }};
 
 // Funciones para mostrar modales de alerta y confirmación
 function showAlertModal(title, message, type = 'info') {
-    const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+    const modal = document.getElementById('alertModal');
     const modalTitle = document.getElementById('alertModalLabel');
     const modalBody = document.getElementById('alertModalBody');
 
     // Configurar icono según el tipo
     const icons = {
-        'success': 'bi-check-circle-fill text-success',
-        'danger': 'bi-exclamation-triangle-fill text-danger',
-        'warning': 'bi-exclamation-triangle-fill text-warning',
-        'info': 'bi-info-circle-fill text-info'
+        'success': 'bi-check-circle-fill events-text-success',
+        'danger': 'bi-exclamation-triangle-fill events-text-danger',
+        'warning': 'bi-exclamation-triangle-fill events-text-warning',
+        'info': 'bi-info-circle-fill events-text-info'
     };
 
-    modalTitle.innerHTML = `<i class="bi ${icons[type] || icons['info']} me-2"></i>${title}`;
-    modalBody.innerHTML = `<p class="mb-0">${message}</p>`;
+    modalTitle.innerHTML = `<i class="bi ${icons[type] || icons['info']} events-me-2"></i>${title}`;
+    modalBody.innerHTML = `<p class="events-mb-0">${message}</p>`;
 
-    modal.show();
+    m360Modal.open(modal);
 }
 
 function showConfirmModal(title, message, type = 'warning', onConfirm, onCancel) {
@@ -892,16 +894,16 @@ function showConfirmModal(title, message, type = 'warning', onConfirm, onCancel)
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="confirmModalLabel">
-                            <i class="bi bi-question-circle-fill text-${type} me-2"></i>${title}
+                            <i class="bi bi-question-circle-fill text-${type} events-me-2"></i>${title}
                         </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p class="mb-0">${message}</p>
+                        <p class="events-mb-0">${message}</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmCancelBtn">Cancelar</button>
-                        <button type="button" class="btn btn-${type}" id="confirmOkBtn">Confirmar</button>
+                        <button type="button" class="m360-btn m360-btn-secondary" data-m360-close id="confirmCancelBtn">Cancelar</button>
+                        <button type="button" class="m360-btn btn-${type}" id="confirmOkBtn">Confirmar</button>
                     </div>
                 </div>
             </div>
@@ -911,13 +913,13 @@ function showConfirmModal(title, message, type = 'warning', onConfirm, onCancel)
     // Agregar modal al DOM
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    const modal = document.getElementById('confirmModal');
     const confirmBtn = document.getElementById('confirmOkBtn');
     const cancelBtn = document.getElementById('confirmCancelBtn');
 
     // Configurar eventos
     confirmBtn.addEventListener('click', () => {
-        modal.hide();
+        m360Modal.close(modal);
         if (onConfirm) onConfirm();
         // Remover modal del DOM después de ocultarlo
         setTimeout(() => {
@@ -926,7 +928,7 @@ function showConfirmModal(title, message, type = 'warning', onConfirm, onCancel)
     });
 
     cancelBtn.addEventListener('click', () => {
-        modal.hide();
+        m360Modal.close(modal);
         if (onCancel) onCancel();
         // Remover modal del DOM después de ocultarlo
         setTimeout(() => {
@@ -1129,15 +1131,15 @@ function performDelegation(itemId, userId) {
         if (data.success) {
             // Actualizar la UI para mostrar el usuario asignado
             const cell = selectElement.closest('td');
-            const existingBadge = cell.querySelector('.text-muted');
+            const existingBadge = cell.querySelector('.events-text-muted');
             if (existingBadge) {
                 existingBadge.remove();
             }
 
             // Agregar indicador de asignación
             const badge = document.createElement('small');
-            badge.className = 'text-muted d-block';
-            badge.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> ${data.delegate_user}`;
+            badge.className = 'events-text-muted d-block';
+            badge.innerHTML = `<i class="bi bi-check-circle-fill events-text-success"></i> ${data.delegate_user}`;
             cell.appendChild(badge);
 
             // Resetear el select
@@ -1167,7 +1169,7 @@ function checkNewEmails() {
 
     // Deshabilitar botón y mostrar loading
     btn.disabled = true;
-    btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Verificando...';
+    btn.innerHTML = '<i class="bi bi-hourglass-split events-me-2"></i>Verificando...';
     statusDiv.classList.remove('d-none');
     messageSpan.textContent = 'Verificando correos nuevos...';
 
@@ -1182,25 +1184,25 @@ function checkNewEmails() {
     .then(data => {
         if (data.success) {
             messageSpan.textContent = `¡Éxito! ${data.processed_count} emails procesados.`;
-            statusDiv.classList.add('text-success');
+            statusDiv.classList.add('events-text-success');
             setTimeout(() => {
                 location.reload();
             }, 2000);
         } else {
             messageSpan.textContent = `Error: ${data.error}`;
-            statusDiv.classList.add('text-danger');
+            statusDiv.classList.add('events-text-danger');
         }
     })
     .catch(error => {
         console.error('Error:', error);
         messageSpan.textContent = 'Error de conexión';
-        statusDiv.classList.add('text-danger');
+        statusDiv.classList.add('events-text-danger');
         showAlertModal('Error de conexión', 'No se pudo conectar con el servidor para verificar emails.', 'danger');
     })
     .finally(() => {
         // Rehabilitar botón
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-envelope-arrow-down me-2"></i>Verificar Correos Nuevos';
+        btn.innerHTML = '<i class="bi bi-envelope-arrow-down events-me-2"></i>Verificar Correos Nuevos';
     });
 }
 
@@ -1211,7 +1213,7 @@ function processEmailsManually() {
 
     // Deshabilitar botón y mostrar loading
     btn.disabled = true;
-    btn.innerHTML = '<i class="bi bi-robot me-2"></i>Procesando...';
+    btn.innerHTML = '<i class="bi bi-robot events-me-2"></i>Procesando...';
     statusDiv.classList.remove('d-none');
     messageSpan.textContent = 'Procesando emails CX...';
 
@@ -1226,25 +1228,25 @@ function processEmailsManually() {
     .then(data => {
         if (data.success) {
             messageSpan.textContent = `¡Procesamiento completado! ${data.processed_count} emails procesados.`;
-            statusDiv.classList.add('text-success');
+            statusDiv.classList.add('events-text-success');
             setTimeout(() => {
                 location.reload();
             }, 2000);
         } else {
             messageSpan.textContent = `Error: ${data.error}`;
-            statusDiv.classList.add('text-danger');
+            statusDiv.classList.add('events-text-danger');
         }
     })
     .catch(error => {
         console.error('Error:', error);
         messageSpan.textContent = 'Error de conexión';
-        statusDiv.classList.add('text-danger');
+        statusDiv.classList.add('events-text-danger');
         showAlertModal('Error de conexión', 'No se pudo conectar con el servidor para procesar emails.', 'danger');
     })
     .finally(() => {
         // Rehabilitar botón
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-robot me-2"></i>Procesar Emails CX';
+        btn.innerHTML = '<i class="bi bi-robot events-me-2"></i>Procesar Emails CX';
     });
 }
 
@@ -1258,7 +1260,7 @@ function filterInboxTable() {
     const dateToFilter = document.getElementById('filterDateTo').value;
     const searchFilter = document.getElementById('filterSearch').value.toLowerCase();
 
-    const table = document.querySelector('.table.table-striped.table-hover');
+    const table = document.querySelector('.m360-table.m360-table-striped.m360-table-hover');
     const rows = table.querySelectorAll('tbody tr');
 
     rows.forEach(row => {
@@ -1351,7 +1353,7 @@ function updateBotTasks() {
     const selectedBotId = botSelect.value;
 
     if (!selectedBotId) {
-        taskOptions.innerHTML = '<small class="text-muted">Selecciona un bot para ver las tareas disponibles.</small>';
+        taskOptions.innerHTML = '<small class="events-text-muted">Selecciona un bot para ver las tareas disponibles.</small>';
         botDescription.textContent = 'Selecciona un bot para ver su descripción y tareas disponibles.';
         activateBtn.disabled = true;
         return;
@@ -1365,14 +1367,14 @@ function updateBotTasks() {
         botDescription.innerHTML = `<strong>${selectedBot.name}:</strong> ${selectedBot.description}`;
 
         // Generar checkboxes para las tareas
-        let tasksHtml = '<div class="mb-2"><small class="text-muted fw-bold">Selecciona las tareas a ejecutar:</small></div>';
+        let tasksHtml = '<div class="events-mb-2"><small class="events-text-muted events-fw-bold">Selecciona las tareas a ejecutar:</small></div>';
         selectedBot.tasks.forEach(task => {
             tasksHtml += `
                 <div class="form-check">
                     <input class="form-check-input task-checkbox" type="checkbox" value="${task.id}" id="task_${task.id}">
                     <label class="form-check-label" for="task_${task.id}">
                         <strong>${task.name}</strong>
-                        <br><small class="text-muted">${task.description}</small>
+                        <br><small class="events-text-muted">${task.description}</small>
                     </label>
                 </div>
             `;
@@ -1397,10 +1399,10 @@ function updateActivateButton() {
 
     if (checkedTasks.length > 0) {
         activateBtn.disabled = false;
-        activationStatus.innerHTML = `<small class="text-success">${checkedTasks.length} tarea(s) seleccionada(s)</small>`;
+        activationStatus.innerHTML = `<small class="events-text-success">${checkedTasks.length} tarea(s) seleccionada(s)</small>`;
     } else {
         activateBtn.disabled = true;
-        activationStatus.innerHTML = '<small class="text-muted">Selecciona al menos una tarea</small>';
+        activationStatus.innerHTML = '<small class="events-text-muted">Selecciona al menos una tarea</small>';
     }
 }
 
@@ -1421,7 +1423,7 @@ function activateBot() {
 
     // Deshabilitar botón y mostrar loading
     activateBtn.disabled = true;
-    activateBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Activando...';
+    activateBtn.innerHTML = '<i class="bi bi-hourglass-split events-me-2"></i>Activando...';
     activationStatus.innerHTML = '<small class="text-info">Procesando activación...</small>';
 
     // Preparar datos para envío
@@ -1442,18 +1444,18 @@ function activateBot() {
     .then(data => {
         if (data.success) {
             // Mostrar resultados exitosos
-            let summaryHtml = `<p class="mb-2"><strong>Bot activado:</strong> ${data.bot_name}</p>`;
-            summaryHtml += '<ul class="mb-0">';
+            let summaryHtml = `<p class="events-mb-2"><strong>Bot activado:</strong> ${data.bot_name}</p>`;
+            summaryHtml += '<ul class="events-mb-0">';
 
             data.executed_tasks.forEach(task => {
-                const statusIcon = task.status === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-warning';
+                const statusIcon = task.status === 'success' ? 'bi-check-circle-fill events-text-success' : 'bi-exclamation-triangle-fill events-text-warning';
                 const statusText = task.status === 'success' ? 'Completado' : 'Error';
                 summaryHtml += `
                     <li class="mb-1">
                         <i class="bi ${statusIcon} me-1"></i>
                         <strong>${task.task_id}:</strong> ${statusText}
-                        ${task.result ? `<br><small class="text-muted ms-3">${task.result}</small>` : ''}
-                        ${task.error ? `<br><small class="text-danger ms-3">${task.error}</small>` : ''}
+                        ${task.result ? `<br><small class="events-text-muted ms-3">${task.result}</small>` : ''}
+                        ${task.error ? `<br><small class="events-text-danger ms-3">${task.error}</small>` : ''}
                     </li>
                 `;
             });
@@ -1478,7 +1480,7 @@ function activateBot() {
     .finally(() => {
         // Restaurar botón
         activateBtn.disabled = false;
-        activateBtn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Activar Bot';
+        activateBtn.innerHTML = '<i class="bi bi-play-circle events-me-2"></i>Activar Bot';
         activationStatus.innerHTML = '';
     });
 }
@@ -1500,8 +1502,8 @@ document.getElementById('createInboxItemForm').addEventListener('submit', functi
     .then(data => {
         if (data.success) {
             // Cerrar modal y recargar página
-            const modal = bootstrap.Modal.getInstance(document.getElementById('createInboxItemModal'));
-            modal.hide();
+            const modal = document.getElementById('createInboxItemModal');
+            m360Modal.close(modal);
             location.reload();
         } else {
             showAlertModal('Error al crear', 'Error al crear el item: ' + data.error, 'danger');

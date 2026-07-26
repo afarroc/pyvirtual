@@ -1,146 +1,66 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}Eliminar Dependencia{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="bi bi-trash me-2"></i>
-                        {{ title }}
-                    </h3>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-md-6 events-col-lg-6 events-mx-auto">
+            <div class="m360-card" style="border-left: 4px solid var(--m360-danger);">
+                <div class="m360-card-header" style="background: var(--m360-danger); color: #fff; border: none;">
+                    <h5 class="m360-card-title events-mb-0" style="color: inherit;">
+                        <i class="bi bi-exclamation-triangle" style="margin-right: var(--m360-space-2);"></i>
+                        Confirmar Eliminación
+                    </h5>
                 </div>
-                <div class="card-body">
-                    {% if dependency %}
-                        <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            <strong>¿Estás seguro de que deseas eliminar esta dependencia?</strong>
-                        </div>
 
-                        <div class="dependency-details">
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="text-center">
-                                        <h6 class="text-muted">Tarea Dependiente</h6>
-                                        <div class="task-card" style="border-left: 4px solid {{ dependency.task.task_status.color }};">
-                                            <h5>{{ dependency.task.title }}</h5>
-                                            <small class="badge task-status-badge" data-color="{{ dependency.task.task_status.color }}">
-                                                {{ dependency.task.task_status.status_name }}
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="text-center">
-                                        <h6 class="text-muted">Depende de</h6>
-                                        <div class="task-card" style="border-left: 4px solid {{ dependency.depends_on.task_status.color }};">
-                                            <h5>{{ dependency.depends_on.title }}</h5>
-                                            <small class="badge task-status-badge" data-color="{{ dependency.depends_on.task_status.color }}">
-                                                {{ dependency.depends_on.task_status.status_name }}
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="m360-card-body">
+                    <div class="m360-alert m360-alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                    </div>
 
-                            <div class="row mt-3">
-                                <div class="col-12">
-                                    <div class="text-center">
-                                        <div class="dependency-arrow">
-                                            <i class="bi bi-arrow-down-circle text-primary"></i>
-                                            <br>
-                                            <small class="text-muted">
-                                                {{ dependency.dependency_type|title|cut:"_"|cut:" " }}
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <p>¿Estás seguro de que quieres eliminar la siguiente dependencia?</p>
 
-                        <div class="alert alert-info mt-3">
-                            <i class="bi bi-info-circle me-2"></i>
-                            <strong>Consecuencias:</strong>
-                            <ul class="mb-0 mt-2">
-                                <li>La tarea "{{ dependency.task.title }}" ya no dependerá de "{{ dependency.depends_on.title }}"</li>
-                                <li>Esta acción no se puede deshacer</li>
-                                <li>Las tareas relacionadas no serán eliminadas</li>
+                    <div class="m360-card" style="background: var(--m360-gray-50);">
+                        <div class="m360-card-body">
+                            <h6 class="m360-card-title">{{ dependency.task.title }}</h6>
+                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--m360-space-2);">
+                                <li><strong>Depende de:</strong> {{ dependency.depends_on.title }}</li>
+                                <li><strong>Tipo:</strong> {{ dependency.dependency_type|title|cut:"_"|cut:" " }}</li>
+                                <li><strong>Creada:</strong> {{ dependency.created_at|date:"d/m/Y H:i" }}</li>
                             </ul>
                         </div>
+                    </div>
+                </div>
 
-                        <form method="post" class="mt-4">
-                            {% csrf_token %}
-                            <div class="d-flex gap-2 justify-content-center">
-                                <button type="submit" class="btn btn-danger">
-                                    <i class="bi bi-trash me-1"></i>
-                                    Sí, Eliminar Dependencia
-                                </button>
-                                <a href="{% url 'events:task_dependencies_list' dependency.task.id %}" class="btn btn-secondary">
-                                    <i class="bi bi-x-circle me-1"></i>
-                                    Cancelar
-                                </a>
-                            </div>
-                        </form>
-                    {% else %}
-                        <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            Dependencia no encontrada o no tienes permisos para eliminarla.
-                        </div>
-                        <div class="text-center mt-3">
-                            <a href="{% url 'events:tasks' %}" class="btn btn-primary">
-                                <i class="bi bi-arrow-left me-1"></i>
-                                Volver a Tareas
-                            </a>
-                        </div>
-                    {% endif %}
+                <div class="m360-card-footer events-d-flex events-justify-between">
+                    <form method="post" class="events-d-flex">
+                        {% csrf_token %}
+                        <button type="submit" class="m360-btn m360-btn-danger">
+                            <i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i> Sí, Eliminar
+                        </button>
+                    </form>
+                    <a href="{% url 'events:task_dependencies_list' dependency.task.id %}" class="m360-btn m360-btn-outline-secondary">
+                        <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i> Cancelar
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-.task-card {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin-top: 0.5rem;
-}
-
-.task-card h5 {
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-}
-
-.dependency-details {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.dependency-arrow {
-    padding: 1rem;
-    font-size: 2rem;
-}
-
-.task-status-badge {
-    background-color: attr(data-color) !important;
-    color: white !important;
-}
-
-.btn-danger:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-}
-
-.btn-secondary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
-}
-</style>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!confirm('¿Estás completamente seguro de que quieres eliminar esta dependencia? Esta acción no se puede deshacer.')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block extra_css %}
@@ -6,161 +6,156 @@
 {% endblock %}
 
 {% block content %}
-<!-- Mensajes del sistema -->
 {% if messages %}
-<div class="alert alert-info alert-dismissible fade show" role="alert">
-    {% for message in messages %}
-    <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-    {% endfor %}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-alert m360-alert-info" role="alert">
+                {% for message in messages %}
+                <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endif %}
 
-<!-- Contenedor principal con las 3 filas -->
-<div class="container-fluid inbox-control-panel" data-inbox-item-id="{{ inbox_item.id|default:0 }}">
-    
-    <!-- FILA 1: Cabecera (12 columnas) -->
-    <div class="row mb-4">
-        <div class="col-12">
-            {% block header %}
-            <div class="row align-items-center">
-                <div class="col-12 col-md-6 mb-2 mb-md-0">
-                    <h1 class="fs-4 fs-md-1 mb-1">
-                        <i class="bi bi-gear-fill text-primary me-2"></i>{{ title }}
+<div class="events-container">
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="events-row events-align-center">
+                <div class="events-col-12 events-col-md-6 events-mb-2 events-mb-md-0">
+                    <h1 class="events-h4 events-h-md-1 events-mb-1">
+                        <i class="bi bi-gear-fill events-text-primary" style="margin-right: var(--m360-space-2);"></i>{{ title }}
                     </h1>
-                    <p class="text-muted small mb-0">
+                    <p class="events-text-muted events-mb-0" style="font-size: var(--m360-text-sm);">
                         Gestión integral de elementos del inbox GTD
                     </p>
                 </div>
-                <div class="col-12 col-md-6">
-                    <div class="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-                        <a href="{% url 'events:inbox' %}" class="btn btn-outline-secondary btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i>Inbox
+                <div class="events-col-12 events-col-md-6">
+                    <div class="events-d-flex events-flex-wrap events-gap-2 events-justify-start events-justify-md-end">
+                        <a href="{% url 'events:inbox' %}" class="m360-btn m360-btn-outline-secondary">
+                            <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>Inbox
                         </a>
-                        <a href="{% url 'events:inbox_admin_dashboard' %}" class="btn btn-outline-info btn-sm">
-                            <i class="bi bi-shield-check me-1"></i>Admin
+                        <a href="{% url 'events:inbox_admin_dashboard' %}" class="m360-btn m360-btn-outline-info">
+                            <i class="bi bi-shield-check" style="margin-right: var(--m360-space-1);"></i>Admin
                         </a>
-                        <a href="{% url 'events:unified_dashboard' %}" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        <a href="{% url 'events:unified_dashboard' %}" class="m360-btn m360-btn-outline-primary">
+                            <i class="bi bi-speedometer2" style="margin-right: var(--m360-space-1);"></i>Dashboard
                         </a>
                     </div>
                 </div>
             </div>
-            {% endblock %}
         </div>
     </div>
 
     {% if inbox_item %}
-    <!-- FILA 2: Contenido principal (9 + 3 columnas) -->
-    <div class="row">
-        <!-- Columna izquierda: 9 columnas -->
-        <div class="col-lg-9">
-            <div class="row">
-                <!-- Subcolumna 1: Detalle del item (4 columnas) -->
-                <div class="col-md-4">
-                    <!-- Tarjeta: Información del Item -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Información del Item</h5>
-                                <span class="badge bg-light text-dark">#{{ inbox_item.id }}</span>
+    <div class="events-row events-gap-4">
+        <div class="events-col-lg-9">
+            <div class="events-row events-gap-4">
+                <div class="events-col-md-4">
+                    <div class="m360-card events-mb-4">
+                        <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
+                            <div class="events-d-flex events-justify-between events-align-center">
+                                <h5 class="events-mb-0"><i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>Información del Item</h5>
+                                <span class="m360-badge m360-badge-light">#{{ inbox_item.id }}</span>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <div class="item-header mb-3">
-                                <h4 class="text-dark mb-2">{{ inbox_item.title }}</h4>
+                        <div class="m360-card-body">
+                            <div class="events-mb-3">
+                                <h4 class="events-text-dark events-mb-2">{{ inbox_item.title }}</h4>
                                 {% if inbox_item.description %}
-                                    <p class="text-muted mb-3">{{ inbox_item.description }}</p>
+                                    <p class="events-text-muted events-mb-3">{{ inbox_item.description }}</p>
                                 {% else %}
-                                    <p class="text-muted mb-3"><em>Sin descripción adicional</em></p>
+                                    <p class="events-text-muted events-mb-3"><em>Sin descripción adicional</em></p>
                                 {% endif %}
                             </div>
-                            <div class="item-metadata">
-                                <div class="metadata-item mb-2">
-                                    <i class="bi bi-calendar text-primary me-2"></i>
+                            <div class="events-item-metadata">
+                                <div class="events-mb-2">
+                                    <i class="bi bi-calendar events-text-primary" style="margin-right: var(--m360-space-2);"></i>
                                     <strong>Creado:</strong> {{ inbox_item.created_at|date:"d/m/Y H:i" }}
                                 </div>
-                                <div class="metadata-item mb-2">
-                                    <i class="bi bi-person text-primary me-2"></i>
+                                <div class="events-mb-2">
+                                    <i class="bi bi-person events-text-primary" style="margin-right: var(--m360-space-2);"></i>
                                     <strong>Creador:</strong> {{ inbox_item.created_by.get_full_name|default:inbox_item.created_by.username }}
                                 </div>
-                                <div class="metadata-item mb-2">
-                                    <i class="bi bi-eye text-primary me-2"></i>
+                                <div class="events-mb-2">
+                                    <i class="bi bi-eye events-text-primary" style="margin-right: var(--m360-space-2);"></i>
                                     <strong>Vistas:</strong> {{ inbox_item.view_count }}
                                 </div>
-                                <div class="metadata-item mb-2">
-                                    <i class="bi bi-clock text-primary me-2"></i>
+                                <div class="events-mb-2">
+                                    <i class="bi bi-clock events-text-primary" style="margin-right: var(--m360-space-2);"></i>
                                     <strong>Última actividad:</strong> {{ inbox_item.last_activity|date:"d/m/Y H:i" }}
                                 </div>
                             </div>
-                            <div class="status-badges mt-3">
-                                <span class="badge bg-{% if inbox_item.is_processed %}success{% else %}warning{% endif %} me-2">
-                                    <i class="bi bi-{% if inbox_item.is_processed %}check-circle{% else %}clock{% endif %} me-1"></i>
+                            <div class="events-status-badges events-mt-3">
+                                <span class="m360-badge {% if inbox_item.is_processed %}m360-badge-success{% else %}m360-badge-warning{% endif %}" style="margin-right: var(--m360-space-2);">
+                                    <i class="bi bi-{% if inbox_item.is_processed %}check-circle{% else %}clock{% endif %}" style="margin-right: var(--m360-space-1);"></i>
                                     {% if inbox_item.is_processed %}Procesado{% else %}Pendiente{% endif %}
                                 </span>
                                 {% if inbox_item.is_public %}
-                                    <span class="badge bg-info"><i class="bi bi-globe me-1"></i>Público</span>
+                                    <span class="m360-badge m360-badge-info"><i class="bi bi-globe" style="margin-right: var(--m360-space-1);"></i>Público</span>
                                 {% else %}
-                                    <span class="badge bg-secondary"><i class="bi bi-lock me-1"></i>Privado</span>
+                                    <span class="m360-badge m360-badge-secondary"><i class="bi bi-lock" style="margin-right: var(--m360-space-1);"></i>Privado</span>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
-                    <!-- Tarjeta: Consenso de Clasificación -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Consenso de Clasificación</h6>
+
+                    <div class="m360-card events-mb-4">
+                        <div class="m360-card-header" style="background: var(--m360-info); color: #fff; border: none;">
+                            <h6 class="events-mb-0"><i class="bi bi-bar-chart" style="margin-right: var(--m360-space-1);"></i>Consenso de Clasificación</h6>
                         </div>
-                        <div class="card-body">
-                            <div class="consensus-item mb-3">
-                                <small class="text-muted d-block">Categoría GTD</small>
-                                <span class="badge bg-primary fs-6">{{ consensus_category|title|default:"Sin consenso" }}</span>
+                        <div class="m360-card-body">
+                            <div class="events-mb-3">
+                                <small class="events-text-muted" style="display: block;">Categoría GTD</small>
+                                <span class="m360-badge m360-badge-primary">{{ consensus_category|title|default:"Sin consenso" }}</span>
                             </div>
-                            <div class="consensus-item mb-3">
-                                <small class="text-muted d-block">Tipo de Acción</small>
-                                <span class="badge bg-secondary fs-6">{{ consensus_action|title|default:"Sin consenso" }}</span>
+                            <div class="events-mb-3">
+                                <small class="events-text-muted" style="display: block;">Tipo de Acción</small>
+                                <span class="m360-badge m360-badge-secondary">{{ consensus_action|title|default:"Sin consenso" }}</span>
                             </div>
-                            <div class="consensus-item">
-                                <small class="text-muted d-block">Votos de Clasificación</small>
-                                <span class="badge bg-light text-dark fs-6">{{ classifications|length }} usuario(s)</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Tarjeta: Estadísticas Rápidas -->
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-success text-white">
-                            <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Estadísticas Rápidas</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="stat-item text-center mb-3">
-                                <div class="stat-value text-success">{{ processed_count }}</div>
-                                <small class="text-muted">Items procesados</small>
-                            </div>
-                            <div class="stat-item text-center">
-                                <div class="stat-value text-warning">{{ unprocessed_count }}</div>
-                                <small class="text-muted">Items pendientes</small>
+                            <div>
+                                <small class="events-text-muted" style="display: block;">Votos de Clasificación</small>
+                                <span class="m360-badge m360-badge-light">{{ classifications|length }} usuario(s)</span>
                             </div>
                         </div>
                     </div>
-                    <!-- Tarjeta: Clasificación GTD (AGREGAR DESPUÉS DE ESTADÍSTICAS RÁPIDAS) -->
-                    <div class="card shadow-sm mt-4">
-                        <div class="card-header bg-warning text-dark">
-                            <h6 class="mb-0"><i class="bi bi-tags me-2"></i>Clasificación GTD</h6>
+
+                    <div class="m360-card events-mb-4">
+                        <div class="m360-card-header" style="background: var(--m360-success); color: #fff; border: none;">
+                            <h6 class="events-mb-0"><i class="bi bi-graph-up" style="margin-right: var(--m360-space-1);"></i>Estadísticas Rápidas</h6>
                         </div>
-                        <div class="card-body">
+                        <div class="m360-card-body">
+                            <div class="events-text-center events-mb-3">
+                                <div class="events-text-success" style="font-size: var(--m360-icon-xl); font-weight: var(--m360-font-weight-bold);">{{ processed_count }}</div>
+                                <small class="events-text-muted">Items procesados</small>
+                            </div>
+                            <div class="events-text-center">
+                                <div class="events-text-warning" style="font-size: var(--m360-icon-xl); font-weight: var(--m360-font-weight-bold);">{{ unprocessed_count }}</div>
+                                <small class="events-text-muted">Items pendientes</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="m360-card">
+                        <div class="m360-card-header" style="background: var(--m360-warning); color: var(--m360-text-dark); border: none;">
+                            <h6 class="events-mb-0"><i class="bi bi-tags" style="margin-right: var(--m360-space-1);"></i>Clasificación GTD</h6>
+                        </div>
+                        <div class="m360-card-body">
                             <form id="classificationForm" method="post" action="{% url 'events:classify_inbox_item_ajax' inbox_item.id %}">
                                 {% csrf_token %}
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Categoría GTD:</label>
-                                    <select name="gtd_category" class="form-select" id="gtdCategory">
+                                <div class="events-mb-3">
+                                    <label class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">Categoría GTD:</label>
+                                    <select name="gtd_category" class="m360-form-control" id="gtdCategory">
                                         <option value="pendiente" {% if inbox_item.gtd_category == 'pendiente' %}selected{% endif %}>Pendiente</option>
                                         <option value="accionable" {% if inbox_item.gtd_category == 'accionable' %}selected{% endif %}>Accionable</option>
                                         <option value="no_accionable" {% if inbox_item.gtd_category == 'no_accionable' %}selected{% endif %}>No Accionable</option>
                                     </select>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Tipo de Acción:</label>
-                                    <select name="action_type" class="form-select" id="actionType">
+                                <div class="events-mb-3">
+                                    <label class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">Tipo de Acción:</label>
+                                    <select name="action_type" class="m360-form-control" id="actionType">
                                         <option value="">-- Seleccionar --</option>
                                         <option value="hacer" {% if inbox_item.action_type == 'hacer' %}selected{% endif %}>Hacer</option>
                                         <option value="delegar" {% if inbox_item.action_type == 'delegar' %}selected{% endif %}>Delegar</option>
@@ -171,31 +166,31 @@
                                         <option value="incubar" {% if inbox_item.action_type == 'incubar' %}selected{% endif %}>Incubar</option>
                                     </select>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Prioridad:</label>
-                                    <select name="priority" class="form-select" id="priority">
+                                <div class="events-mb-3">
+                                    <label class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">Prioridad:</label>
+                                    <select name="priority" class="m360-form-control" id="priority">
                                         <option value="baja" {% if inbox_item.priority == 'baja' %}selected{% endif %}>Baja</option>
                                         <option value="media" {% if inbox_item.priority == 'media' %}selected{% endif %}>Media</option>
                                         <option value="alta" {% if inbox_item.priority == 'alta' %}selected{% endif %}>Alta</option>
                                     </select>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Confianza (%):</label>
-                                    <input type="range" class="form-range" name="confidence" min="0" max="100" step="5" 
+                                <div class="events-mb-3">
+                                    <label class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">Confianza (%):</label>
+                                    <input type="range" class="m360-form-range" name="confidence" min="0" max="100" step="5" 
                                            value="{% if inbox_item.classification_confidence %}{{ inbox_item.classification_confidence }}{% else %}80{% endif %}" 
                                            id="confidenceRange">
-                                    <div class="text-center"><span id="confidenceValue">80</span>%</div>
+                                    <div class="events-text-center"><span id="confidenceValue">80</span>%</div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Notas de clasificación:</label>
-                                    <textarea name="notes" class="form-control" rows="2" id="classificationNotes">{{ inbox_item.classification_notes|default:'' }}</textarea>
+                                <div class="events-mb-3">
+                                    <label class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">Notas de clasificación:</label>
+                                    <textarea name="notes" class="m360-form-control" rows="2" id="classificationNotes">{{ inbox_item.classification_notes|default:'' }}</textarea>
                                 </div>
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-warning" id="saveClassificationBtn">
-                                        <i class="bi bi-save me-2"></i>Guardar Clasificación
+                                <div class="events-d-grid events-gap-2">
+                                    <button type="submit" class="m360-btn m360-btn-warning" id="saveClassificationBtn">
+                                        <i class="bi bi-save" style="margin-right: var(--m360-space-1);"></i>Guardar Clasificación
                                     </button>
-                                    <button type="button" class="btn btn-outline-warning" id="reclassifyBtn" data-bs-toggle="modal" data-bs-target="#reclassifyHistoryModal">
-                                        <i class="bi bi-clock-history me-2"></i>Ver Historial de Clasificaciones
+                                    <button type="button" class="m360-btn m360-btn-outline-warning" id="reclassifyBtn" data-m360-toggle="modal" data-m360-target="#reclassifyHistoryModal">
+                                        <i class="bi bi-clock-history" style="margin-right: var(--m360-space-1);"></i>Ver Historial de Clasificaciones
                                     </button>
                                 </div>
                             </form>
@@ -203,113 +198,106 @@
                     </div>
                 </div>
 
-                <!-- Subcolumna 2: Acciones principales (8 columnas) -->
-                <div class="col-md-8">
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-dark text-white">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Panel de Control de Acciones</h5>
-                                <div class="btn-group btn-group-sm">
-                                    <button type="button" class="btn btn-outline-light" id="gridViewBtn"><i class="bi bi-grid"></i></button>
-                                    <button type="button" class="btn btn-outline-light" id="listViewBtn"><i class="bi bi-list"></i></button>
+                <div class="events-col-md-8">
+                    <div class="m360-card events-mb-4">
+                        <div class="m360-card-header" style="background: var(--m360-text); color: #fff; border: none;">
+                            <div class="events-d-flex events-justify-between events-align-center">
+                                <h5 class="events-mb-0"><i class="bi bi-gear" style="margin-right: var(--m360-space-1);"></i>Panel de Control de Acciones</h5>
+                                <div class="m360-btn-group">
+                                    <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-light" id="gridViewBtn"><i class="bi bi-grid"></i></button>
+                                    <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-light" id="listViewBtn"><i class="bi bi-list"></i></button>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body">
+                        <div class="m360-card-body">
                             <form method="post" id="processForm">
                                 {% csrf_token %}
                                 
-                                <!-- SECCIÓN ACCIONABLE -->
-                                <div class="row mb-4">
-                                    <div class="col-12 mb-3">
-                                        <h6 class="text-success mb-3"><i class="bi bi-check-circle me-2"></i>SÍ es accionable - Elige una opción:</h6>
+                                <div class="events-row events-mb-4">
+                                    <div class="events-col-12 events-mb-3">
+                                        <h6 class="events-text-success events-mb-3"><i class="bi bi-check-circle" style="margin-right: var(--m360-space-2);"></i>SÍ es accionable - Elige una opción:</h6>
                                     </div>
-                                    <!-- Tarjeta: Crear Tarea -->
-                                    <div class="col-md-6 mb-3">
-                                        <div class="action-card success-action">
-                                            <div class="card-body text-center">
-                                                <div class="action-icon mb-3"><i class="bi bi-plus-circle-fill text-success" style="font-size: 3rem;"></i></div>
-                                                <h6 class="card-title">Crear Nueva Tarea</h6>
-                                                <p class="card-text small text-muted mb-2">
-                                                    <i class="bi bi-info-circle me-1"></i><span id="taskContextPreview">Tarea independiente</span>
+                                    <div class="events-col-md-6 events-mb-3">
+                                        <div class="m360-card" style="border-left: 4px solid var(--m360-success);">
+                                            <div class="m360-card-body events-text-center">
+                                                <div class="events-mb-3" style="font-size: var(--m360-icon-xl); color: var(--m360-success);"><i class="bi bi-plus-circle-fill"></i></div>
+                                                <h6 class="events-card-title events-mb-2">Crear Nueva Tarea</h6>
+                                                <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);">
+                                                    <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i><span id="taskContextPreview">Tarea independiente</span>
                                                 </p>
-                                                <div class="mb-3">
-                                                    <small class="text-muted d-block"><i class="bi bi-folder me-1"></i> Proyecto: <span id="taskProjectPreview">Ninguno</span></small>
-                                                    <small class="text-muted d-block"><i class="bi bi-calendar me-1"></i> Evento: <span id="taskEventPreview">Nuevo</span></small>
+                                                <div class="events-mb-3">
+                                                    <small class="events-text-muted" style="display: block;"><i class="bi bi-folder" style="margin-right: var(--m360-space-1);"></i> Proyecto: <span id="taskProjectPreview">Ninguno</span></small>
+                                                    <small class="events-text-muted" style="display: block;"><i class="bi bi-calendar" style="margin-right: var(--m360-space-1);"></i> Evento: <span id="taskEventPreview">Nuevo</span></small>
                                                 </div>
-                                                <button type="submit" name="action" value="convert_to_task" class="btn btn-success w-100"><i class="bi bi-plus-circle me-2"></i>Crear Tarea</button>
+                                                <button type="submit" name="action" value="convert_to_task" class="m360-btn m360-btn-success events-w-100"><i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Crear Tarea</button>
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Tarjeta: Crear Proyecto -->
-                                    <div class="col-md-6 mb-3">
-                                        <div class="action-card primary-action">
-                                            <div class="card-body text-center">
-                                                <div class="action-icon mb-3"><i class="bi bi-folder-plus text-primary" style="font-size: 3rem;"></i></div>
-                                                <h6 class="card-title">Crear Nuevo Proyecto</h6>
-                                                <p class="card-text small text-muted mb-2"><i class="bi bi-info-circle me-1"></i>Proyecto completo con gestión integrada</p>
-                                                <div class="mb-3">
-                                                    <small class="text-muted d-block"><i class="bi bi-calendar me-1"></i> Evento: <span id="projectEventPreview">Nuevo</span></small>
-                                                    <small class="text-muted d-block"><i class="bi bi-clock me-1"></i> Incluye tarea inicial</small>
+                                    <div class="events-col-md-6 events-mb-3">
+                                        <div class="m360-card" style="border-left: 4px solid var(--m360-primary);">
+                                            <div class="m360-card-body events-text-center">
+                                                <div class="events-mb-3" style="font-size: var(--m360-icon-xl); color: var(--m360-primary);"><i class="bi bi-folder-plus"></i></div>
+                                                <h6 class="events-card-title events-mb-2">Crear Nuevo Proyecto</h6>
+                                                <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);"><i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>Proyecto completo con gestión integrada</p>
+                                                <div class="events-mb-3">
+                                                    <small class="events-text-muted" style="display: block;"><i class="bi bi-calendar" style="margin-right: var(--m360-space-1);"></i> Evento: <span id="projectEventPreview">Nuevo</span></small>
+                                                    <small class="events-text-muted" style="display: block;"><i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i> Incluye tarea inicial</small>
                                                 </div>
-                                                <button type="submit" name="action" value="convert_to_project" class="btn btn-primary w-100"><i class="bi bi-folder-plus me-2"></i>Crear Proyecto</button>
+                                                <button type="submit" name="action" value="convert_to_project" class="m360-btn m360-btn-primary events-w-100"><i class="bi bi-folder-plus" style="margin-right: var(--m360-space-1);"></i>Crear Proyecto</button>
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Tarjeta: Solo Evento -->
-                                    <div class="col-md-6 mb-3">
-                                        <div class="action-card info-action">
-                                            <div class="card-body text-center">
-                                                <div class="action-icon mb-3"><i class="bi bi-calendar-plus text-info" style="font-size: 3rem;"></i></div>
-                                                <h6 class="card-title">Crear Solo Evento</h6>
-                                                <p class="card-text small text-muted mb-2"><i class="bi bi-info-circle me-1"></i>Evento sin tareas ni proyectos específicos</p>
-                                                <div class="mb-3">
-                                                    <small class="text-muted d-block"><i class="bi bi-people me-1"></i> Gestión de asistentes</small>
-                                                    <small class="text-muted d-block"><i class="bi bi-tag me-1"></i> Categorización flexible</small>
+                                    <div class="events-col-md-6 events-mb-3">
+                                        <div class="m360-card" style="border-left: 4px solid var(--m360-info);">
+                                            <div class="m360-card-body events-text-center">
+                                                <div class="events-mb-3" style="font-size: var(--m360-icon-xl); color: var(--m360-info);"><i class="bi bi-calendar-plus"></i></div>
+                                                <h6 class="events-card-title events-mb-2">Crear Solo Evento</h6>
+                                                <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);"><i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>Evento sin tareas ni proyectos específicos</p>
+                                                <div class="events-mb-3">
+                                                    <small class="events-text-muted" style="display: block;"><i class="bi bi-people" style="margin-right: var(--m360-space-1);"></i> Gestión de asistentes</small>
+                                                    <small class="events-text-muted" style="display: block;"><i class="bi bi-tag" style="margin-right: var(--m360-space-1);"></i> Categorización flexible</small>
                                                 </div>
-                                                <button type="submit" name="action" value="convert_to_event" class="btn btn-info w-100"><i class="bi bi-calendar-plus me-2"></i>Crear Evento</button>
+                                                <button type="submit" name="action" value="convert_to_event" class="m360-btn m360-btn-info events-w-100"><i class="bi bi-calendar-plus" style="margin-right: var(--m360-space-1);"></i>Crear Evento</button>
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Tarjeta: Proyecto + Tarea Inicial -->
-                                    <div class="col-md-6 mb-3">
-                                        <div class="action-card warning-action">
-                                            <div class="card-body text-center">
-                                                <div class="action-icon mb-3"><i class="bi bi-diagram-3 text-warning" style="font-size: 3rem;"></i></div>
-                                                <h6 class="card-title">Proyecto + Tarea Inicial</h6>
-                                                <p class="card-text small text-muted mb-2"><i class="bi bi-info-circle me-1"></i>Proyecto completo con primera tarea incluida</p>
-                                                <div class="mb-3">
-                                                    <small class="text-muted d-block"><i class="bi bi-calendar me-1"></i> Evento asociado</small>
-                                                    <small class="text-muted d-block"><i class="bi bi-check2-circle me-1"></i> Tarea inicial configurada</small>
+                                    <div class="events-col-md-6 events-mb-3">
+                                        <div class="m360-card" style="border-left: 4px solid var(--m360-warning);">
+                                            <div class="m360-card-body events-text-center">
+                                                <div class="events-mb-3" style="font-size: var(--m360-icon-xl); color: var(--m360-warning);"><i class="bi bi-diagram-3"></i></div>
+                                                <h6 class="events-card-title events-mb-2">Proyecto + Tarea Inicial</h6>
+                                                <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);"><i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>Proyecto completo con primera tarea incluida</p>
+                                                <div class="events-mb-3">
+                                                    <small class="events-text-muted" style="display: block;"><i class="bi bi-calendar" style="margin-right: var(--m360-space-1);"></i> Evento asociado</small>
+                                                    <small class="events-text-muted" style="display: block;"><i class="bi bi-check2-circle" style="margin-right: var(--m360-space-1);"></i> Tarea inicial configurada</small>
                                                 </div>
-                                                <button type="submit" name="action" value="convert_to_task_project" class="btn btn-warning w-100"><i class="bi bi-diagram-3 me-2"></i>Proyecto + Tarea</button>
+                                                <button type="submit" name="action" value="convert_to_task_project" class="m360-btn m360-btn-warning events-w-100"><i class="bi bi-diagram-3" style="margin-right: var(--m360-space-1);"></i>Proyecto + Tarea</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- SECCIÓN NO ACCIONABLE -->
-                                <div class="row">
-                                    <div class="col-12 mb-3">
-                                        <h6 class="text-warning mb-3"><i class="bi bi-x-circle me-2"></i>NO es accionable - Elige una opción:</h6>
+                                <div class="events-row">
+                                    <div class="events-col-12 events-mb-3">
+                                        <h6 class="events-text-warning events-mb-3"><i class="bi bi-x-circle" style="margin-right: var(--m360-space-2);"></i>NO es accionable - Elige una opción:</h6>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="action-card secondary-action">
-                                            <div class="card-body text-center">
-                                                <div class="action-icon mb-3"><i class="bi bi-archive text-secondary" style="font-size: 3rem;"></i></div>
-                                                <h6 class="card-title">Guardar como Referencia</h6>
-                                                <p class="card-text small text-muted mb-3">Guardar como información útil para consultar más tarde</p>
-                                                <button type="submit" name="action" value="reference" class="btn btn-secondary w-100"><i class="bi bi-archive me-2"></i>Referencia</button>
+                                    <div class="events-col-md-6 events-mb-3">
+                                        <div class="m360-card" style="border-left: 4px solid var(--m360-secondary);">
+                                            <div class="m360-card-body events-text-center">
+                                                <div class="events-mb-3" style="font-size: var(--m360-icon-xl); color: var(--m360-secondary);"><i class="bi bi-archive"></i></div>
+                                                <h6 class="events-card-title events-mb-2">Guardar como Referencia</h6>
+                                                <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);">Guardar como información útil para consultar más tarde</p>
+                                                <button type="submit" name="action" value="reference" class="m360-btn m360-btn-secondary events-w-100"><i class="bi bi-archive" style="margin-right: var(--m360-space-1);"></i>Referencia</button>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="action-card light-action">
-                                            <div class="card-body text-center">
-                                                <div class="action-icon mb-3"><i class="bi bi-lightbulb text-info" style="font-size: 3rem;"></i></div>
-                                                <h6 class="card-title">Algún día / Quizás</h6>
-                                                <p class="card-text small text-muted mb-3">Guardar como idea para el futuro, no requiere acción inmediata</p>
-                                                <button type="submit" name="action" value="someday" class="btn btn-info w-100"><i class="bi bi-lightbulb me-2"></i>Algún día</button>
+                                    <div class="events-col-md-6 events-mb-3">
+                                        <div class="m360-card" style="border-left: 4px solid var(--m360-info);">
+                                            <div class="m360-card-body events-text-center">
+                                                <div class="events-mb-3" style="font-size: var(--m360-icon-xl); color: var(--m360-info);"><i class="bi bi-lightbulb"></i></div>
+                                                <h6 class="events-card-title events-mb-2">Algún día / Quizás</h6>
+                                                <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);">Guardar como idea para el futuro, no requiere acción inmediata</p>
+                                                <button type="submit" name="action" value="someday" class="m360-btn m360-btn-info events-w-100"><i class="bi bi-lightbulb" style="margin-right: var(--m360-space-1);"></i>Algún día</button>
                                             </div>
                                         </div>
                                     </div>
@@ -321,23 +309,21 @@
             </div>
         </div>
 
-        <!-- Columna derecha: Herramientas secundarias (3 columnas) -->
-        <div class="col-lg-3">
-            <!-- Tarjeta: Configuración de Creación -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-info text-white">
-                    <h6 class="mb-0"><i class="bi bi-gear me-2"></i>Configuración de Creación</h6>
+        <div class="events-col-lg-3">
+            <div class="m360-card events-mb-4">
+                <div class="m360-card-header" style="background: var(--m360-info); color: #fff; border: none;">
+                    <h6 class="events-mb-0"><i class="bi bi-gear" style="margin-right: var(--m360-space-1);"></i>Configuración de Creación</h6>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Proyecto:</label>
-                        <select name="project_option" class="form-select mb-2" id="projectOption">
+                <div class="m360-card-body">
+                    <div class="events-mb-3">
+                        <label class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">Proyecto:</label>
+                        <select name="project_option" class="m360-form-control events-mb-2" id="projectOption">
                             <option value="none">Sin proyecto</option>
                             <option value="new">Nuevo proyecto</option>
                             <option value="existing">Proyecto existente</option>
                         </select>
                         <div id="existingProjectSelect" style="display:none;">
-                            <select name="existing_project_id" class="form-select">
+                            <select name="existing_project_id" class="m360-form-control">
                                 <option value="">-- Elegir proyecto --</option>
                                 {% for project in user_projects %}
                                 <option value="{{ project.id }}">{{ project.title }} ({{ project.project_status.status_name }})</option>
@@ -345,15 +331,15 @@
                             </select>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Evento:</label>
-                        <select name="event_option" class="form-select mb-2" id="eventOption">
+                    <div class="events-mb-3">
+                        <label class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">Evento:</label>
+                        <select name="event_option" class="m360-form-control events-mb-2" id="eventOption">
                             <option value="new">Nuevo evento</option>
                             <option value="existing">Evento existente</option>
                             <option value="none">Sin evento</option>
                         </select>
                         <div id="existingEventSelect" style="display:none;">
-                            <select name="existing_event_id" class="form-select">
+                            <select name="existing_event_id" class="m360-form-control">
                                 <option value="">-- Elegir evento --</option>
                                 {% for event in user_events %}
                                 <option value="{{ event.id }}">{{ event.title }} ({{ event.event_status.status_name }})</option>
@@ -361,225 +347,203 @@
                             </select>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Asignar a:</label>
-                        <select name="assigned_to" class="form-select">
+                    <div class="events-mb-3">
+                        <label class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">Asignar a:</label>
+                        <select name="assigned_to" class="m360-form-control">
                             <option value="{{ request.user.id }}">Yo mismo</option>
                             {% for user in available_users %}
                             <option value="{{ user.id }}">{{ user.username }}</option>
                             {% endfor %}
                         </select>
-                        <small class="text-muted d-block">Responsable</small>
+                        <small class="events-text-muted" style="display: block;">Responsable</small>
                     </div>
-                    <!-- Vista previa de creación -->
-                    <div class="alert alert-light border mt-3" id="creationPreview">
-                        <h6 class="mb-2"><i class="bi bi-eye me-2"></i>Vista previa:</h6>
-                        <p class="mb-0 small" id="previewText">Selecciona opciones para ver una vista previa...</p>
+                    <div class="m360-alert m360-alert-light events-mt-3" id="creationPreview">
+                        <h6 class="events-mb-2"><i class="bi bi-eye" style="margin-right: var(--m360-space-1);"></i>Vista previa:</h6>
+                        <p class="events-mb-0" style="font-size: var(--m360-text-sm);" id="previewText">Selecciona opciones para ver una vista previa...</p>
                     </div>
                 </div>
             </div>
-            <!-- Tarjeta: Vinculación a Objetos Existentes - CORREGIDA -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h6 class="mb-0"><i class="bi bi-link-45deg me-2"></i>Vinculación</h6>
+
+            <div class="m360-card">
+                <div class="m360-card-header" style="background: var(--m360-secondary); color: #fff; border: none;">
+                    <h6 class="events-mb-0"><i class="bi bi-link-45deg" style="margin-right: var(--m360-space-1);"></i>Vinculación</h6>
                 </div>
-                <div class="card-body">
-                    <p class="small text-muted">Vincular este item a objetos ya creados:</p>
-                    <div class="d-flex flex-column gap-2">
-                        <!-- CORREGIDO: Agregados atributos data-bs-toggle y data-bs-target -->
-                        <button type="button" class="btn btn-outline-info btn-sm" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#taskSelectorModal">
-                            <i class="bi bi-link me-1"></i>Tarea Existente
+                <div class="m360-card-body">
+                    <p class="events-text-muted" style="font-size: var(--m360-text-sm);">Vincular este item a objetos ya creados:</p>
+                    <div class="events-d-flex events-flex-col events-gap-2">
+                        <button type="button" class="m360-btn m360-btn-outline-info" data-m360-toggle="modal" data-m360-target="#taskSelectorModal">
+                            <i class="bi bi-link" style="margin-right: var(--m360-space-1);"></i>Tarea Existente
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#projectSelectorModal">
-                            <i class="bi bi-folder-symlink me-1"></i>Proyecto Existente
+                        <button type="button" class="m360-btn m360-btn-outline-primary" data-m360-toggle="modal" data-m360-target="#projectSelectorModal">
+                            <i class="bi bi-folder-symlink" style="margin-right: var(--m360-space-1);"></i>Proyecto Existente
                         </button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#eventSelectorModal">
-                            <i class="bi bi-calendar-event me-1"></i>Evento Existente
+                        <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-toggle="modal" data-m360-target="#eventSelectorModal">
+                            <i class="bi bi-calendar-event" style="margin-right: var(--m360-space-1);"></i>Evento Existente
                         </button>
                     </div>
-                    <div id="selectedTaskInfo" class="mt-3"></div>
-                    <div id="selectedProjectInfo" class="mt-3"></div>
+                    <div id="selectedTaskInfo" class="events-mt-3"></div>
+                    <div id="selectedProjectInfo" class="events-mt-3"></div>
                 </div>
-            </div>
-            <!-- Botón de prueba (opcional - puedes eliminarlo después) -->
-            <div class="mt-3 text-center">
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="testModals()">
-                    <i class="bi bi-bug me-1"></i>Test Modales
-                </button>
             </div>
         </div>
     </div>
 
-    <!-- FILA 3: Guía GTD (12 columnas) -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="alert alert-primary mb-0">
-                <h6 class="mb-2"><i class="bi bi-diagram-3 me-2"></i>Flujo de Procesamiento GTD</h6>
-                <p class="mb-0 small"><strong>Paso actual:</strong> Clarificar y decidir qué hacer con este item del inbox. Según GTD, cada item debe ser procesado para determinar si es accionable o no.</p>
+    <div class="events-row events-mt-4">
+        <div class="events-col-12">
+            <div class="m360-alert m360-alert-primary events-mb-3">
+                <h6 class="events-mb-2"><i class="bi bi-diagram-3" style="margin-right: var(--m360-space-1);"></i>Flujo de Procesamiento GTD</h6>
+                <p class="events-mb-0" style="font-size: var(--m360-text-sm);"><strong>Paso actual:</strong> Clarificar y decidir qué hacer con este item del inbox. Según GTD, cada item debe ser procesado para determinar si es accionable o no.</p>
             </div>
-            <div class="alert alert-info mt-3 mb-0">
-                <h6 class="mb-2"><i class="bi bi-question-circle me-2"></i>Paso 2: Aclarar (Clarify)</h6>
-                <p class="mb-0 small">Según la metodología GTD, decide qué acción requiere este item del inbox. <strong>¿Es accionable?</strong></p>
+            <div class="m360-alert m360-alert-info events-mt-3 events-mb-0">
+                <h6 class="events-mb-2"><i class="bi bi-question-circle" style="margin-right: var(--m360-space-1);"></i>Paso 2: Aclarar (Clarify)</h6>
+                <p class="events-mb-0" style="font-size: var(--m360-text-sm);">Según la metodología GTD, decide qué acción requiere este item del inbox. <strong>¿Es accionable?</strong></p>
             </div>
         </div>
     </div>
-
     {% else %}
-    <!-- Mensaje cuando el item no existe -->
-    <div class="row">
-        <div class="col-12">
-            <div class="alert alert-warning">
-                <h5><i class="bi bi-exclamation-triangle me-2"></i>Item no encontrado</h5>
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-alert m360-alert-warning">
+                <h5 class="events-mb-2"><i class="bi bi-exclamation-triangle" style="margin-right: var(--m360-space-1);"></i>Item no encontrado</h5>
                 <p>El item del inbox que intentas procesar no existe o no tienes permisos para accederlo.</p>
-                <a href="{% url 'events:inbox' %}" class="btn btn-warning"><i class="bi bi-arrow-left me-1"></i>Volver al Inbox</a>
+                <a href="{% url 'events:inbox' %}" class="m360-btn m360-btn-warning">
+                    <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>Volver al Inbox
+                </a>
             </div>
         </div>
     </div>
     {% endif %}
 </div>
 
-<!-- MODALES (fuera del contenedor principal) -->
-<div class="modal fade" id="taskSelectorModal" tabindex="-1" aria-labelledby="taskSelectorModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="taskSelectorModalLabel"><i class="bi bi-list-check me-2"></i>Elegir Tarea Existente</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="m360-modal" id="taskSelectorModal" tabindex="-1" aria-labelledby="taskSelectorModalLabel" aria-hidden="true">
+    <div class="m360-modal-dialog m360-modal-lg">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title" id="taskSelectorModalLabel"><i class="bi bi-list-check" style="margin-right: var(--m360-space-1);"></i>Elegir Tarea Existente</h5>
+                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="taskSearch" class="form-label">Buscar Tareas:</label>
-                    <input type="text" class="form-control" id="taskSearch" placeholder="Escribe para buscar tareas...">
+            <div class="m360-modal-body">
+                <div class="events-mb-3">
+                    <label for="taskSearch" class="m360-form-label">Buscar Tareas:</label>
+                    <input type="text" class="m360-form-control" id="taskSearch" placeholder="Escribe para buscar tareas...">
                 </div>
-                <div id="taskList" class="list-group"></div>
+                <div id="taskList" class="m360-panel"></div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Cancelar</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="projectSelectorModal" tabindex="-1" aria-labelledby="projectSelectorModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="projectSelectorModalLabel"><i class="bi bi-folder me-2"></i>Elegir Proyecto Existente</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="m360-modal" id="projectSelectorModal" tabindex="-1" aria-labelledby="projectSelectorModalLabel" aria-hidden="true">
+    <div class="m360-modal-dialog m360-modal-lg">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title" id="projectSelectorModalLabel"><i class="bi bi-folder" style="margin-right: var(--m360-space-1);"></i>Elegir Proyecto Existente</h5>
+                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="projectSearch" class="form-label">Buscar Proyectos:</label>
-                    <input type="text" class="form-control" id="projectSearch" placeholder="Escribe para buscar proyectos...">
+            <div class="m360-modal-body">
+                <div class="events-mb-3">
+                    <label for="projectSearch" class="m360-form-label">Buscar Proyectos:</label>
+                    <input type="text" class="m360-form-control" id="projectSearch" placeholder="Escribe para buscar proyectos...">
                 </div>
-                <div id="projectList" class="list-group"></div>
+                <div id="projectList" class="m360-panel"></div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="linkProjectConfirmBtn"><i class="bi bi-link me-1"></i>Vincular</button>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Cancelar</button>
+                <button type="button" class="m360-btn m360-btn-primary" id="linkProjectConfirmBtn"><i class="bi bi-link" style="margin-right: var(--m360-space-1);"></i>Vincular</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="eventSelectorModal" tabindex="-1" aria-labelledby="eventSelectorModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="eventSelectorModalLabel"><i class="bi bi-calendar-event me-2"></i>Elegir Evento Existente</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="m360-modal" id="eventSelectorModal" tabindex="-1" aria-labelledby="eventSelectorModalLabel" aria-hidden="true">
+    <div class="m360-modal-dialog m360-modal-lg">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title" id="eventSelectorModalLabel"><i class="bi bi-calendar-event" style="margin-right: var(--m360-space-1);"></i>Elegir Evento Existente</h5>
+                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="eventSearch" class="form-label">Buscar Eventos:</label>
-                    <input type="text" class="form-control" id="eventSearch" placeholder="Escribe para buscar eventos...">
+            <div class="m360-modal-body">
+                <div class="events-mb-3">
+                    <label for="eventSearch" class="m360-form-label">Buscar Eventos:</label>
+                    <input type="text" class="m360-form-control" id="eventSearch" placeholder="Escribe para buscar eventos...">
                 </div>
-                <div id="eventList" class="list-group"></div>
+                <div id="eventList" class="m360-panel"></div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="linkEventConfirmBtn"><i class="bi bi-link me-1"></i>Vincular</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="alertModalLabel"><i class="bi bi-info-circle me-2"></i>Notificación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="alertModalBody"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Cancelar</button>
+                <button type="button" class="m360-btn m360-btn-primary" id="linkEventConfirmBtn"><i class="bi bi-link" style="margin-right: var(--m360-space-1);"></i>Vincular</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal: Historial de Clasificaciones -->
-<div class="modal fade" id="reclassifyHistoryModal" tabindex="-1" aria-labelledby="reclassifyHistoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title" id="reclassifyHistoryModalLabel">
-                    <i class="bi bi-clock-history me-2"></i>Historial de Clasificaciones
+<div class="m360-modal" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+    <div class="m360-modal-dialog">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title" id="alertModalLabel"><i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>Notificación</h5>
+                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
+            </div>
+            <div class="m360-modal-body" id="alertModalBody"></div>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-primary" data-m360-close>Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="m360-modal" id="reclassifyHistoryModal" tabindex="-1" aria-labelledby="reclassifyHistoryModalLabel" aria-hidden="true">
+    <div class="m360-modal-dialog m360-modal-lg">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header" style="background: var(--m360-warning); color: var(--m360-text-dark); border: none;">
+                <h5 class="m360-modal-title" id="reclassifyHistoryModalLabel">
+                    <i class="bi bi-clock-history" style="margin-right: var(--m360-space-1);"></i>Historial de Clasificaciones
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="m360-modal-body">
                 <div id="classificationHistoryList">
-                    <!-- Se llenará vía JavaScript -->
-                    <div class="text-center py-4">
-                        <div class="spinner-border text-warning" role="status">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <p class="mt-2">Cargando historial...</p>
+                    <div class="events-text-center events-py-4">
+                        <div class="events-spinner-border" style="color: var(--m360-warning); border: 2px solid var(--m360-border); border-top-color: var(--m360-warning); border-radius: 50%; width: 2rem; height: 2rem; animation: spin 1s linear infinite; display: inline-block;"></div>
+                        <p class="events-mt-2">Cargando historial...</p>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal: Reclasificar (confirmación) -->
-<div class="modal fade" id="reclassifyConfirmModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title"><i class="bi bi-arrow-repeat me-2"></i>Confirmar Reclasificación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="m360-modal" id="reclassifyConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="m360-modal-dialog">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header" style="background: var(--m360-info); color: #fff; border: none;">
+                <h5 class="m360-modal-title"><i class="bi bi-arrow-repeat" style="margin-right: var(--m360-space-1);"></i>Confirmar Reclasificación</h5>
+                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="m360-modal-body">
                 <p>¿Estás seguro de que deseas reclasificar este item?</p>
-                <div class="alert alert-info">
+                <div class="m360-alert m360-alert-info">
                     <strong>Clasificación anterior:</strong><br>
                     <span id="oldClassificationPreview"></span>
                 </div>
-                <div class="alert alert-success">
+                <div class="m360-alert m360-alert-success">
                     <strong>Nueva clasificación:</strong><br>
                     <span id="newClassificationPreview"></span>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-info" id="confirmReclassifyBtn">Confirmar Reclasificación</button>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Cancelar</button>
+                <button type="button" class="m360-btn m360-btn-info" id="confirmReclassifyBtn">Confirmar Reclasificación</button>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}

@@ -1,244 +1,245 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
+{% load custom_tags %}
 
 {% block title %}Administración de Programaciones{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-cogs"></i> Panel de Administración - Programaciones Recurrentes
-                    </h3>
-                    <div class="card-tools">
-                        <a href="{% url 'events:task_schedules' %}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-arrow-left"></i> Mis Programaciones
-                        </a>
-                    </div>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+                    <h5 class="events-card-title events-mb-0">
+                        <i class="bi bi-cogs" style="margin-right: var(--m360-space-2);"></i>
+                        Panel de Administración - Programaciones Recurrentes
+                    </h5>
+                    <a href="{% url 'events:task_schedules' %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
+                        <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>
+                        Mis Programaciones
+                    </a>
                 </div>
 
-                <div class="card-body">
-                    <!-- Estadísticas -->
-                    <div class="row mb-4">
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-info"><i class="fas fa-calendar"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Total</span>
-                                    <span class="info-box-number">{{ stats.total }}</span>
+                <div class="m360-card-body">
+                    <div class="events-row events-gap-3 events-mb-4">
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-info); background: rgba(13,202,240,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-info);">Total</div>
+                                    <div class="events-h5 events-mb-0">{{ stats.total }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-success"><i class="fas fa-play"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Activas</span>
-                                    <span class="info-box-number">{{ stats.active }}</span>
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-success); background: rgba(25,135,84,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-success);">Activas</div>
+                                    <div class="events-h5 events-mb-0">{{ stats.active }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-secondary"><i class="fas fa-pause"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Inactivas</span>
-                                    <span class="info-box-number">{{ stats.inactive }}</span>
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-secondary); background: rgba(108,117,125,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-secondary);">Inactivas</div>
+                                    <div class="events-h5 events-mb-0">{{ stats.inactive }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-primary"><i class="fas fa-redo"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Semanales</span>
-                                    <span class="info-box-number">{{ stats.weekly }}</span>
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-primary); background: rgba(0,123,255,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-primary);">Semanales</div>
+                                    <div class="events-h5 events-mb-0">{{ stats.weekly }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-warning"><i class="fas fa-sun"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Diarias</span>
-                                    <span class="info-box-number">{{ stats.daily }}</span>
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-warning); background: rgba(255,193,7,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-warning);">Diarias</div>
+                                    <div class="events-h5 events-mb-0">{{ stats.daily }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-danger"><i class="fas fa-clock"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Esta Semana</span>
-                                    <span class="info-box-number">{{ stats.this_week }}</span>
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-danger); background: rgba(220,53,69,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-danger);">Esta Semana</div>
+                                    <div class="events-h5 events-mb-0">{{ stats.this_week }}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Filtros -->
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <form method="get" class="form-inline">
-                                <div class="form-group mr-3">
-                                    <label for="status" class="mr-2">Estado:</label>
-                                    <select name="status" id="status" class="form-control form-control-sm">
+                    <div class="events-row events-mb-4">
+                        <div class="events-col-12">
+                            <form method="get" class="events-d-flex events-flex-wrap events-gap-3 events-align-end">
+                                <div class="events-flex-grow">
+                                    <label for="status" class="m360-form-label">Estado:</label>
+                                    <select name="status" id="status" class="m360-form-control">
                                         <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos</option>
                                         <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Activas</option>
                                         <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactivas</option>
                                     </select>
                                 </div>
-                                <div class="form-group mr-3">
-                                    <label for="recurrence" class="mr-2">Recurrencia:</label>
-                                    <select name="recurrence" id="recurrence" class="form-control form-control-sm">
+                                <div class="events-flex-grow">
+                                    <label for="recurrence" class="m360-form-label">Recurrencia:</label>
+                                    <select name="recurrence" id="recurrence" class="m360-form-control">
                                         <option value="all" {% if recurrence_filter == 'all' %}selected{% endif %}>Todas</option>
                                         <option value="weekly" {% if recurrence_filter == 'weekly' %}selected{% endif %}>Semanal</option>
                                         <option value="daily" {% if recurrence_filter == 'daily' %}selected{% endif %}>Diaria</option>
                                         <option value="custom" {% if recurrence_filter == 'custom' %}selected{% endif %}>Personalizada</option>
                                     </select>
                                 </div>
-                                <div class="form-group mr-3">
-                                    <label for="user" class="mr-2">Usuario:</label>
-                                    <select name="user" id="user" class="form-control form-control-sm">
+                                <div class="events-flex-grow">
+                                    <label for="user" class="m360-form-label">Usuario:</label>
+                                    <select name="user" id="user" class="m360-form-control">
                                         <option value="all" {% if user_filter == 'all' %}selected{% endif %}>Todos</option>
                                         {% for user in active_users %}
                                         <option value="{{ user.id }}" {% if user_filter == user.id|stringformat:'s' %}selected{% endif %}>{{ user.username }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="form-group mr-3">
-                                    <label for="search" class="mr-2">Buscar:</label>
-                                    <input type="text" name="search" id="search" class="form-control form-control-sm" value="{{ search_query }}" placeholder="Tarea, usuario...">
+                                <div class="events-flex-grow">
+                                    <label for="search" class="m360-form-label">Buscar:</label>
+                                    <input type="text" name="search" id="search" class="m360-form-control" value="{{ search_query }}" placeholder="Tarea, usuario...">
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-sm mr-2">
-                                    <i class="fas fa-search"></i> Filtrar
-                                </button>
-                                <a href="{% url 'events:schedule_admin_dashboard' %}" class="btn btn-secondary btn-sm">
-                                    <i class="fas fa-times"></i> Limpiar
-                                </a>
+                                <div>
+                                    <button type="submit" class="m360-btn m360-btn-primary">
+                                        <i class="bi bi-search" style="margin-right: var(--m360-space-1);"></i>Filtrar
+                                    </button>
+                                </div>
+                                <div>
+                                    <a href="{% url 'events:schedule_admin_dashboard' %}" class="m360-btn m360-btn-outline-secondary">
+                                        <i class="bi bi-x" style="margin-right: var(--m360-space-1);"></i>Limpiar
+                                    </a>
+                                </div>
                             </form>
                         </div>
                     </div>
 
-                    <!-- Lista de programaciones -->
                     {% if schedules %}
-                        <div class="table-responsive">
-                            <form method="post" action="{% url 'events:schedule_admin_bulk_action' %}" id="bulk-action-form">
-                                {% csrf_token %}
-                                <!-- Acciones masivas -->
-                                <div class="row mb-3">
-                                    <div class="col-12">
-                                        <div class="form-inline">
-                                            <div class="form-group mr-3">
-                                                <select name="action" class="form-control form-control-sm" required>
-                                                    <option value="">Seleccionar acción...</option>
-                                                    <option value="activate">Activar programaciones</option>
-                                                    <option value="deactivate">Desactivar programaciones</option>
-                                                    <option value="generate_occurrences">Generar ocurrencias</option>
-                                                    <option value="delete">Eliminar programaciones</option>
-                                                </select>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary btn-sm mr-2" onclick="return confirm('¿Estás seguro de que quieres aplicar esta acción a las programaciones seleccionadas?')">
-                                                <i class="fas fa-bolt"></i> Aplicar Acción Masiva
-                                            </button>
-                                            <button type="button" class="btn btn-secondary btn-sm" onclick="toggleAllCheckboxes()">
-                                                <i class="fas fa-check-square"></i> Seleccionar Todo
-                                            </button>
-                                        </div>
+                    <form method="post" action="{% url 'events:schedule_admin_bulk_action' %}" id="bulk-action-form">
+                        {% csrf_token %}
+                        <div class="events-row events-mb-3">
+                            <div class="events-col-12">
+                                <div class="events-d-flex events-flex-wrap events-gap-2 events-align-center">
+                                    <div class="events-flex-grow">
+                                        <label for="bulk-action" class="m360-form-label">Acción masiva:</label>
+                                        <select name="action" class="m360-form-control" required style="max-width: 300px;">
+                                            <option value="">Seleccionar acción...</option>
+                                            <option value="activate">Activar programaciones</option>
+                                            <option value="deactivate">Desactivar programaciones</option>
+                                            <option value="generate_occurrences">Generar ocurrencias</option>
+                                            <option value="delete">Eliminar programaciones</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <button type="submit" class="m360-btn m360-btn-primary" onclick="return confirm('¿Estás seguro de aplicar esta acción a las programaciones seleccionadas?')">
+                                            <i class="bi bi-bolt" style="margin-right: var(--m360-space-1);"></i>Aplicar Acción Masiva
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="m360-btn m360-btn-outline-secondary" onclick="toggleAllCheckboxes()">
+                                            <i class="bi bi-check-square" style="margin-right: var(--m360-space-1);"></i>Seleccionar Todo
+                                        </button>
                                     </div>
                                 </div>
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th width="3%">
-                                                <input type="checkbox" id="select-all" onchange="toggleAllCheckboxes()">
-                                            </th>
-                                            <th>Usuario</th>
-                                            <th>Tarea</th>
-                                            <th>Tipo de Recurrencia</th>
-                                            <th>Días</th>
-                                            <th>Hora</th>
-                                            <th>Próxima</th>
-                                            <th>Estado</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in schedules %}
-                                            <tr>
-                                                <td>
-                                                    <input type="checkbox" name="selected_schedules" value="{{ item.schedule.id }}" class="schedule-checkbox">
-                                                </td>
-                                                <td>
-                                                    <strong>{{ item.schedule.host.username }}</strong>
-                                                    {% if item.schedule.host.get_full_name %}
-                                                        <br><small class="text-muted">{{ item.schedule.host.get_full_name }}</small>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    <strong>{{ item.schedule.task.title }}</strong>
-                                                    {% if item.schedule.task.project %}
-                                                        <br><small class="text-muted">{{ item.schedule.task.project.title }}</small>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    <span class="badge badge-primary">{{ item.schedule.get_recurrence_type_display }}</span>
-                                                </td>
-                                                <td>
-                                                    <small>{{ item.schedule.get_selected_days_display }}</small>
-                                                </td>
-                                                <td>
-                                                    <i class="fas fa-clock"></i> {{ item.schedule.start_time|time:"H:i" }}
-                                                    <br><small class="text-muted">{{ item.schedule.duration|time:"H:i" }} hs</small>
-                                                </td>
-                                                <td>
-                                                    {% if item.next_occurrence %}
-                                                        <small>{{ item.next_occurrence.date|date:"d/m/Y" }}</small>
-                                                        <br><small class="text-muted">{{ item.next_occurrence.start_time|time:"H:i" }}</small>
-                                                    {% else %}
-                                                        <span class="text-muted">-</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if item.schedule.is_active %}
-                                                        <span class="badge badge-success">Activa</span>
-                                                    {% else %}
-                                                        <span class="badge badge-secondary">Inactiva</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group btn-group-sm">
-                                                        <a href="{% url 'events:task_schedule_detail' item.schedule.id %}" class="btn btn-info btn-sm" title="Ver detalles">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                        <a href="{% url 'events:edit_task_schedule' item.schedule.id %}" class="btn btn-warning btn-sm" title="Editar">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                        <a href="{% url 'events:generate_schedule_occurrences' item.schedule.id %}" class="btn btn-success btn-sm" title="Generar ocurrencias">
-                                                            <i class="fas fa-play"></i>
-                                                        </a>
-                                                        <a href="{% url 'events:delete_task_schedule' item.schedule.id %}" class="btn btn-danger btn-sm" title="Eliminar">
-                                                            <i class="fas fa-trash"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                            </div>
                         </div>
-                           </form>
+
+                        <div class="m360-table-responsive">
+                            <table class="m360-table">
+                                <thead>
+                                    <tr>
+                                        <th width="3%">
+                                            <input type="checkbox" id="select-all" onchange="toggleAllCheckboxes()">
+                                        </th>
+                                        <th>Usuario</th>
+                                        <th>Tarea</th>
+                                        <th>Tipo de Recurrencia</th>
+                                        <th>Días</th>
+                                        <th>Hora</th>
+                                        <th>Próxima</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in schedules %}
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="selected_schedules" value="{{ item.schedule.id }}" class="schedule-checkbox">
+                                        </td>
+                                        <td>
+                                            <strong>{{ item.schedule.host.username }}</strong>
+                                            {% if item.schedule.host.get_full_name %}
+                                                <br><small class="events-text-muted">{{ item.schedule.host.get_full_name }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <strong>{{ item.schedule.task.title }}</strong>
+                                            {% if item.schedule.task.project %}
+                                                <br><small class="events-text-muted">{{ item.schedule.task.project.title }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="m360-badge m360-badge-primary">{{ item.schedule.get_recurrence_type_display }}</span>
+                                        </td>
+                                        <td>
+                                            <small>{{ item.schedule.get_selected_days_display }}</small>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i>{{ item.schedule.start_time|time:"H:i" }}
+                                            <br><small class="events-text-muted">{{ item.schedule.duration|time:"H:i" }} hs</small>
+                                        </td>
+                                        <td>
+                                            {% if item.next_occurrence %}
+                                                <small>{{ item.next_occurrence.date|date:"d/m/Y" }}</small>
+                                                <br><small class="events-text-muted">{{ item.next_occurrence.start_time|time:"H:i" }}</small>
+                                            {% else %}
+                                                <span class="events-text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.schedule.is_active %}
+                                                <span class="m360-badge m360-badge-success">Activa</span>
+                                            {% else %}
+                                                <span class="m360-badge m360-badge-secondary">Inactiva</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="m360-btn-group">
+                                                <a href="{% url 'events:task_schedule_detail' item.schedule.id %}" class="m360-btn m360-btn-sm m360-btn-outline-info" title="Ver detalles">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{% url 'events:edit_task_schedule' item.schedule.id %}" class="m360-btn m360-btn-sm m360-btn-outline-warning" title="Editar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <a href="{% url 'events:generate_schedule_occurrences' item.schedule.id %}" class="m360-btn m360-btn-sm m360-btn-outline-success" title="Generar ocurrencias">
+                                                    <i class="bi bi-play"></i>
+                                                </a>
+                                                <a href="{% url 'events:delete_task_schedule' item.schedule.id %}" class="m360-btn m360-btn-sm m360-btn-outline-danger" title="Eliminar">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
                     {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
-                            <h4>No hay programaciones recurrentes</h4>
-                            <p class="text-muted">No se encontraron programaciones con los filtros aplicados.</p>
-                            <a href="{% url 'events:schedule_admin_dashboard' %}" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Limpiar Filtros
-                            </a>
-                        </div>
+                    <div class="events-text-center events-py-5">
+                        <i class="bi bi-calendar-alt" style="font-size: 3rem; color: var(--m360-text-muted);"></i>
+                        <h4 class="events-text-muted events-mt-3">No hay programaciones recurrentes</h4>
+                        <p class="events-text-muted">No se encontraron programaciones con los filtros aplicados.</p>
+                        <a href="{% url 'events:schedule_admin_dashboard' %}" class="m360-btn m360-btn-secondary">
+                            <i class="bi bi-x" style="margin-right: var(--m360-space-1);"></i>Limpiar Filtros
+                        </a>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -249,30 +250,15 @@
 
 {% block extra_js %}
 <script>
-$(document).ready(function() {
-    // Confirmación para eliminar
-    $('.btn-danger').on('click', function(e) {
-        if (!confirm('¿Estás seguro de que quieres eliminar esta programación?')) {
-            e.preventDefault();
-        }
-    });
-});
-
-// Función para seleccionar/deseleccionar todos los checkboxes
 function toggleAllCheckboxes() {
     const selectAllCheckbox = document.getElementById('select-all');
     const checkboxes = document.querySelectorAll('.schedule-checkbox');
-
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = selectAllCheckbox.checked;
-    });
+    checkboxes.forEach(checkbox => { checkbox.checked = selectAllCheckbox.checked; });
 }
 
-// Actualizar el checkbox "Seleccionar todo" cuando se cambian los individuales
 document.addEventListener('DOMContentLoaded', function() {
     const checkboxes = document.querySelectorAll('.schedule-checkbox');
     const selectAllCheckbox = document.getElementById('select-all');
-
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const checkedBoxes = document.querySelectorAll('.schedule-checkbox:checked');

@@ -1,62 +1,65 @@
 {% load event_extras %}
 
-<div class="card activity-card">
-    <div class="filter">
-        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-            <li class="dropdown-header text-start"><h6>Filtrar</h6></li>
-            <li><a class="dropdown-item" href="?activity_period=today">Hoy</a></li>
-            <li><a class="dropdown-item" href="?activity_period=week">Esta semana</a></li>
-            <li><a class="dropdown-item" href="?activity_period=month">Este mes</a></li>
-        </ul>
+<div class="m360-card">
+    <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+        <h5 class="m360-card-title events-mb-0">
+            <i class="bi bi-activity" style="margin-right: var(--m360-space-2);"></i>Actividad reciente
+        </h5>
+        <div class="m360-dropdown">
+            <button class="m360-btn m360-btn-sm m360-btn-outline-secondary" data-m360-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots"></i>
+            </button>
+            <div class="m360-dropdown-menu m360-dropdown-menu-end">
+                <div class="m360-dropdown-header"><h6>Filtrar</h6></div>
+                <a class="m360-dropdown-item" href="?activity_period=today">Hoy</a>
+                <a class="m360-dropdown-item" href="?activity_period=week">Esta semana</a>
+                <a class="m360-dropdown-item" href="?activity_period=month">Este mes</a>
+            </div>
+        </div>
     </div>
 
-    <div class="card-body">
-        <h5 class="card-title d-flex justify-content-between align-items-center">
-            <span>
-                <i class="bi bi-activity me-2"></i>Actividad reciente
-            </span>
-            <span class="badge bg-primary rounded-pill">{{ events_states|length }}</span>
-        </h5>
+    <div class="m360-card-body">
+        <div class="events-inbox-stats">
+            <span class="m360-badge m360-badge-info">{{ events_states|length }}</span>
+        </div>
 
-        <div class="activity" style="max-height: 400px; overflow-y: auto;">
+        <div class="events-inbox-list" style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: var(--m360-space-3);">
             {% if events_states %}
                 {% for item in events_states %}
-                <div class="activity-item d-flex align-items-start mb-3 pb-2 border-bottom">
-                    <div class="flex-shrink-0">
-                        <div class="activite-label fw-semibold small">
+                <div class="events-d-flex events-align-start events-gap-2" style="padding-bottom: var(--m360-space-3); border-bottom: 1px solid var(--m360-border);">
+                    <div style="flex-shrink: 0;">
+                        <div style="font-weight: var(--m360-font-weight-semibold); font-size: var(--m360-text-sm);">
                             {{ item.start_time|duration:item.end_time }}
                         </div>
-                        <small class="text-muted d-block">
+                        <small class="events-text-muted" style="display: block;">
                             {{ item.start_time|date:"H:i" }}
                             {% if item.end_time %} - {{ item.end_time|date:"H:i" }}{% endif %}
                         </small>
                     </div>
-                    <i class="bi bi-circle-fill activity-badge mx-3" 
-                       style="color: {{ item.status.color|default:'#6c757d' }}; font-size: 0.8rem;"></i>
-                    <div class="flex-grow-1">
-                        <div class="activity-content">
+                    <i class="bi bi-circle-fill" style="color: {{ item.status.color|default:'#6c757d' }}; font-size: 0.8rem; margin: 2px var(--m360-space-2) 0 0;"></i>
+                    <div class="events-flex-grow">
+                        <div>
                             <a href="{% url 'events:event_panel_with_id' item.event.id %}" 
-                               class="fw-semibold text-decoration-none text-dark">
+                               style="font-weight: var(--m360-font-weight-semibold); text-decoration: none; color: var(--m360-text);">
                                 {{ item.event.title|truncatechars:40 }}
                             </a>
-                            <span class="badge bg-{{ item.status.status_name|status_color }} bg-opacity-10 ms-2">
+                            <span class="m360-badge" style="background: {{ item.status.status_name|status_color|default:'#6c757d' }}; color: #fff;">
                                 {{ item.status.status_name|default:"Sin estado" }}
                             </span>
                         </div>
-                        <small class="text-muted d-block mt-1">
-                            <i class="bi bi-person me-1"></i>{{ item.event.host.username|default:"Sistema" }}
+                        <small class="events-text-muted" style="display: block; margin-top: var(--m360-space-1);">
+                            <i class="bi bi-person" style="margin-right: var(--m360-space-1);"></i>{{ item.event.host.username|default:"Sistema" }}
                         </small>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="text-center py-5">
-                    <div class="display-6 text-muted mb-3">
+                <div class="events-text-center" style="padding: var(--m360-space-6) var(--m360-space-4);">
+                    <div style="font-size: var(--m360-icon-2xl); color: var(--m360-text-muted); margin-bottom: var(--m360-space-3);">
                         <i class="bi bi-clock-history"></i>
                     </div>
-                    <h6 class="text-muted">No hay actividad reciente</h6>
-                    <p class="small text-muted mb-0">
+                    <h6 class="events-text-muted">No hay actividad reciente</h6>
+                    <p class="events-text-muted" style="font-size: var(--m360-text-sm); margin: 0;">
                         Los cambios de estado aparecerán aquí
                     </p>
                 </div>

@@ -1,0 +1,19 @@
+<nav class="m360-site-header-actions" aria-label="Principal">
+  <button class="m360-site-header-actions__toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <line x1="4" y1="6" x2="20" y2="6"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <line x1="4" y1="18" x2="20" y2="18"/>
+    </svg>
+  </button>
+  <ul data-nav-menu>
+    <li><a href="{% url 'events:event_panel' %}" class="m360-btn">Panel</a></li>
+    <li><a href="{% url 'events:events' %}" class="m360-btn">Eventos</a></li>
+    <li><a href="{% url 'events:projects' %}" class="m360-btn">Proyectos</a></li>
+    <li><a href="{% url 'events:tasks_with_id' 0 %}" class="m360-btn">Tareas</a></li>
+    <li><a href="{% url 'events:inbox' %}" class="m360-btn">Inbox</a></li>
+    <li><a href="{% url 'events:kanban' %}" class="m360-btn">Kanban</a></li>
+    <li><a href="{% url 'events:reminders_dashboard' %}" class="m360-btn">Recordatorios</a></li>
+    <li><a href="{% url 'events:unified_dashboard' %}" class="m360-btn">Dashboard</a></li>
+  </ul>
+</nav>

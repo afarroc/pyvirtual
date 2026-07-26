@@ -1,98 +1,82 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 {% block content %}
 
-<!-- Mensajes de confirmación y éxito -->
 {% if messages %}
-<div class="alert alert-info" role="alert">
-    {% for message in messages %}
-    <p{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
-        {% endfor %}
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-alert m360-alert-info" role="alert">
+                {% for message in messages %}
+                <p{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endif %}
 
-<div class="pagetitle">
-    <h1>{{title}}</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-            <li class="breadcrumb-item active">Event History</li>
-        </ol>
-    </nav>
-</div><!-- End Page Title -->
-
-<section class="section dashboard">
-    <div class="row">
-
-        <!-- Left side columns -->
-        <div class="col-lg-8">
-            <div class="row">
-
-
-                <!-- Recent Sales -->
-                <div class="col-12">
-                    <div class="card recent-sales overflow-auto">
-
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Options</h6>
-                                </li>
-
-                                <li><a class="dropdown-item" href="#">#</a></li>
-
-                            </ul>
-                        </div>
-
-                        <div class="card-body">
-                            <h5 class="card-title">Recent Changues <span>| # </span></h5>
-
-                            <table class="table table-borderless datatable">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Event Id</th>
-                                        <th scope="col">Evento</th>
-                                        <th scope="col">Start time</th>
-                                        <th scope="col">End time</th>
-                                        <th scope="col">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in events_history %}
-                                    <tr>
-                                        <th scope="row"><a href="{% url 'events:event_history' item.event.id %}">{{item.event.id}}</a></th>
-                                        <th scope="row"><a href="{% url 'events:event_panel_with_id' item.event.id %}">{{item.event.title}}</a></th>
-                                        <td>{{ item.start_time|date:"d-M H:i" }}</td>
-                                        <td>{{ item.end_time|date:"d-M H:i" }}</td>
-                                        <td><span 
-                                            style="background-color: {{item.status.color}};"
-                                            class="badge">
-                                                {% if item.status.icon %}
-                                                    <i class="{{ item.status.icon }}"></i>
-                                                {% endif %}
-                                                {{ item.status }}
-                                            </span></td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-
-                        </div>
-
-                    </div>
-                </div><!-- End Recent Sales -->
-
-            </div>
-        </div><!-- End Left side columns -->
-
-        <!-- Right side columns -->
-        <div class="col-lg-4">
-
-
-        </div><!-- End Right side columns -->
-
+<div class="events-container">
+    <div class="events-page-header">
+        <h1 class="events-page-title">
+            <i class="bi bi-clock-history" style="margin-right: var(--m360-space-2);"></i>
+            {{ title }}
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="events-breadcrumb">
+                <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Home</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li style="color: var(--m360-text);">Event History</li>
+            </ol>
+        </nav>
     </div>
-</section>
 
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-body" style="padding: 0;">
+                    <div class="m360-table-responsive">
+                        <table class="m360-table">
+                            <thead>
+                                <tr>
+                                    <th>Event Id</th>
+                                    <th>Evento</th>
+                                    <th>Start time</th>
+                                    <th>End time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in events_history %}
+                                <tr>
+                                    <th scope="row">
+                                        <a href="{% url 'events:event_history' item.event.id %}" style="text-decoration: none; color: var(--m360-text); font-weight: var(--m360-font-weight-bold);">
+                                            {{item.event.id}}
+                                        </a>
+                                    </th>
+                                    <th scope="row">
+                                        <a href="{% url 'events:event_panel_with_id' item.event.id %}" style="text-decoration: none; color: var(--m360-text); font-weight: var(--m360-font-weight-bold);">
+                                            {{item.event.title}}
+                                        </a>
+                                    </th>
+                                    <td>{{ item.start_time|date:"d-M H:i" }}</td>
+                                    <td>{{ item.end_time|date:"d-M H:i" }}</td>
+                                    <td>
+                                        <span class="m360-badge" style="background-color: {{item.status.color}}; color: #fff;">
+                                            {% if item.status.icon %}
+                                                <i class="{{ item.status.icon }}"></i>
+                                            {% endif %}
+                                            {{ item.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

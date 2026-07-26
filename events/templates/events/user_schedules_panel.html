@@ -1,165 +1,148 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}Panel de Horarios y Programaciones{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-users-cog"></i> Panel de Administración - Horarios y Programaciones por Usuario
-                    </h3>
-                    <div class="card-tools">
-                        <a href="{% url 'events:schedule_admin_dashboard' %}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-list"></i> Vista por Programaciones
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center events-flex-wrap">
+                    <h5 class="events-card-title events-mb-0">
+                        <i class="bi bi-users-cog" style="margin-right: var(--m360-space-2);"></i>
+                        Panel de Administración - Horarios y Programaciones por Usuario
+                    </h5>
+                    <div class="m360-btn-group">
+                        <a href="{% url 'events:schedule_admin_dashboard' %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
+                            <i class="bi bi-list" style="margin-right: var(--m360-space-1);"></i> Vista por Programaciones
                         </a>
-                        <a href="{% url 'events:task_schedules' %}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-arrow-left"></i> Mis Programaciones
+                        <a href="{% url 'events:task_schedules' %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
+                            <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i> Mis Programaciones
                         </a>
                     </div>
                 </div>
 
-                <div class="card-body">
-                    <!-- Estadísticas Generales -->
-                    <div class="row mb-4">
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Usuarios</span>
-                                    <span class="info-box-number">{{ total_stats.total_users }}</span>
+                <div class="m360-card-body">
+                    <div class="events-row events-gap-3 events-mb-4">
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-info); background: rgba(13,202,240,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-info);">Usuarios</div>
+                                    <div class="events-h5 events-mb-0">{{ total_stats.total_users }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-primary"><i class="fas fa-calendar"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Programaciones</span>
-                                    <span class="info-box-number">{{ total_stats.total_schedules }}</span>
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-primary); background: rgba(0,123,255,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-primary);">Programaciones</div>
+                                    <div class="events-h5 events-mb-0">{{ total_stats.total_schedules }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-success"><i class="fas fa-play"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Activas</span>
-                                    <span class="info-box-number">{{ total_stats.active_schedules }}</span>
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-success); background: rgba(25,135,84,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-success);">Activas</div>
+                                    <div class="events-h5 events-mb-0">{{ total_stats.active_schedules }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-warning"><i class="fas fa-clock"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Programas</span>
-                                    <span class="info-box-number">{{ total_stats.total_programs }}</span>
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-warning); background: rgba(255,193,7,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-warning);">Programas</div>
+                                    <div class="events-h5 events-mb-0">{{ total_stats.total_programs }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-danger"><i class="fas fa-calendar-plus"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Hoy</span>
-                                    <span class="info-box-number">{{ total_stats.today_schedules }}</span>
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-danger); background: rgba(220,53,69,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-danger);">Hoy</div>
+                                    <div class="events-h5 events-mb-0">{{ total_stats.today_schedules }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-secondary"><i class="fas fa-calendar-week"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Esta Semana</span>
-                                    <span class="info-box-number">{{ total_stats.this_week_schedules }}</span>
+                        <div class="events-col-6 events-col-md-2">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-secondary); background: rgba(108,117,125,0.05);">
+                                <div class="m360-card-body events-text-center">
+                                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-secondary);">Esta Semana</div>
+                                    <div class="events-h5 events-mb-0">{{ total_stats.this_week_schedules }}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Filtros -->
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <form method="get" class="form-inline">
-                                <div class="form-group mr-3">
-                                    <label for="user" class="mr-2">Usuario:</label>
-                                    <select name="user" id="user" class="form-control form-control-sm">
+                    <div class="events-row events-mb-4">
+                        <div class="events-col-12">
+                            <form method="get" class="events-d-flex events-flex-wrap events-gap-3 events-align-end">
+                                <div class="events-flex-grow">
+                                    <label for="user" class="m360-form-label">Usuario:</label>
+                                    <select name="user" id="user" class="m360-form-control">
                                         <option value="all" {% if user_filter == 'all' %}selected{% endif %}>Todos</option>
                                         {% for user_data in users_data %}
                                         <option value="{{ user_data.user.id }}" {% if user_filter == user_data.user.id|stringformat:'s' %}selected{% endif %}>{{ user_data.user.username }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="form-group mr-3">
-                                    <label for="status" class="mr-2">Estado:</label>
-                                    <select name="status" id="status" class="form-control form-control-sm">
+                                <div class="events-flex-grow">
+                                    <label for="status" class="m360-form-label">Estado:</label>
+                                    <select name="status" id="status" class="m360-form-control">
                                         <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos</option>
                                         <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Activas</option>
                                         <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactivas</option>
                                     </select>
                                 </div>
-                                <div class="form-group mr-3">
-                                    <label for="search" class="mr-2">Buscar:</label>
-                                    <input type="text" name="search" id="search" class="form-control form-control-sm" value="{{ search_query }}" placeholder="Usuario, nombre...">
+                                <div class="events-flex-grow">
+                                    <label for="search" class="m360-form-label">Buscar:</label>
+                                    <input type="text" name="search" id="search" class="m360-form-control" value="{{ search_query }}" placeholder="Usuario, nombre...">
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-sm mr-2">
-                                    <i class="fas fa-search"></i> Filtrar
-                                </button>
-                                <a href="{% url 'events:user_schedules_panel' %}" class="btn btn-secondary btn-sm">
-                                    <i class="fas fa-times"></i> Limpiar
-                                </a>
+                                <div>
+                                    <button type="submit" class="m360-btn m360-btn-primary">
+                                        <i class="bi bi-search" style="margin-right: var(--m360-space-1);"></i>Filtrar
+                                    </button>
+                                </div>
+                                <div>
+                                    <a href="{% url 'events:user_schedules_panel' %}" class="m360-btn m360-btn-outline-secondary">
+                                        <i class="bi bi-x" style="margin-right: var(--m360-space-1);"></i>Limpiar
+                                    </a>
+                                </div>
                             </form>
                         </div>
                     </div>
 
-                    <!-- Lista de usuarios con sus programaciones -->
                     {% if users_data %}
                         {% for user_data in users_data %}
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <div class="d-flex justify-content-between align-items-center">
+                        <div class="m360-card events-mb-4">
+                            <div class="m360-card-header" style="background: var(--m360-gray-50); border-bottom: 1px solid var(--m360-border);">
+                                <div class="events-d-flex events-justify-between events-align-center events-flex-wrap">
                                     <div>
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-user"></i> {{ user_data.user.username }}
+                                        <h5 class="events-mb-0">
+                                            <i class="bi bi-person" style="margin-right: var(--m360-space-2);"></i>{{ user_data.user.username }}
                                             {% if user_data.user.get_full_name %}
-                                                <small class="text-muted">({{ user_data.user.get_full_name }})</small>
+                                                <small class="events-text-muted">({{ user_data.user.get_full_name }})</small>
                                             {% endif %}
                                         </h5>
-                                        <small class="text-muted">{{ user_data.user.email }}</small>
+                                        <small class="events-text-muted">{{ user_data.user.email }}</small>
                                     </div>
-                                    <div class="text-right">
-                                        <div class="row">
-                                            <div class="col-auto">
-                                                <small class="text-muted">Programaciones:</small>
-                                                <span class="badge badge-primary">{{ user_data.stats.total_schedules }}</span>
-                                            </div>
-                                            <div class="col-auto">
-                                                <small class="text-muted">Activas:</small>
-                                                <span class="badge badge-success">{{ user_data.stats.active_schedules }}</span>
-                                            </div>
-                                            <div class="col-auto">
-                                                <small class="text-muted">Programas:</small>
-                                                <span class="badge badge-warning">{{ user_data.stats.total_programs }}</span>
-                                            </div>
-                                        </div>
+                                    <div class="m360-btn-group">
+                                        <span class="m360-badge m360-badge-primary">Programaciones: {{ user_data.stats.total_schedules }}</span>
+                                        <span class="m360-badge m360-badge-success">Activas: {{ user_data.stats.active_schedules }}</span>
+                                        <span class="m360-badge m360-badge-warning">Programas: {{ user_data.stats.total_programs }}</span>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="card-body">
-                                <!-- Programaciones Recurrentes -->
+                            <div class="m360-card-body">
                                 {% if user_data.schedules %}
-                                <div class="mb-4">
-                                    <h6 class="text-primary mb-3">
-                                        <i class="fas fa-redo"></i> Programaciones Recurrentes
+                                <div class="events-mb-4">
+                                    <h6 class="events-text-primary events-mb-3">
+                                        <i class="bi bi-redo" style="margin-right: var(--m360-space-2);"></i>Programaciones Recurrentes
                                     </h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-bordered">
-                                            <thead class="thead-light">
+                                    <div class="m360-table-responsive">
+                                        <table class="m360-table">
+                                            <thead>
                                                 <tr>
                                                     <th>Tarea</th>
                                                     <th>Tipo</th>
@@ -176,47 +159,47 @@
                                                     <td>
                                                         <strong>{{ item.schedule.task.title }}</strong>
                                                         {% if item.schedule.task.project %}
-                                                            <br><small class="text-muted">{{ item.schedule.task.project.title }}</small>
+                                                            <br><small class="events-text-muted">{{ item.schedule.task.project.title }}</small>
                                                         {% endif %}
                                                     </td>
                                                     <td>
-                                                        <span class="badge badge-primary">{{ item.schedule.get_recurrence_type_display }}</span>
+                                                        <span class="m360-badge m360-badge-primary">{{ item.schedule.get_recurrence_type_display }}</span>
                                                     </td>
                                                     <td>
                                                         <small>{{ item.schedule.get_selected_days_display }}</small>
                                                     </td>
                                                     <td>
-                                                        <i class="fas fa-clock"></i> {{ item.schedule.start_time|time:"H:i" }}
-                                                        <br><small class="text-muted">{{ item.schedule.duration|time:"H:i" }} hs</small>
+                                                        <i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i>{{ item.schedule.start_time|time:"H:i" }}
+                                                        <br><small class="events-text-muted">{{ item.schedule.duration|time:"H:i" }} hs</small>
                                                     </td>
                                                     <td>
                                                         {% if item.next_occurrence %}
                                                             <small>{{ item.next_occurrence.date|date:"d/m/Y" }}</small>
-                                                            <br><small class="text-muted">{{ item.next_occurrence.start_time|time:"H:i" }}</small>
+                                                            <br><small class="events-text-muted">{{ item.next_occurrence.start_time|time:"H:i" }}</small>
                                                         {% else %}
-                                                            <span class="text-muted">-</span>
+                                                            <span class="events-text-muted">-</span>
                                                         {% endif %}
                                                     </td>
                                                     <td>
                                                         {% if item.schedule.is_active %}
-                                                            <span class="badge badge-success">Activa</span>
+                                                            <span class="m360-badge m360-badge-success">Activa</span>
                                                         {% else %}
-                                                            <span class="badge badge-secondary">Inactiva</span>
+                                                            <span class="m360-badge m360-badge-secondary">Inactiva</span>
                                                         {% endif %}
                                                     </td>
                                                     <td>
-                                                        <div class="btn-group btn-group-xs">
-                                                            <a href="{% url 'events:task_schedule_detail' item.schedule.id %}" class="btn btn-info btn-xs" title="Ver detalles">
-                                                                <i class="fas fa-eye"></i>
+                                                        <div class="m360-btn-group">
+                                                            <a href="{% url 'events:task_schedule_detail' item.schedule.id %}" class="m360-btn m360-btn-sm m360-btn-outline-info" title="Ver detalles">
+                                                                <i class="bi bi-eye"></i>
                                                             </a>
-                                                            <a href="{% url 'events:edit_task_schedule' item.schedule.id %}" class="btn btn-warning btn-xs" title="Editar">
-                                                                <i class="fas fa-edit"></i>
+                                                            <a href="{% url 'events:edit_task_schedule' item.schedule.id %}" class="m360-btn m360-btn-sm m360-btn-outline-warning" title="Editar">
+                                                                <i class="bi bi-pencil"></i>
                                                             </a>
-                                                            <a href="{% url 'events:generate_schedule_occurrences' item.schedule.id %}" class="btn btn-success btn-xs" title="Generar ocurrencias">
-                                                                <i class="fas fa-play"></i>
+                                                            <a href="{% url 'events:generate_schedule_occurrences' item.schedule.id %}" class="m360-btn m360-btn-sm m360-btn-outline-success" title="Generar ocurrencias">
+                                                                <i class="bi bi-play"></i>
                                                             </a>
-                                                            <a href="{% url 'events:delete_task_schedule' item.schedule.id %}" class="btn btn-danger btn-xs" title="Eliminar" onclick="return confirm('¿Eliminar esta programación?')">
-                                                                <i class="fas fa-trash"></i>
+                                                            <a href="{% url 'events:delete_task_schedule' item.schedule.id %}" class="m360-btn m360-btn-sm m360-btn-outline-danger" title="Eliminar" onclick="return confirm('¿Eliminar esta programación?')">
+                                                                <i class="bi bi-trash"></i>
                                                             </a>
                                                         </div>
                                                     </td>
@@ -228,15 +211,14 @@
                                 </div>
                                 {% endif %}
 
-                                <!-- Programas Específicos -->
                                 {% if user_data.programs %}
                                 <div>
-                                    <h6 class="text-warning mb-3">
-                                        <i class="fas fa-clock"></i> Programas Específicos Recientes
+                                    <h6 class="events-text-warning events-mb-3">
+                                        <i class="bi bi-clock" style="margin-right: var(--m360-space-2);"></i>Programas Específicos Recientes
                                     </h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-bordered">
-                                            <thead class="thead-light">
+                                    <div class="m360-table-responsive">
+                                        <table class="m360-table">
+                                            <thead>
                                                 <tr>
                                                     <th>Título</th>
                                                     <th>Tarea</th>
@@ -248,28 +230,22 @@
                                             <tbody>
                                                 {% for program in user_data.programs %}
                                                 <tr>
-                                                    <td>
-                                                        <strong>{{ program.title }}</strong>
-                                                    </td>
+                                                    <td><strong>{{ program.title }}</strong></td>
                                                     <td>
                                                         {{ program.task.title }}
                                                         {% if program.task.project %}
-                                                            <br><small class="text-muted">{{ program.task.project.title }}</small>
+                                                            <br><small class="events-text-muted">{{ program.task.project.title }}</small>
                                                         {% endif %}
                                                     </td>
-                                                    <td>
-                                                        <small>{{ program.start_time|date:"d/m/Y H:i" }}</small>
-                                                    </td>
-                                                    <td>
-                                                        <small>{{ program.end_time|time:"H:i" }}</small>
-                                                    </td>
+                                                    <td><small>{{ program.start_time|date:"d/m/Y H:i" }}</small></td>
+                                                    <td><small>{{ program.end_time|time:"H:i" }}</small></td>
                                                     <td>
                                                         {% if program.start_time > now %}
-                                                            <span class="badge badge-info">Programado</span>
+                                                            <span class="m360-badge m360-badge-info">Programado</span>
                                                         {% elif program.end_time > now %}
-                                                            <span class="badge badge-warning">En curso</span>
+                                                            <span class="m360-badge m360-badge-warning">En curso</span>
                                                         {% else %}
-                                                            <span class="badge badge-success">Completado</span>
+                                                            <span class="m360-badge m360-badge-success">Completado</span>
                                                         {% endif %}
                                                     </td>
                                                 </tr>
@@ -280,22 +256,21 @@
                                 </div>
                                 {% endif %}
 
-                                <!-- Mensaje si no hay programaciones -->
                                 {% if not user_data.schedules and not user_data.programs %}
-                                <div class="text-center py-3">
-                                    <small class="text-muted">Este usuario no tiene programaciones activas.</small>
+                                <div class="events-text-center events-py-3">
+                                    <small class="events-text-muted">Este usuario no tiene programaciones activas.</small>
                                 </div>
                                 {% endif %}
                             </div>
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                            <h4>No hay usuarios con programaciones</h4>
-                            <p class="text-muted">No se encontraron usuarios con programaciones recurrentes o programas específicos.</p>
-                            <a href="{% url 'events:user_schedules_panel' %}" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Limpiar Filtros
+                        <div class="events-text-center events-py-5">
+                            <i class="bi bi-users" style="font-size: 3rem; color: var(--m360-text-muted);"></i>
+                            <h4 class="events-text-muted">No hay usuarios con programaciones</h4>
+                            <p class="events-text-muted">No se encontraron usuarios con programaciones recurrentes o programas específicos.</p>
+                            <a href="{% url 'events:user_schedules_panel' %}" class="m360-btn m360-btn-secondary">
+                                <i class="bi bi-x" style="margin-right: var(--m360-space-1);"></i>Limpiar Filtros
                             </a>
                         </div>
                     {% endif %}
@@ -308,12 +283,11 @@
 
 {% block extra_js %}
 <script>
-$(document).ready(function() {
-    // Confirmación para eliminar
-    $('.btn-danger').on('click', function(e) {
-        if (!confirm('¿Estás seguro de que quieres eliminar esta programación?')) {
-            e.preventDefault();
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.m360-btn-outline-danger').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta programación?')) e.preventDefault();
+        });
     });
 });
 </script>

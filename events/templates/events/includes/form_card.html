@@ -1,36 +1,29 @@
 <!-- Customers Card -->
-<div class="col-xxl-4 col-xl-12">
-    <div class="card info-card customers-card">
-        <div class="filter">
-            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                    <h6>Options</h6>
-                </li>
-                <li><a class="dropdown-item" href="#">--</a></li>
-            </ul>
+<div class="events-col-12">
+    <div class="m360-card">
+        <div class="m360-card-header">
+            <h5 class="m360-card-title events-mb-0">{{ event.title }} <span>| {{ title }}</span></h5>
         </div>
-
-        <div class="card-body">
-            <h5 class="card-title">{{event.title}} <span>| {{title}}</span></h5>
-            <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                    <i class="bi bi-calendar2-plus-fill"></i>
+        <div class="m360-card-body">
+            <div class="events-d-flex events-align-center events-gap-2">
+                <div class="events-avatar-sm">
+                    <div class="events-avatar-title">
+                        <i class="bi bi-calendar2-plus-fill"></i>
+                    </div>
                 </div>
-                <div class="ps-3">
-                    <h6>{{event.id}}</h6>
-                    <span class="text-danger small pt-1 fw-bold">{{ event.created_at|date:"d-M H:i" }}</span>
-                    <span class="text-muted small pt-2 ps-1">created at</span>
-                </div><br>
-
+                <div>
+                    <h6 class="events-mb-1">{{ event.id }}</h6>
+                    <span class="events-text-danger" style="font-size: var(--m360-text-sm);">{{ event.created_at|date:"d-M H:i" }}</span>
+                    <span class="events-text-muted" style="font-size: var(--m360-text-sm);">created at</span>
+                </div>
             </div>
         </div>
-        <div class="container">
-          <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Save Changes</button>
-        </form>
+        <div class="m360-card-body">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="m360-btn m360-btn-primary">Save Changes</button>
+            </form>
         </div>
     </div>
-</div><!-- End Customers Card -->
+</div>

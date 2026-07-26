@@ -1,140 +1,101 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 {% load humanize %}
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'events/css/components.css' %}">
-{% endblock %}
-
 {% block content %}
 
-<!-- ============================================= -->
-<!-- MENSAJES DEL SISTEMA (COMPONENTE UNIFICADO)  -->
-<!-- ============================================= -->
-{% include 'events/includes/messages.html' %}
+{% if messages %}
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            {% include 'events/includes/messages.html' %}
+        </div>
+    </div>
+</div>
+{% endif %}
 
-<!-- ============================================= -->
-<!-- ENCABEZADO Y MIGAS DE PAN                    -->
-<!-- ============================================= -->
-<header class="page-header mb-4">
-    <div class="pagetitle">
-        <h1 class="page-title">
-            <i class="bi bi-calendar-event me-2"></i>{{ title }}
+<div class="events-container">
+    <div class="events-page-header">
+        <h1 class="events-page-title">
+            <i class="bi bi-calendar-event" style="margin-right: var(--m360-space-2);"></i>{{ title }}
         </h1>
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'home' %}" class="breadcrumb-link">
-                        <i class="bi bi-house-door me-1"></i>Home
-                    </a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'events:events' %}" class="breadcrumb-link">
-                        Eventos
-                    </a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    {{ title }}
-                </li>
+            <ol class="events-breadcrumb">
+                <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Home</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li><a href="{% url 'events:events' %}"><i class="bi bi-calendar-event"></i> Eventos</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li style="color: var(--m360-text);">{{ title }}</li>
             </ol>
         </nav>
     </div>
-</header>
 
-<!-- ============================================= -->
-<!-- TARJETAS DE MÉTRICAS (KPIs)                 -->
-<!-- ============================================= -->
-{% if metrics %}
-    {% include 'events/includes/metrics_cards.html' %}
-{% endif %}
+    {% if metrics %}
+        {% include 'events/includes/metrics_cards.html' %}
+    {% endif %}
 
-<!-- ============================================= -->
-<!-- CONTENIDO PRINCIPAL - GRID                  -->
-<!-- ============================================= -->
-<section class="section dashboard">
-    <div class="row g-4">
-        
-        <!-- ======================================== -->
-        <!-- COLUMNA IZQUIERDA (8) - LISTA + FILTROS -->
-        <!-- ======================================== -->
-        <div class="col-lg-8">
-            <div class="row g-3">
-                
-                <!-- TARJETA DE FILTROS -->
-                <div class="col-12">
+    <div class="events-row events-gap-4">
+        <div class="events-col-lg-8">
+            <div class="events-row events-gap-3">
+                <div class="events-col-12">
                     {% include 'events/includes/filter_card.html' %}
                 </div>
-                
-                <!-- TABLA DE EVENTOS (TOP_TABLE MEJORADA) -->
-                <div class="col-12">
+                <div class="events-col-12">
                     {% include 'events/includes/top_table.html' %}
                 </div>
-                
-            </div><!-- End row interno -->
-        </div><!-- End columna izquierda -->
-        
-        <!-- ======================================== -->
-        <!-- COLUMNA DERECHA (4) - SIDEBAR           -->
-        <!-- ======================================== -->
-        <aside class="col-lg-4">
-            <div class="row g-3 sticky-lg-top" style="top: 1rem;">
-                
-                <!-- ACORDEÓN DE INFORMACIÓN -->
-                <div class="col-12">
-                    {% include 'layouts/includes/information/info_acordeon.html' %}
-                </div>
-                
-                <!-- ACTIVIDAD RECIENTE -->
-                <div class="col-12">
-                    <div class="card activity-card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-activity me-2"></i>Actividad Reciente
-                            </h5>
-                            {% include 'events/includes/activity_card.html' %}
-                        </div>
+            </div>
+        </div>
+
+        <aside class="events-col-lg-4">
+            <div style="position: sticky; top: 1rem;">
+                <div class="events-row events-gap-3">
+                    <div class="events-col-12">
+                        {% include 'layouts/includes/information/info_acordeon.html' %}
                     </div>
-                </div>
-                
-                <!-- ACCIONES RÁPIDAS (solo para usuarios autenticados) -->
-                {% if user.is_authenticated %}
-                <div class="col-12">
-                    <div class="card quick-actions-card">
-                        <div class="card-header bg-primary text-white py-2">
-                            <h5 class="card-title mb-0 text-white">
-                                <i class="bi bi-lightning me-2"></i>Acciones Rápidas
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'events:event_create' %}" class="btn btn-success">
-                                    <i class="bi bi-plus-circle me-2"></i>Nuevo Evento
-                                </a>
-                                <a href="{% url 'events:event_export' %}" class="btn btn-outline-primary">
-                                    <i class="bi bi-download me-2"></i>Exportar Eventos
-                                </a>
-                                <a href="{% url 'events:event_panel' %}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-grid-3x3-gap me-2"></i>Panel de Eventos
-                                </a>
-                                <a href="{% url 'events:inbox' %}" class="btn btn-outline-info">
-                                    <i class="bi bi-inbox me-2"></i>Ir al Inbox
-                                </a>
+
+                    <div class="events-col-12">
+                        <div class="m360-card">
+                            <div class="m360-card-body">
+                                <h5 class="events-mb-3">
+                                    <i class="bi bi-activity" style="margin-right: var(--m360-space-2);"></i>Actividad Reciente
+                                </h5>
+                                {% include 'events/includes/activity_card.html' %}
                             </div>
                         </div>
                     </div>
+
+                    {% if user.is_authenticated %}
+                    <div class="events-col-12">
+                        <div class="m360-card">
+                            <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
+                                <h5 class="m360-card-title events-mb-0">
+                                    <i class="bi bi-lightning" style="margin-right: var(--m360-space-1);"></i>Acciones Rápidas
+                                </h5>
+                            </div>
+                            <div class="m360-card-body">
+                                <div class="events-d-grid events-gap-2">
+                                    <a href="{% url 'events:event_create' %}" class="m360-btn m360-btn-success">
+                                        <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Nuevo Evento
+                                    </a>
+                                    <a href="{% url 'events:event_export' %}" class="m360-btn m360-btn-outline-primary">
+                                        <i class="bi bi-download" style="margin-right: var(--m360-space-1);"></i>Exportar Eventos
+                                    </a>
+                                    <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-outline-secondary">
+                                        <i class="bi bi-table" style="margin-right: var(--m360-space-1);"></i>Vista Dashboard
+                                    </a>
+                                    <a href="{% url 'events:inbox' %}" class="m360-btn m360-btn-outline-info">
+                                        <i class="bi bi-inbox" style="margin-right: var(--m360-space-1);"></i>Ir al Inbox
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-                
-            </div><!-- End row sidebar -->
-        </aside><!-- End columna derecha -->
-        
-    </div><!-- End row principal -->
-</section><!-- End dashboard section -->
-
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'events/js/components.js' %}?v={{ now|date:'U' }}"></script>
+            </div>
+        </aside>
+    </div>
+</div>
 {% endblock %}

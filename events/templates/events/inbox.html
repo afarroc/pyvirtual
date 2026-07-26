@@ -1,4 +1,4 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 {% block title %}{{ title }}{% endblock %}
 
@@ -7,92 +7,75 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- HEADER COMPACTO + BOTONES DE ACCIÓN -->
-    <div class="row mb-4 align-items-center">
-        <div class="col-12 col-md-6 mb-2 mb-md-0">
-            <h2 class="fs-4 fs-md-2 mb-1">
-                <i class="bi bi-inbox-fill text-primary me-2"></i>{{ title }}
+<div class="events-container">
+    <div class="events-row events-mb-4 events-align-center">
+        <div class="events-col-12 events-col-md-6 events-mb-2 events-mb-md-0">
+            <h2 class="events-h4 events-h-md-2 events-mb-1">
+                <i class="bi bi-inbox-fill events-text-primary" style="margin-right: var(--m360-space-2);"></i>{{ title }}
             </h2>
-            <p class="text-muted small mb-0">Sistema GTD - Getting Things Done</p>
+            <p class="events-text-muted events-mb-0" style="font-size: var(--m360-text-sm);">Sistema GTD - Getting Things Done</p>
         </div>
-        <div class="col-12 col-md-6">
-            <div class="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#quickAddModal">
-                    <i class="bi bi-plus-circle me-1"></i>Capturar Idea
+        <div class="events-col-12 events-col-md-6">
+            <div class="events-d-flex events-flex-wrap events-gap-2 events-justify-start events-justify-md-end">
+                <button type="button" class="m360-btn m360-btn-primary" data-m360-toggle="modal" data-m360-target="#quickAddModal">
+                    <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Capturar Idea
                 </button>
-                <a href="{% url 'events:unified_dashboard' %}" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                <a href="{% url 'events:unified_dashboard' %}" class="m360-btn m360-btn-outline-secondary">
+                    <i class="bi bi-speedometer2" style="margin-right: var(--m360-space-1);"></i>Dashboard
                 </a>
-                <a href="{% url 'events:inbox_admin_dashboard' %}" class="btn btn-outline-info btn-sm">
-                    <i class="bi bi-shield-check me-1"></i>Admin
+                <a href="{% url 'events:inbox_admin_dashboard' %}" class="m360-btn m360-btn-outline-info">
+                    <i class="bi bi-shield-check" style="margin-right: var(--m360-space-1);"></i>Admin
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- ESTADÍSTICAS GTD (GRID RESPONSIVE) -->
-    <div class="row mb-4 g-3">
-        <div class="col-6 col-md-3">
-            <div class="stat-card bg-warning bg-opacity-10 border-warning border-opacity-25">
-                <div class="stat-icon text-warning">
-                    <i class="bi bi-circle"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number">{{ gtd_stats.total }}</h3>
-                    <p class="stat-label">Pendientes</p>
+    <div class="events-row events-gap-3 events-mb-4">
+        <div class="events-col-6 events-col-md-3">
+            <div class="m360-card" style="border-left: 4px solid var(--m360-warning); background: rgba(255,193,7,0.05);">
+                <div class="m360-card-body events-text-center">
+                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-warning);">Pendientes</div>
+                    <div class="events-h3 events-mb-0">{{ gtd_stats.total }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card bg-success bg-opacity-10 border-success border-opacity-25">
-                <div class="stat-icon text-success">
-                    <i class="bi bi-check-circle"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number">{{ gtd_stats.accionables }}</h3>
-                    <p class="stat-label">Accionables</p>
+        <div class="events-col-6 events-col-md-3">
+            <div class="m360-card" style="border-left: 4px solid var(--m360-success); background: rgba(25,135,84,0.05);">
+                <div class="m360-card-body events-text-center">
+                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-success);">Accionables</div>
+                    <div class="events-h3 events-mb-0">{{ gtd_stats.accionables }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card bg-info bg-opacity-10 border-info border-opacity-25">
-                <div class="stat-icon text-info">
-                    <i class="bi bi-x-circle"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number">{{ gtd_stats.no_accionables }}</h3>
-                    <p class="stat-label">No Accionables</p>
+        <div class="events-col-6 events-col-md-3">
+            <div class="m360-card" style="border-left: 4px solid var(--m360-info); background: rgba(13,202,240,0.05);">
+                <div class="m360-card-body events-text-center">
+                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-info);">No Accionables</div>
+                    <div class="events-h3 events-mb-0">{{ gtd_stats.no_accionables }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card bg-secondary bg-opacity-10 border-secondary border-opacity-25">
-                <div class="stat-icon text-secondary">
-                    <i class="bi bi-check2-all"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number">{{ total_processed }}</h3>
-                    <p class="stat-label">Procesados</p>
+        <div class="events-col-6 events-col-md-3">
+            <div class="m360-card" style="border-left: 4px solid var(--m360-secondary); background: rgba(108,117,125,0.05);">
+                <div class="m360-card-body events-text-center">
+                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-secondary);">Procesados</div>
+                    <div class="events-h3 events-mb-0">{{ total_processed }}</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL DE ITEMS -->
-    <div class="row">
-        <!-- COLUMNA PRINCIPAL (9) - TODOS LOS GRUPOS DE ITEMS -->
-        <div class="col-lg-9">
-            <!-- Pendientes de categorizar -->
+    <div class="events-row">
+        <div class="events-col-lg-9">
             {% if pendientes %}
-            <div class="card shadow-sm border-warning mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="bi bi-question-circle me-2"></i>Pendientes de Categorizar ({{ gtd_stats.pendientes }})</h5>
+            <div class="m360-card events-mb-4" style="border-left: 4px solid var(--m360-warning);">
+                <div class="m360-card-header" style="background: var(--m360-warning); color: var(--m360-text-dark); border: none;">
+                    <h5 class="events-mb-0"><i class="bi bi-question-circle" style="margin-right: var(--m360-space-1);"></i>Pendientes de Categorizar ({{ gtd_stats.pendientes }})</h5>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
+                <div class="m360-card-body">
+                    <div class="events-row events-gap-3">
                         {% for item in pendientes %}
-                        <div class="col-md-6 col-xl-4">
+                        <div class="events-col-md-6 events-col-xl-4">
                             {% include 'events/includes/inbox_item_card.html' with item=item type='pendiente' %}
                         </div>
                         {% endfor %}
@@ -101,16 +84,15 @@
             </div>
             {% endif %}
 
-            <!-- Accionables -->
             {% if accionables %}
-            <div class="card shadow-sm border-success mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Items Accionables ({{ gtd_stats.accionables }})</h5>
+            <div class="m360-card events-mb-4" style="border-left: 4px solid var(--m360-success);">
+                <div class="m360-card-header" style="background: var(--m360-success); color: #fff; border: none;">
+                    <h5 class="events-mb-0"><i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Items Accionables ({{ gtd_stats.accionables }})</h5>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
+                <div class="m360-card-body">
+                    <div class="events-row events-gap-3">
                         {% for item in accionables %}
-                        <div class="col-md-6 col-xl-4">
+                        <div class="events-col-md-6 events-col-xl-4">
                             {% include 'events/includes/inbox_item_card.html' with item=item type='accionable' %}
                         </div>
                         {% endfor %}
@@ -119,16 +101,15 @@
             </div>
             {% endif %}
 
-            <!-- No Accionables -->
             {% if no_accionables %}
-            <div class="card shadow-sm border-info mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="bi bi-x-circle me-2"></i>Items No Accionables ({{ gtd_stats.no_accionables }})</h5>
+            <div class="m360-card events-mb-4" style="border-left: 4px solid var(--m360-info);">
+                <div class="m360-card-header" style="background: var(--m360-info); color: #fff; border: none;">
+                    <h5 class="events-mb-0"><i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>Items No Accionables ({{ gtd_stats.no_accionables }})</h5>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
+                <div class="m360-card-body">
+                    <div class="events-row events-gap-3">
                         {% for item in no_accionables %}
-                        <div class="col-md-6 col-xl-4">
+                        <div class="events-col-md-6 events-col-xl-4">
                             {% include 'events/includes/inbox_item_card.html' with item=item type='no_accionable' %}
                         </div>
                         {% endfor %}
@@ -138,159 +119,131 @@
             {% endif %}
         </div>
 
-        <!-- COLUMNA LATERAL (3) - HERRAMIENTAS SECUNDARIAS -->
-        <div class="col-lg-3">
-            <!-- Panel de Filtros Rápidos -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-dark text-white py-2">
-                    <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtros Rápidos</h6>
+        <div class="events-col-lg-3">
+            <div class="m360-card events-mb-4">
+                <div class="m360-card-header" style="background: var(--m360-text); color: #fff; border: none;">
+                    <h6 class="events-mb-0"><i class="bi bi-funnel" style="margin-right: var(--m360-space-1);"></i>Filtros Rápidos</h6>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex flex-column gap-2">
-                        <button type="button" class="btn btn-outline-warning btn-sm w-100" id="filterPendientes">
-                            <i class="bi bi-question-circle me-1"></i>Solo Pendientes
+                <div class="m360-card-body">
+                    <div class="events-d-flex events-flex-col events-gap-2">
+                        <button type="button" class="m360-btn m360-btn-outline-warning events-w-100" id="filterPendientes">
+                            <i class="bi bi-question-circle" style="margin-right: var(--m360-space-1);"></i>Solo Pendientes
                         </button>
-                        <button type="button" class="btn btn-outline-success btn-sm w-100" id="filterAccionables">
-                            <i class="bi bi-check-circle me-1"></i>Solo Accionables
+                        <button type="button" class="m360-btn m360-btn-outline-success events-w-100" id="filterAccionables">
+                            <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Solo Accionables
                         </button>
-                        <button type="button" class="btn btn-outline-info btn-sm w-100" id="filterNoAccionables">
-                            <i class="bi bi-x-circle me-1"></i>Solo No Accionables
+                        <button type="button" class="m360-btn m360-btn-outline-info events-w-100" id="filterNoAccionables">
+                            <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>Solo No Accionables
                         </button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" id="filterProcesados">
-                            <i class="bi bi-check2-all me-1"></i>Solo Procesados
+                        <button type="button" class="m360-btn m360-btn-outline-secondary events-w-100" id="filterProcesados">
+                            <i class="bi bi-check2-all" style="margin-right: var(--m360-space-1);"></i>Solo Procesados
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-2" id="clearFilters">
-                            <i class="bi bi-eraser me-1"></i>Limpiar Filtros
+                        <button type="button" class="m360-btn m360-btn-outline-primary events-w-100 events-mt-2" id="clearFilters">
+                            <i class="bi bi-eraser" style="margin-right: var(--m360-space-1);"></i>Limpiar Filtros
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Resumen de Procesamiento -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white py-2">
-                    <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Resumen GTD</h6>
+            <div class="m360-card">
+                <div class="m360-card-header" style="background: var(--m360-info); color: #fff; border: none;">
+                    <h6 class="events-mb-0"><i class="bi bi-bar-chart" style="margin-right: var(--m360-space-1);"></i>Resumen GTD</h6>
                 </div>
-                <div class="card-body">
-                    <div class="small">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Tasa de procesamiento:</span>
-                            <span class="fw-bold">{{ processing_rate|default:"0" }}%</span>
+                <div class="m360-card-body">
+                    <div style="font-size: var(--m360-text-sm);">
+                        <div class="events-d-flex events-justify-between events-mb-2">
+                            <span class="events-text-muted">Tasa de procesamiento:</span>
+                            <span style="font-weight: var(--m360-font-weight-bold);">{{ processing_rate|default:"0" }}%</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Items por día:</span>
-                            <span class="fw-bold">{{ items_per_day|default:"0" }}</span>
+                        <div class="events-d-flex events-justify-between events-mb-2">
+                            <span class="events-text-muted">Items por día:</span>
+                            <span style="font-weight: var(--m360-font-weight-bold);">{{ items_per_day|default:"0" }}</span>
                         </div>
-                        <div class="progress mb-3" style="height: 8px;">
-                            <div class="progress-bar bg-success" role="progressbar" 
-                                 style="width: {{ processing_rate|default:0 }}%;" 
-                                 aria-valuenow="{{ processing_rate|default:0 }}" 
-                                 aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="events-progress events-mb-3" style="height: 8px;">
+                            <div class="events-progress-bar" style="width: {{ processing_rate|default:0 }}%; background: var(--m360-success);"></div>
                         </div>
-                        <div class="d-grid">
-                            <a href="{% url 'events:inbox_admin_dashboard' %}" class="btn btn-outline-primary btn-sm">
-                                <i class="bi bi-shield-check me-1"></i>Panel Admin
+                        <div class="events-d-grid">
+                            <a href="{% url 'events:inbox_admin_dashboard' %}" class="m360-btn m360-btn-outline-primary events-w-100">
+                                <i class="bi bi-shield-check" style="margin-right: var(--m360-space-1);"></i>Panel Admin
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
-<!-- 
-  DIFF PARA: events/templates/events/inbox.html
-  
-  CAMBIO 1: En el bloque "COLUMNA LATERAL (3)", añadir DESPUÉS del card "Resumen GTD"
-  (después de la línea </div> que cierra ese card, antes del </div> de col-lg-3)
-  
-  CAMBIO 2: En el bloque extra_js, añadir el script del asistente.
-  
-  ── CAMBIO 1 — pegar después del card "Resumen GTD" ─────────────────────────
--->
 
-            <!-- Panel Asistente IA GTD -->
-            <div class="card shadow-sm mt-3" id="ai-assistant-panel">
-                <div class="card-header bg-primary text-white py-2 d-flex align-items-center justify-content-between">
-                    <h6 class="mb-0">
-                        <i class="bi bi-robot me-2"></i>Asistente GTD
+            <div class="m360-card events-mt-3" id="ai-assistant-panel">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center" style="background: var(--m360-primary); color: #fff; border: none;">
+                    <h6 class="events-mb-0">
+                        <i class="bi bi-robot" style="margin-right: var(--m360-space-1);"></i>Asistente GTD
                     </h6>
                     <button type="button"
-                            class="btn btn-sm btn-outline-light py-0 px-1"
+                            class="m360-btn m360-btn-sm m360-btn-outline-light"
                             id="ai-refresh-btn"
                             title="Analizar estado actual"
                             onclick="aiLoadSummary()">
                         <i class="bi bi-arrow-clockwise" id="ai-refresh-icon"></i>
                     </button>
                 </div>
-                <div class="card-body p-2">
-
-                    <!-- Zona de análisis automático -->
-                    <div id="ai-analysis-zone" class="mb-2">
-                        <div class="text-muted small text-center py-2" id="ai-placeholder">
-                            <i class="bi bi-lightbulb me-1"></i>
-                            <a href="#" class="text-decoration-none" onclick="aiLoadSummary(); return false;">
-                                Analizar mi GTD ahora
-                            </a>
+                <div class="m360-card-body" style="padding: var(--m360-space-2);">
+                    <div id="ai-analysis-zone" class="events-mb-2">
+                        <div class="events-text-center events-py-2" id="ai-placeholder">
+                            <i class="bi bi-lightbulb" style="margin-right: var(--m360-space-1);"></i>
+                            <a href="#" style="text-decoration: none;" onclick="aiLoadSummary(); return false;">Analizar mi GTD ahora</a>
                         </div>
-                        <div id="ai-analysis-content" class="d-none">
-                            <div id="ai-analysis-text" class="small" style="white-space:pre-wrap;max-height:180px;overflow-y:auto;"></div>
-                            <div class="text-end mt-1">
-                                <span id="ai-source-badge" class="badge bg-secondary" style="font-size:0.65rem;"></span>
+                        <div id="ai-analysis-content" style="display: none;">
+                            <div id="ai-analysis-text" style="white-space: pre-wrap; max-height: 180px; overflow-y: auto;"></div>
+                            <div class="events-text-end events-mt-1">
+                                <span id="ai-source-badge" class="m360-badge m360-badge-secondary" style="font-size: 0.65rem;"></span>
                             </div>
                         </div>
-                        <div id="ai-loading" class="text-center py-2 d-none">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                            <span class="small ms-1 text-muted">Analizando…</span>
+                        <div id="ai-loading" class="events-text-center events-py-2" style="display: none;">
+                            <div class="events-spinner-border" style="color: var(--m360-primary); border: 2px solid var(--m360-border); border-top-color: var(--m360-primary); border-radius: 50%; width: 2rem; height: 2rem; animation: spin 1s linear infinite; display: inline-block;"></div>
+                            <span class="events-ml-2 events-text-muted" style="font-size: var(--m360-text-sm);">Analizando…</span>
                         </div>
                     </div>
 
-                    <hr class="my-2">
+                    <hr style="border: none; border-top: 1px solid var(--m360-border); margin: var(--m360-space-2) 0;">
 
-                    <!-- Chat -->
                     <div id="ai-chat-history"
-                         style="max-height:200px;overflow-y:auto;font-size:0.82rem;"
-                         class="mb-2">
+                         style="max-height: 200px; overflow-y: auto; font-size: var(--m360-text-sm);"
+                         class="events-mb-2">
                     </div>
 
-                    <div class="input-group input-group-sm">
+                    <div class="events-input-group">
                         <input type="text"
                                id="ai-chat-input"
-                               class="form-control"
+                               class="m360-form-control"
                                placeholder="Pregúntame algo…"
                                maxlength="300"
                                onkeydown="if(event.key==='Enter'){aiSendMessage();return false;}">
-                        <button class="btn btn-primary btn-sm"
-                                type="button"
-                                id="ai-send-btn"
-                                onclick="aiSendMessage()">
+                        <button class="m360-btn m360-btn-primary" type="button" id="ai-send-btn" onclick="aiSendMessage()">
                             <i class="bi bi-send"></i>
                         </button>
                     </div>
-                    <div class="text-muted" style="font-size:0.65rem;margin-top:3px;">
-                        Powered by Ollama · datos en tiempo real
-                    </div>
+                    <small class="events-text-muted" style="font-size: 0.65rem; margin-top: 3px;">Powered by Ollama · datos en tiempo real</small>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- FILA DE ITEMS PROCESADOS (OCUPA ANCHO COMPLETO) -->
     {% if processed_items %}
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-success">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="bi bi-check2-all me-2"></i>Items Procesados ({{ total_processed }})</h5>
+    <div class="events-row events-mt-4">
+        <div class="events-col-12">
+            <div class="m360-card" style="border-left: 4px solid var(--m360-success);">
+                <div class="m360-card-header" style="background: var(--m360-success); color: #fff; border: none;">
+                    <h5 class="events-mb-0"><i class="bi bi-check2-all" style="margin-right: var(--m360-space-1);"></i>Items Procesados ({{ total_processed }})</h5>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
+                <div class="m360-card-body">
+                    <div class="events-row events-gap-3">
                         {% for item in processed_items|slice:":8" %}
-                        <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="events-col-md-6 events-col-lg-4 events-col-xl-3">
                             {% include 'events/includes/processed_item_card.html' with item=item %}
                         </div>
                         {% endfor %}
                     </div>
                     {% if processed_items|length > 8 %}
-                    <div class="text-center mt-3">
-                        <small class="text-muted">Y {{ processed_items|length|add:"-8" }} más...</small>
+                    <div class="events-text-center events-mt-3">
+                        <small class="events-text-muted">Y {{ processed_items|length|add:"-8" }} más...</small>
                     </div>
                     {% endif %}
                 </div>
@@ -299,17 +252,16 @@
     </div>
     {% endif %}
 
-    <!-- ESTADO VACÍO -->
     {% if not pendientes and not accionables and not no_accionables and not processed_items %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body text-center py-5">
-                    <i class="bi bi-inbox display-1 text-muted"></i>
-                    <h4 class="mt-3 text-muted">Tu bandeja de entrada está vacía</h4>
-                    <p class="text-muted">¡Excelente! Has procesado todos tus items pendientes.</p>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quickAddModal">
-                        <i class="bi bi-plus-circle me-2"></i>Agregar tu primera idea
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-body events-text-center" style="padding: var(--m360-space-6) var(--m360-space-4);">
+                    <i class="bi bi-inbox" style="font-size: var(--m360-icon-2xl); color: var(--m360-text-muted);"></i>
+                    <h4 class="events-text-muted events-mt-3">Tu bandeja de entrada está vacía</h4>
+                    <p class="events-text-muted">¡Excelente! Has procesado todos tus items pendientes.</p>
+                    <button type="button" class="m360-btn m360-btn-primary" data-m360-toggle="modal" data-m360-target="#quickAddModal">
+                        <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Agregar tu primera idea
                     </button>
                 </div>
             </div>
@@ -318,32 +270,29 @@
     {% endif %}
 </div>
 
-<!-- MODAL: Captura Rápida -->
-<div class="modal fade" id="quickAddModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-lightning me-2"></i>Captura Rápida</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="m360-modal" id="quickAddModal" tabindex="-1" aria-hidden="true">
+    <div class="m360-modal-dialog">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title"><i class="bi bi-lightning" style="margin-right: var(--m360-space-1);"></i>Captura Rápida</h5>
+                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
             </div>
             <form id="quickAddForm" method="post">
                 {% csrf_token %}
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="quickTitle" class="form-label">Título *</label>
-                        <input type="text" class="form-control" id="quickTitle" name="title"
-                               placeholder="¿Qué necesitas hacer?" required>
+                <div class="m360-modal-body">
+                    <div class="events-mb-3">
+                        <label for="quickTitle" class="m360-form-label">Título *</label>
+                        <input type="text" class="m360-form-control" id="quickTitle" name="title" placeholder="¿Qué necesitas hacer?" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="quickDescription" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="quickDescription" name="description"
-                                  rows="3" placeholder="Detalles adicionales (opcional)"></textarea>
+                    <div class="events-mb-3">
+                        <label for="quickDescription" class="m360-form-label">Descripción</label>
+                        <textarea class="m360-form-control" id="quickDescription" name="description" rows="3" placeholder="Detalles adicionales (opcional)"></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check2 me-1"></i>Agregar al Inbox
+                <div class="m360-modal-footer">
+                    <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Cancelar</button>
+                    <button type="submit" class="m360-btn m360-btn-primary">
+                        <i class="bi bi-check2" style="margin-right: var(--m360-space-1);"></i>Agregar al Inbox
                     </button>
                 </div>
             </form>
@@ -353,11 +302,7 @@
 {% endblock %}
 
 {% block extra_js %}
-
-
 <script>
-// ── GTD AI Assistant ──────────────────────────────────────────────────────────
-
 const AI_SUMMARY_URL = "{% url 'events:inbox_ai_summary' %}";
 const AI_CHAT_URL    = "{% url 'events:inbox_ai_chat' %}";
 
@@ -365,15 +310,13 @@ function csrf() {
     return document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
 }
 
-// Renderiza un mensaje en el historial de chat
 function _appendChat(role, text) {
     const zone = document.getElementById('ai-chat-history');
     const isUser = role === 'user';
     const div = document.createElement('div');
-    div.className = `d-flex ${isUser ? 'justify-content-end' : 'justify-content-start'} mb-1`;
+    div.className = `events-d-flex ${isUser ? 'events-justify-end' : 'events-justify-start'} events-mb-2`;
     div.innerHTML = `
-        <div class="px-2 py-1 rounded small ${isUser ? 'bg-primary text-white' : 'bg-light text-dark'}"
-             style="max-width:90%;white-space:pre-wrap;">
+        <div class="events-px-2 events-py-1 events-rounded events-small ${isUser ? 'm360-bg-primary' : 'm360-bg-light'}" style="max-width:90%;white-space:pre-wrap;">
             ${_escapeHtml(text)}
         </div>`;
     zone.appendChild(div);
@@ -381,15 +324,12 @@ function _appendChat(role, text) {
 }
 
 function _escapeHtml(text) {
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function _setLoading(on) {
-    document.getElementById('ai-loading').classList.toggle('d-none', !on);
-    document.getElementById('ai-placeholder').classList.toggle('d-none', on);
+    document.getElementById('ai-loading').style.display = on ? 'block' : 'none';
+    document.getElementById('ai-placeholder').style.display = on ? 'none' : 'block';
     const icon = document.getElementById('ai-refresh-icon');
     icon.className = on ? 'bi bi-arrow-clockwise spin' : 'bi bi-arrow-clockwise';
     document.getElementById('ai-refresh-btn').disabled = on;
@@ -397,7 +337,7 @@ function _setLoading(on) {
 
 async function aiLoadSummary() {
     _setLoading(true);
-    document.getElementById('ai-analysis-content').classList.add('d-none');
+    document.getElementById('ai-analysis-content').style.display = 'none';
     try {
         const resp = await fetch(AI_SUMMARY_URL, {
             headers: { 'X-CSRFToken': csrf(), 'X-Requested-With': 'XMLHttpRequest' }
@@ -407,9 +347,9 @@ async function aiLoadSummary() {
             document.getElementById('ai-analysis-text').textContent = data.analysis;
             const badge = document.getElementById('ai-source-badge');
             badge.textContent = data.source === 'ollama' ? 'Ollama' : 'Análisis estático';
-            badge.className = `badge ${data.source === 'ollama' ? 'bg-success' : 'bg-secondary'}`;
-            document.getElementById('ai-analysis-content').classList.remove('d-none');
-            document.getElementById('ai-placeholder').classList.add('d-none');
+            badge.className = `m360-badge ${data.source === 'ollama' ? 'm360-badge-success' : 'm360-badge-secondary'}`;
+            document.getElementById('ai-analysis-content').style.display = 'block';
+            document.getElementById('ai-placeholder').style.display = 'none';
         } else {
             document.getElementById('ai-placeholder').textContent = '⚠️ ' + (data.error || 'Error al analizar');
         }
@@ -432,14 +372,13 @@ async function aiSendMessage() {
 
     _appendChat('user', message);
 
-    // Indicador de escritura
     const typingId = 'typing-' + Date.now();
     const zone = document.getElementById('ai-chat-history');
     const typing = document.createElement('div');
     typing.id = typingId;
-    typing.className = 'd-flex justify-content-start mb-1';
-    typing.innerHTML = `<div class="px-2 py-1 rounded small bg-light text-muted">
-        <span class="spinner-border spinner-border-sm" style="width:.75rem;height:.75rem;"></span>
+    typing.className = 'events-d-flex events-justify-start events-mb-2';
+    typing.innerHTML = `<div class="events-px-2 events-py-1 events-rounded events-small m360-bg-light" style="max-width:90%;white-space:pre-wrap;">
+        <span class="events-spinner-border" style="width:.75rem;height:.75rem;border:2px solid var(--m360-border);border-top-color:var(--m360-primary);border-radius:50%;animation:spin 1s linear infinite;display:inline-block;"></span>
         Pensando…</div>`;
     zone.appendChild(typing);
     zone.scrollTop = zone.scrollHeight;
@@ -474,11 +413,9 @@ async function aiSendMessage() {
 </script>
 
 <style>
-/* Spinner animation para el botón refresh */
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { display: inline-block; animation: spin 1s linear infinite; }
 </style>
-
 
 <script src="{% static 'events/js/inbox.js' %}"></script>
 {% endblock %}

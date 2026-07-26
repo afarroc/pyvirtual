@@ -1,44 +1,41 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}Crear Programación Recurrente{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-10 col-xl-8">
-            <!-- Header Card -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <div class="d-flex justify-content-between align-items-center">
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12 events-col-lg-10 events-col-xl-8 events-mx-auto">
+            <div class="m360-card events-mb-4" style="border: none;">
+                <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
+                    <div class="events-d-flex events-justify-between events-align-center events-flex-wrap">
                         <div>
-                            <h4 class="mb-0">
-                                <i class="bi bi-calendar-plus-fill me-2"></i>
+                            <h4 class="events-mb-1">
+                                <i class="bi bi-calendar-plus-fill" style="margin-right: var(--m360-space-2);"></i>
                                 Crear Programación Recurrente
                             </h4>
-                            <small class="opacity-75">Configura una tarea para que se repita automáticamente</small>
+                            <small style="opacity: .75;">Configura una tarea para que se repita automáticamente</small>
                         </div>
-                        <a href="{% url 'events:task_schedules' %}" class="btn btn-light btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i>
+                        <a href="{% url 'events:task_schedules' %}" class="m360-btn m360-btn-light">
+                            <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>
                             Volver a Programaciones
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Main Form Card -->
-            <div class="card shadow-sm">
+            <div class="m360-card">
                 <form method="post" id="scheduleForm" novalidate>
                     {% csrf_token %}
 
-                    <!-- Form Errors Alert -->
                     {% if form.non_field_errors %}
-                        <div class="alert alert-danger border-0 rounded-0">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div class="m360-alert m360-alert-danger">
+                            <div class="events-d-flex events-align-center events-gap-2">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
                                 <div>
                                     <strong>Errores en el formulario:</strong>
-                                    <ul class="mb-0 mt-2">
+                                    <ul class="events-mb-0 events-mt-2">
                                         {% for error in form.non_field_errors %}
                                             <li>{{ error }}</li>
                                         {% endfor %}
@@ -48,42 +45,43 @@
                         </div>
                     {% endif %}
 
-                    <div class="card-body p-4">
-                        <!-- Step Indicator -->
-                        <div class="mb-4">
-                            <div class="row text-center">
-                                <div class="col-4">
-                                    <div class="step-indicator active">
-                                        <div class="step-number">1</div>
-                                        <div class="step-label">Tarea</div>
+                    <div class="m360-card-body" style="padding: var(--m360-space-4);">
+                        <div class="events-mb-4">
+                            <div class="events-row events-text-center">
+                                <div class="events-col-4">
+                                    <div class="events-step-indicator events-step-active">
+                                        <div class="events-step-number">1</div>
+                                        <div class="events-step-label">Tarea</div>
                                     </div>
                                 </div>
-                                <div class="col-4">
-                                    <div class="step-indicator">
-                                        <div class="step-number">2</div>
-                                        <div class="step-label">Horario</div>
+                                <div class="events-col-4">
+                                    <div class="events-step-indicator">
+                                        <div class="events-step-number">2</div>
+                                        <div class="events-step-label">Horario</div>
                                     </div>
                                 </div>
-                                <div class="col-4">
-                                    <div class="step-indicator">
-                                        <div class="step-number">3</div>
-                                        <div class="step-label">Confirmar</div>
+                                <div class="events-col-4">
+                                    <div class="events-step-indicator">
+                                        <div class="events-step-number">3</div>
+                                        <div class="events-step-label">Confirmar</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Section 1: Task Selection -->
-                        <div class="form-section mb-5">
-                            <h5 class="section-title mb-3">
-                                <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                        <div class="events-mb-5">
+                            <h5 class="events-section-title events-mb-3">
+                                <i class="bi bi-check-circle-fill events-text-primary" style="margin-right: var(--m360-space-2);"></i>
                                 Selección de Tarea
                             </h5>
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="form-floating mb-3">
-                                        <select class="form-select {% if form.task.errors %}is-invalid{% endif %}"
+                            <div class="events-row">
+                                <div class="events-col-12">
+                                    <div class="events-mb-3">
+                                        <label for="{{ form.task.id_for_label }}" class="m360-form-label">
+                                            <i class="bi bi-list-task" style="margin-right: var(--m360-space-1);"></i>
+                                            {{ form.task.label }}
+                                        </label>
+                                        <select class="m360-form-control {% if form.task.errors %}events-is-invalid{% endif %}"
                                                 id="{{ form.task.id_for_label }}"
                                                 name="{{ form.task.html_name }}"
                                                 required>
@@ -94,38 +92,35 @@
                                                 </option>
                                             {% endfor %}
                                         </select>
-                                        <label for="{{ form.task.id_for_label }}">
-                                            <i class="bi bi-list-task me-1"></i>
-                                            {{ form.task.label }}
-                                        </label>
                                         {% if form.task.errors %}
-                                            <div class="invalid-feedback">
+                                            <div class="events-invalid-feedback">
                                                 {% for error in form.task.errors %}
                                                     <div>{{ error }}</div>
                                                 {% endfor %}
                                             </div>
                                         {% endif %}
-                                    </div>
-                                    <div class="form-text">
-                                        <i class="bi bi-info-circle me-1"></i>
-                                        Selecciona la tarea que quieres programar recurrentemente.
+                                        <div class="m360-form-hint">
+                                            <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
+                                            Selecciona la tarea que quieres programar recurrentemente.
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Section 2: Recurrence Configuration -->
-                        <div class="form-section mb-5">
-                            <h5 class="section-title mb-3">
-                                <i class="bi bi-repeat text-primary me-2"></i>
+                        <div class="events-mb-5">
+                            <h5 class="events-section-title events-mb-3">
+                                <i class="bi bi-repeat events-text-primary" style="margin-right: var(--m360-space-2);"></i>
                                 Configuración de Recurrencia
                             </h5>
-
-                            <div class="row">
-                                <!-- Recurrence Type -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-floating">
-                                        <select class="form-select {% if form.recurrence_type.errors %}is-invalid{% endif %}"
+                            <div class="events-row events-gap-4">
+                                <div class="events-col-md-6">
+                                    <div class="events-mb-3">
+                                        <label for="{{ form.recurrence_type.id_for_label }}" class="m360-form-label">
+                                            <i class="bi bi-arrow-repeat" style="margin-right: var(--m360-space-1);"></i>
+                                            {{ form.recurrence_type.label }}
+                                        </label>
+                                        <select class="m360-form-control {% if form.recurrence_type.errors %}events-is-invalid{% endif %}"
                                                 id="{{ form.recurrence_type.id_for_label }}"
                                                 name="{{ form.recurrence_type.html_name }}"
                                                 required>
@@ -135,12 +130,8 @@
                                                 </option>
                                             {% endfor %}
                                         </select>
-                                        <label for="{{ form.recurrence_type.id_for_label }}">
-                                            <i class="bi bi-arrow-repeat me-1"></i>
-                                            {{ form.recurrence_type.label }}
-                                        </label>
                                         {% if form.recurrence_type.errors %}
-                                            <div class="invalid-feedback">
+                                            <div class="events-invalid-feedback">
                                                 {% for error in form.recurrence_type.errors %}
                                                     <div>{{ error }}</div>
                                                 {% endfor %}
@@ -148,22 +139,20 @@
                                         {% endif %}
                                     </div>
                                 </div>
-
-                                <!-- Start Time -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-floating">
+                                <div class="events-col-md-6">
+                                    <div class="events-mb-3">
+                                        <label for="{{ form.start_time.id_for_label }}" class="m360-form-label">
+                                            <i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i>
+                                            {{ form.start_time.label }}
+                                        </label>
                                         <input type="time"
-                                               class="form-control {% if form.start_time.errors %}is-invalid{% endif %}"
+                                               class="m360-form-control {% if form.start_time.errors %}events-is-invalid{% endif %}"
                                                id="{{ form.start_time.id_for_label }}"
                                                name="{{ form.start_time.html_name }}"
                                                value="{{ form.start_time.value|default:'' }}"
                                                required>
-                                        <label for="{{ form.start_time.id_for_label }}">
-                                            <i class="bi bi-clock me-1"></i>
-                                            {{ form.start_time.label }}
-                                        </label>
                                         {% if form.start_time.errors %}
-                                            <div class="invalid-feedback">
+                                            <div class="events-invalid-feedback">
                                                 {% for error in form.start_time.errors %}
                                                     <div>{{ error }}</div>
                                                 {% endfor %}
@@ -173,144 +162,57 @@
                                 </div>
                             </div>
 
-                            <!-- Days Selection (Weekly only) -->
-                            <div class="days-selection" id="daysGroup" style="display: none;">
-                                <label class="form-label fw-bold mb-3">
-                                    <i class="bi bi-calendar-week me-1"></i>
+                            <div id="daysGroup" class="events-days-selection" style="display: none;">
+                                <label class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">
+                                    <i class="bi bi-calendar-week" style="margin-right: var(--m360-space-1);"></i>
                                     Días de la semana
                                 </label>
-                                <div class="row g-2">
-                                    <!-- Monday -->
-                                    <div class="col-6 col-md-3">
-                                        <div class="form-check form-check-inline w-100">
-                                            <input class="form-check-input day-checkbox"
-                                                   type="checkbox"
-                                                   id="{{ form.monday.id_for_label }}"
-                                                   name="{{ form.monday.html_name }}"
-                                                   {% if form.monday.value %}checked{% endif %}>
-                                            <label class="form-check-label w-100" for="{{ form.monday.id_for_label }}">
-                                                <span class="badge bg-light text-dark w-100 py-2">
-                                                    {{ form.monday.label }}
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <!-- Tuesday -->
-                                    <div class="col-6 col-md-3">
-                                        <div class="form-check form-check-inline w-100">
-                                            <input class="form-check-input day-checkbox"
-                                                   type="checkbox"
-                                                   id="{{ form.tuesday.id_for_label }}"
-                                                   name="{{ form.tuesday.html_name }}"
-                                                   {% if form.tuesday.value %}checked{% endif %}>
-                                            <label class="form-check-label w-100" for="{{ form.tuesday.id_for_label }}">
-                                                <span class="badge bg-light text-dark w-100 py-2">
-                                                    {{ form.tuesday.label }}
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <!-- Wednesday -->
-                                    <div class="col-6 col-md-3">
-                                        <div class="form-check form-check-inline w-100">
-                                            <input class="form-check-input day-checkbox"
-                                                   type="checkbox"
-                                                   id="{{ form.wednesday.id_for_label }}"
-                                                   name="{{ form.wednesday.html_name }}"
-                                                   {% if form.wednesday.value %}checked{% endif %}>
-                                            <label class="form-check-label w-100" for="{{ form.wednesday.id_for_label }}">
-                                                <span class="badge bg-light text-dark w-100 py-2">
-                                                    {{ form.wednesday.label }}
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <!-- Thursday -->
-                                    <div class="col-6 col-md-3">
-                                        <div class="form-check form-check-inline w-100">
-                                            <input class="form-check-input day-checkbox"
-                                                   type="checkbox"
-                                                   id="{{ form.thursday.id_for_label }}"
-                                                   name="{{ form.thursday.html_name }}"
-                                                   {% if form.thursday.value %}checked{% endif %}>
-                                            <label class="form-check-label w-100" for="{{ form.thursday.id_for_label }}">
-                                                <span class="badge bg-light text-dark w-100 py-2">
-                                                    {{ form.thursday.label }}
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <!-- Friday -->
-                                    <div class="col-6 col-md-3">
-                                        <div class="form-check form-check-inline w-100">
-                                            <input class="form-check-input day-checkbox"
-                                                   type="checkbox"
-                                                   id="{{ form.friday.id_for_label }}"
-                                                   name="{{ form.friday.html_name }}"
-                                                   {% if form.friday.value %}checked{% endif %}>
-                                            <label class="form-check-label w-100" for="{{ form.friday.id_for_label }}">
-                                                <span class="badge bg-light text-dark w-100 py-2">
-                                                    {{ form.friday.label }}
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <!-- Saturday -->
-                                    <div class="col-6 col-md-3">
-                                        <div class="form-check form-check-inline w-100">
-                                            <input class="form-check-input day-checkbox"
-                                                   type="checkbox"
-                                                   id="{{ form.saturday.id_for_label }}"
-                                                   name="{{ form.saturday.html_name }}"
-                                                   {% if form.saturday.value %}checked{% endif %}>
-                                            <label class="form-check-label w-100" for="{{ form.saturday.id_for_label }}">
-                                                <span class="badge bg-light text-dark w-100 py-2">
-                                                    {{ form.saturday.label }}
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <!-- Sunday -->
-                                    <div class="col-6 col-md-3">
-                                        <div class="form-check form-check-inline w-100">
-                                            <input class="form-check-input day-checkbox"
-                                                   type="checkbox"
-                                                   id="{{ form.sunday.id_for_label }}"
-                                                   name="{{ form.sunday.html_name }}"
-                                                   {% if form.sunday.value %}checked{% endif %}>
-                                            <label class="form-check-label w-100" for="{{ form.sunday.id_for_label }}">
-                                                <span class="badge bg-light text-dark w-100 py-2">
-                                                    {{ form.sunday.label }}
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </div>
+                                <div class="events-row events-gap-2">
+                                    {% for day_field in form %}
+                                        {% if 'monday' in day_field.name or 'tuesday' in day_field.name or 'wednesday' in day_field.name or 'thursday' in day_field.name or 'friday' in day_field.name or 'saturday' in day_field.name or 'sunday' in day_field.name %}
+                                            <div class="events-col-6 events-col-md-3">
+                                                <div class="m360-form-check">
+                                                    <input class="m360-form-check-input events-day-checkbox"
+                                                           type="checkbox"
+                                                           id="{{ day_field.id_for_label }}"
+                                                           name="{{ day_field.html_name }}"
+                                                           {% if day_field.value %}checked{% endif %}>
+                                                    <label class="m360-form-check-label events-w-100" for="{{ day_field.id_for_label }}">
+                                                        <span class="m360-badge m360-badge-light events-w-100" style="padding: var(--m360-space-2);">
+                                                            {{ day_field.label }}
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
                                 {% if form.monday.errors or form.tuesday.errors or form.wednesday.errors or form.thursday.errors or form.friday.errors or form.saturday.errors or form.sunday.errors %}
-                                    <div class="invalid-feedback d-block">
+                                    <div class="events-invalid-feedback events-d-block">
                                         Debes seleccionar al menos un día de la semana.
                                     </div>
                                 {% endif %}
-                                <div class="form-text">
-                                    <i class="bi bi-info-circle me-1"></i>
+                                <div class="m360-form-hint">
+                                    <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
                                     Selecciona los días en que quieres que se repita la tarea.
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Section 3: Duration and Dates -->
-                        <div class="form-section mb-5">
-                            <h5 class="section-title mb-3">
-                                <i class="bi bi-calendar-event text-primary me-2"></i>
+                        <div class="events-mb-5">
+                            <h5 class="events-section-title events-mb-3">
+                                <i class="bi bi-calendar-event events-text-primary" style="margin-right: var(--m360-space-2);"></i>
                                 Duración y Fechas
                             </h5>
-
-                            <div class="row">
-                                <!-- Duration -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-floating">
+                            <div class="events-row events-gap-4">
+                                <div class="events-col-md-6">
+                                    <div class="events-mb-3">
+                                        <label for="id_duration_hours" class="m360-form-label">
+                                            <i class="bi bi-hourglass" style="margin-right: var(--m360-space-1);"></i>
+                                            Duración (horas)
+                                        </label>
                                         <input type="number"
-                                               class="form-control {% if form.duration_hours.errors %}is-invalid{% endif %}"
+                                               class="m360-form-control {% if form.duration_hours.errors %}events-is-invalid{% endif %}"
                                                id="id_duration_hours"
                                                name="duration_hours"
                                                value="{{ form.duration_hours.initial|default:'1.0' }}"
@@ -319,40 +221,34 @@
                                                step="0.25"
                                                placeholder="1.5"
                                                required>
-                                        <label for="id_duration_hours">
-                                            <i class="bi bi-hourglass me-1"></i>
-                                            Duración (horas)
-                                        </label>
                                         {% if form.duration_hours.errors %}
-                                            <div class="invalid-feedback">
+                                            <div class="events-invalid-feedback">
                                                 {% for error in form.duration_hours.errors %}
                                                     <div>{{ error }}</div>
                                                 {% endfor %}
                                             </div>
                                         {% endif %}
-                                    </div>
-                                    <div class="form-text">
-                                        <i class="bi bi-info-circle me-1"></i>
-                                        Ejemplo: 1.5 = 1 hora y 30 minutos
+                                        <div class="m360-form-hint">
+                                            <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
+                                            Ejemplo: 1.5 = 1 hora y 30 minutos
+                                        </div>
                                     </div>
                                 </div>
-
-                                <!-- Start Date -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-floating">
+                                <div class="events-col-md-6">
+                                    <div class="events-mb-3">
+                                        <label for="{{ form.start_date.id_for_label }}" class="m360-form-label">
+                                            <i class="bi bi-calendar-date" style="margin-right: var(--m360-space-1);"></i>
+                                            {{ form.start_date.label }}
+                                        </label>
                                         <input type="date"
-                                               class="form-control {% if form.start_date.errors %}is-invalid{% endif %}"
+                                               class="m360-form-control {% if form.start_date.errors %}events-is-invalid{% endif %}"
                                                id="{{ form.start_date.id_for_label }}"
                                                name="{{ form.start_date.html_name }}"
                                                value="{{ form.start_date.value|default:'' }}"
                                                min="{% now 'Y-m-d' %}"
                                                required>
-                                        <label for="{{ form.start_date.id_for_label }}">
-                                            <i class="bi bi-calendar-date me-1"></i>
-                                            {{ form.start_date.label }}
-                                        </label>
                                         {% if form.start_date.errors %}
-                                            <div class="invalid-feedback">
+                                            <div class="events-invalid-feedback">
                                                 {% for error in form.start_date.errors %}
                                                     <div>{{ error }}</div>
                                                 {% endfor %}
@@ -362,49 +258,46 @@
                                 </div>
                             </div>
 
-                            <!-- End Date -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-floating">
+                            <div class="events-row events-gap-4">
+                                <div class="events-col-md-6">
+                                    <div class="events-mb-3">
+                                        <label for="{{ form.end_date.id_for_label }}" class="m360-form-label">
+                                            <i class="bi bi-calendar-x" style="margin-right: var(--m360-space-1);"></i>
+                                            {{ form.end_date.label }}
+                                        </label>
                                         <input type="date"
-                                               class="form-control"
+                                               class="m360-form-control"
                                                id="{{ form.end_date.id_for_label }}"
                                                name="{{ form.end_date.html_name }}"
                                                value="{{ form.end_date.value|default:'' }}"
                                                min="{% now 'Y-m-d' %}">
-                                        <label for="{{ form.end_date.id_for_label }}">
-                                            <i class="bi bi-calendar-x me-1"></i>
-                                            {{ form.end_date.label }}
-                                        </label>
                                         {% if form.end_date.errors %}
-                                            <div class="invalid-feedback">
+                                            <div class="events-invalid-feedback">
                                                 {% for error in form.end_date.errors %}
                                                     <div>{{ error }}</div>
                                                 {% endfor %}
                                             </div>
                                         {% endif %}
-                                    </div>
-                                    <div class="form-text">
-                                        <i class="bi bi-info-circle me-1"></i>
-                                        Opcional. Si no se especifica, la programación será indefinida.
+                                        <div class="m360-form-hint">
+                                            <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
+                                            Opcional. Si no se especifica, la programación será indefinida.
+                                        </div>
                                     </div>
                                 </div>
-
-                                <!-- Active Status -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-check form-switch mt-4">
-                                        <input class="form-check-input"
+                                <div class="events-col-md-6">
+                                    <div class="m360-form-check events-mt-4">
+                                        <input class="m360-form-check-input"
                                                type="checkbox"
                                                id="{{ form.is_active.id_for_label }}"
                                                name="{{ form.is_active.html_name }}"
                                                {% if form.is_active.value|default:True %}checked{% endif %}>
-                                        <label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">
-                                            <i class="bi bi-toggle-on me-1"></i>
+                                        <label class="m360-form-check-label" for="{{ form.is_active.id_for_label }}">
+                                            <i class="bi bi-toggle-on" style="margin-right: var(--m360-space-1);"></i>
                                             {{ form.is_active.label }}
                                         </label>
                                     </div>
-                                    <div class="form-text">
-                                        <i class="bi bi-info-circle me-1"></i>
+                                    <div class="m360-form-hint">
+                                        <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
                                         Desmarca para crear la programación pausada.
                                     </div>
                                 </div>
@@ -412,20 +305,19 @@
                         </div>
                     </div>
 
-                    <!-- Form Footer -->
-                    <div class="card-footer bg-light">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="form-text">
-                                <i class="bi bi-shield-check me-1 text-success"></i>
-                                Todos los campos marcados con <span class="text-danger">*</span> son obligatorios
+                    <div class="m360-card-footer" style="background: var(--m360-gray-50);">
+                        <div class="events-d-flex events-justify-between events-align-center events-flex-wrap">
+                            <div class="m360-form-hint">
+                                <i class="bi bi-shield-check events-text-success" style="margin-right: var(--m360-space-1);"></i>
+                                Todos los campos marcados con <span class="events-text-danger">*</span> son obligatorios
                             </div>
-                            <div class="btn-group">
-                                <a href="{% url 'events:task_schedules' %}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-x-circle me-1"></i>
+                            <div class="events-d-flex events-gap-2">
+                                <a href="{% url 'events:task_schedules' %}" class="m360-btn m360-btn-outline-secondary">
+                                    <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>
                                     Cancelar
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                <button type="submit" class="m360-btn m360-btn-primary">
+                                    <i class="bi bi-check-circle-fill" style="margin-right: var(--m360-space-1);"></i>
                                     Crear Programación
                                 </button>
                             </div>
@@ -436,97 +328,6 @@
         </div>
     </div>
 </div>
-
-<style>
-/* Custom styles for the form */
-.step-indicator {
-    position: relative;
-}
-
-.step-indicator .step-number {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #e9ecef;
-    color: #6c757d;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 8px;
-    font-weight: bold;
-    border: 2px solid #dee2e6;
-    transition: all 0.3s ease;
-}
-
-.step-indicator.active .step-number {
-    background: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
-}
-
-.step-indicator .step-label {
-    font-size: 0.875rem;
-    color: #6c757d;
-    font-weight: 500;
-}
-
-.step-indicator.active .step-label {
-    color: #0d6efd;
-    font-weight: 600;
-}
-
-.section-title {
-    color: #495057;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.form-floating > .form-control:focus,
-.form-floating > .form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-.form-check-input:checked {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.days-selection {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    border: 1px solid #dee2e6;
-    margin-top: 1rem;
-}
-
-.badge:hover {
-    background-color: #0d6efd !important;
-    color: white !important;
-    cursor: pointer;
-}
-
-.card-header {
-    border-bottom: none;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .step-indicator .step-label {
-        font-size: 0.75rem;
-    }
-
-    .btn-group {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .btn-group .btn {
-        margin-bottom: 0.5rem;
-    }
-}
-</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -536,80 +337,55 @@ document.addEventListener('DOMContentLoaded', function() {
     const daysGroup = document.getElementById('daysGroup');
     const form = document.getElementById('scheduleForm');
 
-    // Toggle days visibility based on recurrence type
     function toggleDaysVisibility() {
         const recurrenceType = recurrenceTypeSelect.value;
-        if (recurrenceType === 'weekly') {
-            daysGroup.style.display = 'block';
-        } else {
-            daysGroup.style.display = 'none';
-        }
+        daysGroup.style.display = recurrenceType === 'weekly' ? 'block' : 'none';
     }
 
-    // Event listener for recurrence type change
     recurrenceTypeSelect.addEventListener('change', toggleDaysVisibility);
-
-    // Initialize visibility
     toggleDaysVisibility();
 
-    // Enhanced form validation
     form.addEventListener('submit', function(e) {
         let isValid = true;
-        const errors = [];
 
-        // Clear previous errors
-        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        document.querySelectorAll('.events-is-invalid').forEach(el => el.classList.remove('events-is-invalid'));
+        document.querySelectorAll('.events-invalid-feedback').forEach(el => el.remove());
 
-        // Validate task selection
-        const taskSelect = document.getElementById('{{ form.task.id_for_label }}');
-        if (!taskSelect.value) {
-            isValid = false;
-            taskSelect.classList.add('is-invalid');
-            showFieldError(taskSelect, 'Debes seleccionar una tarea para programar.');
-        }
-
-        // Validate recurrence type
         if (!recurrenceTypeSelect.value) {
             isValid = false;
-            recurrenceTypeSelect.classList.add('is-invalid');
+            recurrenceTypeSelect.classList.add('events-is-invalid');
             showFieldError(recurrenceTypeSelect, 'Debes seleccionar un tipo de recurrencia.');
         }
 
-        // Validate days for weekly recurrence
         if (recurrenceTypeSelect.value === 'weekly') {
-            const dayCheckboxes = document.querySelectorAll('.day-checkbox');
+            const dayCheckboxes = document.querySelectorAll('.events-day-checkbox');
             const hasSelectedDay = Array.from(dayCheckboxes).some(cb => cb.checked);
-
             if (!hasSelectedDay) {
                 isValid = false;
-                dayCheckboxes.forEach(cb => cb.classList.add('is-invalid'));
+                dayCheckboxes.forEach(cb => cb.classList.add('events-is-invalid'));
                 showFieldError(daysGroup, 'Debes seleccionar al menos un día de la semana.');
             }
         }
 
-        // Validate start time
         const startTimeInput = document.getElementById('{{ form.start_time.id_for_label }}');
         if (!startTimeInput.value) {
             isValid = false;
-            startTimeInput.classList.add('is-invalid');
+            startTimeInput.classList.add('events-is-invalid');
             showFieldError(startTimeInput, 'Debes especificar la hora de inicio.');
         }
 
-        // Validate duration
         const durationInput = document.getElementById('id_duration_hours');
         const duration = parseFloat(durationInput.value);
         if (!duration || duration < 0.25 || duration > 24) {
             isValid = false;
-            durationInput.classList.add('is-invalid');
+            durationInput.classList.add('events-is-invalid');
             showFieldError(durationInput, 'La duración debe estar entre 0.25 y 24 horas.');
         }
 
-        // Validate start date
         const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
         if (!startDateInput.value) {
             isValid = false;
-            startDateInput.classList.add('is-invalid');
+            startDateInput.classList.add('events-is-invalid');
             showFieldError(startDateInput, 'Debes especificar la fecha de inicio.');
         } else {
             const today = new Date();
@@ -617,32 +393,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedDate = new Date(startDateInput.value);
             if (selectedDate < today) {
                 isValid = false;
-                startDateInput.classList.add('is-invalid');
+                startDateInput.classList.add('events-is-invalid');
                 showFieldError(startDateInput, 'La fecha de inicio no puede ser anterior a hoy.');
             }
         }
 
-        // Validate end date if provided
         const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
         if (endDateInput.value && startDateInput.value) {
             const startDate = new Date(startDateInput.value);
             const endDate = new Date(endDateInput.value);
             if (endDate <= startDate) {
                 isValid = false;
-                endDateInput.classList.add('is-invalid');
+                endDateInput.classList.add('events-is-invalid');
                 showFieldError(endDateInput, 'La fecha de fin debe ser posterior a la fecha de inicio.');
             }
         }
 
         if (!isValid) {
             e.preventDefault();
-
-            // Scroll to first error
-            const firstError = document.querySelector('.is-invalid');
+            const firstError = document.querySelector('.events-is-invalid');
             if (firstError) {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-
             return false;
         }
 
@@ -651,10 +423,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showFieldError(element, message) {
         const feedback = document.createElement('div');
-        feedback.className = 'invalid-feedback d-block';
+        feedback.className = 'events-invalid-feedback events-d-block';
         feedback.textContent = message;
-
-        const formFloating = element.closest('.form-floating');
+        const formFloating = element.closest('.events-form-floating');
         if (formFloating) {
             formFloating.appendChild(feedback);
         } else {
@@ -662,25 +433,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Enhanced UX for day selection
-    document.querySelectorAll('.day-checkbox').forEach(checkbox => {
+    document.querySelectorAll('.events-day-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            const badge = this.nextElementSibling.querySelector('.badge');
+            const badge = this.nextElementSibling.querySelector('.m360-badge');
             if (this.checked) {
-                badge.classList.remove('bg-light', 'text-dark');
-                badge.classList.add('bg-primary', 'text-white');
+                badge.classList.remove('m360-badge-light');
+                badge.classList.add('m360-badge-primary');
             } else {
-                badge.classList.remove('bg-primary', 'text-white');
-                badge.classList.add('bg-light', 'text-dark');
+                badge.classList.remove('m360-badge-primary');
+                badge.classList.add('m360-badge-light');
             }
         });
-
-        // Initialize state
-        const badge = checkbox.nextElementSibling.querySelector('.badge');
-        if (checkbox.checked) {
-            badge.classList.remove('bg-light', 'text-dark');
-            badge.classList.add('bg-primary', 'text-white');
-        }
     });
 });
 </script>

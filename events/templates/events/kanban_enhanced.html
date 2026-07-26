@@ -1,50 +1,45 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 {% load custom_tags %}
 
 {% block title %}{{ title }} - Dashboard GTD Unificado{% endblock %}
 
-{% block extra_head %}
-<!-- Kanban Enhanced CSS -->
-<link rel="stylesheet" href="{% static 'assets/css/kanban-enhanced.css' %}">
-{% endblock %}
-
 {% block content %}
 <!-- Kanban Enhanced Container -->
 <div class="kanban-enhanced">
-    <div class="container-fluid">
+    <div class="events-container-fluid">
         <!-- Header Section -->
         <div class="kanban-header">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
+            <div class="events-row events-align-center">
+                <div class="events-col-lg-6">
                     <h1 class="kanban-title">
-                        <i class="bi bi-kanban-fill text-primary me-2"></i>
+                        <i class="bi bi-kanban-fill events-text-primary events-me-2"></i>
                         {{ title }}
                     </h1>
                     {% if project %}
                         <p class="kanban-subtitle">
-                            <i class="bi bi-folder me-2"></i>
+                            <i class="bi bi-folder events-me-2"></i>
                             Proyecto: <strong>{{ project.title }}</strong>
                         </p>
                     {% else %}
                         <p class="kanban-subtitle">
-                            <i class="bi bi-grid-3x3-gap me-2"></i>
+                            <i class="bi bi-grid-3x3-gap events-me-2"></i>
                             Panel kanban mejorado para gestión de tareas
                         </p>
                     {% endif %}
                 </div>
-                <div class="col-lg-6 text-end">
-                    <div class="btn-group" role="group">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTaskModal">
-                            <i class="bi bi-plus-circle me-1"></i>
+                <div class="events-col-lg-6 events-text-end">
+                    <div class="events-d-flex events-flex-wrap events-justify-end events-gap-2">
+                        <button class="m360-btn m360-btn-primary" data-m360-open="#createTaskModal">
+                            <i class="bi bi-plus-circle events-me-1"></i>
                             Nueva Tarea
                         </button>
-                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
-                            <i class="bi bi-funnel me-1"></i>
+                        <button class="m360-btn m360-btn-outline-secondary" data-m360-open="#filterModal">
+                            <i class="bi bi-funnel events-me-1"></i>
                             Filtros
                         </button>
-                        <a href="{% url 'events:unified_dashboard' %}" class="btn btn-outline-info">
-                            <i class="bi bi-speedometer2 me-1"></i>
+                        <a href="{% url 'events:unified_dashboard' %}" class="m360-btn m360-btn-outline-info">
+                            <i class="bi bi-speedometer2 events-me-1"></i>
                             Dashboard
                         </a>
                     </div>
@@ -54,41 +49,41 @@
 
         <!-- Toolbar Section -->
         <div class="kanban-toolbar">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Vista:</label>
-                    <select class="form-select" id="viewMode">
+            <div class="events-row events-gap-3">
+                <div class="events-col-md-3">
+                    <label class="m360-form-label fw-bold">Vista:</label>
+                    <select class="m360-form-select" id="viewMode">
                         <option value="normal">Normal</option>
                         <option value="compact">Compacta</option>
                         <option value="detailed">Detallada</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Ordenar por:</label>
-                    <select class="form-select" id="sortBy">
+                <div class="events-col-md-3">
+                    <label class="m360-form-label fw-bold">Ordenar por:</label>
+                    <select class="m360-form-select" id="sortBy">
                         <option value="updated_at">Fecha actualización</option>
                         <option value="created_at">Fecha creación</option>
                         <option value="title">Título</option>
                         <option value="priority">Prioridad</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Acciones:</label>
-                    <div class="btn-group w-100">
-                        <button class="btn btn-success btn-sm" onclick="refreshKanban()">
-                            <i class="bi bi-arrow-clockwise me-1"></i>
+                <div class="events-col-md-3">
+                    <label class="m360-form-label fw-bold">Acciones:</label>
+                    <div class="events-d-flex events-gap-2">
+                        <button class="m360-btn m360-btn-success m360-btn-sm" onclick="refreshKanban()">
+                            <i class="bi bi-arrow-clockwise events-me-1"></i>
                             Actualizar
                         </button>
-                        <button class="btn btn-info btn-sm" onclick="exportKanban()">
-                            <i class="bi bi-download me-1"></i>
+                        <button class="m360-btn m360-btn-info m360-btn-sm" onclick="exportKanban()">
+                            <i class="bi bi-download events-me-1"></i>
                             Exportar
                         </button>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Tema:</label>
-                    <button class="btn btn-outline-dark w-100" onclick="toggleTheme()">
-                        <i class="bi bi-moon-fill me-1" id="themeIcon"></i>
+                <div class="events-col-md-3">
+                    <label class="m360-form-label fw-bold">Tema:</label>
+                    <button class="m360-btn m360-btn-outline-dark events-w-100" onclick="toggleTheme()">
+                        <i class="bi bi-moon-fill events-me-1" id="themeIcon"></i>
                         Cambiar Tema
                     </button>
                 </div>
@@ -97,8 +92,8 @@
 
         <!-- Statistics Cards -->
         <div class="kanban-stats">
-            <div class="row g-3">
-                <div class="col-md-3">
+            <div class="events-row events-gap-3">
+                <div class="events-col-md-3">
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="bi bi-list-task"></i>
@@ -109,7 +104,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="events-col-md-3">
                     <div class="stat-card stat-primary">
                         <div class="stat-icon">
                             <i class="bi bi-play-circle"></i>
@@ -120,7 +115,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="events-col-md-3">
                     <div class="stat-card stat-success">
                         <div class="stat-icon">
                             <i class="bi bi-check-circle"></i>
@@ -131,7 +126,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="events-col-md-3">
                     <div class="stat-card stat-warning">
                         <div class="stat-icon">
                             <i class="bi bi-clock"></i>
@@ -167,7 +162,7 @@
                         <div class="card-header">
                             <div class="card-title">
                                 {% if task_data.task.important %}
-                                    <i class="bi bi-star-fill text-warning me-2"></i>
+                                    <i class="bi bi-star-fill events-text-warning events-me-2"></i>
                                 {% endif %}
                                 <span>{{ task_data.task.title|truncatechars:50 }}</span>
                             </div>
@@ -198,13 +193,13 @@
                         <div class="card-meta">
                             {% if task_data.task.project %}
                             <div class="meta-item">
-                                <i class="bi bi-folder me-1"></i>
+                                <i class="bi bi-folder events-me-1"></i>
                                 {{ task_data.task.project.title|truncatechars:20 }}
                             </div>
                             {% endif %}
                             {% if task_data.task.assigned_to %}
                             <div class="meta-item">
-                                <i class="bi bi-person me-1"></i>
+                                <i class="bi bi-person events-me-1"></i>
                                 {{ task_data.task.assigned_to.username|truncatechars:15 }}
                             </div>
                             {% endif %}
@@ -212,7 +207,7 @@
 
                         <div class="card-footer">
                             <div class="card-date">
-                                <i class="bi bi-clock me-1"></i>
+                                <i class="bi bi-clock events-me-1"></i>
                                 {{ task_data.task.updated_at|date:"d/m/Y H:i" }}
                             </div>
                             <div class="card-actions">
@@ -243,9 +238,9 @@
 
         <!-- Additional Sections -->
         <div class="kanban-sections">
-            <div class="row g-4">
+            <div class="events-row events-gap-4">
                 <!-- Recent Projects -->
-                <div class="col-lg-6">
+                <div class="events-col-lg-6">
                     <div class="section-card">
                         <div class="section-header">
                             <div class="section-icon">
@@ -262,7 +257,7 @@
                                 <div class="item-content">
                                     <strong>{{ project.title }}</strong>
                                     <br>
-                                    <small class="text-muted">{{ project.updated_at|date:"d/m/Y" }}</small>
+                                    <small class="events-text-muted">{{ project.updated_at|date:"d/m/Y" }}</small>
                                 </div>
                                 <a href="{% url 'events:projects_with_id' project.id %}" class="item-action">
                                     Ver
@@ -270,7 +265,7 @@
                             </div>
                             {% empty %}
                             <div class="section-item">
-                                <div class="item-content text-muted">
+                                <div class="item-content events-text-muted">
                                     No hay proyectos recientes
                                 </div>
                             </div>
@@ -280,7 +275,7 @@
                 </div>
 
                 <!-- Active Events -->
-                <div class="col-lg-6">
+                <div class="events-col-lg-6">
                     <div class="section-card">
                         <div class="section-header">
                             <div class="section-icon">
@@ -297,7 +292,7 @@
                                 <div class="item-content">
                                     <strong>{{ event.event.title }}</strong>
                                     <br>
-                                    <small class="text-muted">{{ event.event.updated_at|date:"d/m/Y" }}</small>
+                                    <small class="events-text-muted">{{ event.event.updated_at|date:"d/m/Y" }}</small>
                                 </div>
                                 <a href="{% url 'events:event_detail' event.event.id %}" class="item-action">
                                     Ver
@@ -305,7 +300,7 @@
                             </div>
                             {% empty %}
                             <div class="section-item">
-                                <div class="item-content text-muted">
+                                <div class="item-content events-text-muted">
                                     No hay eventos activos
                                 </div>
                             </div>
@@ -316,8 +311,8 @@
             </div>
 
             <!-- NUEVA SECCIÓN: Herramientas GTD Avanzadas -->
-            <div class="row g-4 mt-4">
-                <div class="col-12">
+            <div class="events-row events-gap-4 events-mt-4">
+                <div class="events-col-12">
                     <div class="section-card gtd-tools-section">
                         <div class="section-header">
                             <div class="section-icon">
@@ -329,9 +324,9 @@
                             </div>
                         </div>
                         <div class="section-content">
-                            <div class="row g-3">
+                            <div class="events-row events-gap-3">
                                 <!-- Inbox GTD -->
-                                <div class="col-md-3">
+                                <div class="events-col-md-3">
                                     <div class="gtd-tool-card" data-url="{% url 'events:inbox' %}" onclick="navigateToGTDTool(this)">
                                         <div class="tool-icon">
                                             <i class="bi bi-inbox-fill"></i>
@@ -340,14 +335,14 @@
                                             <h5>Inbox GTD</h5>
                                             <p class="tool-description">Captura rápida de tareas</p>
                                             <div class="tool-stats">
-                                                <span class="badge bg-primary">{{ inbox_items|length }} pendientes</span>
+                                                <span class="m360-badge m360-badge-primary">{{ inbox_items|length }} pendientes</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Matriz Eisenhower -->
-                                <div class="col-md-3">
+                                <div class="events-col-md-3">
                                     <div class="gtd-tool-card" data-url="{% url 'events:eisenhower_matrix' %}" onclick="navigateToGTDTool(this)">
                                         <div class="tool-icon">
                                             <i class="bi bi-grid-3x3-gap"></i>
@@ -356,14 +351,14 @@
                                             <h5>Matriz Eisenhower</h5>
                                             <p class="tool-description">Priorización inteligente</p>
                                             <div class="tool-stats">
-                                                <span class="badge bg-warning">4 cuadrantes</span>
+                                                <span class="m360-badge m360-badge-warning">4 cuadrantes</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Weekly Review -->
-                                <div class="col-md-3">
+                                <div class="events-col-md-3">
                                     <div class="gtd-tool-card" onclick="showWeeklyReview()">
                                         <div class="tool-icon">
                                             <i class="bi bi-calendar-week"></i>
@@ -372,14 +367,14 @@
                                             <h5>Weekly Review</h5>
                                             <p class="tool-description">Revisión semanal</p>
                                             <div class="tool-stats">
-                                                <span class="badge bg-success">Próximo: {{ "now"|date:"l" }}</span>
+                                                <span class="m360-badge m360-badge-success">Próximo: {{ "now"|date:"l" }}</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Plantillas -->
-                                <div class="col-md-3">
+                                <div class="events-col-md-3">
                                     <div class="gtd-tool-card" data-url="{% url 'events:project_templates' %}" onclick="navigateToGTDTool(this)">
                                         <div class="tool-icon">
                                             <i class="bi bi-file-earmark-plus"></i>
@@ -388,7 +383,7 @@
                                             <h5>Plantillas</h5>
                                             <p class="tool-description">Proyectos recurrentes</p>
                                             <div class="tool-stats">
-                                                <span class="badge bg-info">Reutilizables</span>
+                                                <span class="m360-badge m360-badge-info">Reutilizables</span>
                                             </div>
                                         </div>
                                     </div>
@@ -396,11 +391,11 @@
                             </div>
 
                             <!-- Métricas GTD -->
-                            <div class="row g-3 mt-3">
-                                <div class="col-md-6">
+                            <div class="events-row events-gap-3 events-mt-3">
+                                <div class="events-col-md-6">
                                     <div class="gtd-metrics-card">
                                         <h6 class="metrics-title">
-                                            <i class="bi bi-bar-chart-line me-2"></i>
+                                            <i class="bi bi-bar-chart-line events-me-2"></i>
                                             Productividad Hoy
                                         </h6>
                                         <div class="metrics-grid">
@@ -419,23 +414,23 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="events-col-md-6">
                                     <div class="gtd-metrics-card">
                                         <h6 class="metrics-title">
-                                            <i class="bi bi-bullseye me-2"></i>
+                                            <i class="bi bi-bullseye events-me-2"></i>
                                             Próximos Objetivos
                                         </h6>
                                         <div class="objectives-list">
                                             <div class="objective-item">
-                                                <i class="bi bi-check-circle text-success me-2"></i>
+                                                <i class="bi bi-check-circle events-text-success events-me-2"></i>
                                                 Completar revisión semanal
                                             </div>
                                             <div class="objective-item">
-                                                <i class="bi bi-circle text-warning me-2"></i>
+                                                <i class="bi bi-circle events-text-warning events-me-2"></i>
                                                 Procesar inbox items
                                             </div>
                                             <div class="objective-item">
-                                                <i class="bi bi-circle text-muted me-2"></i>
+                                                <i class="bi bi-circle events-text-muted events-me-2"></i>
                                                 Planificar próxima semana
                                             </div>
                                         </div>
@@ -451,37 +446,37 @@
 </div>
 
 <!-- Floating Action Button -->
-<button class="kanban-fab" data-bs-toggle="modal" data-bs-target="#createTaskModal" title="Crear nueva tarea">
+<button class="kanban-fab" data-m360-open="#createTaskModal" title="Crear nueva tarea">
     <i class="bi bi-plus"></i>
 </button>
 
 <!-- Create Task Modal -->
-<div class="modal fade" id="createTaskModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-plus-circle me-2"></i>
+<div class="m360-modal" id="createTaskModal" tabindex="-1">
+    <div class="m360-modal-dialog">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title">
+                    <i class="bi bi-plus-circle events-me-2"></i>
                     Crear Nueva Tarea
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="m360-close-modal" data-m360-close></button>
             </div>
-            <div class="modal-body">
+            <div class="m360-modal-body">
                 <form id="quickCreateTaskForm">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Título *</label>
-                        <input type="text" class="form-control" name="title" required>
+                    <div class="events-mb-3">
+                        <label class="m360-form-label">Título *</label>
+                        <input type="text" class="m360-form-control" name="title" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    <div class="events-mb-3">
+                        <label class="m360-form-label">Descripción</label>
+                        <textarea class="m360-form-control" name="description" rows="3"></textarea>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Proyecto</label>
-                                <select class="form-select" name="project">
+                    <div class="events-row">
+                        <div class="events-col-md-6">
+                            <div class="events-mb-3">
+                                <label class="m360-form-label">Proyecto</label>
+                                <select class="m360-form-select" name="project">
                                     <option value="">Sin proyecto</option>
                                     {% for project in projects %}
                                     <option value="{{ project.id }}">{{ project.title }}</option>
@@ -489,10 +484,10 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Estado inicial</label>
-                                <select class="form-select" name="task_status">
+                        <div class="events-col-md-6">
+                            <div class="events-mb-3">
+                                <label class="m360-form-label">Estado inicial</label>
+                                <select class="m360-form-select" name="task_status">
                                     {% for status_name, column in kanban_columns.items %}
                                     <option value="{{ status_name }}">{{ column.title }}</option>
                                     {% endfor %}
@@ -500,7 +495,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mb-3">
+                    <div class="events-mb-3">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="important" id="importantCheck">
                             <label class="form-check-label" for="importantCheck">
@@ -510,32 +505,32 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="createQuickTask()">Crear Tarea</button>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-secondary" data-m360-close>Cancelar</button>
+                <button type="button" class="m360-btn m360-btn-primary" onclick="createQuickTask()">Crear Tarea</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Filter Modal -->
-<div class="modal fade" id="filterModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-funnel me-2"></i>
+<div class="m360-modal" id="filterModal" tabindex="-1">
+    <div class="m360-modal-dialog">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title">
+                    <i class="bi bi-funnel events-me-2"></i>
                     Filtros
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="m360-close-modal" data-m360-close></button>
             </div>
-            <div class="modal-body">
+            <div class="m360-modal-body">
                 {% for category in tag_categories %}
-                <div class="mb-3">
-                    <label class="form-label fw-bold">{{ category.name }}</label>
-                    <div class="d-flex flex-wrap gap-2">
+                <div class="events-mb-3">
+                    <label class="m360-form-label fw-bold">{{ category.name }}</label>
+                    <div class="events-d-flex events-flex-wrap events-gap-2">
                         {% for tag in category.tag_set.all %}
-                        <button class="btn btn-sm btn-outline-secondary filter-tag" data-tag-id="{{ tag.id }}">
+                        <button class="m360-btn m360-btn-sm m360-btn-outline-secondary filter-tag" data-tag-id="{{ tag.id }}">
                             {{ tag.name }}
                         </button>
                         {% endfor %}
@@ -543,13 +538,13 @@
                 </div>
                 {% endfor %}
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="clearAllFilters()">
-                    <i class="bi bi-x-circle me-1"></i>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-secondary" onclick="clearAllFilters()">
+                    <i class="bi bi-x-circle events-me-1"></i>
                     Limpiar Todo
                 </button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                    <i class="bi bi-check me-1"></i>
+                <button type="button" class="m360-btn m360-btn-primary" data-m360-close>
+                    <i class="bi bi-check events-me-1"></i>
                     Aplicar
                 </button>
             </div>
@@ -560,7 +555,6 @@
 
 {% block extra_js %}
 <script>
-// Kanban Enhanced JavaScript
 document.addEventListener('DOMContentLoaded', function() {
     initializeKanbanEnhanced();
     initializeDragAndDrop();
@@ -570,58 +564,54 @@ document.addEventListener('DOMContentLoaded', function() {
     setupTheme();
 });
 
-// Initialize enhanced kanban
+let kanbanData = {
+    tasks: [],
+    filters: {
+        tags: [],
+        status: [],
+        projects: [],
+        users: []
+    },
+    viewMode: 'normal',
+    sortBy: 'updated_at',
+    theme: localStorage.getItem('kanbanTheme') || 'light'
+};
+
 function initializeKanbanEnhanced() {
-    console.log('🚀 Inicializando Kanban Enhanced...');
-
-    // Setup view mode
     setupViewMode();
-
-    // Setup sorting
     setupSorting();
-
-    // Apply dynamic styles
     applyDynamicStyles();
-
-    console.log('✅ Kanban Enhanced inicializado');
 }
 
-// View mode setup
 function setupViewMode() {
-    const viewMode = document.getElementById('viewMode');
-    if (viewMode) {
-        viewMode.addEventListener('change', function() {
+    const viewModeSelect = document.getElementById('viewMode');
+    if (viewModeSelect) {
+        viewModeSelect.addEventListener('change', function() {
             const board = document.getElementById('kanbanBoard');
-            board.className = `kanban-board ${this.value}-view`;
-            showToast(`Vista cambiada a ${this.value}`, 'info');
+            board.className = 'kanban-board ' + this.value + '-view';
+            showToast('Vista cambiada a ' + this.value, 'info');
         });
     }
 }
 
-// Sorting setup
 function setupSorting() {
-    const sortBy = document.getElementById('sortBy');
-    if (sortBy) {
-        sortBy.addEventListener('change', function() {
+    const sortBySelect = document.getElementById('sortBy');
+    if (sortBySelect) {
+        sortBySelect.addEventListener('change', function() {
             applySorting();
         });
     }
 }
 
-// Apply sorting
 function applySorting() {
     const columns = document.querySelectorAll('.kanban-column');
-
-    columns.forEach(column => {
+    columns.forEach(function(column) {
         const tasks = Array.from(column.querySelectorAll('.kanban-card'));
-        tasks.sort((a, b) => {
-            const taskA = kanbanData.tasks.find(t => t.task.id == a.dataset.taskId);
-            const taskB = kanbanData.tasks.find(t => t.task.id == b.dataset.taskId);
-
+        tasks.sort(function(a, b) {
+            const taskA = kanbanData.tasks.find(function(t) { return t.task.id == a.dataset.taskId; });
+            const taskB = kanbanData.tasks.find(function(t) { return t.task.id == b.dataset.taskId; });
             if (!taskA || !taskB) return 0;
-
             let valueA, valueB;
-
             switch(kanbanData.sortBy) {
                 case 'title':
                     valueA = taskA.task.title.toLowerCase();
@@ -639,41 +629,43 @@ function applySorting() {
                     valueA = new Date(taskA.task.updated_at);
                     valueB = new Date(taskB.task.updated_at);
             }
-
             if (valueA < valueB) return -1;
             if (valueA > valueB) return 1;
             return 0;
         });
-
         const tasksContainer = column.querySelector('.column-tasks');
-        tasks.forEach(task => tasksContainer.appendChild(task));
+        tasks.forEach(function(task) { tasksContainer.appendChild(task); });
     });
-
-    showToast(`Ordenado por ${getSortLabel(kanbanData.sortBy)}`, 'info');
+    showToast('Ordenado por ' + getSortLabel(kanbanData.sortBy), 'info');
 }
 
-// Drag and drop functionality
+function getSortLabel(sortBy) {
+    const labels = {
+        'updated_at': 'fecha de actualización',
+        'created_at': 'fecha de creación',
+        'title': 'título',
+        'priority': 'prioridad'
+    };
+    return labels[sortBy] || sortBy;
+}
+
 function initializeDragAndDrop() {
     const taskCards = document.querySelectorAll('.kanban-card[draggable="true"]');
     const columns = document.querySelectorAll('.kanban-column');
-
-    taskCards.forEach(card => {
+    taskCards.forEach(function(card) {
         card.addEventListener('dragstart', handleDragStart);
         card.addEventListener('dragend', handleDragEnd);
     });
-
-    columns.forEach(column => {
+    columns.forEach(function(column) {
         column.addEventListener('dragover', handleDragOver);
         column.addEventListener('drop', handleDrop);
         column.addEventListener('dragleave', handleDragLeave);
     });
 }
 
-// Filter functionality
 function initializeFilters() {
     const filterTags = document.querySelectorAll('.filter-tag');
-
-    filterTags.forEach(tag => {
+    filterTags.forEach(function(tag) {
         tag.addEventListener('click', function() {
             this.classList.toggle('active');
             applyFilters();
@@ -681,47 +673,56 @@ function initializeFilters() {
     });
 }
 
-// Task interactions
+function applyFilters() {
+    const activeFilters = Array.from(document.querySelectorAll('.filter-tag.active')).map(function(tag) { return tag.dataset.tagId; });
+    const taskCards = document.querySelectorAll('.kanban-card');
+    taskCards.forEach(function(card) {
+        const taskTags = Array.from(card.querySelectorAll('.tag')).map(function(tag) { return tag.textContent.trim(); });
+        const shouldShow = activeFilters.length === 0 ||
+            activeFilters.some(function(filterId) { return taskTags.includes(filterId); });
+        card.style.display = shouldShow ? 'block' : 'none';
+    });
+    updateColumnCounts();
+    showToast('Mostrando ' + document.querySelectorAll('.kanban-card[style*="block"]').length + ' tareas', 'info');
+}
+
+function clearAllFilters() {
+    document.querySelectorAll('.filter-tag.active').forEach(function(tag) {
+        tag.classList.remove('active');
+    });
+    applyFilters();
+}
+
 function initializeTaskInteractions() {
     const taskCards = document.querySelectorAll('.kanban-card');
-
-    taskCards.forEach(card => {
+    taskCards.forEach(function(card) {
         card.addEventListener('click', function(e) {
             if (e.target.closest('.card-actions') || e.target.closest('.btn-icon')) {
                 return;
             }
-
             const taskId = this.dataset.taskId;
             if (taskId) {
-                window.location.href = `/events/tasks/${taskId}/`;
+                window.location.href = '/events/tasks/' + taskId + '/';
             }
         });
     });
 }
 
-// Keyboard shortcuts
 function initializeKeyboardShortcuts() {
     document.addEventListener('keydown', function(e) {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
             return;
         }
-
         switch(e.key) {
-            case '+':
-                e.preventDefault();
-                document.querySelector('[data-bs-target="#createTaskModal"]')?.click();
-                break;
             case 'f':
                 if (e.ctrlKey || e.metaKey) {
                     e.preventDefault();
-                    document.querySelector('[data-bs-target="#filterModal"]')?.click();
+                    document.querySelector('[data-m360-open="#createTaskModal"]')?.click();
                 }
                 break;
-            case 't':
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    toggleTheme();
-                }
+            case '+':
+                e.preventDefault();
+                document.querySelector('.kanban-fab')?.click();
                 break;
             case 'Escape':
                 clearAllFilters();
@@ -732,11 +733,16 @@ function initializeKeyboardShortcuts() {
                     refreshKanban();
                 }
                 break;
+            case 't':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    toggleTheme();
+                }
+                break;
         }
     });
 }
 
-// Theme management
 function setupTheme() {
     const themeIcon = document.getElementById('themeIcon');
     if (kanbanData.theme === 'dark') {
@@ -751,89 +757,55 @@ function setupTheme() {
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
     document.documentElement.setAttribute('data-theme', newTheme);
     kanbanData.theme = newTheme;
     localStorage.setItem('kanbanTheme', newTheme);
-
     const themeIcon = document.getElementById('themeIcon');
     themeIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-
     showToast('Tema cambiado a ' + (newTheme === 'dark' ? 'oscuro' : 'claro'), 'info');
 }
 
-// Utility functions
-function showToast(message, type = 'info') {
+function showToast(message, type) {
+    type = type || 'info';
     const toast = document.createElement('div');
-    toast.className = `toast align-items-center text-white bg-${type} border-0`;
+    toast.className = 'kanban-toast';
     toast.setAttribute('role', 'alert');
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-                ${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    `;
-
+    const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle';
+    const bgColor = type === 'success' ? 'var(--kanban-success)' : type === 'error' ? 'var(--kanban-danger)' : 'var(--kanban-info)';
+    toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:1060;min-width:300px;padding:12px 16px;background:' + bgColor + ';color:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;animation:kanban-slideInRight 0.3s ease;';
+    toast.innerHTML = '<i class="bi bi-' + iconClass + '"></i><span>' + message + '</span>';
     document.body.appendChild(toast);
-    const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 3000 });
-    bsToast.show();
-
-    toast.addEventListener('hidden.bs.toast', function() {
-        document.body.removeChild(toast);
-    });
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(function() { if (toast.parentNode) document.body.removeChild(toast); }, 300);
+    }, 3000);
 }
 
-function getSortLabel(sortBy) {
-    const labels = {
-        'updated_at': 'fecha de actualización',
-        'created_at': 'fecha de creación',
-        'title': 'título',
-        'priority': 'prioridad'
-    };
-    return labels[sortBy] || sortBy;
-}
-
-function applyFilters() {
-    const activeFilters = Array.from(document.querySelectorAll('.filter-tag.active')).map(tag => tag.dataset.tagId);
-    const taskCards = document.querySelectorAll('.kanban-card');
-
-    taskCards.forEach(card => {
-        const taskTags = Array.from(card.querySelectorAll('.tag')).map(tag => tag.textContent.trim());
-        const shouldShow = activeFilters.length === 0 ||
-            activeFilters.some(filterId => taskTags.includes(filterId));
-
-        card.style.display = shouldShow ? 'block' : 'none';
+function applyDynamicStyles() {
+    document.querySelectorAll('.tag').forEach(function(tag) {
+        const colorClass = Array.from(tag.classList).find(function(c) { return c.startsWith('tag-') && c !== 'tag'; });
+        if (colorClass && colorClass.replace('tag-', '') && window.getComputedStyle) {
+            tag.style.color = 'inherit';
+            tag.style.backgroundColor = 'var(--m360-gray-100)';
+        }
     });
-
-    updateColumnCounts();
-    showToast(`Mostrando ${document.querySelectorAll('.kanban-card[style*="block"]').length} tareas`, 'info');
-}
-
-function clearAllFilters() {
-    document.querySelectorAll('.filter-tag.active').forEach(tag => {
-        tag.classList.remove('active');
-    });
-    applyFilters();
 }
 
 function createQuickTask() {
     const form = document.getElementById('quickCreateTaskForm');
     const formData = new FormData(form);
-
     if (!formData.get('title')) {
         showToast('El título es obligatorio', 'error');
         return;
     }
-
     showToast('Funcionalidad de creación rápida próximamente', 'info');
 }
 
 function refreshKanban() {
     showToast('Actualizando...', 'info');
-    setTimeout(() => {
+    setTimeout(function() {
         window.location.reload();
     }, 1000);
 }
@@ -842,29 +814,17 @@ function exportKanban() {
     showToast('Exportación próximamente', 'info');
 }
 
-function applyDynamicStyles() {
-    // Apply tag colors dynamically
-    document.querySelectorAll('.tag').forEach(tag => {
-        // Tags already have CSS classes applied, no need for dynamic styling
-        // This function can be used for other dynamic styling if needed
-    });
+function navigateToGTDTool(element) {
+    const url = element.getAttribute('data-url');
+    if (url) {
+        window.location.href = url;
+    }
 }
 
-// Global kanban data
-let kanbanData = {
-    tasks: [],
-    filters: {
-        tags: [],
-        status: [],
-        projects: [],
-        users: []
-    },
-    viewMode: 'normal',
-    sortBy: 'updated_at',
-    theme: localStorage.getItem('kanbanTheme') || 'light'
-};
+function showWeeklyReview() {
+    showToast('Weekly Review - Próximamente', 'info');
+}
 
-// Drag and drop handlers
 function handleDragStart(e) {
     e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
     e.target.classList.add('dragging');
@@ -873,7 +833,7 @@ function handleDragStart(e) {
 
 function handleDragEnd(e) {
     e.target.classList.remove('dragging');
-    document.querySelectorAll('.kanban-column').forEach(col => {
+    document.querySelectorAll('.kanban-column').forEach(function(col) {
         col.classList.remove('drag-over');
     });
     document.body.classList.remove('dragging-active');
@@ -891,57 +851,48 @@ function handleDragLeave(e) {
 function handleDrop(e) {
     e.preventDefault();
     e.currentTarget.classList.remove('drag-over');
-
     const taskId = e.dataTransfer.getData('text/plain');
     const newStatus = e.currentTarget.dataset.status;
-
     if (taskId && newStatus) {
         moveTaskToColumn(taskId, newStatus);
     }
 }
 
 function moveTaskToColumn(taskId, newStatus) {
-    const card = document.querySelector(`[data-task-id="${taskId}"]`);
+    const card = document.querySelector('[data-task-id="' + taskId + '"]');
     if (!card) return;
-
     const originalContent = card.innerHTML;
-    card.innerHTML = `
-        <div class="d-flex align-items-center justify-content-center p-3">
-            <div class="spinner-border spinner-border-sm me-2" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <span>Moviendo tarea...</span>
-        </div>
-    `;
-
-    fetch(`/events/tasks/change-status-ajax/`, {
+    card.innerHTML = '<div class="events-d-flex events-align-center events-justify-center events-p-3"><div class="loading-spinner events-me-2"></div><span>Moviendo tarea...</span></div>';
+    fetch('/events/tasks/change-status-ajax/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
         },
-        body: `task_id=${taskId}&new_status_name=${newStatus}`
+        body: 'task_id=' + taskId + '&new_status_name=' + newStatus
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
         if (data.success) {
-            const newColumn = document.querySelector(`[data-status="${newStatus}"] .column-tasks`);
+            const newColumn = document.querySelector('[data-status="' + newStatus + '"] .column-tasks');
             if (newColumn) {
                 const emptyState = newColumn.querySelector('.empty-column');
-                if (emptyState) {
-                    emptyState.remove();
-                }
-
+                if (emptyState) { emptyState.remove(); }
                 newColumn.appendChild(card);
                 updateColumnCounts();
-                showToast('Tarea movida exitosamente', 'success');
+                setTimeout(function() {
+                    card.innerHTML = originalContent;
+                    card.style.animation = 'none';
+                    setTimeout(function() { card.style.animation = ''; }, 10);
+                    showToast('Tarea movida exitosamente', 'success');
+                }, 300);
             }
         } else {
             card.innerHTML = originalContent;
             showToast(data.error || 'Error al mover la tarea', 'error');
         }
     })
-    .catch(error => {
+    .catch(function(error) {
         card.innerHTML = originalContent;
         showToast('Error de conexión', 'error');
         console.error('Error:', error);
@@ -949,7 +900,7 @@ function moveTaskToColumn(taskId, newStatus) {
 }
 
 function updateColumnCounts() {
-    document.querySelectorAll('.kanban-column').forEach(column => {
+    document.querySelectorAll('.kanban-column').forEach(function(column) {
         const count = column.querySelectorAll('.kanban-card').length;
         const countElement = column.querySelector('.column-count');
         if (countElement) {
@@ -958,49 +909,23 @@ function updateColumnCounts() {
     });
 }
 
-// NUEVAS FUNCIONES GTD
-function navigateToGTDTool(element) {
-    const url = element.getAttribute('data-url');
-    if (url) {
-        window.location.href = url;
-    }
-}
-
-function showWeeklyReview() {
-    showToast('Weekly Review - Próximamente', 'info');
-    // Aquí se implementaría la funcionalidad de Weekly Review
-}
-
-function showMonthlyReview() {
-    showToast('Monthly Review - Próximamente', 'info');
-    // Aquí se implementaría la funcionalidad de Monthly Review
-}
-
-function showQuarterlyReview() {
-    showToast('Quarterly Review - Próximamente', 'info');
-    // Aquí se implementaría la funcionalidad de Quarterly Review
-}
-
-// Función para actualizar métricas GTD en tiempo real
 function updateGTDMetrics() {
     fetch('/events/inbox_stats_api/')
-        .then(response => response.json())
-        .then(data => {
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             if (data.success) {
-                // Actualizar métricas del inbox
                 const inboxBadge = document.querySelector('.gtd-tool-card[data-url*="inbox"] .badge');
                 if (inboxBadge) {
                     inboxBadge.textContent = data.stats.unprocessed + ' pendientes';
                 }
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.log('Error actualizando métricas GTD:', error);
         });
 }
 
-// Inicializar actualización periódica de métricas
-setInterval(updateGTDMetrics, 30000); // Cada 30 segundos
+setInterval(updateGTDMetrics, 30000);
 
 console.log('🎯 Kanban Enhanced completamente cargado');
 </script>

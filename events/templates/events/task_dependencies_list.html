@@ -1,215 +1,209 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="bi bi-diagram-3 me-2"></i>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center events-flex-wrap">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-diagram-3" style="margin-right: var(--m360-space-2);"></i>
                         {{ title }}
-                    </h3>
-                    <div class="card-tools">
-                        <a href="{% url 'events:tasks' %}" class="btn btn-secondary btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i>
-                            Volver a Tareas
-                        </a>
-                    </div>
+                    </h5>
+                    <a href="{% url 'events:tasks' %}" class="m360-btn m360-btn-outline-secondary">
+                        <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>
+                        Volver a Tareas
+                    </a>
                 </div>
-                <div class="card-body">
+                <div class="m360-card-body">
                     {% if all_dependencies %}
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <div class="alert alert-info">
-                                    <i class="bi bi-info-circle me-2"></i>
+                        <div class="events-row events-mb-4">
+                            <div class="events-col-12">
+                                <div class="m360-alert m360-alert-info">
+                                    <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
                                     <strong>Gestión de Dependencias:</strong> Aquí puedes ver todas las dependencias entre tareas del sistema.
                                     Usa los enlaces para gestionar dependencias específicas de cada tarea.
                                 </div>
                             </div>
                         </div>
 
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-dark">
+                        <div class="m360-table-responsive">
+                            <table class="m360-table">
+                                <thead>
                                     <tr>
-                                        <th><i class="bi bi-arrow-down me-1"></i>Tarea Dependiente</th>
-                                        <th><i class="bi bi-arrow-up me-1"></i>Depende de</th>
-                                        <th><i class="bi bi-gear me-1"></i>Tipo</th>
-                                        <th><i class="bi bi-calendar me-1"></i>Creada</th>
-                                        <th><i class="bi bi-three-dots me-1"></i>Acciones</th>
+                                        <th><i class="bi bi-arrow-down" style="margin-right: var(--m360-space-1);"></i>Tarea Dependiente</th>
+                                        <th><i class="bi bi-arrow-up" style="margin-right: var(--m360-space-1);"></i>Depende de</th>
+                                        <th><i class="bi bi-gear" style="margin-right: var(--m360-space-1);"></i>Tipo</th>
+                                        <th><i class="bi bi-calendar" style="margin-right: var(--m360-space-1);"></i>Creada</th>
+                                        <th><i class="bi bi-three-dots" style="margin-right: var(--m360-space-1);"></i>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for dependency in all_dependencies %}
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="task-info" style="border-left: 4px solid {{ dependency.task.task_status.color }}; padding-left: 10px;">
-                                                        <h6 class="mb-0">{{ dependency.task.title }}</h6>
-                                                        <small class="text-muted">
-                                                            <span class="badge task-status-badge" data-color="{{ dependency.task.task_status.color }}">
-                                                                {{ dependency.task.task_status.status_name }}
-                                                            </span>
-                                                            {% if dependency.task.important %}
-                                                                <span class="badge bg-warning ms-1">
-                                                                    <i class="bi bi-star-fill"></i>
-                                                                </span>
-                                                            {% endif %}
-                                                        </small>
-                                                    </div>
+                                    <tr>
+                                        <td>
+                                            <div class="events-d-flex events-align-center events-gap-2">
+                                                <div style="border-left: 4px solid {{ dependency.task.task_status.color }}; padding-left: var(--m360-space-2);">
+                                                    <h6 class="events-mb-1">{{ dependency.task.title }}</h6>
+                                                    <small class="events-text-muted">
+                                                        <span class="m360-badge" style="background: {{ dependency.task.task_status.color }}; color: #fff;">{{ dependency.task.task_status.status_name }}</span>
+                                                        {% if dependency.task.important %}
+                                                        <span class="m360-badge m360-badge-warning">
+                                                            <i class="bi bi-star-fill"></i>
+                                                        </span>
+                                                        {% endif %}
+                                                    </small>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="task-info" style="border-left: 4px solid {{ dependency.depends_on.task_status.color }}; padding-left: 10px;">
-                                                        <h6 class="mb-0">{{ dependency.depends_on.title }}</h6>
-                                                        <small class="text-muted">
-                                                            <span class="badge task-status-badge" data-color="{{ dependency.depends_on.task_status.color }}">
-                                                                {{ dependency.depends_on.task_status.status_name }}
-                                                            </span>
-                                                            {% if dependency.depends_on.important %}
-                                                                <span class="badge bg-warning ms-1">
-                                                                    <i class="bi bi-star-fill"></i>
-                                                                </span>
-                                                            {% endif %}
-                                                        </small>
-                                                    </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="events-d-flex events-align-center events-gap-2">
+                                                <div style="border-left: 4px solid {{ dependency.depends_on.task_status.color }}; padding-left: var(--m360-space-2);">
+                                                    <h6 class="events-mb-1">{{ dependency.depends_on.title }}</h6>
+                                                    <small class="events-text-muted">
+                                                        <span class="m360-badge" style="background: {{ dependency.depends_on.task_status.color }}; color: #fff;">{{ dependency.depends_on.task_status.status_name }}</span>
+                                                        {% if dependency.depends_on.important %}
+                                                        <span class="m360-badge m360-badge-warning">
+                                                            <i class="bi bi-star-fill"></i>
+                                                        </span>
+                                                        {% endif %}
+                                                    </small>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-info">
-                                                    {{ dependency.dependency_type|title|cut:"_"|cut:" " }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <small class="text-muted">
-                                                    {{ dependency.created_at|date:"d/m/Y" }}
-                                                    <br>
-                                                    {{ dependency.created_at|time:"H:i" }}
-                                                </small>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="{% url 'events:task_dependencies_list' dependency.task.id %}"
-                                                       class="btn btn-outline-primary btn-sm"
-                                                       title="Ver dependencias de {{ dependency.task.title }}">
-                                                        <i class="bi bi-eye"></i>
-                                                    </a>
-                                                    <a href="{% url 'events:tasks_with_id' dependency.task.id %}"
-                                                       class="btn btn-outline-info btn-sm"
-                                                       title="Ver tarea {{ dependency.task.title }}">
-                                                        <i class="bi bi-box-arrow-up-right"></i>
-                                                    </a>
-                                                    <a href="{% url 'events:delete_task_dependency' dependency.id %}"
-                                                       class="btn btn-outline-danger btn-sm"
-                                                       title="Eliminar dependencia"
-                                                       onclick="return confirm('¿Eliminar esta dependencia?')">
-                                                        <i class="bi bi-trash"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="m360-badge m360-badge-info">
+                                                {{ dependency.dependency_type|title|cut:"_"|cut:" " }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small class="events-text-muted">
+                                                {{ dependency.created_at|date:"d/m/Y" }}
+                                                <br>
+                                                {{ dependency.created_at|time:"H:i" }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="m360-btn-group">
+                                                <a href="{% url 'events:task_dependencies_list' dependency.task.id %}"
+                                                   class="m360-btn m360-btn-sm m360-btn-outline-primary"
+                                                   title="Ver dependencias de {{ dependency.task.title }}">
+                                                     <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{% url 'events:tasks_with_id' dependency.task.id %}"
+                                                   class="m360-btn m360-btn-sm m360-btn-outline-info"
+                                                   title="Ver tarea {{ dependency.task.title }}">
+                                                     <i class="bi bi-box-arrow-up-right"></i>
+                                                </a>
+                                                <a href="{% url 'events:delete_task_dependency' dependency.id %}"
+                                                   class="m360-btn m360-btn-sm m360-btn-outline-danger"
+                                                   title="Eliminar dependencia"
+                                                   onclick="return confirm('¿Eliminar esta dependencia?')">
+                                                     <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
 
                         <!-- Estadísticas -->
-                        <div class="row mt-4">
-                            <div class="col-md-3">
-                                <div class="card text-center">
-                                    <div class="card-body">
-                                        <h5 class="text-primary">{{ all_dependencies.count }}</h5>
-                                        <small class="text-muted">Total de Dependencias</small>
+                        <div class="events-row events-mt-4 events-gap-4">
+                            <div class="events-col-md-3">
+                                <div class="m360-card" style="text-align: center;">
+                                    <div class="m360-card-body">
+                                        <h5 class="events-text-primary">{{ all_dependencies.count }}</h5>
+                                        <small class="events-text-muted">Total de Dependencias</small>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="card text-center">
-                                    <div class="card-body">
-                                        <h5 class="text-success">
+                            <div class="events-col-md-3">
+                                <div class="m360-card" style="text-align: center;">
+                                    <div class="m360-card-body">
+                                        <h5 class="events-text-success">
                                             {% widthratio all_dependencies.count 1 100 %}
                                         </h5>
-                                        <small class="text-muted">Tareas con Dependencias</small>
+                                        <small class="events-text-muted">Tareas con Dependencias</small>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="card text-center">
-                                    <div class="card-body">
-                                        <h5 class="text-warning">
+                            <div class="events-col-md-3">
+                                <div class="m360-card" style="text-align: center;">
+                                    <div class="m360-card-body">
+                                        <h5 class="events-text-warning">
                                             {{ all_dependencies|length }}
                                         </h5>
-                                        <small class="text-muted">Dependencias Activas</small>
+                                        <small class="events-text-muted">Dependencias Activas</small>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="card text-center">
-                                    <div class="card-body">
-                                        <h5 class="text-info">
+                            <div class="events-col-md-3">
+                                <div class="m360-card" style="text-align: center;">
+                                    <div class="m360-card-body">
+                                        <h5 class="events-text-info">
                                             {{ all_dependencies|slice:":5" | length }}
                                         </h5>
-                                        <small class="text-muted">Creadas Hoy</small>
+                                        <small class="events-text-muted">Creadas Hoy</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Tipos de dependencia más comunes -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="card-title mb-0">
-                                            <i class="bi bi-bar-chart me-1"></i>
+                        <div class="events-row events-mt-4">
+                            <div class="events-col-12">
+                                <div class="m360-card">
+                                    <div class="m360-card-header">
+                                        <h6 class="m360-card-title events-mb-0">
+                                            <i class="bi bi-bar-chart" style="margin-right: var(--m360-space-1);"></i>
                                             Tipos de Dependencia Más Usados
                                         </h6>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="row text-center">
-                                            <div class="col-md-3">
-                                                <div class="dependency-type-stat">
-                                                    <h4 class="text-primary">
+                                    <div class="m360-card-body">
+                                        <div class="events-row events-gap-4">
+                                            <div class="events-col-md-3">
+                                                <div class="events-text-center">
+                                                    <h4 class="events-text-primary">
                                                         {% with finish_to_start=all_dependencies|length %}
                                                             {{ finish_to_start }}
                                                         {% endwith %}
                                                     </h4>
-                                                    <small class="text-muted">Finalizar para Comenzar</small>
+                                                    <small class="events-text-muted">Finalizar para Comenzar</small>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
-                                                <div class="dependency-type-stat">
-                                                    <h4 class="text-success">
+                                            <div class="events-col-md-3">
+                                                <div class="events-text-center">
+                                                    <h4 class="events-text-success">
                                                         {% with start_to_start=all_dependencies|length %}
                                                             {{ start_to_start }}
                                                         {% endwith %}
                                                     </h4>
-                                                    <small class="text-muted">Comenzar para Comenzar</small>
+                                                    <small class="events-text-muted">Comenzar para Comenzar</small>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
-                                                <div class="dependency-type-stat">
-                                                    <h4 class="text-warning">
+                                            <div class="events-col-md-3">
+                                                <div class="events-text-center">
+                                                    <h4 class="events-text-warning">
                                                         {% with finish_to_finish=all_dependencies|length %}
                                                             {{ finish_to_finish }}
                                                         {% endwith %}
                                                     </h4>
-                                                    <small class="text-muted">Finalizar para Finalizar</small>
+                                                    <small class="events-text-muted">Finalizar para Finalizar</small>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
-                                                <div class="dependency-type-stat">
-                                                    <h4 class="text-info">
+                                            <div class="events-col-md-3">
+                                                <div class="events-text-center">
+                                                    <h4 class="events-text-info">
                                                         {% with start_to_finish=all_dependencies|length %}
                                                             {{ start_to_finish }}
                                                         {% endwith %}
                                                     </h4>
-                                                    <small class="text-muted">Comenzar para Finalizar</small>
+                                                    <small class="events-text-muted">Comenzar para Finalizar</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -218,14 +212,17 @@
                             </div>
                         </div>
                     {% else %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-diagram-3 display-4 text-muted mb-3"></i>
-                            <h4 class="text-muted">No hay dependencias registradas</h4>
-                            <p class="text-muted">Las dependencias entre tareas aparecerán aquí cuando las crees.</p>
-                            <a href="{% url 'events:tasks' %}" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-1"></i>
-                                Ir a Tareas
-                            </a>
+                        <div class="events-empty-state">
+                            <div class="events-empty-state-icon">
+                                <i class="bi bi-diagram-3"></i>
+                            </div>
+                            <h4 class="events-empty-state-title">No hay dependencias registradas</h4>
+                            <p class="events-empty-state-text">Las dependencias entre tareas aparecerán aquí cuando las crees.</p>
+                            <div class="events-empty-state-actions">
+                                <a href="{% url 'events:tasks' %}" class="m360-btn m360-btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Ir a Tareas
+                                </a>
+                            </div>
                         </div>
                     {% endif %}
                 </div>
@@ -233,55 +230,4 @@
         </div>
     </div>
 </div>
-
-<style>
-.task-info {
-    background: #f8f9fa;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    margin-bottom: 0.25rem;
-}
-
-.task-info h6 {
-    margin-bottom: 0.25rem;
-    font-size: 0.9rem;
-}
-
-.task-status-badge {
-    background-color: attr(data-color) !important;
-    color: white !important;
-    font-size: 0.7rem;
-}
-
-.table th {
-    border-top: none;
-    font-weight: 600;
-}
-
-.table td {
-    vertical-align: middle;
-}
-
-.dependency-type-stat {
-    padding: 1rem;
-}
-
-.dependency-type-stat h4 {
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-}
-
-.btn-group-sm .btn {
-    padding: 0.25rem 0.5rem;
-}
-
-.card {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: box-shadow 0.3s ease;
-}
-
-.card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-</style>
 {% endblock %}

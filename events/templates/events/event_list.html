@@ -1,80 +1,71 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}{{ title }} | Events Management{% endblock %}
 
 {% block content %}
-<!-- ============================================================
-     ENCABEZADO Y NAVEGACIÓN
-     ============================================================ -->
-<header class="page-header">
-    <div class="pagetitle">
-        <h1 class="page-title">
-            <i class="bi bi-list-task me-2"></i>{{ title }}
+<div class="events-container">
+    <!-- ============================================================
+         ENCABEZADO Y NAVEGACIÓN
+         ============================================================ -->
+    <div class="events-page-header">
+        <h1 class="events-page-title">
+            <i class="bi bi-list-task" style="margin-right: var(--m360-space-2);"></i>
+            {{ title }}
             {% if events %}
-            <span class="badge bg-primary rounded-pill">{{ events|length }}</span>
+            <span class="m360-badge m360-badge-info" style="border-radius: var(--m360-radius-pill);">{{ events|length }}</span>
             {% endif %}
         </h1>
         
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'index' %}" class="breadcrumb-link">
-                        <i class="bi bi-house-door"></i> Home
-                    </a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'events:event_panel' %}" class="breadcrumb-link">
-                        <i class="bi bi-calendar-event"></i> Events
-                    </a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    <i class="bi bi-list-check"></i> {{ title }}
-                </li>
+            <ol class="events-breadcrumb">
+                <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Home</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li><a href="{% url 'events:event_panel' %}"><i class="bi bi-calendar-event"></i> Events</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li style="color: var(--m360-text);"><i class="bi bi-list-check"></i> {{ title }}</li>
             </ol>
         </nav>
     </div>
-</header><!-- End Page Header -->
 
-<!-- ============================================================
-     MENSAJES DEL SISTEMA
-     ============================================================ -->
-{% include 'events/includes/messages.html' %}
+    <!-- ============================================================
+         MENSAJES DEL SISTEMA
+         ============================================================ -->
+    {% include 'events/includes/messages.html' %}
 
-<!-- ============================================================
-     PANEL DE INFORMACIÓN
-     ============================================================ -->
-<section class="section info-panel">
-    <div class="row g-3 mb-4">
+    <!-- ============================================================
+         PANEL DE INFORMACIÓN
+         ============================================================ -->
+    <div class="events-row events-gap-4 events-mb-4">
         <!-- Tarjeta de Información -->
-        <div class="col-lg-6">
-            <div class="card info-card h-100">
-                <div class="card-header d-flex align-items-center">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <h5 class="card-title mb-0">Events List</h5>
+        <div class="events-col-lg-6">
+            <div class="m360-card events-info-card events-h-100">
+                <div class="m360-card-header events-d-flex events-align-center">
+                    <i class="bi bi-info-circle" style="margin-right: var(--m360-space-2);"></i>
+                    <h5 class="m360-card-title events-mb-0">Events List</h5>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
+                <div class="m360-card-body">
+                    <p class="m360-card-text">
                         Select an event from the list below to view details, edit information, 
                         or manage related projects and tasks.
                     </p>
-                    <div class="stats-container">
-                        <div class="stat-item">
-                            <span class="stat-value">{{ events|length }}</span>
-                            <span class="stat-label">Total Events</span>
+                    <div class="events-stats-container">
+                        <div class="events-stat-item">
+                            <span class="events-stat-value">{{ events|length }}</span>
+                            <span class="events-stat-label">Total Events</span>
                         </div>
                         {% if user_can_create %}
-                        <div class="stat-item">
-                            <span class="stat-value">
+                        <div class="events-stat-item">
+                            <span class="events-stat-value">
                                 <i class="bi bi-plus-circle"></i>
                             </span>
-                            <span class="stat-label">Create New</span>
+                            <span class="events-stat-label">Create New</span>
                         </div>
                         {% endif %}
                     </div>
                 </div>
-                <div class="card-footer bg-transparent">
-                    <small class="text-muted">
+                <div class="m360-card-footer">
+                    <small class="events-text-muted">
                         <i class="bi bi-clock-history"></i>
                         Last updated: {% now "F j, Y, g:i a" %}
                     </small>
@@ -83,35 +74,35 @@
         </div>
 
         <!-- Tarjeta de Acciones Rápidas -->
-        <div class="col-lg-6">
-            <div class="card actions-card h-100">
-                <div class="card-header d-flex align-items-center">
-                    <i class="bi bi-lightning me-2"></i>
-                    <h5 class="card-title mb-0">Quick Actions</h5>
+        <div class="events-col-lg-6">
+            <div class="m360-card events-actions-card events-h-100">
+                <div class="m360-card-header events-d-flex events-align-center">
+                    <i class="bi bi-lightning" style="margin-right: var(--m360-space-2);"></i>
+                    <h5 class="m360-card-title events-mb-0">Quick Actions</h5>
                 </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'events:event_panel' %}" class="btn btn-outline-primary">
+                <div class="m360-card-body">
+                    <div class="events-d-flex events-flex-col events-gap-2">
+                        <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-outline-primary events-w-100">
                             <i class="bi bi-grid-3x3-gap"></i> Events Panel
                         </a>
-                        <a href="{% url 'events:events' %}" class="btn btn-outline-info">
+                        <a href="{% url 'events:events' %}" class="m360-btn m360-btn-outline-info events-w-100">
                             <i class="bi bi-search"></i> Events Search
                         </a>
                         {% if user_can_create %}
-                        <a href="{% url 'events:event_create' %}" class="btn btn-success">
+                        <a href="{% url 'events:event_create' %}" class="m360-btn m360-btn-success events-w-100">
                             <i class="bi bi-plus-circle"></i> Create New Event
                         </a>
                         {% endif %}
-                        <button type="button" class="btn btn-outline-secondary" id="toggleFiltersBtn">
+                        <button type="button" class="m360-btn m360-btn-outline-secondary events-w-100" id="toggleFiltersBtn">
                             <i class="bi bi-funnel"></i> Toggle Filters
                         </button>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent">
-                    <small class="text-muted">
+                <div class="m360-card-footer">
+                    <small class="events-text-muted">
                         <i class="bi bi-arrow-clockwise"></i>
                         Click to refresh list
-                        <a href="{% url 'events:event_edit' %}" class="ms-2">
+                        <a href="{% url 'events:event_edit' %}" class="events-ml-2" style="margin-left: var(--m360-space-2);">
                             <i class="bi bi-arrow-clockwise"></i>
                         </a>
                     </small>
@@ -119,259 +110,240 @@
             </div>
         </div>
     </div>
-</section>
 
-<!-- ============================================================
-     FILTROS (OCULTOS POR DEFECTO)
-     ============================================================ -->
-<section class="section filters-section mb-4" id="filtersSection" style="display: none;">
-    <div class="card">
-        <div class="card-header">
-            <h5 class="card-title mb-0">
-                <i class="bi bi-funnel-fill me-2"></i>Filter Events
-            </h5>
-        </div>
-        <div class="card-body">
-            <form method="GET" class="row g-3" id="filterForm">
-                <div class="col-md-3">
-                    <label for="statusFilter" class="form-label">Status</label>
-                    <select class="form-select" id="statusFilter" name="status">
-                        <option value="">All Statuses</option>
-                        <option value="active">Active</option>
-                        <option value="completed">Completed</option>
-                        <option value="planned">Planned</option>
-                    </select>
+    <!-- ============================================================
+         FILTROS (OCULTOS POR DEFECTO)
+         ============================================================ -->
+    <div class="events-row events-mb-4" id="filtersSection" style="display: none;">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-funnel-fill" style="margin-right: var(--m360-space-2);"></i>Filter Events
+                    </h5>
                 </div>
-                <div class="col-md-3">
-                    <label for="hostFilter" class="form-label">Host</label>
-                    <select class="form-select" id="hostFilter" name="host">
-                        <option value="">All Hosts</option>
-                        <!-- Populate dynamically with JavaScript -->
-                    </select>
+                <div class="m360-card-body">
+                    <form method="GET" class="events-row events-gap-4" id="filterForm">
+                        <div class="events-col-md-3">
+                            <label for="statusFilter" class="m360-form-label">Status</label>
+                            <select class="m360-form-control" id="statusFilter" name="status">
+                                <option value="">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="completed">Completed</option>
+                                <option value="planned">Planned</option>
+                            </select>
+                        </div>
+                        <div class="events-col-md-3">
+                            <label for="hostFilter" class="m360-form-label">Host</label>
+                            <select class="m360-form-control" id="hostFilter" name="host">
+                                <option value="">All Hosts</option>
+                            </select>
+                        </div>
+                        <div class="events-col-md-3">
+                            <label for="dateFilter" class="m360-form-label">Date Range</label>
+                            <input type="date" class="m360-form-control" id="dateFilter" name="date">
+                        </div>
+                        <div class="events-col-md-3">
+                            <label class="m360-form-label d-block">&nbsp;</label>
+                            <button type="submit" class="m360-btn m360-btn-primary events-w-100">
+                                <i class="bi bi-filter"></i> Apply Filters
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="col-md-3">
-                    <label for="dateFilter" class="form-label">Date Range</label>
-                    <input type="date" class="form-control" id="dateFilter" name="date">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label d-block">&nbsp;</label>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-filter"></i> Apply Filters
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
-</section>
 
-<!-- ============================================================
-     LISTA DE EVENTOS
-     ============================================================ -->
-<section class="section events-list-section">
-    <div class="row">
-        <div class="col-12">
+    <!-- ============================================================
+         LISTA DE EVENTOS
+         ============================================================ -->
+    <div class="events-row">
+        <div class="events-col-12">
             
             {% if events %}
             <!-- ============================================
                  TABLA DE EVENTOS (VERSIÓN DESKTOP)
                  ============================================ -->
-            <div class="card desktop-view">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-calendar2-event me-2"></i>
-                        Events List
-                    </h5>
-                    <div class="header-actions">
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportBtn">
+            <div class="events-desktop-view">
+                <div class="m360-card">
+                    <div class="m360-card-header events-justify-between events-align-center">
+                        <h5 class="m360-card-title events-mb-0">
+                            <i class="bi bi-calendar2-event" style="margin-right: var(--m360-space-2);"></i>
+                            Events List
+                        </h5>
+                        <div class="events-d-flex events-gap-2">
+                            <button type="button" class="m360-btn m360-btn-outline-secondary" id="exportBtn">
                                 <i class="bi bi-download"></i> Export
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" id="printBtn">
+                            <button type="button" class="m360-btn m360-btn-outline-secondary" id="printBtn">
                                 <i class="bi bi-printer"></i> Print
                             </button>
                         </div>
                     </div>
-                </div>
-                
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col" width="5%">ID</th>
-                                    <th scope="col" width="25%">Title & Description</th>
-                                    <th scope="col" width="10%">Status</th>
-                                    <th scope="col" width="15%">Details</th>
-                                    <th scope="col" width="15%">Host & Assigned</th>
-                                    <th scope="col" width="10%">Attendees</th>
-                                    <th scope="col" width="10%">Ticket</th>
-                                    <th scope="col" width="10%" class="text-end">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for event in events %}
-                                <tr data-event-id="{{ event.id }}" class="event-row">
-                                    <td>
-                                        <a href="{% url 'events:event_panel_with_id' event.id %}" 
-                                           class="event-id-link fw-bold">
-                                            #{{ event.id }}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <div class="event-title">
-                                            <a href="{% url 'events:event_detail' event.id %}" 
-                                               class="text-dark fw-semibold">
-                                                {{ event.title }}
+                    
+                    <div class="m360-card-body" style="padding: 0;">
+                        <div class="m360-table-responsive">
+                            <table class="m360-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 5%;">ID</th>
+                                        <th scope="col" style="width: 25%;">Title & Description</th>
+                                        <th scope="col" style="width: 10%;">Status</th>
+                                        <th scope="col" style="width: 15%;">Details</th>
+                                        <th scope="col" style="width: 15%;">Host & Assigned</th>
+                                        <th scope="col" style="width: 10%;">Attendees</th>
+                                        <th scope="col" style="width: 10%;">Ticket</th>
+                                        <th scope="col" style="width: 10%;" class="events-text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for event in events %}
+                                    <tr class="events-event-row" data-event-id="{{ event.id }}">
+                                        <td>
+                                            <a href="{% url 'events:event_panel_with_id' event.id %}" 
+                                               class="events-event-id-link">
+                                                #{{ event.id }}
                                             </a>
-                                        </div>
-                                        {% if event.description %}
-                                        <div class="event-description text-muted small mt-1">
-                                            {{ event.description|truncatechars:80 }}
-                                        </div>
-                                        {% endif %}
-                                        <div class="event-meta mt-1">
-                                            <small class="text-muted">
-                                                <i class="bi bi-geo-alt"></i>
-                                                {{ event.venue|default:"Venue not specified" }}
-                                            </small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge event-status" 
-                                              style="background-color: {{ event.event_status.color|default:'#6c757d' }}">
-                                            <i class="bi bi-circle-fill me-1"></i>
-                                            {{ event.event_status.status_name }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="event-dates">
-                                            <div class="small">
-                                                <i class="bi bi-calendar-plus"></i>
-                                                {{ event.created_at|date:"M d, Y" }}
+                                        </td>
+                                        <td>
+                                            <div class="events-event-title">
+                                                <a href="{% url 'events:event_detail' event.id %}" 
+                                                   style="text-decoration: none; color: var(--m360-text); font-weight: var(--m360-font-weight-semibold);">
+                                                    {{ event.title }}
+                                                </a>
                                             </div>
-                                            <div class="small text-muted">
-                                                <i class="bi bi-arrow-clockwise"></i>
-                                                {{ event.updated_at|timesince }} ago
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="event-people">
-                                            <div class="d-flex align-items-center mb-1">
-                                                <div class="avatar-sm me-2">
-                                                    <div class="avatar-title bg-light rounded">
-                                                        <i class="bi bi-person-badge"></i>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold">Host</div>
-                                                    <small>{{ event.host.get_full_name|default:event.host.username }}</small>
-                                                </div>
-                                            </div>
-                                            {% if event.assigned_to %}
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar-sm me-2">
-                                                    <div class="avatar-title bg-light rounded">
-                                                        <i class="bi bi-person-check"></i>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold">Assigned</div>
-                                                    <small>{{ event.assigned_to.get_full_name|default:event.assigned_to.username }}</small>
-                                                </div>
+                                            {% if event.description %}
+                                            <div class="events-event-meta">
+                                                <small class="events-text-muted">
+                                                    <i class="bi bi-geo-alt"></i>
+                                                    {{ event.venue|default:"Venue not specified" }}
+                                                </small>
                                             </div>
                                             {% endif %}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="event-attendees">
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar-sm me-2">
-                                                    <div class="avatar-title bg-light rounded">
-                                                        <i class="bi bi-people"></i>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold">{{ event.max_attendees|default:"∞" }}</div>
-                                                    <small>Max</small>
-                                                </div>
-                                            </div>
-                                            {% if event.attendees.exists %}
-                                            <small class="text-muted">
-                                                {{ event.attendees.count }} attending
-                                            </small>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {% if event.ticket_price %}
-                                        <div class="event-price">
-                                            <span class="fw-semibold">
-                                                ${{ event.ticket_price }}
+                                        </td>
+                                        <td>
+                                            <span class="events-event-status" 
+                                                  style="background-color: {{ event.event_status.color|default:'#6c757d' }}; color: #fff;">
+                                                <i class="bi bi-circle-fill"></i>
+                                                {{ event.event_status.status_name }}
                                             </span>
-                                            <small class="d-block text-muted">Ticket</small>
-                                        </div>
-                                        {% else %}
-                                        <span class="badge bg-secondary">Free</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="btn-group" role="group" aria-label="Event Actions">
-                                            <a href="{% url 'events:event_detail' event.id %}" 
-                                               class="btn btn-sm btn-outline-info"
-                                               data-bs-toggle="tooltip"
-                                               data-bs-placement="top"
-                                               title="View Details">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <a href="{% url 'events:event_edit' event.id %}" 
-                                               class="btn btn-sm btn-outline-primary"
-                                               data-bs-toggle="tooltip"
-                                               data-bs-placement="top"
-                                               title="Edit Event">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            {% if can_delete and event.deletable %}
-                                            <button type="button" 
-                                                    class="btn btn-sm btn-outline-danger delete-btn"
-                                                    data-event-id="{{ event.id }}"
-                                                    data-event-title="{{ event.title }}"
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="top"
-                                                    title="Delete Event">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="events-event-dates">
+                                                <div class="events-text-sm">
+                                                    <i class="bi bi-calendar-plus"></i>
+                                                    {{ event.created_at|date:"M d, Y" }}
+                                                </div>
+                                                <div class="events-text-muted events-text-sm">
+                                                    <i class="bi bi-arrow-clockwise"></i>
+                                                    {{ event.updated_at|timesince }} ago
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="events-event-people">
+                                                <div class="events-d-flex events-align-center events-gap-2">
+                                                    <div class="events-avatar-sm">
+                                                        <div class="events-avatar-title">
+                                                            <i class="bi bi-person-badge"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight: var(--m360-font-weight-semibold); font-size: var(--m360-text-sm);">Host</div>
+                                                        <small>{{ event.host.get_full_name|default:event.host.username }}</small>
+                                                    </div>
+                                                </div>
+                                                {% if event.assigned_to %}
+                                                <div class="events-d-flex events-align-center events-gap-2 events-mt-2">
+                                                    <div class="events-avatar-sm">
+                                                        <div class="events-avatar-title">
+                                                            <i class="bi bi-person-check"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight: var(--m360-font-weight-semibold); font-size: var(--m360-text-sm);">Assigned</div>
+                                                        <small>{{ event.assigned_to.get_full_name|default:event.assigned_to.username }}</small>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="events-event-attendees">
+                                                <div class="events-d-flex events-align-center events-gap-2">
+                                                    <div class="events-avatar-sm">
+                                                        <div class="events-avatar-title">
+                                                            <i class="bi bi-people"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight: var(--m360-font-weight-semibold);">{{ event.max_attendees|default:"∞" }}</div>
+                                                        <small class="events-text-muted">Max</small>
+                                                    </div>
+                                                </div>
+                                                {% if event.attendees.exists %}
+                                                <small class="events-text-muted">
+                                                    {{ event.attendees.count }} attending
+                                                </small>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if event.ticket_price %}
+                                            <div class="events-event-price">
+                                                <span style="font-weight: var(--m360-font-weight-semibold);">
+                                                    ${{ event.ticket_price }}
+                                                </span>
+                                                <small class="events-block events-text-muted">Ticket</small>
+                                            </div>
+                                            {% else %}
+                                            <span class="m360-badge m360-badge-secondary">Free</span>
                                             {% endif %}
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                        </td>
+                                        <td class="events-text-end">
+                                            <div class="m360-btn-group">
+                                                <a href="{% url 'events:event_detail' event.id %}" 
+                                                   class="m360-btn m360-btn-sm m360-btn-outline-info"
+                                                   title="View Details">
+                                                     <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{% url 'events:event_edit' event.id %}" 
+                                                   class="m360-btn m360-btn-sm m360-btn-outline-primary"
+                                                   title="Edit Event">
+                                                     <i class="bi bi-pencil"></i>
+                                                </a>
+                                                {% if can_delete and event.deletable %}
+                                                <button type="button" 
+                                                        class="m360-btn m360-btn-sm m360-btn-outline-danger delete-btn"
+                                                        data-event-id="{{ event.id }}"
+                                                        data-event-title="{{ event.title }}"
+                                                        title="Delete Event">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="card-footer">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="text-muted small">
+                    
+                    <div class="m360-card-footer events-d-flex events-justify-between events-align-center">
+                        <div class="events-text-muted" style="font-size: var(--m360-text-sm);">
                             Showing {{ events|length }} of {{ total_events }} events
                         </div>
-                        <div class="pagination-info">
-                            <!-- Pagination would go here -->
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination pagination-sm mb-0">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#" tabindex="-1">Previous</a>
-                                    </li>
-                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
+                        <nav aria-label="Page navigation">
+                            <ul class="events-d-flex events-gap-2" style="list-style: none; padding: 0; margin: 0;">
+                                <li><span class="m360-pg-btn" style="opacity: .4; cursor: default;">Previous</span></li>
+                                <li><span class="m360-pg-btn m360-active">1</span></li>
+                                <li><a href="#" class="m360-pg-btn">2</a></li>
+                                <li><a href="#" class="m360-pg-btn">3</a></li>
+                                <li><a href="#" class="m360-pg-btn">Next</a></li>
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -379,47 +351,45 @@
             <!-- ============================================
                  VISTA MÓVIL (TARJETAS)
                  ============================================ -->
-            <div class="mobile-view d-none">
+            <div class="events-mobile-view events-d-none">
                 {% for event in events %}
-                <div class="card mb-3 event-card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">
-                                <a href="{% url 'events:event_detail' event.id %}" class="text-dark">
-                                    {{ event.title }}
-                                </a>
-                            </h5>
-                            <span class="badge" 
-                                  style="background-color: {{ event.event_status.color|default:'#6c757d' }}">
-                                {{ event.event_status.status_name }}
-                            </span>
-                        </div>
+                <div class="m360-card events-event-card events-mb-4">
+                    <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+                        <h5 class="m360-card-title events-mb-0">
+                            <a href="{% url 'events:event_detail' event.id %}" style="text-decoration: none; color: var(--m360-text);">
+                                {{ event.title }}
+                            </a>
+                        </h5>
+                        <span class="events-event-status" 
+                              style="background-color: {{ event.event_status.color|default:'#6c757d' }}; color: #fff;">
+                            {{ event.event_status.status_name }}
+                        </span>
                     </div>
                     
-                    <div class="card-body">
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <small class="text-muted">ID</small>
-                                <div class="fw-bold">#{{ event.id }}</div>
+                    <div class="m360-card-body">
+                        <div class="events-row events-gap-3">
+                            <div class="events-col-6">
+                                <small class="events-text-muted">ID</small>
+                                <div style="font-weight: var(--m360-font-weight-bold);">#{{ event.id }}</div>
                             </div>
-                            <div class="col-6">
-                                <small class="text-muted">Venue</small>
+                            <div class="events-col-6">
+                                <small class="events-text-muted">Venue</small>
                                 <div>{{ event.venue|default:"-" }}</div>
                             </div>
-                            <div class="col-6">
-                                <small class="text-muted">Host</small>
+                            <div class="events-col-6">
+                                <small class="events-text-muted">Host</small>
                                 <div>{{ event.host.get_full_name|default:event.host.username }}</div>
                             </div>
-                            <div class="col-6">
-                                <small class="text-muted">Assigned</small>
+                            <div class="events-col-6">
+                                <small class="events-text-muted">Assigned</small>
                                 <div>{{ event.assigned_to.get_full_name|default:event.assigned_to.username|default:"-" }}</div>
                             </div>
-                            <div class="col-6">
-                                <small class="text-muted">Attendees</small>
+                            <div class="events-col-6">
+                                <small class="events-text-muted">Attendees</small>
                                 <div>{{ event.max_attendees|default:"∞" }} max</div>
                             </div>
-                            <div class="col-6">
-                                <small class="text-muted">Ticket</small>
+                            <div class="events-col-6">
+                                <small class="events-text-muted">Ticket</small>
                                 <div>
                                     {% if event.ticket_price %}
                                     ${{ event.ticket_price }}
@@ -431,36 +401,34 @@
                         </div>
                         
                         {% if event.description %}
-                        <div class="mt-3">
-                            <small class="text-muted">Description</small>
-                            <p class="mb-0">{{ event.description|truncatechars:100 }}</p>
+                        <div class="events-mt-3">
+                            <small class="events-text-muted">Description</small>
+                            <p class="events-mb-0">{{ event.description|truncatechars:100 }}</p>
                         </div>
                         {% endif %}
                     </div>
                     
-                    <div class="card-footer">
-                        <div class="d-flex justify-content-between">
-                            <small class="text-muted">
-                                Created: {{ event.created_at|date:"M d, Y" }}
-                            </small>
-                            <div class="btn-group" role="group">
-                                <a href="{% url 'events:event_detail' event.id %}" 
-                                   class="btn btn-sm btn-outline-info">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a href="{% url 'events:event_edit' event.id %}" 
-                                   class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                {% if can_delete and event.deletable %}
-                                <button type="button" 
-                                        class="btn btn-sm btn-outline-danger delete-btn"
-                                        data-event-id="{{ event.id }}"
-                                        data-event-title="{{ event.title }}">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                                {% endif %}
-                            </div>
+                    <div class="m360-card-footer events-d-flex events-justify-between events-align-center">
+                        <small class="events-text-muted">
+                            Created: {{ event.created_at|date:"M d, Y" }}
+                        </small>
+                        <div class="m360-btn-group">
+                            <a href="{% url 'events:event_detail' event.id %}" 
+                               class="m360-btn m360-btn-sm m360-btn-outline-info">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'events:event_edit' event.id %}" 
+                               class="m360-btn m360-btn-sm m360-btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if can_delete and event.deletable %}
+                            <button type="button" 
+                                    class="m360-btn m360-btn-sm m360-btn-outline-danger delete-btn"
+                                    data-event-id="{{ event.id }}"
+                                    data-event-title="{{ event.title }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -471,81 +439,103 @@
             <!-- ============================================
                  ESTADO VACÍO
                  ============================================ -->
-            <div class="empty-state">
-                <div class="text-center py-5">
-                    <div class="empty-state-icon mb-4">
-                        <i class="bi bi-calendar-x"></i>
-                    </div>
-                    <h4 class="empty-state-title">No Events Found</h4>
-                    <p class="empty-state-text mb-4">
-                        {% if user_can_create %}
-                        You don't have any events to manage. Create your first event to get started!
-                        {% else %}
-                        No events are available for you to manage at this time.
-                        {% endif %}
-                    </p>
-                    <div class="empty-state-actions">
-                        {% if user_can_create %}
-                        <a href="{% url 'events:event_create' %}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Create Your First Event
-                        </a>
-                        {% endif %}
-                        <a href="{% url 'events:event_panel' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left"></i> Back to Events Panel
-                        </a>
-                    </div>
+            <div class="events-empty-state">
+                <div class="events-empty-state-icon">
+                    <i class="bi bi-calendar-x"></i>
+                </div>
+                <h4 class="events-empty-state-title">No Events Found</h4>
+                <p class="events-empty-state-text">
+                    {% if user_can_create %}
+                    You don't have any events to manage. Create your first event to get started!
+                    {% else %}
+                    No events are available for you to manage at this time.
+                    {% endif %}
+                </p>
+                <div class="events-empty-state-actions">
+                    {% if user_can_create %}
+                    <a href="{% url 'events:event_create' %}" class="m360-btn m360-btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create Your First Event
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Events Panel
+                    </a>
                 </div>
             </div>
             {% endif %}
             
         </div>
     </div>
-</section>
+</div>
 
 <!-- ============================================================
      MODAL DE CONFIRMACIÓN PARA ELIMINAR
      ============================================================ -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteConfirmModalLabel">
-                    <i class="bi bi-exclamation-triangle text-danger me-2"></i>
-                    Confirm Deletion
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete the event <strong id="eventTitleToDelete"></strong>?</p>
-                <p class="text-danger small">
-                    <i class="bi bi-info-circle"></i>
-                    This action cannot be undone. All event data will be permanently deleted.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form method="POST" action="" id="deleteEventForm" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Delete Event</button>
-                </form>
-            </div>
+<div class="m360-modal" id="deleteConfirmModal" style="display: none;">
+    <div class="m360-modal-content m360-lg">
+        <div class="m360-modal-header">
+            <h3 class="m360-modal-header__title">
+                <i class="bi bi-exclamation-triangle" style="color: var(--m360-danger); margin-right: var(--m360-space-2);"></i>
+                Confirm Deletion
+            </h3>
+            <button type="button" class="m360-close-modal" data-m360-close aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="m360-modal-body">
+            <p>Are you sure you want to delete the event <strong id="eventTitleToDelete"></strong>?</p>
+            <p class="events-text-danger" style="font-size: var(--m360-text-sm);">
+                <i class="bi bi-info-circle"></i>
+                This action cannot be undone. All event data will be permanently deleted.
+            </p>
+        </div>
+        <div class="m360-modal-footer">
+            <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Cancel</button>
+            <form method="POST" action="" id="deleteEventForm" class="events-d-flex">
+                {% csrf_token %}
+                <button type="submit" class="m360-btn m360-btn-danger">Delete Event</button>
+            </form>
         </div>
     </div>
 </div>
 
 {% endblock %}
 
-<!-- ============================================================
-     SCRIPTS ADICIONALES
-     ============================================================ -->
-{% block extra_scripts %}
+{% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+        // Manejar eliminación de eventos
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        const eventTitleToDelete = document.getElementById('eventTitleToDelete');
+        const deleteEventForm = document.getElementById('deleteEventForm');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const eventId = this.getAttribute('data-event-id');
+                const eventTitle = this.getAttribute('data-event-title');
+                
+                eventTitleToDelete.textContent = `"${eventTitle}" (ID: ${eventId})`;
+                deleteEventForm.action = `/events/${eventId}/delete/`;
+                
+                m360Modal.open(document.getElementById('deleteConfirmModal'));
+            });
         });
+        
+        // Export functionality
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                window.location.href = "{% url 'events:event_export' %}";
+            });
+        }
+        
+        // Print functionality
+        const printBtn = document.getElementById('printBtn');
+        if (printBtn) {
+            printBtn.addEventListener('click', function() {
+                window.print();
+            });
+        }
         
         // Toggle filters
         const toggleFiltersBtn = document.getElementById('toggleFiltersBtn');
@@ -562,362 +552,23 @@
                 }
             });
         }
-        
-        // Manejar eliminación de eventos
-        const deleteButtons = document.querySelectorAll('.delete-btn');
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-        const eventTitleToDelete = document.getElementById('eventTitleToDelete');
-        const deleteEventForm = document.getElementById('deleteEventForm');
-        
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const eventId = this.getAttribute('data-event-id');
-                const eventTitle = this.getAttribute('data-event-title');
-                
-                eventTitleToDelete.textContent = `"${eventTitle}" (ID: ${eventId})`;
-                deleteEventForm.action = `/events/${eventId}/delete/`;
-                
-                deleteModal.show();
-            });
-        });
-        
-        // Export functionality
-        const exportBtn = document.getElementById('exportBtn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', function() {
-                // Implement CSV/Excel export
-                window.location.href = "{% url 'events:event_export' %}";
-            });
-        }
-        
-        // Print functionality
-        const printBtn = document.getElementById('printBtn');
-        if (printBtn) {
-            printBtn.addEventListener('click', function() {
-                window.print();
-            });
-        }
-        
+
         // Responsive view switcher
         function updateView() {
-            const desktopView = document.querySelector('.desktop-view');
-            const mobileView = document.querySelector('.mobile-view');
+            const desktopView = document.querySelector('.events-desktop-view');
+            const mobileView = document.querySelector('.events-mobile-view');
             
             if (window.innerWidth < 768) {
-                desktopView.classList.add('d-none');
-                mobileView.classList.remove('d-none');
+                desktopView.classList.add('events-d-none');
+                mobileView.classList.remove('events-d-none');
             } else {
-                desktopView.classList.remove('d-none');
-                mobileView.classList.add('d-none');
+                desktopView.classList.remove('events-d-none');
+                mobileView.classList.add('events-d-none');
             }
         }
         
-        // Initial check and listener for resize
         updateView();
         window.addEventListener('resize', updateView);
-        
-        // Row hover effects
-        const eventRows = document.querySelectorAll('.event-row');
-        eventRows.forEach(row => {
-            row.addEventListener('mouseenter', function() {
-                this.style.backgroundColor = 'rgba(var(--bs-primary-rgb), 0.05)';
-            });
-            
-            row.addEventListener('mouseleave', function() {
-                this.style.backgroundColor = '';
-            });
-            
-            // Click to view details
-            row.addEventListener('click', function(e) {
-                // Don't trigger if clicking on links or buttons
-                if (!e.target.closest('a') && !e.target.closest('button')) {
-                    const eventId = this.getAttribute('data-event-id');
-                    window.location.href = `/events/${eventId}/`;
-                }
-            });
-        });
-        
-        // Filter form submission
-        const filterForm = document.getElementById('filterForm');
-        if (filterForm) {
-            filterForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // Implement AJAX filtering or form submission
-                this.submit();
-            });
-        }
     });
 </script>
-{% endblock %}
-
-<!-- ============================================================
-     ESTILOS ADICIONALES
-     ============================================================ -->
-{% block extra_styles %}
-<style>
-    /* Estilos específicos para la lista de eventos */
-    .page-header {
-        margin-bottom: 2rem;
-    }
-    
-    .page-title {
-        color: var(--bs-primary);
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-    }
-    
-    .breadcrumb-link {
-        text-decoration: none;
-        transition: color 0.2s;
-    }
-    
-    .breadcrumb-link:hover {
-        color: var(--bs-primary);
-    }
-    
-    /* Panel de información */
-    .info-card, .actions-card {
-        border: 1px solid var(--bs-border-color);
-        border-radius: 0.75rem;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .info-card:hover, .actions-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    .info-card .card-header {
-        background-color: rgba(var(--bs-info-rgb), 0.1);
-        border-bottom: 1px solid var(--bs-border-color);
-    }
-    
-    .actions-card .card-header {
-        background-color: rgba(var(--bs-success-rgb), 0.1);
-        border-bottom: 1px solid var(--bs-border-color);
-    }
-    
-    .stats-container {
-        display: flex;
-        gap: 2rem;
-        margin-top: 1.5rem;
-    }
-    
-    .stat-item {
-        text-align: center;
-    }
-    
-    .stat-value {
-        display: block;
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--bs-primary);
-    }
-    
-    .stat-label {
-        font-size: 0.875rem;
-        color: var(--bs-secondary);
-    }
-    
-    /* Tabla de eventos */
-    .desktop-view .table {
-        margin-bottom: 0;
-    }
-    
-    .desktop-view .table th {
-        font-weight: 600;
-        color: var(--bs-secondary);
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid var(--bs-border-color);
-    }
-    
-    .desktop-view .table td {
-        vertical-align: middle;
-        padding: 1rem 0.75rem;
-        border-bottom: 1px solid var(--bs-border-color-translucent);
-    }
-    
-    .event-row {
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-    
-    .event-row:hover {
-        background-color: rgba(var(--bs-primary-rgb), 0.05) !important;
-    }
-    
-    .event-id-link {
-        color: var(--bs-secondary);
-        text-decoration: none;
-        transition: color 0.2s;
-    }
-    
-    .event-id-link:hover {
-        color: var(--bs-primary);
-    }
-    
-    .event-title a {
-        text-decoration: none;
-        transition: color 0.2s;
-    }
-    
-    .event-title a:hover {
-        color: var(--bs-primary);
-    }
-    
-    .event-status {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-    }
-    
-    .avatar-sm {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .avatar-title {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-    }
-    
-    /* Vista móvil */
-    .mobile-view .event-card {
-        border: 1px solid var(--bs-border-color);
-        border-radius: 0.75rem;
-        margin-bottom: 1rem;
-    }
-    
-    .mobile-view .event-card:last-child {
-        margin-bottom: 0;
-    }
-    
-    .mobile-view .event-card .card-header {
-        background-color: rgba(var(--bs-light-rgb), 0.5);
-        border-bottom: 1px solid var(--bs-border-color);
-    }
-    
-    /* Estado vacío */
-    .empty-state {
-        padding: 3rem 2rem;
-        background: var(--bs-light);
-        border-radius: 0.75rem;
-        border: 2px dashed var(--bs-border-color);
-    }
-    
-    .empty-state-icon {
-        font-size: 4rem;
-        color: var(--bs-secondary);
-        opacity: 0.5;
-    }
-    
-    .empty-state-title {
-        color: var(--bs-secondary);
-        margin-bottom: 0.75rem;
-        font-weight: 600;
-    }
-    
-    .empty-state-text {
-        color: var(--bs-secondary);
-        opacity: 0.8;
-        max-width: 400px;
-        margin: 0 auto;
-    }
-    
-    .empty-state-actions {
-        margin-top: 1.5rem;
-    }
-    
-    /* Botones de acción */
-    .btn-group .btn {
-        border-radius: 0.375rem !important;
-        margin-right: 0.25rem;
-    }
-    
-    .btn-group .btn:last-child {
-        margin-right: 0;
-    }
-    
-    /* Responsive */
-    @media (max-width: 767.98px) {
-        .page-title {
-            font-size: 1.5rem;
-        }
-        
-        .stats-container {
-            justify-content: center;
-            gap: 3rem;
-        }
-        
-        .empty-state {
-            padding: 2rem 1rem;
-        }
-        
-        .empty-state-icon {
-            font-size: 3rem;
-        }
-        
-        .btn-group {
-            width: 100%;
-            display: flex;
-        }
-        
-        .btn-group .btn {
-            flex: 1;
-        }
-    }
-    
-    @media (max-width: 575.98px) {
-        .info-panel .col-lg-6 {
-            margin-bottom: 1rem;
-        }
-        
-        .empty-state-actions .btn {
-            width: 100%;
-            margin-bottom: 0.5rem;
-        }
-        
-        .empty-state-actions .btn:last-child {
-            margin-bottom: 0;
-        }
-        
-        .mobile-view .event-card .row .col-6 {
-            margin-bottom: 0.5rem;
-        }
-    }
-    
-    /* Animaciones */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .event-row {
-        animation: fadeIn 0.3s ease-out;
-        animation-fill-mode: both;
-    }
-    
-    .event-row:nth-child(odd) {
-        animation-delay: 0.05s;
-    }
-    
-    .event-row:nth-child(even) {
-        animation-delay: 0.1s;
-    }
-</style>
 {% endblock %}

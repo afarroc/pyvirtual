@@ -1,171 +1,157 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="bi bi-pencil me-2"></i>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center events-flex-wrap">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-pencil" style="margin-right: var(--m360-space-2);"></i>
                         {{ title }}
-                    </h3>
-                    <div class="card-tools">
-                        <a href="{% url 'events:project_template_detail' template.id %}" class="btn btn-secondary btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i>
-                            Volver a Plantilla
-                        </a>
-                    </div>
+                    </h5>
+                    <a href="{% url 'events:project_template_detail' template.id %}" class="m360-btn m360-btn-outline-secondary">
+                        <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>
+                        Volver a Plantilla
+                    </a>
                 </div>
-                <div class="card-body">
+                <div class="m360-card-body">
                     <form method="post">
                         {% csrf_token %}
 
-                        <div class="row">
-                            <div class="col-md-8">
-                                <!-- Información de la plantilla -->
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">
-                                            <i class="bi bi-info-circle me-2"></i>
+                        <div class="events-row events-gap-4">
+                            <div class="events-col-12 events-col-md-8">
+                                <div class="m360-card">
+                                    <div class="m360-card-header">
+                                        <h5 class="m360-card-title events-mb-0">
+                                            <i class="bi bi-info-circle" style="margin-right: var(--m360-space-2);"></i>
                                             Información de la Plantilla
                                         </h5>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
+                                    <div class="m360-card-body">
+                                        <div class="events-mb-4">
                                             {{ template_form.name.label_tag }}
                                             {{ template_form.name }}
                                             {% if template_form.name.help_text %}
-                                                <div class="form-text">{{ template_form.name.help_text }}</div>
+                                                <div class="m360-form-hint">{{ template_form.name.help_text }}</div>
                                             {% endif %}
                                             {% if template_form.name.errors %}
-                                                <div class="text-danger">
-                                                    {{ template_form.name.errors }}
-                                                </div>
+                                                <div class="events-text-danger">{{ template_form.name.errors }}</div>
                                             {% endif %}
                                         </div>
 
-                                        <div class="mb-3">
+                                        <div class="events-mb-4">
                                             {{ template_form.description.label_tag }}
                                             {{ template_form.description }}
                                             {% if template_form.description.help_text %}
-                                                <div class="form-text">{{ template_form.description.help_text }}</div>
+                                                <div class="m360-form-hint">{{ template_form.description.help_text }}</div>
                                             {% endif %}
                                             {% if template_form.description.errors %}
-                                                <div class="text-danger">
-                                                    {{ template_form.description.errors }}
-                                                </div>
+                                                <div class="events-text-danger">{{ template_form.description.errors }}</div>
                                             {% endif %}
                                         </div>
 
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
+                                        <div class="events-row events-gap-4">
+                                            <div class="events-col-md-6">
+                                                <div class="events-mb-4">
                                                     {{ template_form.category.label_tag }}
                                                     {{ template_form.category }}
                                                     {% if template_form.category.help_text %}
-                                                        <div class="form-text">{{ template_form.category.help_text }}</div>
+                                                        <div class="m360-form-hint">{{ template_form.category.help_text }}</div>
                                                     {% endif %}
                                                     {% if template_form.category.errors %}
-                                                        <div class="text-danger">
-                                                            {{ template_form.category.errors }}
-                                                        </div>
+                                                        <div class="events-text-danger">{{ template_form.category.errors }}</div>
                                                     {% endif %}
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
+                                            <div class="events-col-md-6">
+                                                <div class="events-mb-4">
                                                     {{ template_form.estimated_duration.label_tag }}
                                                     {{ template_form.estimated_duration }}
                                                     {% if template_form.estimated_duration.help_text %}
-                                                        <div class="form-text">{{ template_form.estimated_duration.help_text }}</div>
+                                                        <div class="m360-form-hint">{{ template_form.estimated_duration.help_text }}</div>
                                                     {% endif %}
                                                     {% if template_form.estimated_duration.errors %}
-                                                        <div class="text-danger">
-                                                            {{ template_form.estimated_duration.errors }}
-                                                        </div>
+                                                        <div class="events-text-danger">{{ template_form.estimated_duration.errors }}</div>
                                                     {% endif %}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <div class="form-check">
+                                        <div class="events-mb-4">
+                                            <div class="m360-form-check">
                                                 {{ template_form.is_public }}
                                                 {{ template_form.is_public.label_tag }}
                                             </div>
                                             {% if template_form.is_public.help_text %}
-                                                <div class="form-text">{{ template_form.is_public.help_text }}</div>
+                                                <div class="m360-form-hint">{{ template_form.is_public.help_text }}</div>
                                             {% endif %}
                                             {% if template_form.is_public.errors %}
-                                                <div class="text-danger">
-                                                    {{ template_form.is_public.errors }}
-                                                </div>
+                                                <div class="events-text-danger">{{ template_form.is_public.errors }}</div>
                                             {% endif %}
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Tareas de la plantilla -->
-                                <div class="card mt-4">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">
-                                            <i class="bi bi-list-task me-2"></i>
+                                <div class="m360-card events-mt-4">
+                                    <div class="m360-card-header">
+                                        <h5 class="m360-card-title events-mb-0">
+                                            <i class="bi bi-list-task" style="margin-right: var(--m360-space-2);"></i>
                                             Tareas de la Plantilla
                                         </h5>
                                     </div>
-                                    <div class="card-body">
+                                    <div class="m360-card-body">
                                         {{ task_formset.management_form }}
 
-                                        <div id="task-forms">
+                                        <div id="task-forms" class="events-row events-gap-3">
                                             {% for form in task_formset %}
-                                                <div class="task-form-item" data-form-index="{{ forloop.counter0 }}">
-                                                    <div class="card mb-3">
-                                                        <div class="card-header d-flex justify-content-between align-items-center">
-                                                            <h6 class="mb-0">Tarea #{{ forloop.counter }}</h6>
+                                                <div class="events-col-12 events-task-form-item" data-form-index="{{ forloop.counter0 }}">
+                                                    <div class="m360-card" style="border-left: 4px solid var(--m360-primary);">
+                                                        <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+                                                            <h6 class="events-mb-0">Tarea #{{ forloop.counter }}</h6>
                                                             {% if task_formset.can_delete %}
-                                                                <div class="form-check">
+                                                                <div class="m360-form-check">
                                                                     {{ form.DELETE }}
                                                                     {{ form.DELETE.label_tag }}
                                                                 </div>
                                                             {% endif %}
                                                         </div>
-                                                        <div class="card-body">
-                                                            <div class="row">
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-3">
+                                                        <div class="m360-card-body">
+                                                            <div class="events-row events-gap-4">
+                                                                <div class="events-col-md-6">
+                                                                    <div class="events-mb-4">
                                                                         {{ form.title.label_tag }}
                                                                         {{ form.title }}
                                                                         {% if form.title.errors %}
-                                                                            <div class="text-danger">{{ form.title.errors }}</div>
+                                                                            <div class="events-text-danger">{{ form.title.errors }}</div>
                                                                         {% endif %}
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-3">
+                                                                <div class="events-col-md-6">
+                                                                    <div class="events-mb-4">
                                                                         {{ form.estimated_hours.label_tag }}
                                                                         {{ form.estimated_hours }}
                                                                         {% if form.estimated_hours.errors %}
-                                                                            <div class="text-danger">{{ form.estimated_hours.errors }}</div>
+                                                                            <div class="events-text-danger">{{ form.estimated_hours.errors }}</div>
                                                                         {% endif %}
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="mb-3">
+                                                            <div class="events-mb-4">
                                                                 {{ form.description.label_tag }}
                                                                 {{ form.description }}
                                                                 {% if form.description.errors %}
-                                                                    <div class="text-danger">{{ form.description.errors }}</div>
+                                                                    <div class="events-text-danger">{{ form.description.errors }}</div>
                                                                 {% endif %}
                                                             </div>
-                                                            <div class="mb-3">
+                                                            <div class="events-mb-4">
                                                                 {{ form.required_skills.label_tag }}
                                                                 {{ form.required_skills }}
                                                                 {% if form.required_skills.errors %}
-                                                                    <div class="text-danger">{{ form.required_skills.errors }}</div>
+                                                                    <div class="events-text-danger">{{ form.required_skills.errors }}</div>
                                                                 {% endif %}
                                                             </div>
                                                         </div>
@@ -175,7 +161,7 @@
                                         </div>
 
                                         {% if task_formset.non_form_errors %}
-                                            <div class="alert alert-danger">
+                                            <div class="m360-alert m360-alert-danger events-mt-4">
                                                 {{ task_formset.non_form_errors }}
                                             </div>
                                         {% endif %}
@@ -183,76 +169,76 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="card-title mb-0">
-                                            <i class="bi bi-lightbulb me-1"></i>
+                            <div class="events-col-12 events-col-md-4">
+                                <div class="m360-card events-mt-4">
+                                    <div class="m360-card-header">
+                                        <h6 class="m360-card-title events-mb-0">
+                                            <i class="bi bi-lightbulb" style="margin-right: var(--m360-space-1);"></i>
                                             Consejos para Editar
                                         </h6>
                                     </div>
-                                    <div class="card-body">
-                                        <ul class="list-unstyled small">
-                                            <li class="mb-2">
-                                                <i class="bi bi-check-circle text-success me-1"></i>
+                                    <div class="m360-card-body">
+                                        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--m360-space-2); font-size: var(--m360-text-sm);">
+                                            <li class="events-d-flex events-align-center events-gap-2">
+                                                <i class="bi bi-check-circle events-text-success"></i>
                                                 Los cambios afectarán a futuros usos de la plantilla
                                             </li>
-                                            <li class="mb-2">
-                                                <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+                                            <li class="events-d-flex events-align-center events-gap-2">
+                                                <i class="bi bi-exclamation-triangle events-text-warning"></i>
                                                 No afectará a proyectos ya creados con esta plantilla
                                             </li>
-                                            <li class="mb-2">
-                                                <i class="bi bi-clock text-info me-1"></i>
+                                            <li class="events-d-flex events-align-center events-gap-2">
+                                                <i class="bi bi-clock events-text-info"></i>
                                                 Actualiza las horas estimadas si es necesario
                                             </li>
-                                            <li class="mb-2">
-                                                <i class="bi bi-tag text-primary me-1"></i>
+                                            <li class="events-d-flex events-align-center events-gap-2">
+                                                <i class="bi bi-tag events-text-primary"></i>
                                                 Revisa las habilidades requeridas
                                             </li>
-                                            <li class="mb-0">
-                                                <i class="bi bi-eye text-secondary me-1"></i>
+                                            <li class="events-d-flex events-align-center events-gap-2">
+                                                <i class="bi bi-eye events-text-secondary"></i>
                                                 Previsualiza antes de guardar
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
 
-                                <div class="card mt-3">
-                                    <div class="card-header">
-                                        <h6 class="card-title mb-0">
-                                            <i class="bi bi-bar-chart me-1"></i>
+                                <div class="m360-card events-mt-4">
+                                    <div class="m360-card-header">
+                                        <h6 class="m360-card-title events-mb-0">
+                                            <i class="bi bi-bar-chart" style="margin-right: var(--m360-space-1);"></i>
                                             Resumen Actual
                                         </h6>
                                     </div>
-                                    <div class="card-body text-center">
-                                        <div id="task-count" class="mb-2">
-                                            <h4 class="text-primary">{{ task_formset.total_form_count }}</h4>
-                                            <small class="text-muted">Tareas en la plantilla</small>
+                                    <div class="m360-card-body events-text-center">
+                                        <div id="task-count" class="events-mb-4">
+                                            <h4 class="events-text-primary">{{ task_formset.total_form_count }}</h4>
+                                            <small class="events-text-muted">Tareas en la plantilla</small>
                                         </div>
-                                        <div id="total-hours" class="mb-2">
-                                            <h4 class="text-success">
+                                        <div id="total-hours" class="events-mb-4">
+                                            <h4 class="events-text-success">
                                                 {% if template.templatetask_set.exists %}
                                                     {{ template.templatetask_set.aggregate(total=Sum('estimated_hours')).total|floatformat:1 }}
                                                 {% else %}
                                                     0
                                                 {% endif %}
                                             </h4>
-                                            <small class="text-muted">Horas totales estimadas</small>
+                                            <small class="events-text-muted">Horas totales estimadas</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="d-flex gap-2 justify-content-center">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-check-circle me-1"></i>
+                        <div class="events-row events-mt-4">
+                            <div class="events-col-12">
+                                <div class="events-d-flex events-justify-center events-gap-2">
+                                    <button type="submit" class="m360-btn m360-btn-primary">
+                                        <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>
                                         Guardar Cambios
                                     </button>
-                                    <a href="{% url 'events:project_template_detail' template.id %}" class="btn btn-secondary">
-                                        <i class="bi bi-x-circle me-1"></i>
+                                    <a href="{% url 'events:project_template_detail' template.id %}" class="m360-btn m360-btn-outline-secondary">
+                                        <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>
                                         Cancelar
                                     </a>
                                 </div>
@@ -264,59 +250,30 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-.card {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-.task-form-item {
-    position: relative;
-}
-
-.task-form-item .card {
-    border-left: 4px solid #007bff;
-}
-
-.btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
-}
-
-.form-check-input:checked {
-    background-color: #007bff;
-    border-color: #007bff;
-}
-</style>
-
+{% block extra_js %}
 <script>
-// Calcular horas totales automáticamente
 document.addEventListener('DOMContentLoaded', function() {
     function updateTotalHours() {
         const hourInputs = document.querySelectorAll('input[name$="-estimated_hours"]');
         let total = 0;
-
         hourInputs.forEach(input => {
             const value = parseFloat(input.value) || 0;
             total += value;
         });
-
-        document.querySelector('#total-hours h4').textContent = total.toFixed(1);
+        const totalHoursEl = document.querySelector('#total-hours h4');
+        if (totalHoursEl) {
+            totalHoursEl.textContent = total.toFixed(1);
+        }
     }
 
-    // Actualizar al cambiar cualquier input de horas
     document.addEventListener('input', function(e) {
         if (e.target.name && e.target.name.includes('estimated_hours')) {
             updateTotalHours();
         }
     });
 
-    // Actualizar al cargar la página
     updateTotalHours();
 });
 </script>

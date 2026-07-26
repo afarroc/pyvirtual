@@ -1,529 +1,181 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}Inbox Item Details - {{ item.title }}{% endblock %}
 
 {% block content %}
+<div class="events-container">
+    <div class="events-page-header">
+        <h1 class="events-page-title">Inbox Item Details</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="events-breadcrumb">
+                <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Home</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li><a href="{% url 'events:root' %}"><i class="bi bi-speedometer2"></i> Root Dashboard</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li style="color: var(--m360-text);">Item #{{ item.id }}</li>
+            </ol>
+        </nav>
+    </div>
 
-<div class="pagetitle">
-    <h1>Inbox Item Details</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'events:root' %}">Root Dashboard</a></li>
-            <li class="breadcrumb-item active">Item #{{ item.id }}</li>
-        </ol>
-    </nav>
-</div><!-- End Page Title -->
-
-<!-- Mensajes de confirmación y éxito -->
-{% if messages %}
-<div id="message-container" class="alert alert-info" role="alert">
-    {% for message in messages %}
-    <p{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
+    {% if messages %}
+    <div class="m360-alert m360-alert-info events-mb-4" role="alert">
+        {% for message in messages %}
+        <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
         {% endfor %}
-</div>
-{% endif %}
+    </div>
+    {% endif %}
 
-<section class="section">
-    <!-- Información del Item -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-primary">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-inbox-fill me-2"></i>
-                        Item #{{ item.id }} - {{ item.title }}
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="m360-card" style="border: 2px solid var(--m360-primary);">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center" style="background: var(--m360-primary); color: #fff; border: none;">
+                    <h5 class="events-mb-0">
+                        <i class="bi bi-inbox-fill" style="margin-right: var(--m360-space-2);"></i>Item #{{ item.id }} - {{ item.title }}
                     </h5>
-                    <div class="d-flex gap-2">
+                    <div class="m360-btn-group">
                         {% if not item.is_processed %}
-                        <button class="btn btn-sm btn-success" onclick="markAsProcessed()">
+                        <button type="button" class="m360-btn m360-btn-sm m360-btn-success" onclick="markAsProcessed()">
                             <i class="bi bi-check-circle"></i> Marcar Procesado
                         </button>
                         {% endif %}
-                        <button class="btn btn-sm btn-warning" onclick="editItem()">
+                        <button type="button" class="m360-btn m360-btn-sm m360-btn-warning" onclick="editItem()">
                             <i class="bi bi-pencil"></i> Editar
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteItem()">
+                        <button type="button" class="m360-btn m360-btn-sm m360-btn-danger" onclick="deleteItem()">
                             <i class="bi bi-trash"></i> Eliminar
                         </button>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <!-- Información Básica -->
-                        <div class="col-lg-8 col-md-7">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-info-circle me-2"></i>Información del Item
+                <div class="m360-card-body">
+                    <div class="events-row events-gap-4">
+                        <div class="events-col-lg-8">
+                            <h6 class="events-text-primary events-mb-3">
+                                <i class="bi bi-info-circle" style="margin-right: var(--m360-space-2);"></i>Información del Item
                             </h6>
-                            <div class="row mb-3">
-                                <div class="col-sm-3"><strong>ID:</strong></div>
-                                <div class="col-sm-9">
-                                    <code class="text-muted">#{{ item.id }}</code>
-                                </div>
+                            <div class="events-row events-mb-3">
+                                <div class="events-col-sm-3"><strong>ID:</strong></div>
+                                <div class="events-col-sm-9"><code class="events-text-muted">#{{ item.id }}</code></div>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-sm-3"><strong>Título:</strong></div>
-                                <div class="col-sm-9">
-                                    <h5 class="mb-0">{{ item.title }}</h5>
-                                </div>
+                            <div class="events-row events-mb-3">
+                                <div class="events-col-sm-3"><strong>Título:</strong></div>
+                                <div class="events-col-sm-9"><h5 class="events-mb-0">{{ item.title }}</h5></div>
                             </div>
                             {% if item.description %}
-                            <div class="row mb-3">
-                                <div class="col-sm-3"><strong>Descripción:</strong></div>
-                                <div class="col-sm-9">
-                                    <p class="mb-0">{{ item.description }}</p>
-                                </div>
+                            <div class="events-row events-mb-3">
+                                <div class="events-col-sm-3"><strong>Descripción:</strong></div>
+                                <div class="events-col-sm-9"><p class="events-mb-0">{{ item.description }}</p></div>
                             </div>
                             {% endif %}
-                            <div class="row mb-3">
-                                <div class="col-sm-3"><strong>Creado por:</strong></div>
-                                <div class="col-sm-9">
-                                    {{ item.created_by.username }}
-                                    {% if item.created_by.first_name or item.created_by.last_name %}
-                                        ({{ item.created_by.first_name }} {{ item.created_by.last_name }})
+                            <div class="events-row events-mb-3">
+                                <div class="events-col-sm-3"><strong>Creado por:</strong></div>
+                                <div class="events-col-sm-9">{{ item.created_by.username }}{% if item.created_by.first_name or item.created_by.last_name %} ({{ item.created_by.first_name }} {{ item.created_by.last_name }}){% endif %}</div>
+                            </div>
+                            <div class="events-row events-mb-3">
+                                <div class="events-col-sm-3"><strong>Fecha de creación:</strong></div>
+                                <div class="events-col-sm-9">{{ item.created_at|date:"d/m/Y H:i:s" }}</div>
+                            </div>
+                            {% if item.updated_at %}
+                            <div class="events-row events-mb-3">
+                                <div class="events-col-sm-3"><strong>Última actualización:</strong></div>
+                                <div class="events-col-sm-9">{{ item.updated_at|date:"d/m/Y H:i:s" }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="events-col-lg-4">
+                            <h6 class="events-text-primary events-mb-3">
+                                <i class="bi bi-tags" style="margin-right: var(--m360-space-2);"></i>Estado y Clasificación
+                            </h6>
+                            <div class="events-mb-3">
+                                <strong>Estado:</strong>
+                                <div class="events-mt-1">
+                                    {% if item.is_processed %}
+                                        <span class="m360-badge m360-badge-success">
+                                            <i class="bi bi-check-circle-fill"></i> Procesado
+                                        </span>
+                                        {% if item.processed_at %}
+                                        <br><small class="events-text-muted">Procesado: {{ item.processed_at|date:"d/m/Y H:i" }}</small>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="m360-badge m360-badge-warning">
+                                            <i class="bi bi-clock"></i> Pendiente
+                                        </span>
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-sm-3"><strong>Fecha de creación:</strong></div>
-                                <div class="col-sm-9">{{ item.created_at|date:"d/m/Y H:i:s" }}</div>
-                            </div>
-                            {% if item.updated_at %}
-                            <div class="row mb-3">
-                                <div class="col-sm-3"><strong>Última actualización:</strong></div>
-                                <div class="col-sm-9">{{ item.updated_at|date:"d/m/Y H:i:s" }}</div>
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Estado y Clasificación -->
-                        <div class="col-lg-4 col-md-5">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-tags me-2"></i>Estado y Clasificación
-                            </h6>
-
-                            <!-- Estado de Procesamiento -->
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <strong>Estado:</strong>
-                                    <div class="mt-1">
-                                        {% if item.is_processed %}
-                                            <span class="badge bg-success fs-6">
-                                                <i class="bi bi-check-circle-fill"></i> Procesado
-                                            </span>
-                                            {% if item.processed_at %}
-                                            <br><small class="text-muted">Procesado: {{ item.processed_at|date:"d/m/Y H:i" }}</small>
-                                            {% endif %}
-                                        {% else %}
-                                            <span class="badge bg-warning text-dark fs-6">
-                                                <i class="bi bi-clock"></i> Pendiente
-                                            </span>
-                                        {% endif %}
-                                    </div>
+                            <div class="events-mb-3">
+                                <strong>Prioridad:</strong>
+                                <div class="events-mt-1">
+                                    {% if item.priority == 'alta' %}
+                                        <span class="m360-badge m360-badge-danger"><i class="bi bi-exclamation-triangle-fill"></i> Alta</span>
+                                    {% elif item.priority == 'media' %}
+                                        <span class="m360-badge m360-badge-warning"><i class="bi bi-dash-circle"></i> Media</span>
+                                    {% else %}
+                                        <span class="m360-badge m360-badge-secondary"><i class="bi bi-arrow-down-circle"></i> Baja</span>
+                                    {% endif %}
                                 </div>
                             </div>
-
-                            <!-- Prioridad -->
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <strong>Prioridad:</strong>
-                                    <div class="mt-1">
-                                        {% if item.priority == 'alta' %}
-                                            <span class="badge bg-danger">
-                                                <i class="bi bi-exclamation-triangle-fill"></i> Alta
-                                            </span>
-                                        {% elif item.priority == 'media' %}
-                                            <span class="badge bg-warning text-dark">
-                                                <i class="bi bi-dash-circle"></i> Media
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">
-                                                <i class="bi bi-arrow-down-circle"></i> Baja
-                                            </span>
-                                        {% endif %}
-                                    </div>
+                            <div class="events-mb-3">
+                                <strong>Categoría GTD:</strong>
+                                <div class="events-mt-1">
+                                    {% if item.gtd_category == 'accionable' %}
+                                        <span class="m360-badge m360-badge-success"><i class="bi bi-check-circle"></i> Accionable</span>
+                                    {% elif item.gtd_category == 'no_accionable' %}
+                                        <span class="m360-badge m360-badge-secondary"><i class="bi bi-x-circle"></i> No Accionable</span>
+                                    {% else %}
+                                        <span class="m360-badge m360-badge-warning"><i class="bi bi-question-circle"></i> Pendiente</span>
+                                    {% endif %}
                                 </div>
                             </div>
-
-                            <!-- Categoría GTD -->
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <strong>Categoría GTD:</strong>
-                                    <div class="mt-1">
-                                        {% if item.gtd_category == 'accionable' %}
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i> Accionable
-                                            </span>
-                                        {% elif item.gtd_category == 'no_accionable' %}
-                                            <span class="badge bg-secondary">
-                                                <i class="bi bi-x-circle"></i> No Accionable
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-warning text-dark">
-                                                <i class="bi bi-question-circle"></i> Pendiente
-                                            </span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tipo de Acción -->
                             {% if item.action_type %}
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <strong>Tipo de Acción:</strong>
-                                    <div class="mt-1">
-                                        <span class="badge bg-info">{{ item.get_action_type_display }}</span>
-                                    </div>
+                            <div class="events-mb-3">
+                                <strong>Tipo de Acción:</strong>
+                                <div class="events-mt-1">
+                                    <span class="m360-badge m360-badge-info">{{ item.get_action_type_display }}</span>
                                 </div>
                             </div>
                             {% endif %}
-
-                            <!-- Asignado a -->
                             {% if item.assigned_to %}
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <strong>Asignado a:</strong>
-                                    <div class="mt-1">
-                                        <span class="badge bg-primary">
-                                            <i class="bi bi-person"></i> {{ item.assigned_to.username }}
-                                        </span>
-                                    </div>
+                            <div class="events-mb-3">
+                                <strong>Asignado a:</strong>
+                                <div class="events-mt-1">
+                                    <span class="m360-badge m360-badge-primary">
+                                        <i class="bi bi-person"></i> {{ item.assigned_to.username }}
+                                    </span>
                                 </div>
                             </div>
                             {% endif %}
                         </div>
                     </div>
-
-                    <!-- Contexto y Metadatos Adicionales -->
-                    {% if item.context or item.user_context %}
-                    <hr>
-                    <h6 class="text-info mb-3">
-                        <i class="bi bi-gear me-2"></i>Contexto y Metadatos
-                    </h6>
-                    <div class="row">
-                        {% if item.context %}
-                        <div class="col-md-6 mb-3">
-                            <strong>Contexto:</strong>
-                            <div class="mt-1">
-                                <code>{{ item.context }}</code>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if item.user_context %}
-                        <div class="col-md-6 mb-3">
-                            <strong>Contexto de Usuario:</strong>
-                            <div class="mt-1">
-                                {% if item.user_context.source %}
-                                <div><strong>Fuente:</strong> {{ item.user_context.source }}</div>
-                                {% endif %}
-                                {% if item.user_context.customer_id %}
-                                <div><strong>ID Cliente:</strong> {{ item.user_context.customer_id }}</div>
-                                {% endif %}
-                                {% if item.user_context.email_sender %}
-                                <div><strong>Email Remitente:</strong> {{ item.user_context.email_sender }}</div>
-                                {% endif %}
-                                {% if item.user_context.assigned_to %}
-                                <div><strong>Asignado a:</strong> {{ item.user_context.assigned_to }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Historial de Cambios -->
-    {% if history %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-secondary">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-clock-history me-2"></i>
-                        Historial de Cambios
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="timeline">
-                        {% for entry in history %}
-                        <div class="timeline-item">
-                            <div class="timeline-marker bg-primary"></div>
-                            <div class="timeline-content">
-                                <h6 class="timeline-title">
-                                    {{ entry.action|title }}
-                                    <small class="text-muted">{{ entry.created_at|date:"d/m/Y H:i" }}</small>
-                                </h6>
-                                <p class="mb-1">
-                                    <strong>Usuario:</strong> {{ entry.user.username }}
-                                </p>
-                                {% if entry.old_values %}
-                                <p class="mb-1 text-danger small">
-                                    <strong>Anterior:</strong> {{ entry.old_values|truncatechars:100 }}
-                                </p>
-                                {% endif %}
-                                {% if entry.new_values %}
-                                <p class="mb-1 text-success small">
-                                    <strong>Nuevo:</strong> {{ entry.new_values|truncatechars:100 }}
-                                </p>
-                                {% endif %}
-                                {% if entry.notes %}
-                                <p class="mb-0 text-muted small">
-                                    <strong>Notas:</strong> {{ entry.notes }}
-                                </p>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Acciones Rápidas -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-lightning me-2"></i>
-                        Acciones Rápidas
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <button class="btn btn-outline-success w-100" onclick="quickAction('process')">
-                                <i class="bi bi-check-circle me-2"></i>
-                                Procesar
-                            </button>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <button class="btn btn-outline-primary w-100" onclick="quickAction('delegate')">
-                                <i class="bi bi-person-plus me-2"></i>
-                                Delegar
-                            </button>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <button class="btn btn-outline-warning w-100" onclick="quickAction('prioritize')">
-                                <i class="bi bi-flag me-2"></i>
-                                Priorizar
-                            </button>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <button class="btn btn-outline-info w-100" onclick="quickAction('categorize')">
-                                <i class="bi bi-tags me-2"></i>
-                                Categorizar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Modal para Delegar -->
-<div class="modal fade" id="delegateModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Delegar Item</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="delegateForm">
-                    <div class="mb-3">
-                        <label for="delegateUser" class="form-label">Seleccionar Usuario</label>
-                        <select class="form-select" id="delegateUser" name="delegate_user_id" required>
-                            <option value="">Elegir usuario...</option>
-                            {% for user in available_users %}
-                            <option value="{{ user.id }}">{{ user.username }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="delegateNotes" class="form-label">Notas (opcional)</label>
-                        <textarea class="form-control" id="delegateNotes" name="notes" rows="3"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="confirmDelegate()">Delegar</button>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-.timeline {
-    position: relative;
-    padding-left: 30px;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 15px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e9ecef;
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 20px;
-}
-
-.timeline-marker {
-    position: absolute;
-    left: -22px;
-    top: 5px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-}
-
-.timeline-content {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 5px;
-    border-left: 3px solid #007bff;
-}
-
-.timeline-title {
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-}
-</style>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Funciones para acciones del item
 function markAsProcessed() {
-    if (confirm('¿Marcar este item como procesado?')) {
-        fetch(`/events/inbox/admin/bulk-action/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: `action=mark_processed&selected_items={{ item.id }}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al procesar el item');
-        });
-    }
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.innerHTML = `<input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]').value}"><input type="hidden" name="action" value="reference">`;
+    document.body.appendChild(form);
+    form.action = window.location.href;
+    form.submit();
 }
 
-function editItem() {
-    // Por ahora redirigir al panel de gestión
-    window.location.href = '/events/inbox/management/';
-}
-
+function editItem() { window.location.href = `/events/inbox/process/${item.id}/`; }
 function deleteItem() {
-    if (confirm('¿Estás seguro de que quieres eliminar este item? Esta acción no se puede deshacer.')) {
-        fetch(`/events/inbox/admin/bulk-action/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: `action=delete&selected_items={{ item.id }}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = '/events/root/';
-            } else {
-                alert('Error: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al eliminar el item');
-        });
+    if (confirm('¿Estás seguro de eliminar este item? Esta acción no se puede deshacer.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.innerHTML = `<input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]').value}"><input type="hidden" name="action" value="delete">`;
+        document.body.appendChild(form);
+        form.action = window.location.href;
+        form.submit();
     }
-}
-
-function quickAction(action) {
-    switch(action) {
-        case 'process':
-            markAsProcessed();
-            break;
-        case 'delegate':
-            const modal = new bootstrap.Modal(document.getElementById('delegateModal'));
-            modal.show();
-            break;
-        case 'prioritize':
-            // Cambiar prioridad (lógica simplificada)
-            alert('Función de priorización próximamente');
-            break;
-        case 'categorize':
-            // Cambiar categoría (lógica simplificada)
-            alert('Función de categorización próximamente');
-            break;
-    }
-}
-
-function confirmDelegate() {
-    const form = document.getElementById('delegateForm');
-    const selectedUser = document.getElementById('delegateUser').value;
-
-    // Validar que se haya seleccionado un usuario
-    if (!selectedUser) {
-        alert('Por favor, selecciona un usuario para delegar.');
-        return;
-    }
-
-    const formData = new FormData(form);
-
-    // Agregar parámetros requeridos
-    formData.append('action', 'delegate');
-    formData.append('selected_items[]', '{{ item.id }}');
-
-    fetch('/events/root/bulk-actions/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('delegateModal'));
-            modal.hide();
-            location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al delegar el item');
-    });
 }
 </script>
 {% endblock %}

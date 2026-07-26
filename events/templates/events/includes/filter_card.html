@@ -1,71 +1,65 @@
-<!-- Customers Card -->
-<div class="col-xxl-4 col-xl-12">
-
-    <div class="card info-card customers-card">
-
-        <div class="filter">
-            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                    <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul>
+<div class="events-col-12">
+    <div class="m360-card">
+        <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+            <h5 class="m360-card-title events-mb-0">
+                <i class="bi bi-search" style="margin-right: var(--m360-space-1);"></i>
+                Buscar <span>| {{ title }}</span>
+            </h5>
+            <div class="m360-dropdown">
+                <button class="m360-btn m360-btn-sm m360-btn-outline-secondary" data-m360-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+                <div class="m360-dropdown-menu m360-dropdown-menu-end">
+                    <div class="m360-dropdown-header"><h6>Filtrar por fecha</h6></div>
+                    <a class="m360-dropdown-item" href="?date={{ today|date:'Y-m-d' }}">
+                        <i class="bi bi-calendar-day" style="margin-right: var(--m360-space-1);"></i>Hoy
+                    </a>
+                    <a class="m360-dropdown-item" href="?date={{ start_of_month|date:'Y-m-d' }}">
+                        <i class="bi bi-calendar-month" style="margin-right: var(--m360-space-1);"></i>Este mes
+                    </a>
+                    <a class="m360-dropdown-item" href="?date={{ start_of_year|date:'Y-m-d' }}">
+                        <i class="bi bi-calendar-year" style="margin-right: var(--m360-space-1);"></i>Este año
+                    </a>
+                    <div class="m360-dropdown-sep"></div>
+                    <a class="m360-dropdown-item" href="?">
+                        <i class="bi bi-eraser" style="margin-right: var(--m360-space-1);"></i>Limpiar filtros
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <div class="card-body">
-            <h5 class="card-title">Search For item <span>| {{title}}</span></h5>
-
-            <div class="d-flex align-items-center">
-                <div
-                    class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                    <i class="bi bi-search"></i>
-                </div>
-                <div class="ps-3">
-                    <h6>{{count_events}}</h6>
-                    <span class="text-danger small pt-1 fw-bold">{{events_updated_today}}</span> <span
-                        class="text-muted small pt-2 ps-1">Hoy</span>
-                </div><br>
-                <div class="container">
-                    <form method="POST" action="{% url 'events:events' %}" class="row g-3">
+        <div class="m360-card-body">
+            <div class="events-row events-gap-3">
+                <div class="events-col-12">
+                    <form method="POST" action="{% url 'events:events' %}" class="events-row events-gap-3">
                         {% csrf_token %}
-                        <div class="col-auto">
-                          <label for="status" class="visually-hidden">Estado:</label>
-            
-                          <select id="status" name="status" class="form-select">
-                            <option value="">-- Selecciona un estado --</option>
-                            {% for status in event_statuses %}
-                              <option value="{{ status.id }}" {% if status.id == request.session.filtered_status|default:'' %}selected{% endif %}>
-                                {{ status.status_name }}
-                              </option>
-                            {% endfor %}
-                          </select>
-                          
-            
+                        <div class="events-col-md-3">
+                            <label for="status" class="m360-form-label">Estado:</label>
+                            <select id="status" name="status" class="m360-form-control">
+                                <option value="">-- Selecciona un estado --</option>
+                                {% for status in event_statuses %}
+                                <option value="{{ status.id }}" {% if status.id == request.session.filtered_status|default:'' %}selected{% endif %}>
+                                    {{ status.status_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <div class="col-auto">
-                          <label for="date" class="visually-hidden">Fecha:</label>
-                          <input type="date" id="date" name="date" class="form-control" value="{{ request.session.filtered_date|default:'' }}">
+                        <div class="events-col-md-3">
+                            <label for="date" class="m360-form-label">Fecha:</label>
+                            <input type="date" id="date" name="date" class="m360-form-control" value="{{ request.session.filtered_date|default:'' }}">
                         </div>
-                        <div class="col-auto">
-                          <div class="form-check">
-                            <input type="checkbox" name="cerrado" value="True" class="form-check-input" id="cerrado" {% if request.session.filtered_cerrado|default:'' %} checked {% endif %}>
-                            <label class="form-check-label" for="cerrado">Omitir Cerrados</label>
-                          </div>
+                        <div class="events-col-md-3">
+                            <div class="m360-form-check">
+                                <input type="checkbox" name="cerrado" value="True" class="m360-form-check-input" id="cerrado" {% if request.session.filtered_cerrado|default:'' %} checked {% endif %}>
+                                <label class="m360-form-check-label" for="cerrado">Omitir Cerrados</label>
+                            </div>
                         </div>
-                        <div class="col-auto">
-                          <button type="submit" class="btn btn-primary mb-3">Filtrar</button>
+                        <div class="events-col-md-3">
+                            <button type="submit" class="m360-btn m360-btn-primary events-w-100">Filtrar</button>
                         </div>
                     </form>
                 </div>
-
-
-
-                
             </div>
         </div>
     </div>
-</div><!-- End Customers Card -->
+</div>

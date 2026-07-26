@@ -1,324 +1,219 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 {% load humanize %}
 {% load event_extras %}
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'events/css/components.css' %}">
-{% endblock %}
-
 {% block content %}
 
-<!-- ============================================= -->
-<!-- MENSAJES DEL SISTEMA                         -->
-<!-- ============================================= -->
-{% include 'events/includes/messages.html' %}
+{% if messages %}
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            {% include 'events/includes/messages.html' %}
+        </div>
+    </div>
+</div>
+{% endif %}
 
-<!-- ============================================= -->
-<!-- ENCABEZADO Y MIGAS DE PAN                   -->
-<!-- ============================================= -->
-<header class="page-header mb-4">
-    <div class="pagetitle">
-        <h1 class="page-title">
-            <i class="bi bi-calendar-event me-2"></i>{{ title }}
+<div class="events-container">
+    <div class="events-page-header">
+        <h1 class="events-page-title">
+            <i class="bi bi-calendar-event" style="margin-right: var(--m360-space-2);"></i>{{ title }}
         </h1>
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'home' %}" class="breadcrumb-link">
-                        <i class="bi bi-house-door me-1"></i>Home
-                    </a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'events:events' %}" class="breadcrumb-link">
-                        Eventos
-                    </a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    {{ title }}
-                </li>
+            <ol class="events-breadcrumb">
+                <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Home</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li><a href="{% url 'events:events' %}"><i class="bi bi-calendar-event"></i> Events</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li style="color: var(--m360-text);">{{ title }}</li>
             </ol>
         </nav>
     </div>
-</header>
 
-<!-- ============================================= -->
-<!-- CONTENIDO PRINCIPAL - GRID                  -->
-<!-- ============================================= -->
-<section class="section dashboard">
-    <div class="row g-4">
-        
-        <!-- **************************************** -->
-        <!-- MODO 1: PANEL GENERAL (todos los eventos) -->
-        <!-- **************************************** -->
-        {% if page == 'event_panel' %}
-        
-        <!-- ================================ -->
-        <!-- COLUMNA IZQUIERDA (8)            -->
-        <!-- ================================ -->
-        <div class="col-lg-8">
-            <div class="row g-3">
-                
-                <!-- TARJETAS DE ESTADÍSTICAS (STATS) -->
-                <div class="col-12">
-                    <div class="row g-3">
-                        <!-- Total Eventos -->
-                        <div class="col-xxl-3 col-md-6">
-                            <div class="card stats-card border-primary border-opacity-25">
-                                <div class="card-body d-flex align-items-center gap-3">
-                                    <div class="stat-icon bg-primary-light text-primary">
-                                        <i class="bi bi-calendar-event-fill"></i>
-                                    </div>
-                                    <div class="stat-content">
-                                        <h3 class="stat-number mb-0">{{ total_events|default:events|length|intcomma }}</h3>
-                                        <p class="stat-label mb-0">Total Eventos</p>
-                                    </div>
+    <div class="events-row events-gap-4">
+        <div class="events-col-lg-8">
+            <div class="events-row events-gap-3">
+                {% if page == 'event_panel' %}
+                <div class="events-col-12">
+                    <div class="events-row events-gap-3">
+                        <div class="events-col-md-3">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-primary);">
+                                <div class="m360-card-body events-text-center">
+                                    <h3 class="events-mb-1">{{ total_events|default:events|length|intcomma }}</h3>
+                                    <small class="events-text-muted">Total Eventos</small>
                                 </div>
                             </div>
                         </div>
-                        <!-- En Progreso -->
-                        <div class="col-xxl-3 col-md-6">
-                            <div class="card stats-card border-warning border-opacity-25">
-                                <div class="card-body d-flex align-items-center gap-3">
-                                    <div class="stat-icon bg-warning-light text-warning">
-                                        <i class="bi bi-play-circle-fill"></i>
-                                    </div>
-                                    <div class="stat-content">
-                                        <h3 class="stat-number mb-0">{{ in_progress_count|default:"0"|intcomma }}</h3>
-                                        <p class="stat-label mb-0">En Progreso</p>
-                                    </div>
+                        <div class="events-col-md-3">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-warning);">
+                                <div class="m360-card-body events-text-center">
+                                    <h3 class="events-mb-1">{{ in_progress_count|default:"0"|intcomma }}</h3>
+                                    <small class="events-text-muted">En Progreso</small>
                                 </div>
                             </div>
                         </div>
-                        <!-- Completados -->
-                        <div class="col-xxl-3 col-md-6">
-                            <div class="card stats-card border-success border-opacity-25">
-                                <div class="card-body d-flex align-items-center gap-3">
-                                    <div class="stat-icon bg-success-light text-success">
-                                        <i class="bi bi-check-circle-fill"></i>
-                                    </div>
-                                    <div class="stat-content">
-                                        <h3 class="stat-number mb-0">{{ completed_count|default:"0"|intcomma }}</h3>
-                                        <p class="stat-label mb-0">Completados</p>
-                                    </div>
+                        <div class="events-col-md-3">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-success);">
+                                <div class="m360-card-body events-text-center">
+                                    <h3 class="events-mb-1">{{ completed_count|default:"0"|intcomma }}</h3>
+                                    <small class="events-text-muted">Completados</small>
                                 </div>
                             </div>
                         </div>
-                        <!-- Creados (Borrador) -->
-                        <div class="col-xxl-3 col-md-6">
-                            <div class="card stats-card border-info border-opacity-25">
-                                <div class="card-body d-flex align-items-center gap-3">
-                                    <div class="stat-icon bg-info-light text-info">
-                                        <i class="bi bi-plus-circle-fill"></i>
-                                    </div>
-                                    <div class="stat-content">
-                                        <h3 class="stat-number mb-0">{{ created_count|default:"0"|intcomma }}</h3>
-                                        <p class="stat-label mb-0">Creados</p>
-                                    </div>
+                        <div class="events-col-md-3">
+                            <div class="m360-card" style="border-left: 4px solid var(--m360-info);">
+                                <div class="m360-card-body events-text-center">
+                                    <h3 class="events-mb-1">{{ created_count|default:"0"|intcomma }}</h3>
+                                    <small class="events-text-muted">Creados</small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ACCIONES DE GESTIÓN -->
-                <div class="col-12 mt-2">
-                    <div class="card form-card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-gear-fill me-2"></i>Gestión de Eventos
+                <div class="events-col-12">
+                    <div class="m360-card">
+                        <div class="m360-card-body">
+                            <h5 class="events-mb-3">
+                                <i class="bi bi-gear-fill" style="margin-right: var(--m360-space-2);"></i>Gestión de Eventos
                             </h5>
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="{% url 'events:event_create' %}" class="btn btn-success">
-                                    <i class="bi bi-plus-circle me-2"></i>Crear Evento
+                            <div class="events-d-flex events-flex-wrap events-gap-2">
+                                <a href="{% url 'events:event_create' %}" class="m360-btn m360-btn-success">
+                                    <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Crear Evento
                                 </a>
-                                <a href="{% url 'events:events' %}" class="btn btn-outline-primary">
-                                    <i class="bi bi-eye me-2"></i>Ver Dashboard
+                                <a href="{% url 'events:events' %}" class="m360-btn m360-btn-outline-primary">
+                                    <i class="bi bi-eye" style="margin-right: var(--m360-space-1);"></i>Ver Dashboard
                                 </a>
-                                <a href="{% url 'events:event_export' %}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-download me-2"></i>Exportar CSV
+                                <a href="{% url 'events:event_export' %}" class="m360-btn m360-btn-outline-secondary">
+                                    <i class="bi bi-download" style="margin-right: var(--m360-space-1);"></i>Exportar CSV
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- TABLA DE EVENTOS (reutiliza top_table.html) -->
-                <div class="col-12 mt-2">
+                <div class="events-col-12">
                     {% include 'events/includes/top_table.html' %}
                 </div>
-                
-            </div><!-- End row interno -->
-        </div><!-- End col-lg-8 -->
+                {% endif %}
 
-        <!-- **************************************** -->
-        <!-- MODO 2: PANEL DETALLADO (evento único)   -->
-        <!-- **************************************** -->
-        {% elif page == 'event_detail' and event_data %}
-        
-        <!-- ================================ -->
-        <!-- COLUMNA IZQUIERDA (8) - DETALLE  -->
-        <!-- ================================ -->
-        <div class="col-lg-8">
-            <div class="row g-3">
-                
-                <!-- TARJETA DE INFORMACIÓN DEL EVENTO -->
-                <div class="col-12">
+                {% if page == 'event_detail' and event_data %}
+                <div class="events-col-12">
                     {% include 'events/includes/event_card.html' with event=event_data.event %}
                 </div>
-                
-                <!-- PROYECTOS ASOCIADOS -->
+
                 {% if projects_data %}
-                    <div class="col-12">
-                        <h5 class="section-title">
-                            <i class="bi bi-diagram-3 me-2"></i>Proyectos asociados
-                        </h5>
-                    </div>
                     {% for project_data in projects_data %}
-                    <div class="col-md-6">
+                    <div class="events-col-md-6">
                         {% include 'projects/includes/project_card.html' with project_data=project_data %}
                     </div>
                     {% endfor %}
                 {% endif %}
-                
-                <!-- TAREAS ASOCIADAS -->
+
                 {% if tasks_data %}
-                    <div class="col-12 mt-2">
-                        <h5 class="section-title">
-                            <i class="bi bi-check2-square me-2"></i>Tareas asociadas
-                        </h5>
-                    </div>
                     {% for task_data in tasks_data %}
-                    <div class="col-md-6">
+                    <div class="events-col-md-6">
                         {% include 'tasks/includes/task_card.html' with task_data=task_data %}
                     </div>
                     {% endfor %}
                 {% endif %}
-                
-                <!-- SI NO HAY PROYECTOS NI TAREAS -->
+
                 {% if not projects_data and not tasks_data %}
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
+                <div class="events-col-12">
+                    <div class="m360-alert m360-alert-info">
+                        <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
                         Este evento no tiene proyectos ni tareas asociadas.
-                        <a href="{% url 'events:event_assign' event_data.event.id %}" class="alert-link">
+                        <a href="{% url 'events:event_assign' event_data.event.id %}" class="events-text-primary" style="text-decoration: underline;">
                             Asignar ahora
                         </a>
                     </div>
                 </div>
                 {% endif %}
-                
-            </div><!-- End row interno -->
-        </div><!-- End col-lg-8 -->
-        
-        {% endif %}
-        <!-- **************************************** -->
-        <!-- FIN DE MODOS                            -->
-        <!-- **************************************** -->
-        
-        <!-- ======================================== -->
-        <!-- COLUMNA DERECHA (4) - SIDEBAR (común)   -->
-        <!-- ======================================== -->
-        <aside class="col-lg-4">
-            <div class="row g-3 sticky-lg-top" style="top: 1rem;">
-                
-                <!-- INSTRUCCIONES (opcional) -->
-                {% if instructions %}
-                <div class="col-12">
-                    {% include 'layouts/includes/information/info_links_card.html' %}
-                </div>
                 {% endif %}
-                
-                <!-- ACORDEÓN DE INFORMACIÓN -->
-                <div class="col-12">
-                    {% include 'layouts/includes/information/info_acordeon.html' %}
-                </div>
-                
-                <!-- ACTIVIDAD RECIENTE (estados de eventos) -->
-                <div class="col-12">
-                    <div class="card activity-card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-activity me-2"></i>Actividad Reciente
-                            </h5>
-                            {% include 'events/includes/activity_card.html' %}
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- ACCIONES RÁPIDAS (solo para modo detalle) -->
-                {% if page == 'event_detail' and event_data %}
-                <div class="col-12">
-                    <div class="card quick-actions-card">
-                        <div class="card-header bg-primary text-white py-2">
-                            <h5 class="card-title mb-0 text-white">
-                                <i class="bi bi-lightning me-2"></i>Acciones del Evento
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'events:event_edit' event_data.event.id %}" class="btn btn-warning">
-                                    <i class="bi bi-pencil me-2"></i>Editar Evento
-                                </a>
-                                <a href="{% url 'events:event_assign' event_data.event.id %}" class="btn btn-info">
-                                    <i class="bi bi-link me-2"></i>Asignar Proyectos/Tareas
-                                </a>
-                                <a href="{% url 'events:event_panel' %}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left me-2"></i>Volver al Panel
-                                </a>
-                                {% if user.is_superuser %}
-                                <hr class="my-1">
-                                <form method="post" action="{% url 'events:event_delete' event_data.event.id %}" 
-                                      onsubmit="return confirm('¿Eliminar este evento permanentemente?');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger w-100">
-                                        <i class="bi bi-trash me-2"></i>Eliminar Evento
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-                
-                <!-- ACCIONES RÁPIDAS (modo general) -->
-                {% if page == 'event_panel' and user.is_authenticated %}
-                <div class="col-12">
-                    <div class="card quick-actions-card">
-                        <div class="card-header bg-primary text-white py-2">
-                            <h5 class="card-title mb-0 text-white">
-                                <i class="bi bi-lightning me-2"></i>Acciones Rápidas
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'events:event_create' %}" class="btn btn-success">
-                                    <i class="bi bi-plus-circle me-2"></i>Nuevo Evento
-                                </a>
-                                <a href="{% url 'events:event_export' %}" class="btn btn-outline-primary">
-                                    <i class="bi bi-download me-2"></i>Exportar Eventos
-                                </a>
-                                <a href="{% url 'events:events' %}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-table me-2"></i>Vista Dashboard
-                                </a>
-                                <a href="{% url 'events:inbox' %}" class="btn btn-outline-info">
-                                    <i class="bi bi-inbox me-2"></i>Ir al Inbox
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-                
-            </div><!-- End row sidebar -->
-        </aside><!-- End col-lg-4 -->
-        
-    </div><!-- End row principal -->
-</section><!-- End dashboard section -->
+            </div>
+        </div>
 
+        <div class="events-col-lg-4">
+            <div class="events-sticky-top" style="top: 1rem;">
+                {% if instructions %}
+                    {% include 'layouts/includes/information/info_links_card.html' %}
+                {% endif %}
+
+                {% include 'layouts/includes/information/info_acordeon.html' %}
+
+                <div class="m360-card events-mt-3">
+                    <div class="m360-card-body">
+                        <h5 class="events-mb-3">
+                            <i class="bi bi-activity" style="margin-right: var(--m360-space-2);"></i>Actividad Reciente
+                        </h5>
+                        {% include 'events/includes/activity_card.html' %}
+                    </div>
+                </div>
+
+                {% if page == 'event_detail' and event_data %}
+                <div class="m360-card events-mt-3">
+                    <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
+                        <h5 class="m360-card-title events-mb-0">
+                            <i class="bi bi-lightning" style="margin-right: var(--m360-space-1);"></i>Acciones del Evento
+                        </h5>
+                    </div>
+                    <div class="m360-card-body">
+                        <div class="events-d-grid events-gap-2">
+                            <a href="{% url 'events:event_edit' event_data.event.id %}" class="m360-btn m360-btn-warning">
+                                <i class="bi bi-pencil" style="margin-right: var(--m360-space-1);"></i>Editar Evento
+                            </a>
+                            <a href="{% url 'events:event_assign' event_data.event.id %}" class="m360-btn m360-btn-info">
+                                <i class="bi bi-link" style="margin-right: var(--m360-space-1);"></i>Asignar Proyectos/Tareas
+                            </a>
+                            <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-outline-secondary">
+                                <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>Volver al Panel
+                            </a>
+                            {% if user.is_superuser %}
+                            <form method="post" action="{% url 'events:event_delete' event_data.event.id %}" 
+                                  onsubmit="return confirm('¿Eliminar este evento permanentemente?');">
+                                {% csrf_token %}
+                                <button type="submit" class="m360-btn m360-btn-outline-danger events-w-100">
+                                    <i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i>Eliminar Evento
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if page == 'event_panel' and user.is_authenticated %}
+                <div class="m360-card events-mt-3">
+                    <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
+                        <h5 class="m360-card-title events-mb-0">
+                            <i class="bi bi-lightning" style="margin-right: var(--m360-space-1);"></i>Acciones Rápidas
+                        </h5>
+                    </div>
+                    <div class="m360-card-body">
+                        <div class="events-d-grid events-gap-2">
+                            <a href="{% url 'events:event_create' %}" class="m360-btn m360-btn-success">
+                                <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Nuevo Evento
+                            </a>
+                            <a href="{% url 'events:event_export' %}" class="m360-btn m360-btn-outline-primary">
+                                <i class="bi bi-download" style="margin-right: var(--m360-space-1);"></i>Exportar Eventos
+                            </a>
+                            <a href="{% url 'events:events' %}" class="m360-btn m360-btn-outline-secondary">
+                                <i class="bi bi-table" style="margin-right: var(--m360-space-1);"></i>Vista Dashboard
+                            </a>
+                            <a href="{% url 'events:inbox' %}" class="m360-btn m360-btn-outline-info">
+                                <i class="bi bi-inbox" style="margin-right: var(--m360-space-1);"></i>Ir al Inbox
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}

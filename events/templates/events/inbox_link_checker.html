@@ -1,155 +1,57 @@
-<!-- events/inbox_link_checker.html -->
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2 class="mb-1">
-                        <i class="bi bi-link-45deg text-primary me-2"></i>
-                        {{ title }}
-                    </h2>
-                    <p class="text-muted mb-0">Verifica y corrige enlaces entre items del inbox y objetos creados</p>
-                </div>
-                <div>
-                    <a href="{% url 'events:inbox_admin_dashboard' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-1"></i>
-                        Volver al Admin
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% if action == 'menu' %}
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="bi bi-search me-2"></i>Verificar Enlaces</h5>
-                </div>
-                <div class="card-body">
-                    <p>Busca problemas en los enlaces entre items del inbox y los objetos creados (tareas, proyectos, eventos).</p>
-                    <a href="?action=verify" class="btn btn-info w-100">
-                        <i class="bi bi-search me-2"></i>
-                        Ejecutar Verificación
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="bi bi-wrench me-2"></i>Corregir Enlaces</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-danger">
-                        <i class="bi bi-exclamation-triangle me-1"></i>
-                        Esta acción intentará corregir enlaces rotos automáticamente.
-                    </p>
-                    <a href="?action=fix" class="btn btn-warning w-100" onclick="return confirm('¿Estás seguro de que quieres intentar corregir enlaces automáticamente?')">
-                        <i class="bi bi-wrench me-2"></i>
-                        Intentar Corrección Automática
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if action == 'verify' and issues %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        Problemas Encontrados: {{ total_issues }}
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+                    <h5 class="events-card-title events-mb-0">
+                        <i class="bi bi-calendar-week" style="margin-right: var(--m360-space-2);"></i>{{ title }}
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID Item</th>
-                                    <th>Título</th>
-                                    <th>Problema</th>
-                                    <th>Acción Sugerida</th>
-                                    <th>Opciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for issue in issues %}
-                                <tr>
-                                    <td>{{ issue.item_id }}</td>
-                                    <td>{{ issue.item_title|truncatechars:50 }}</td>
-                                    <td>{{ issue.issue }}</td>
-                                    <td>{{ issue.action_needed }}</td>
-                                    <td>
-                                        <a href="{% url 'events:process_inbox_item' issue.item_id %}" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-pencil"></i> Revisar
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% elif action == 'verify' and not issues %}
-    <div class="row">
-        <div class="col-12">
-            <div class="alert alert-success">
-                <h5><i class="bi bi-check-circle me-2"></i>¡Todo en orden!</h5>
-                <p>No se encontraron problemas en los enlaces de los items del inbox.</p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 
-    {% if action == 'fix' %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Resultado de la Corrección</h5>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <h6><i class="bi bi-info-circle me-2"></i>Resumen de la operación:</h6>
-                        <ul class="mb-0">
-                            <li>Enlaces corregidos: <strong>{{ result.fixed }}</strong></li>
-                            <li>Enlaces con error: <strong>{{ result.failed }}</strong></li>
-                            <li>Total verificado: <strong>{{ result.total_checked }}</strong></li>
-                        </ul>
+                <div class="m360-card-body">
+                    <div class="events-row events-gap-3">
+                        <div class="events-col-md-3">
+                            <div class="m360-card" style="background: var(--m360-primary); color: #fff;">
+                                <div class="m360-card-body events-text-center">
+                                    <h4 class="events-mb-0" style="color: inherit;">{{ total_programs }}</h4>
+                                    <small style="color: inherit;">Programas Totales</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="events-col-md-3">
+                            <div class="m360-card" style="background: var(--m360-success); color: #fff;">
+                                <div class="m360-card-body events-text-center">
+                                    <h4 class="events-mb-0" style="color: inherit;">{{ total_hours|floatformat:1 }}</h4>
+                                    <small style="color: inherit;">Horas Programadas</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="events-col-md-3">
+                            <div class="m360-card" style="background: var(--m360-info); color: #fff;">
+                                <div class="m360-card-body events-text-center">
+                                    <h4 class="events-mb-0" style="color: inherit;">{{ calendar_data|length }}</h4>
+                                    <small style="color: inherit;">Días Mostrados</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="events-col-md-3">
+                            <div class="m360-card" style="background: var(--m360-warning); color: #fff;">
+                                <div class="m360-card-body events-text-center">
+                                    <h4 class="events-mb-0" style="color: inherit;">{{ weeks_param }}</h4>
+                                    <small style="color: inherit;">Semanas</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    {% if result.fixed > 0 %}
-                    <div class="alert alert-success">
-                        <i class="bi bi-check-circle me-2"></i>
-                        <strong>¡Éxito!</strong> Se corrigieron {{ result.fixed }} enlace(s) automáticamente.
-                    </div>
-                    {% endif %}
-                    
-                    {% if result.failed > 0 %}
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        <strong>Advertencia:</strong> {{ result.failed }} enlace(s) no pudieron ser corregidos automáticamente y requieren revisión manual.
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-    {% endif %}
 </div>
 {% endblock %}

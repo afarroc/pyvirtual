@@ -38,6 +38,33 @@
   padding: var(--m360-card-padding);
 }
 
+.m360-root .m360-card-footer {
+  padding: var(--m360-space-3) var(--m360-card-padding);
+  background: var(--m360-gray-50);
+  border-top: 1px solid var(--m360-border);
+  border-radius: 0 0 var(--m360-card-radius) var(--m360-card-radius);
+  font-size: var(--m360-text-sm);
+  color: var(--m360-text-muted);
+}
+
+.m360-root .m360-card-title {
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.m360-root .m360-card-title i {
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-card-text {
+  font-size: var(--m360-text-md);
+  color: var(--m360-text-secondary);
+  line-height: 1.5;
+}
+
 /* List card (sidebar list items) */
 .m360-root .m360-list-card {
   background: var(--m360-surface);

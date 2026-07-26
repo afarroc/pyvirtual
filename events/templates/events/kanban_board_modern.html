@@ -1,939 +1,8 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 {% load custom_tags %}
 
 {% block title %}{{ title }} - Kanban Avanzado{% endblock %}
-
-{% block extra_css %}
-<style>
-/* ===============================================
-   KANBAN AVANZADO - ESTILOS MODERNOS
-   =============================================== */
-
-/* Variables CSS para tema dinámico */
-:root {
-    --kanban-primary: #667eea;
-    --kanban-secondary: #764ba2;
-    --kanban-success: #28a745;
-    --kanban-warning: #fd7e14;
-    --kanban-danger: #dc3545;
-    --kanban-info: #17a2b8;
-    --kanban-light: #f8f9fa;
-    --kanban-dark: #343a40;
-    --kanban-border: rgba(0,0,0,0.1);
-    --kanban-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    --kanban-shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
-    --kanban-radius: 12px;
-    --kanban-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Modo oscuro */
-[data-theme="dark"] {
-    --kanban-primary: #8b7bd8;
-    --kanban-secondary: #9d7bb0;
-    --kanban-light: #2d3748;
-    --kanban-dark: #e2e8f0;
-    --kanban-border: rgba(255,255,255,0.1);
-    --kanban-shadow: 0 4px 6px rgba(0,0,0,0.3);
-}
-
-/* Layout principal */
-.kanban-advanced {
-    min-height: 100vh;
-    background: linear-gradient(135deg, var(--kanban-primary) 0%, var(--kanban-secondary) 100%);
-    position: relative;
-    overflow: hidden;
-}
-
-.kanban-advanced::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    pointer-events: none;
-}
-
-/* Header avanzado */
-.kanban-header {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 0 0 var(--kanban-radius) var(--kanban-radius);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--kanban-shadow-lg);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
-    z-index: 10;
-}
-
-.kanban-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--kanban-primary), var(--kanban-secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.kanban-subtitle {
-    color: #6c757d;
-    font-size: 1.1rem;
-    margin-bottom: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* Barra de herramientas */
-.kanban-toolbar {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    border-radius: var(--kanban-radius);
-    padding: 1rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--kanban-shadow);
-    border: 1px solid var(--kanban-border);
-}
-
-.toolbar-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.toolbar-section:last-child {
-    margin-bottom: 0;
-}
-
-.toolbar-title {
-    font-weight: 600;
-    color: var(--kanban-dark);
-    margin: 0;
-    min-width: 120px;
-}
-
-/* Estadísticas avanzadas */
-.kanban-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.stat-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: var(--kanban-radius);
-    padding: 1.5rem;
-    box-shadow: var(--kanban-shadow);
-    border: 1px solid var(--kanban-border);
-    transition: var(--kanban-transition);
-    position: relative;
-    overflow: hidden;
-}
-
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--kanban-primary), var(--kanban-secondary));
-}
-
-.stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--kanban-shadow-lg);
-}
-
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--kanban-dark);
-    margin-bottom: 0.5rem;
-    display: block;
-}
-
-.stat-label {
-    color: #6c757d;
-    font-size: 0.9rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
-}
-
-.stat-trend {
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.stat-trend.up {
-    background: rgba(40, 167, 69, 0.1);
-    color: var(--kanban-success);
-}
-
-.stat-trend.down {
-    background: rgba(220, 53, 69, 0.1);
-    color: var(--kanban-danger);
-}
-
-/* Board principal */
-.kanban-board {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem;
-    padding: 0 1rem 2rem 1rem;
-    position: relative;
-    z-index: 5;
-}
-
-/* Columnas */
-.kanban-column {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: var(--kanban-radius);
-    padding: 1.5rem;
-    box-shadow: var(--kanban-shadow);
-    border: 1px solid var(--kanban-border);
-    min-height: 600px;
-    display: flex;
-    flex-direction: column;
-    transition: var(--kanban-transition);
-}
-
-.kanban-column:hover {
-    box-shadow: var(--kanban-shadow-lg);
-}
-
-.column-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid;
-    position: sticky;
-    top: 0;
-    background: inherit;
-    border-radius: var(--kanban-radius) var(--kanban-radius) 0 0;
-    margin: -1.5rem -1.5rem 1.5rem -1.5rem;
-    padding: 1.5rem;
-    backdrop-filter: blur(10px);
-}
-
-.column-title {
-    font-weight: 600;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.column-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.column-count {
-    background: rgba(0, 0, 0, 0.1);
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    min-width: 24px;
-    text-align: center;
-}
-
-/* Estados de columna */
-.column-todo { border-color: #6c757d; }
-.column-todo .column-icon { background: #6c757d; }
-
-.column-in-progress { border-color: var(--kanban-primary); }
-.column-in-progress .column-icon { background: var(--kanban-primary); }
-
-.column-in-review { border-color: var(--kanban-warning); }
-.column-in-review .column-icon { background: var(--kanban-warning); }
-
-.column-completed { border-color: var(--kanban-success); }
-.column-completed .column-icon { background: var(--kanban-success); }
-
-.column-blocked { border-color: var(--kanban-danger); }
-.column-blocked .column-icon { background: var(--kanban-danger); }
-
-/* Tarjetas de tarea */
-.task-card {
-    background: white;
-    border-radius: var(--kanban-radius);
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border: 1px solid var(--kanban-border);
-    cursor: pointer;
-    transition: var(--kanban-transition);
-    position: relative;
-    overflow: hidden;
-}
-
-.task-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--kanban-primary), var(--kanban-secondary));
-}
-
-.task-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--kanban-shadow-lg);
-}
-
-.task-card.dragging {
-    opacity: 0.7;
-    transform: rotate(2deg) scale(1.02);
-    box-shadow: var(--kanban-shadow-lg);
-    z-index: 1000;
-}
-
-.task-card.important {
-    border-left: 4px solid var(--kanban-danger);
-}
-
-.task-card.important::before {
-    background: linear-gradient(90deg, var(--kanban-danger), #ff6b6b);
-}
-
-/* Indicadores de prioridad */
-.priority-indicator {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 0;
-    height: 0;
-    border-style: solid;
-}
-
-.priority-indicator.high {
-    border-width: 0 20px 20px 0;
-    border-color: transparent var(--kanban-danger) transparent transparent;
-}
-
-.priority-indicator.medium {
-    border-width: 0 20px 20px 0;
-    border-color: transparent var(--kanban-warning) transparent transparent;
-}
-
-.priority-indicator.low {
-    border-width: 0 20px 20px 0;
-    border-color: transparent var(--kanban-info) transparent transparent;
-}
-
-/* Contenido de tarjeta */
-.task-title {
-    font-weight: 600;
-    font-size: 1rem;
-    color: #2c3e50;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    line-height: 1.4;
-}
-
-.task-title.important {
-    color: var(--kanban-danger);
-}
-
-.task-description {
-    color: #6c757d;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.task-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.task-tag {
-    background: #f8f9fa;
-    color: #495057;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border: 1px solid var(--kanban-border);
-}
-
-.task-project {
-    background: #e3f2fd;
-    color: #1976d2;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    margin-bottom: 0.75rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.task-assignee {
-    background: #f3e5f5;
-    color: #7b1fa2;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.task-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 0.75rem;
-    border-top: 1px solid #e9ecef;
-}
-
-.task-date {
-    color: #6c757d;
-    font-size: 0.8rem;
-}
-
-.task-buttons {
-    display: flex;
-    gap: 0.25rem;
-}
-
-.btn-task-action {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: var(--kanban-transition);
-}
-
-.btn-task-action:hover {
-    transform: scale(1.05);
-}
-
-/* Estados vacíos */
-.empty-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-    color: #6c757d;
-    text-align: center;
-    flex: 1;
-}
-
-.empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
-
-.empty-text {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
-.empty-subtext {
-    font-size: 0.9rem;
-    opacity: 0.7;
-}
-
-/* Filtros avanzados */
-.kanban-filters {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: var(--kanban-radius);
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--kanban-shadow);
-    border: 1px solid var(--kanban-border);
-}
-
-.filter-section {
-    margin-bottom: 1.5rem;
-}
-
-.filter-section:last-child {
-    margin-bottom: 0;
-}
-
-.filter-title {
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    color: var(--kanban-dark);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.filter-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.filter-tag {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.5rem 0.75rem;
-    background: #f8f9fa;
-    border: 1px solid var(--kanban-border);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: var(--kanban-transition);
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.filter-tag:hover {
-    background: var(--kanban-light);
-    transform: translateY(-1px);
-}
-
-.filter-tag.active {
-    background: var(--kanban-primary);
-    color: white;
-    border-color: var(--kanban-primary);
-}
-
-.filter-tag-icon {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-/* Modales */
-.modal-kanban {
-    backdrop-filter: blur(10px);
-}
-
-.modal-kanban .modal-content {
-    border-radius: var(--kanban-radius);
-    border: 1px solid var(--kanban-border);
-    box-shadow: var(--kanban-shadow-lg);
-}
-
-/* Botón flotante */
-.fab-kanban {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    z-index: 1000;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--kanban-primary), var(--kanban-secondary));
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    box-shadow: var(--kanban-shadow-lg);
-    transition: var(--kanban-transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.fab-kanban:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .kanban-board {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: 0 0.5rem 2rem 0.5rem;
-    }
-
-    .kanban-header {
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .kanban-title {
-        font-size: 2rem;
-    }
-
-    .kanban-stats {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-    }
-
-    .toolbar-section {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.5rem;
-    }
-
-    .toolbar-title {
-        min-width: auto;
-    }
-
-    .fab-kanban {
-        bottom: 1rem;
-        right: 1rem;
-        width: 48px;
-        height: 48px;
-        font-size: 1.25rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .kanban-stats {
-        grid-template-columns: 1fr;
-    }
-
-    .kanban-title {
-        font-size: 1.75rem;
-    }
-
-    .filter-tags {
-        flex-direction: column;
-    }
-
-    .filter-tag {
-        justify-content: center;
-    }
-}
-
-/* Animaciones */
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.task-card {
-    animation: slideInUp 0.3s ease-out;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-.task-card.important {
-    animation: pulse 2s infinite;
-}
-
-/* Loading states */
-.kanban-loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 300px;
-    color: white;
-}
-
-.loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-top: 4px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Scrollbar personalizada */
-.kanban-board::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-.kanban-board::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-}
-
-.kanban-board::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-}
-
-.kanban-board::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
-}
-
-/* Tema toggle */
-.theme-toggle {
-    position: fixed;
-    top: 2rem;
-    right: 2rem;
-    z-index: 1010;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--kanban-border);
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--kanban-transition);
-    box-shadow: var(--kanban-shadow);
-}
-
-.theme-toggle:hover {
-    transform: scale(1.1);
-    box-shadow: var(--kanban-shadow-lg);
-}
-
-/* Notificaciones */
-.toast-kanban {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1050;
-    min-width: 300px;
-    backdrop-filter: blur(10px);
-}
-
-/* Estados de drag and drop */
-.kanban-column.drag-over {
-    border: 2px dashed var(--kanban-primary);
-    background: rgba(102, 126, 234, 0.1);
-    transform: scale(1.02);
-}
-
-/* Vista compacta */
-.compact-view .task-card {
-    padding: 0.75rem;
-}
-
-.compact-view .task-description {
-    -webkit-line-clamp: 2;
-}
-
-.compact-view .task-meta {
-    margin-bottom: 0.5rem;
-}
-
-/* Dashboard de métricas */
-.metrics-dashboard {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: var(--kanban-radius);
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--kanban-shadow);
-    border: 1px solid var(--kanban-border);
-}
-
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.metric-item {
-    text-align: center;
-    padding: 1rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.metric-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--kanban-primary);
-    display: block;
-}
-
-.metric-label {
-    font-size: 0.8rem;
-    color: #6c757d;
-    margin-top: 0.25rem;
-}
-
-/* Sistema de comentarios */
-.task-comments {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e9ecef;
-}
-
-.comment-item {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    background: #f8f9fa;
-    border-radius: 6px;
-    font-size: 0.8rem;
-}
-
-.comment-avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--kanban-primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    font-weight: 600;
-}
-
-.comment-text {
-    flex: 1;
-    color: #495057;
-}
-
-/* Integración GTD */
-.gtd-integration {
-    background: rgba(40, 167, 69, 0.1);
-    border: 1px solid rgba(40, 167, 69, 0.2);
-    border-radius: 6px;
-    padding: 0.5rem;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    color: var(--kanban-success);
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-/* Dependencias visuales */
-.task-dependencies {
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    background: rgba(255, 193, 7, 0.1);
-    border-radius: 6px;
-    font-size: 0.75rem;
-}
-
-.dependency-item {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-bottom: 0.25rem;
-    color: var(--kanban-warning);
-}
-
-.dependency-item::before {
-    content: '🔗';
-    font-size: 0.7rem;
-}
-
-/* Export options */
-.export-options {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: white;
-    border: 1px solid var(--kanban-border);
-    border-radius: 8px;
-    box-shadow: var(--kanban-shadow-lg);
-    padding: 0.5rem;
-    min-width: 150px;
-    z-index: 1000;
-}
-
-.export-option {
-    display: block;
-    width: 100%;
-    padding: 0.5rem;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: var(--kanban-transition);
-}
-
-.export-option:hover {
-    background: var(--kanban-light);
-}
-
-/* Accesibilidad */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* Focus states */
-.task-card:focus,
-.filter-tag:focus,
-.btn-task-action:focus {
-    outline: 2px solid var(--kanban-primary);
-    outline-offset: 2px;
-}
-
-/* High contrast mode */
-@media (prefers-contrast: high) {
-    .task-card {
-        border: 2px solid var(--kanban-dark);
-    }
-
-    .filter-tag {
-        border: 2px solid var(--kanban-dark);
-    }
-}
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="kanban-advanced">
@@ -942,59 +11,59 @@
         <i class="bi bi-moon-fill" id="themeIcon"></i>
     </button>
 
-    <div class="container-fluid">
+    <div class="events-container-fluid">
         <!-- Header Avanzado -->
         <div class="kanban-header">
-            <div class="d-flex justify-content-between align-items-start flex-wrap">
+            <div class="events-d-flex events-justify-between events-align-start events-flex-wrap events-gap-2">
                 <div>
                     <h1 class="kanban-title">
-                        <i class="bi bi-kanban-fill me-3"></i>
+                        <i class="bi bi-kanban-fill events-me-3"></i>
                         {{ title }}
                     </h1>
                     {% if project %}
                         <p class="kanban-subtitle">
-                            <i class="bi bi-folder me-2"></i>
+                            <i class="bi bi-folder events-me-2"></i>
                             Proyecto: <strong>{{ project.title }}</strong>
                         </p>
                     {% else %}
                         <p class="kanban-subtitle">
-                            <i class="bi bi-grid me-2"></i>
+                            <i class="bi bi-grid events-me-2"></i>
                             Vista general de todas tus tareas
                         </p>
                     {% endif %}
                 </div>
 
-                <div class="d-flex gap-2 mt-3 mt-md-0">
-                    <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#advancedFilterModal">
-                        <i class="bi bi-funnel me-1"></i>
+                <div class="events-d-flex events-gap-2 events-mt-3">
+                    <button class="m360-btn m360-btn-light" data-m360-open="#advancedFilterModal">
+                        <i class="bi bi-funnel events-me-1"></i>
                         Filtros
                     </button>
-                    <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#metricsModal">
-                        <i class="bi bi-bar-chart me-1"></i>
+                    <button class="m360-btn m360-btn-light" data-m360-open="#metricsModal">
+                        <i class="bi bi-bar-chart events-me-1"></i>
                         Métricas
                     </button>
-                    <div class="dropdown">
-                        <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-download me-1"></i>
+                    <div class="m360-dropdown">
+                        <button class="m360-btn m360-btn-light m360-dropdown-toggle" data-m360-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-download events-me-1"></i>
                             Exportar
                         </button>
-                        <div class="export-options dropdown-menu">
+                        <div class="export-options m360-dropdown-menu">
                             <button class="export-option" onclick="exportKanban('json')">
-                                <i class="bi bi-file-earmark-code me-2"></i>
+                                <i class="bi bi-file-earmark-code events-me-2"></i>
                                 JSON
                             </button>
                             <button class="export-option" onclick="exportKanban('csv')">
-                                <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                                <i class="bi bi-file-earmark-spreadsheet events-me-2"></i>
                                 CSV
                             </button>
                             <button class="export-option" onclick="exportKanban('pdf')">
-                                <i class="bi bi-file-earmark-pdf me-2"></i>
+                                <i class="bi bi-file-earmark-pdf events-me-2"></i>
                                 PDF
                             </button>
                         </div>
                     </div>
-                    <a href="{% url 'events:unified_dashboard' %}" class="btn btn-outline-light">
-                        <i class="bi bi-speedometer2 me-1"></i>
+                    <a href="{% url 'events:unified_dashboard' %}" class="m360-btn m360-btn-outline-light">
+                        <i class="bi bi-speedometer2 events-me-1"></i>
                         Dashboard
                     </a>
                 </div>
@@ -1004,21 +73,16 @@
             <div class="kanban-toolbar">
                 <div class="toolbar-section">
                     <h6 class="toolbar-title">Vista:</h6>
-                    <div class="btn-group" role="group">
-                        <input type="radio" class="btn-check" name="viewMode" id="viewNormal" autocomplete="off" checked>
-                        <label class="btn btn-outline-secondary btn-sm" for="viewNormal">Normal</label>
-
-                        <input type="radio" class="btn-check" name="viewMode" id="viewCompact" autocomplete="off">
-                        <label class="btn btn-outline-secondary btn-sm" for="viewCompact">Compacta</label>
-
-                        <input type="radio" class="btn-check" name="viewMode" id="viewDetailed" autocomplete="off">
-                        <label class="btn btn-outline-secondary btn-sm" for="viewDetailed">Detallada</label>
-                    </div>
+                    <select class="m360-form-select" id="viewMode" style="max-width: 200px;">
+                        <option value="Normal" selected>Normal</option>
+                        <option value="Compact">Compacta</option>
+                        <option value="Detailed">Detallada</option>
+                    </select>
                 </div>
 
                 <div class="toolbar-section">
                     <h6 class="toolbar-title">Ordenar por:</h6>
-                    <select class="form-select form-select-sm" id="sortBy" style="max-width: 150px;">
+                    <select class="m360-form-select" id="sortBy">
                         <option value="updated_at">Fecha actualización</option>
                         <option value="created_at">Fecha creación</option>
                         <option value="title">Título</option>
@@ -1029,12 +93,12 @@
 
                 <div class="toolbar-section">
                     <h6 class="toolbar-title">Acciones rápidas:</h6>
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createTaskModal">
-                        <i class="bi bi-plus-circle me-1"></i>
+                    <button class="m360-btn m360-btn-primary m360-btn-sm" data-m360-open="#createTaskModal">
+                        <i class="bi bi-plus-circle events-me-1"></i>
                         Nueva tarea
                     </button>
-                    <button class="btn btn-success btn-sm" onclick="refreshKanban()">
-                        <i class="bi bi-arrow-clockwise me-1"></i>
+                    <button class="m360-btn m360-btn-success m360-btn-sm" onclick="refreshKanban()">
+                        <i class="bi bi-arrow-clockwise events-me-1"></i>
                         Actualizar
                     </button>
                 </div>
@@ -1051,7 +115,7 @@
                     </div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number text-primary">{{ in_progress_count|default:0 }}</span>
+                    <span class="stat-number events-text-primary">{{ in_progress_count|default:0 }}</span>
                     <div class="stat-label">En Progreso</div>
                     <div class="stat-trend down">
                         <i class="bi bi-arrow-down"></i>
@@ -1059,7 +123,7 @@
                     </div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number text-success">{{ completed_count|default:0 }}</span>
+                    <span class="stat-number events-text-success">{{ completed_count|default:0 }}</span>
                     <div class="stat-label">Completadas</div>
                     <div class="stat-trend up">
                         <i class="bi bi-arrow-up"></i>
@@ -1067,7 +131,7 @@
                     </div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number text-warning">{{ pending_count|default:0 }}</span>
+                    <span class="stat-number events-text-warning">{{ pending_count|default:0 }}</span>
                     <div class="stat-label">Pendientes</div>
                     <div class="stat-trend up">
                         <i class="bi bi-arrow-up"></i>
@@ -1101,7 +165,7 @@
 
                         <div class="task-title {% if task_data.task.important %}important{% endif %}">
                             {% if task_data.task.important %}
-                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill events-text-warning"></i>
                             {% endif %}
                             <span>{{ task_data.task.title|truncatechars:60 }}</span>
                         </div>
@@ -1127,14 +191,14 @@
 
                         {% if task_data.task.project %}
                         <div class="task-project">
-                            <i class="bi bi-folder me-1"></i>
+                            <i class="bi bi-folder events-me-1"></i>
                             {{ task_data.task.project.title|truncatechars:25 }}
                         </div>
                         {% endif %}
 
                         {% if task_data.task.assigned_to %}
                         <div class="task-assignee">
-                            <i class="bi bi-person me-1"></i>
+                            <i class="bi bi-person events-me-1"></i>
                             {{ task_data.task.assigned_to.username|truncatechars:20 }}
                         </div>
                         {% endif %}
@@ -1185,16 +249,16 @@
                             </small>
                             <div class="task-buttons">
                                 <a href="{% url 'events:tasks_with_id' task_data.task.id %}"
-                                   class="btn-task-action btn btn-sm btn-outline-primary"
+                                   class="btn-task-action m360-btn m360-btn-sm m360-btn-outline-primary"
                                    title="Ver">
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 <a href="{% url 'events:task_edit' task_data.task.id %}"
-                                   class="btn-task-action btn btn-sm btn-outline-secondary"
+                                   class="btn-task-action m360-btn m360-btn-sm m360-btn-outline-secondary"
                                    title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <button class="btn-task-action btn btn-sm btn-outline-info"
+                                <button class="btn-task-action m360-btn m360-btn-sm m360-btn-outline-info"
                                         title="Comentarios"
                                         data-task-id="{{ task_data.task.id }}"
                                         onclick="toggleComments(this.dataset.taskId)">
@@ -1219,93 +283,92 @@
     </div>
 
     <!-- Botón flotante -->
-    <button class="fab-kanban" data-bs-toggle="modal" data-bs-target="#createTaskModal" title="Crear nueva tarea">
+    <button class="fab-kanban" data-m360-open="#createTaskModal" title="Crear nueva tarea">
         <i class="bi bi-plus"></i>
     </button>
 </div>
 
 <!-- Modal de filtros avanzados -->
-<div class="modal fade modal-kanban" id="advancedFilterModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-funnel text-primary me-2"></i>
-                    Filtros Avanzados
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="mb-3">Etiquetas</h6>
-                        {% for category in tag_categories %}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">{{ category.name }}</label>
-                            <div class="filter-tags">
-                                {% for tag in category.tag_set.all %}
-                                <button class="filter-tag" data-tag-id="{{ tag.id }}" data-tag-color="{{ tag.color }}">
-                                    <div class="filter-tag-icon tag-color-{{ tag.id }}"></div>
-                                    {{ tag.name }}
-                                </button>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="mb-3">Estados</h6>
-                        <div class="d-flex flex-column gap-2">
-                            {% for status_name, column in kanban_columns.items %}
-                            <button class="btn btn-outline-secondary status-filter" data-status="{{ status_name }}">
-                                <i class="bi bi-circle-fill me-2 column-status-icon"></i>
-                                {{ column.title }}
+<div class="m360-modal" id="advancedFilterModal" tabindex="-1">
+    <div class="m360-modal-dialog m360-lg">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+            <h5 class="m360-modal-title">
+                <i class="bi bi-funnel events-text-primary events-me-2"></i>
+                Filtros Avanzados
+            </h5>
+            <button type="button" class="m360-close-modal" data-m360-close></button>
+        </div>
+        <div class="m360-modal-body">
+            <div class="events-row">
+                <div class="events-col-md-6">
+                    <h6 class="events-mb-3">Etiquetas</h6>
+                    {% for category in tag_categories %}
+                    <div class="events-mb-3">
+                        <label class="m360-form-label fw-bold">{{ category.name }}</label>
+                        <div class="filter-tags">
+                            {% for tag in category.tag_set.all %}
+                            <button class="filter-tag" data-tag-id="{{ tag.id }}" data-tag-color="{{ tag.color }}">
+                                <div class="filter-tag-icon tag-color-{{ tag.id }}"></div>
+                                {{ tag.name }}
                             </button>
                             {% endfor %}
                         </div>
-
-                        <h6 class="mb-3 mt-4">Proyectos</h6>
-                        <select class="form-select" id="projectFilter">
-                            <option value="">Todos los proyectos</option>
-                            {% for project in projects %}
-                            <option value="{{ project.id }}">{{ project.title }}</option>
-                            {% endfor %}
-                        </select>
-
-                        <h6 class="mb-3 mt-4">Usuarios</h6>
-                        <select class="form-select" id="userFilter">
-                            <option value="">Todos los usuarios</option>
-                            <!-- Se llenará dinámicamente con JavaScript -->
-                        </select>
                     </div>
+                    {% endfor %}
+                </div>
+                <div class="events-col-md-6">
+                    <h6 class="events-mb-3">Estados</h6>
+                    <div class="events-d-flex events-flex-col events-gap-2">
+                        {% for status_name, column in kanban_columns.items %}
+                        <button class="m360-btn m360-btn-outline-secondary status-filter" data-status="{{ status_name }}">
+                            <i class="bi bi-circle-fill events-me-2 column-status-icon"></i>
+                            {{ column.title }}
+                        </button>
+                        {% endfor %}
+                    </div>
+
+                    <h6 class="events-mb-3 events-mt-4">Proyectos</h6>
+                    <select class="m360-form-select" id="projectFilter">
+                        <option value="">Todos los proyectos</option>
+                        {% for project in projects %}
+                        <option value="{{ project.id }}">{{ project.title }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <h6 class="events-mb-3 events-mt-4">Usuarios</h6>
+                    <select class="m360-form-select" id="userFilter">
+                        <option value="">Todos los usuarios</option>
+                        <!-- Se llenará dinámicamente con JavaScript -->
+                    </select>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="clearAllFilters()">
-                    <i class="bi bi-x-circle me-1"></i>
-                    Limpiar Todo
-                </button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                    <i class="bi bi-check me-1"></i>
-                    Aplicar
-                </button>
-            </div>
+        </div>
+        <div class="m360-modal-footer">
+            <button type="button" class="m360-btn m360-btn-secondary" onclick="clearAllFilters()">
+                <i class="bi bi-x-circle events-me-1"></i>
+                Limpiar Todo
+            </button>
+            <button type="button" class="m360-btn m360-btn-primary" data-m360-close>
+                <i class="bi bi-check events-me-1"></i>
+                Aplicar
+            </button>
         </div>
     </div>
 </div>
 
 <!-- Modal de métricas -->
-<div class="modal fade modal-kanban" id="metricsModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-bar-chart text-primary me-2"></i>
+<div class="m360-modal" id="metricsModal" tabindex="-1">
+    <div class="m360-modal-dialog m360-modal-xl">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title">
+                    <i class="bi bi-bar-chart events-text-primary events-me-2"></i>
                     Métricas del Kanban
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="m360-close-modal" data-m360-close></button>
             </div>
-            <div class="modal-body">
+            <div class="m360-modal-body">
                 <div class="metrics-dashboard">
                     <h6>Resumen de Actividad</h6>
                     <div class="metrics-grid">
@@ -1333,32 +396,32 @@
 </div>
 
 <!-- Modal de crear tarea -->
-<div class="modal fade modal-kanban" id="createTaskModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-plus-circle me-2"></i>
+<div class="m360-modal" id="createTaskModal" tabindex="-1">
+    <div class="m360-modal-dialog">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title">
+                    <i class="bi bi-plus-circle events-me-2"></i>
                     Crear Nueva Tarea
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="m360-close-modal" data-m360-close></button>
             </div>
-            <div class="modal-body">
+            <div class="m360-modal-body">
                 <form id="quickCreateTaskForm">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Título *</label>
-                        <input type="text" class="form-control" name="title" required>
+                    <div class="events-mb-3">
+                        <label class="m360-form-label">Título *</label>
+                        <input type="text" class="m360-form-control" name="title" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    <div class="events-mb-3">
+                        <label class="m360-form-label">Descripción</label>
+                        <textarea class="m360-form-control" name="description" rows="3"></textarea>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Proyecto</label>
-                                <select class="form-select" name="project">
+                    <div class="events-row">
+                        <div class="events-col-md-6">
+                            <div class="events-mb-3">
+                                <label class="m360-form-label">Proyecto</label>
+                                <select class="m360-form-select" name="project">
                                     <option value="">Sin proyecto</option>
                                     {% for project in projects %}
                                     <option value="{{ project.id }}">{{ project.title }}</option>
@@ -1366,10 +429,10 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Estado inicial</label>
-                                <select class="form-select" name="task_status">
+                        <div class="events-col-md-6">
+                            <div class="events-mb-3">
+                                <label class="m360-form-label">Estado inicial</label>
+                                <select class="m360-form-select" name="task_status">
                                     {% for status_name, column in kanban_columns.items %}
                                     <option value="{{ status_name }}">{{ column.title }}</option>
                                     {% endfor %}
@@ -1377,7 +440,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mb-3">
+                    <div class="events-mb-3">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="important" id="importantCheck">
                             <label class="form-check-label" for="importantCheck">
@@ -1387,9 +450,9 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="createQuickTask()">Crear Tarea</button>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-secondary" data-m360-close>Cancelar</button>
+                <button type="button" class="m360-btn m360-btn-primary" onclick="createQuickTask()">Crear Tarea</button>
             </div>
         </div>
     </div>
@@ -1399,7 +462,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar todas las funcionalidades
     initializeAdvancedKanban();
     initializeFilters();
     initializeDragAndDrop();
@@ -1408,13 +470,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeRealTimeUpdates();
     loadMetrics();
 
-    // Aplicar colores dinámicos
     applyDynamicStyles();
 });
-
-// ===============================================
-// CONFIGURACIÓN Y VARIABLES GLOBALES
-// ===============================================
 
 let kanbanData = {
     tasks: [],
@@ -1424,33 +481,16 @@ let kanbanData = {
         projects: [],
         users: []
     },
-    viewMode: 'normal',
+    viewMode: 'Normal',
     sortBy: 'updated_at',
     theme: localStorage.getItem('kanbanTheme') || 'light'
 };
 
-// ===============================================
-// INICIALIZACIÓN PRINCIPAL
-// ===============================================
-
 function initializeAdvancedKanban() {
-    console.log('🚀 Inicializando Kanban Avanzado...');
-
-    // Configurar modo de vista
     setupViewMode();
-
-    // Configurar ordenamiento
     setupSorting();
-
-    // Configurar tema
     setupTheme();
-
-    console.log('✅ Kanban Avanzado inicializado');
 }
-
-// ===============================================
-// GESTIÓN DE TEMAS
-// ===============================================
 
 function setupTheme() {
     const themeIcon = document.getElementById('themeIcon');
@@ -1466,7 +506,6 @@ function setupTheme() {
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
     document.documentElement.setAttribute('data-theme', newTheme);
     kanbanData.theme = newTheme;
     localStorage.setItem('kanbanTheme', newTheme);
@@ -1477,54 +516,41 @@ function toggleTheme() {
     showToast('Tema cambiado a ' + (newTheme === 'dark' ? 'oscuro' : 'claro'), 'info');
 }
 
-// ===============================================
-// MODOS DE VISTA
-// ===============================================
-
 function setupViewMode() {
-    const viewRadios = document.querySelectorAll('input[name="viewMode"]');
-
-    viewRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            kanbanData.viewMode = this.id.replace('view', '').toLowerCase();
+    const viewSelect = document.getElementById('viewMode');
+    if (viewSelect) {
+        viewSelect.addEventListener('change', function() {
+            kanbanData.viewMode = this.value;
             applyViewMode();
         });
-    });
+    }
 }
 
 function applyViewMode() {
     const board = document.getElementById('kanbanBoard');
-    board.className = `kanban-board ${kanbanData.viewMode}-view`;
-
-    showToast(`Vista cambiada a ${kanbanData.viewMode}`, 'info');
+    board.className = 'kanban-board ' + kanbanData.viewMode.toLowerCase() + '-view';
+    showToast('Vista cambiada a ' + kanbanData.viewMode, 'info');
 }
-
-// ===============================================
-// ORDENAMIENTO
-// ===============================================
 
 function setupSorting() {
     const sortSelect = document.getElementById('sortBy');
-
-    sortSelect.addEventListener('change', function() {
-        kanbanData.sortBy = this.value;
-        applySorting();
-    });
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            kanbanData.sortBy = this.value;
+            applySorting();
+        });
+    }
 }
 
 function applySorting() {
     const columns = document.querySelectorAll('.kanban-column');
-
-    columns.forEach(column => {
+    columns.forEach(function(column) {
         const tasks = Array.from(column.querySelectorAll('.task-card'));
-        tasks.sort((a, b) => {
-            const taskA = kanbanData.tasks.find(t => t.task.id == a.dataset.taskId);
-            const taskB = kanbanData.tasks.find(t => t.task.id == b.dataset.taskId);
-
+        tasks.sort(function(a, b) {
+            const taskA = kanbanData.tasks.find(function(t) { return t.task.id == a.dataset.taskId; });
+            const taskB = kanbanData.tasks.find(function(t) { return t.task.id == b.dataset.taskId; });
             if (!taskA || !taskB) return 0;
-
             let valueA, valueB;
-
             switch(kanbanData.sortBy) {
                 case 'title':
                     valueA = taskA.task.title.toLowerCase();
@@ -1546,17 +572,14 @@ function applySorting() {
                     valueA = new Date(taskA.task.updated_at);
                     valueB = new Date(taskB.task.updated_at);
             }
-
             if (valueA < valueB) return -1;
             if (valueA > valueB) return 1;
             return 0;
         });
-
         const tasksContainer = column.querySelector('.column-tasks');
-        tasks.forEach(task => tasksContainer.appendChild(task));
+        tasks.forEach(function(task) { tasksContainer.appendChild(task); });
     });
-
-    showToast(`Ordenado por ${getSortLabel(kanbanData.sortBy)}`, 'info');
+    showToast('Ordenado por ' + getSortLabel(kanbanData.sortBy), 'info');
 }
 
 function getSortLabel(sortBy) {
@@ -1570,30 +593,23 @@ function getSortLabel(sortBy) {
     return labels[sortBy] || sortBy;
 }
 
-// ===============================================
-// FILTROS AVANZADOS
-// ===============================================
-
 function initializeFilters() {
-    // Filtros de etiquetas
     const filterTags = document.querySelectorAll('.filter-tag');
-    filterTags.forEach(tag => {
+    filterTags.forEach(function(tag) {
         tag.addEventListener('click', function() {
             this.classList.toggle('active');
             toggleFilter('tags', this.dataset.tagId);
         });
     });
 
-    // Filtros de estado
     const statusFilters = document.querySelectorAll('.status-filter');
-    statusFilters.forEach(filter => {
+    statusFilters.forEach(function(filter) {
         filter.addEventListener('click', function() {
             this.classList.toggle('active');
             toggleFilter('status', this.dataset.status);
         });
     });
 
-    // Filtros de proyecto
     const projectFilter = document.getElementById('projectFilter');
     if (projectFilter) {
         projectFilter.addEventListener('change', function() {
@@ -1602,7 +618,6 @@ function initializeFilters() {
         });
     }
 
-    // Filtros de usuario
     const userFilter = document.getElementById('userFilter');
     if (userFilter) {
         userFilter.addEventListener('change', function() {
@@ -1611,7 +626,6 @@ function initializeFilters() {
         });
     }
 
-    // Cargar usuarios disponibles
     loadAvailableUsers();
 }
 
@@ -1628,78 +642,57 @@ function toggleFilter(type, value) {
 function applyFilters() {
     const taskCards = document.querySelectorAll('.task-card');
     let visibleCount = 0;
-
-    taskCards.forEach(card => {
+    taskCards.forEach(function(card) {
         const taskId = card.dataset.taskId;
-        const taskData = kanbanData.tasks.find(t => t.task.id == taskId);
-
+        const taskData = kanbanData.tasks.find(function(t) { return t.task.id == taskId; });
         if (!taskData) {
             card.style.display = 'none';
             return;
         }
-
         let shouldShow = true;
-
-        // Filtro de etiquetas
         if (kanbanData.filters.tags.length > 0) {
-            const taskTags = taskData.task.tags ? taskData.task.tags.map(t => t.id) : [];
-            shouldShow = shouldShow && kanbanData.filters.tags.some(tagId => taskTags.includes(parseInt(tagId)));
+            const taskTags = taskData.task.tags ? taskData.task.tags.map(function(t) { return t.id; }) : [];
+            shouldShow = shouldShow && kanbanData.filters.tags.some(function(tagId) { return taskTags.includes(parseInt(tagId)); });
         }
-
-        // Filtro de estado
         if (kanbanData.filters.status.length > 0) {
             const taskStatus = card.closest('.kanban-column').dataset.status;
             shouldShow = shouldShow && kanbanData.filters.status.includes(taskStatus);
         }
-
-        // Filtro de proyecto
         if (kanbanData.filters.projects.length > 0) {
             const taskProject = taskData.task.project ? taskData.task.project.id : null;
-            shouldShow = shouldShow && kanbanData.filters.projects.includes(taskProject?.toString());
+            shouldShow = shouldShow && kanbanData.filters.projects.includes(taskProject ? taskProject.toString() : '');
         }
-
-        // Filtro de usuario
         if (kanbanData.filters.users.length > 0) {
             const taskAssignee = taskData.task.assigned_to ? taskData.task.assigned_to.id : null;
-            shouldShow = shouldShow && kanbanData.filters.users.includes(taskAssignee?.toString());
+            shouldShow = shouldShow && kanbanData.filters.users.includes(taskAssignee ? taskAssignee.toString() : '');
         }
-
         card.style.display = shouldShow ? 'block' : 'none';
         if (shouldShow) visibleCount++;
     });
-
     updateColumnCounts();
-    showToast(`Mostrando ${visibleCount} tareas`, 'info');
+    showToast('Mostrando ' + visibleCount + ' tareas', 'info');
 }
 
 function clearAllFilters() {
-    // Limpiar filtros activos
-    document.querySelectorAll('.filter-tag.active, .status-filter.active').forEach(el => {
+    document.querySelectorAll('.filter-tag.active, .status-filter.active').forEach(function(el) {
         el.classList.remove('active');
     });
-
-    // Resetear filtros
-    Object.keys(kanbanData.filters).forEach(key => {
-        kanbanData.filters[key] = [];
-    });
-
-    // Resetear selects
     const projectFilter = document.getElementById('projectFilter');
     const userFilter = document.getElementById('userFilter');
     if (projectFilter) projectFilter.value = '';
     if (userFilter) userFilter.value = '';
-
+    Object.keys(kanbanData.filters).forEach(function(key) {
+        kanbanData.filters[key] = [];
+    });
     applyFilters();
     showToast('Filtros limpiados', 'info');
 }
 
 function loadAvailableUsers() {
-    // Cargar usuarios que tienen tareas asignadas
     const userFilter = document.getElementById('userFilter');
     if (!userFilter) return;
-
     const users = new Set();
-    kanbanData.tasks.forEach(taskData => {
+    kanbanData.tasks.forEach(function(taskData) {
         if (taskData.task.assigned_to) {
             users.add(JSON.stringify({
                 id: taskData.task.assigned_to.id,
@@ -1707,14 +700,10 @@ function loadAvailableUsers() {
             }));
         }
     });
-
-    // Limpiar opciones existentes (excepto la primera)
     while (userFilter.children.length > 1) {
         userFilter.removeChild(userFilter.lastChild);
     }
-
-    // Agregar usuarios
-    Array.from(users).forEach(userStr => {
+    Array.from(users).forEach(function(userStr) {
         const user = JSON.parse(userStr);
         const option = document.createElement('option');
         option.value = user.id;
@@ -1723,20 +712,14 @@ function loadAvailableUsers() {
     });
 }
 
-// ===============================================
-// DRAG AND DROP AVANZADO
-// ===============================================
-
 function initializeDragAndDrop() {
     const taskCards = document.querySelectorAll('.task-card[draggable="true"]');
     const columns = document.querySelectorAll('.kanban-column');
-
-    taskCards.forEach(card => {
+    taskCards.forEach(function(card) {
         card.addEventListener('dragstart', handleDragStart);
         card.addEventListener('dragend', handleDragEnd);
     });
-
-    columns.forEach(column => {
+    columns.forEach(function(column) {
         column.addEventListener('dragover', handleDragOver);
         column.addEventListener('drop', handleDrop);
         column.addEventListener('dragleave', handleDragLeave);
@@ -1747,14 +730,12 @@ function handleDragStart(e) {
     e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
     e.target.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
-
-    // Agregar efecto visual global
     document.body.classList.add('dragging-active');
 }
 
 function handleDragEnd(e) {
     e.target.classList.remove('dragging');
-    document.querySelectorAll('.kanban-column').forEach(col => {
+    document.querySelectorAll('.kanban-column').forEach(function(col) {
         col.classList.remove('drag-over');
     });
     document.body.classList.remove('dragging-active');
@@ -1772,57 +753,39 @@ function handleDragLeave(e) {
 function handleDrop(e) {
     e.preventDefault();
     e.currentTarget.classList.remove('drag-over');
-
     const taskId = e.dataTransfer.getData('text/plain');
     const newStatus = e.currentTarget.dataset.status;
-
     if (taskId && newStatus) {
         moveTaskToColumn(taskId, newStatus);
     }
 }
 
 function moveTaskToColumn(taskId, newStatus) {
-    const card = document.querySelector(`[data-task-id="${taskId}"]`);
+    const card = document.querySelector('[data-task-id="' + taskId + '"]');
     if (!card) return;
-
-    // Mostrar loading
     const originalContent = card.innerHTML;
-    card.innerHTML = `
-        <div class="d-flex align-items-center justify-content-center p-3">
-            <div class="loading-spinner me-2"></div>
-            <span>Moviendo tarea...</span>
-        </div>
-    `;
-
-    // Hacer petición AJAX
-    fetch(`/events/tasks/change-status-ajax/`, {
+    card.innerHTML = '<div class="events-d-flex events-align-center events-justify-center events-p-3"><div class="loading-spinner events-me-2"></div><span>Moviendo tarea...</span></div>';
+    fetch('/events/tasks/change-status-ajax/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
         },
-        body: `task_id=${taskId}&new_status_name=${newStatus}`
+        body: 'task_id=' + taskId + '&new_status_name=' + newStatus
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
         if (data.success) {
-            // Mover la tarjeta
-            const newColumn = document.querySelector(`[data-status="${newStatus}"] .column-tasks`);
+            const newColumn = document.querySelector('[data-status="' + newStatus + '"] .column-tasks');
             if (newColumn) {
-                // Remover estado vacío si existe
                 const emptyState = newColumn.querySelector('.empty-column');
-                if (emptyState) {
-                    emptyState.remove();
-                }
-
+                if (emptyState) { emptyState.remove(); }
                 newColumn.appendChild(card);
                 updateColumnCounts();
-
-                // Restaurar contenido con animación
-                setTimeout(() => {
+                setTimeout(function() {
                     card.innerHTML = originalContent;
                     card.style.animation = 'none';
-                    setTimeout(() => card.style.animation = '', 10);
+                    setTimeout(function() { card.style.animation = ''; }, 10);
                     showToast('Tarea movida exitosamente', 'success');
                 }, 300);
             }
@@ -1831,38 +794,31 @@ function moveTaskToColumn(taskId, newStatus) {
             showToast(data.error || 'Error al mover la tarea', 'error');
         }
     })
-    .catch(error => {
+    .catch(function(error) {
         card.innerHTML = originalContent;
         showToast('Error de conexión', 'error');
         console.error('Error:', error);
     });
 }
 
-// ===============================================
-// INTERACCIONES CON TAREAS
-// ===============================================
-
 function initializeTaskInteractions() {
     const taskCards = document.querySelectorAll('.task-card');
-
-    taskCards.forEach(card => {
+    taskCards.forEach(function(card) {
         card.addEventListener('click', function(e) {
             if (e.target.closest('.task-buttons') || e.target.closest('.task-actions')) {
                 return;
             }
-
             const taskId = this.dataset.taskId;
             if (taskId) {
-                window.location.href = `/events/tasks/${taskId}/`;
+                window.location.href = '/events/tasks/' + taskId + '/';
             }
         });
     });
 }
 
 function toggleComments(taskId) {
-    const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+    const taskCard = document.querySelector('[data-task-id="' + taskId + '"]');
     const commentsSection = taskCard.querySelector('.task-comments');
-
     if (commentsSection.style.display === 'none') {
         commentsSection.style.display = 'block';
         showToast('Comentarios mostrados', 'info');
@@ -1872,12 +828,8 @@ function toggleComments(taskId) {
     }
 }
 
-// ===============================================
-// FUNCIONES AUXILIARES
-// ===============================================
-
 function updateColumnCounts() {
-    document.querySelectorAll('.kanban-column').forEach(column => {
+    document.querySelectorAll('.kanban-column').forEach(function(column) {
         const count = column.querySelectorAll('.task-card').length;
         const countElement = column.querySelector('.column-count');
         if (countElement) {
@@ -1886,197 +838,16 @@ function updateColumnCounts() {
     });
 }
 
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast-kanban toast align-items-center text-white bg-${type} border-0`;
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-                ${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    `;
-
-    document.body.appendChild(toast);
-    const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 3000 });
-    bsToast.show();
-
-    toast.addEventListener('hidden.bs.toast', function() {
-        document.body.removeChild(toast);
-    });
-}
-
-function applyDynamicStyles() {
-    // Aplicar colores de etiquetas
-    document.querySelectorAll('.task-tag[data-tag-color]').forEach(tag => {
-        const color = tag.dataset.tagColor;
-        if (color) {
-            tag.style.backgroundColor = color + '20';
-            tag.style.color = color;
-            tag.style.border = `1px solid ${color}40`;
-        }
-    });
-
-    // Aplicar colores de filtros
-    document.querySelectorAll('.filter-tag[data-tag-color]').forEach(tag => {
-        const color = tag.dataset.tagColor;
-        if (color) {
-            tag.style.backgroundColor = color;
-            tag.style.borderColor = color;
-            tag.style.color = 'white';
-        }
-    });
-
-    // Aplicar colores de estado
-    document.querySelectorAll('.status-filter[data-status]').forEach(filter => {
-        const status = filter.dataset.status;
-        const column = document.querySelector(`.column-${status}`);
-        if (column) {
-            const header = column.querySelector('.column-header');
-            const icon = filter.querySelector('.column-status-icon');
-            if (header && icon) {
-                const computedStyle = window.getComputedStyle(header);
-                const borderColor = computedStyle.borderColor;
-                icon.style.color = borderColor;
-            }
-        }
-    });
-
-    // Aplicar colores dinámicos de etiquetas usando JavaScript puro
-    document.querySelectorAll('.filter-tag[data-tag-color]').forEach(tag => {
-        const color = tag.dataset.tagColor;
-        const icon = tag.querySelector('.filter-tag-icon');
-        if (icon && color) {
-            icon.style.backgroundColor = color;
-        }
-    });
-}
-
-// ===============================================
-// CREACIÓN RÁPIDA DE TAREAS
-// ===============================================
-
-function createQuickTask() {
-    const form = document.getElementById('quickCreateTaskForm');
-    const formData = new FormData(form);
-
-    // Validar campos requeridos
-    if (!formData.get('title')) {
-        showToast('El título es obligatorio', 'error');
-        return;
-    }
-
-    // Mostrar loading
-    const submitBtn = form.querySelector('button[type="button"]:last-child');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i> Creando...';
-    submitBtn.disabled = true;
-
-    // Hacer petición AJAX (por implementar)
-    setTimeout(() => {
-        showToast('Funcionalidad de creación rápida próximamente', 'info');
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }, 1000);
-}
-
-// ===============================================
-// EXPORTACIÓN
-// ===============================================
-
-function exportKanban(format) {
-    const data = {
-        tasks: kanbanData.tasks,
-        columns: Object.fromEntries(
-            Array.from(document.querySelectorAll('.kanban-column')).map(col => [
-                col.dataset.status,
-                {
-                    title: col.querySelector('.column-title').textContent.trim(),
-                    count: col.querySelector('.column-count').textContent
-                }
-            ])
-        ),
-        exportDate: new Date().toISOString(),
-        format: format
-    };
-
-    switch(format) {
-        case 'json':
-            exportAsJSON(data);
-            break;
-        case 'csv':
-            exportAsCSV(data);
-            break;
-        case 'pdf':
-            exportAsPDF(data);
-            break;
-        default:
-            showToast('Formato no soportado', 'error');
-    }
-}
-
-function exportAsJSON(data) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `kanban-export-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('Exportado como JSON', 'success');
-}
-
-function exportAsCSV(data) {
-    const csvContent = [
-        ['ID', 'Título', 'Estado', 'Proyecto', 'Asignado a', 'Importante', 'Fecha creación', 'Última actualización'],
-        ...data.tasks.map(task => [
-            task.task.id,
-            task.task.title,
-            task.task.task_status.status_name,
-            task.task.project ? task.task.project.title : '',
-            task.task.assigned_to ? task.task.assigned_to.username : '',
-            task.task.important ? 'Sí' : 'No',
-            task.task.created_at,
-            task.task.updated_at
-        ])
-    ].map(row => row.join(',')).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `kanban-export-${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('Exportado como CSV', 'success');
-}
-
-function exportAsPDF(data) {
-    showToast('Exportación PDF próximamente', 'info');
-}
-
-// ===============================================
-// ACCESOS DIRECTOS DE TECLADO
-// ===============================================
-
 function initializeKeyboardShortcuts() {
     document.addEventListener('keydown', function(e) {
-        // Solo si no está en un input/textarea
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
             return;
         }
-
         switch(e.key) {
             case 'f':
                 if (e.ctrlKey || e.metaKey) {
                     e.preventDefault();
-                    document.querySelector('[data-bs-target="#advancedFilterModal"]')?.click();
+                    document.querySelector('[data-m360-open="#advancedFilterModal"]')?.click();
                 }
                 break;
             case '+':
@@ -2102,27 +873,16 @@ function initializeKeyboardShortcuts() {
     });
 }
 
-// ===============================================
-// ACTUALIZACIONES EN TIEMPO REAL
-// ===============================================
-
 function initializeRealTimeUpdates() {
-    // Actualizar cada 30 segundos
     setInterval(refreshKanban, 30000);
 }
 
 function refreshKanban() {
     showToast('Actualizando...', 'info');
-
-    // Recargar la página (por simplicidad)
-    setTimeout(() => {
+    setTimeout(function() {
         window.location.reload();
     }, 1000);
 }
-
-// ===============================================
-// MÉTRICAS Y ANALYTICS
-// ===============================================
 
 function loadMetrics() {
     const avgTasksPerDay = document.getElementById('avgTasksPerDay');
@@ -2130,41 +890,170 @@ function loadMetrics() {
     const avgTimeInProgress = document.getElementById('avgTimeInProgress');
     const activeProjects = document.getElementById('activeProjects');
 
-    // Calcular métricas básicas
     const totalTasks = kanbanData.tasks.length;
-    const completedTasks = kanbanData.tasks.filter(t => t.task.task_status.status_name === 'Completed').length;
-    const inProgressTasks = kanbanData.tasks.filter(t => t.task.task_status.status_name === 'In Progress').length;
+    const completedTasks = kanbanData.tasks.filter(function(t) { return t.task.task_status && t.task.task_status.status_name === 'Completed'; }).length;
+    const inProgressTasks = kanbanData.tasks.filter(function(t) { return t.task.task_status && t.task.task_status.status_name === 'In Progress'; }).length;
 
     if (avgTasksPerDay) {
-        // Simular promedio (en un sistema real vendría de la API)
         avgTasksPerDay.textContent = Math.round(totalTasks / 7);
     }
-
     if (completionRate) {
         const rate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-        completionRate.textContent = `${rate}%`;
+        completionRate.textContent = rate + '%';
     }
-
     if (avgTimeInProgress) {
-        // Simular tiempo promedio (en un sistema real vendría de la API)
         avgTimeInProgress.textContent = '2.3 días';
     }
-
     if (activeProjects) {
-        // Contar proyectos únicos
         const projects = new Set();
-        kanbanData.tasks.forEach(task => {
-            if (task.task.project) {
-                projects.add(task.task.project.id);
-            }
+        kanbanData.tasks.forEach(function(task) {
+            if (task.task.project) { projects.add(task.task.project.id); }
         });
         activeProjects.textContent = projects.size;
     }
 }
 
-// ===============================================
-// INICIALIZACIÓN FINAL
-// ===============================================
+function showToast(message, type) {
+    type = type || 'info';
+    const toast = document.createElement('div');
+    toast.className = 'kanban-toast';
+    toast.setAttribute('role', 'alert');
+    const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle';
+    const bgColor = type === 'success' ? 'var(--kanban-success)' : type === 'error' ? 'var(--kanban-danger)' : 'var(--kanban-info)';
+    toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:1060;min-width:300px;padding:12px 16px;background:' + bgColor + ';color:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;animation:kanban-slideInRight 0.3s ease;';
+    toast.innerHTML = '<i class="bi bi-' + iconClass + '"></i><span>' + message + '</span>';
+    document.body.appendChild(toast);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(function() { if (toast.parentNode) document.body.removeChild(toast); }, 300);
+    }, 3000);
+}
+
+function applyDynamicStyles() {
+    document.querySelectorAll('.task-tag[data-tag-color]').forEach(function(tag) {
+        const color = tag.dataset.tagColor;
+        if (color) {
+            tag.style.backgroundColor = color + '20';
+            tag.style.color = color;
+            tag.style.border = '1px solid ' + color + '40';
+        }
+    });
+    document.querySelectorAll('.filter-tag[data-tag-color]').forEach(function(tag) {
+        const color = tag.dataset.tagColor;
+        if (color) {
+            tag.style.backgroundColor = color;
+            tag.style.borderColor = color;
+            tag.style.color = 'white';
+        }
+    });
+    document.querySelectorAll('.status-filter[data-status]').forEach(function(filter) {
+        const status = filter.dataset.status;
+        const column = document.querySelector('.column-' + status);
+        if (column) {
+            const header = column.querySelector('.column-header');
+            const icon = filter.querySelector('.column-status-icon');
+            if (header && icon) {
+                const computedStyle = window.getComputedStyle(header);
+                const borderColor = computedStyle.borderColor;
+                icon.style.color = borderColor;
+            }
+        }
+    });
+    document.querySelectorAll('.filter-tag[data-tag-color]').forEach(function(tag) {
+        const color = tag.dataset.tagColor;
+        const icon = tag.querySelector('.filter-tag-icon');
+        if (icon && color) {
+            icon.style.backgroundColor = color;
+        }
+    });
+}
+
+function createQuickTask() {
+    const form = document.getElementById('quickCreateTaskForm');
+    const formData = new FormData(form);
+    if (!formData.get('title')) {
+        showToast('El título es obligatorio', 'error');
+        return;
+    }
+    const submitBtn = form.querySelector('button[type="button"]:last-child');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise events-me-1"></i> Creando...';
+    submitBtn.disabled = true;
+    setTimeout(function() {
+        showToast('Funcionalidad de creación rápida próximamente', 'info');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 1000);
+}
+
+function exportKanban(format) {
+    const data = {
+        tasks: kanbanData.tasks,
+        columns: Object.fromEntries(
+            Array.from(document.querySelectorAll('.kanban-column')).map(function(col) {
+                return [col.dataset.status, {
+                    title: col.querySelector('.column-title').textContent.trim(),
+                    count: col.querySelector('.column-count').textContent
+                }];
+            })
+        ),
+        exportDate: new Date().toISOString(),
+        format: format
+    };
+    switch(format) {
+        case 'json': exportAsJSON(data); break;
+        case 'csv': exportAsCSV(data); break;
+        case 'pdf': exportAsPDF(data); break;
+        default: showToast('Formato no soportado', 'error');
+    }
+}
+
+function exportAsJSON(data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'kanban-export-' + new Date().toISOString().split('T')[0] + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Exportado como JSON', 'success');
+}
+
+function exportAsCSV(data) {
+    const csvContent = [
+        ['ID', 'Título', 'Estado', 'Proyecto', 'Asignado a', 'Importante', 'Fecha creación', 'Última actualización'],
+        ...data.tasks.map(function(task) {
+            return [
+                task.task.id,
+                task.task.title,
+                task.task.task_status ? task.task.task_status.status_name : '',
+                task.task.project ? task.task.project.title : '',
+                task.task.assigned_to ? task.task.assigned_to.username : '',
+                task.task.important ? 'Sí' : 'No',
+                task.task.created_at,
+                task.task.updated_at
+            ];
+        })
+    ].map(function(row) { return row.join(','); }).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'kanban-export-' + new Date().toISOString().split('T')[0] + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Exportado como CSV', 'success');
+}
+
+function exportAsPDF(data) {
+    showToast('Exportación PDF próximamente', 'info');
+}
 
 console.log('🎯 Kanban Avanzado completamente cargado');
 </script>

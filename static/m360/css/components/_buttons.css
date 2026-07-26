@@ -99,6 +99,101 @@
   background: var(--m360-gray-50);
 }
 
+.m360-root .m360-btn-outline-primary {
+  background: #fff;
+  color: var(--m360-primary);
+  border-color: var(--m360-primary);
+}
+
+.m360-root .m360-btn-outline-primary:hover:not(:disabled) {
+  background: var(--m360-primary-light);
+}
+
+.m360-root .m360-btn-outline-success {
+  background: #fff;
+  color: var(--m360-success);
+  border-color: var(--m360-success-border);
+}
+
+.m360-root .m360-btn-outline-success:hover:not(:disabled) {
+  background: var(--m360-success-light);
+}
+
+.m360-root .m360-btn-outline-warning {
+  background: #fff;
+  color: var(--m360-warning);
+  border-color: var(--m360-warning-border);
+}
+
+.m360-root .m360-btn-outline-warning:hover:not(:disabled) {
+  background: var(--m360-warning-light);
+}
+
+.m360-root .m360-btn-outline-danger {
+  background: #fff;
+  color: var(--m360-danger);
+  border-color: var(--m360-danger-border);
+}
+
+.m360-root .m360-btn-outline-danger:hover:not(:disabled) {
+  background: var(--m360-danger-light);
+}
+
+.m360-root .m360-btn-outline-info {
+  background: #fff;
+  color: var(--m360-primary);
+  border-color: #93c5fd;
+}
+
+.m360-root .m360-btn-outline-info:hover:not(:disabled) {
+  background: var(--m360-primary-light);
+}
+
+.m360-root .m360-btn-light {
+  background: #f8fafc;
+  color: var(--m360-text-secondary);
+  border-color: var(--m360-border);
+}
+
+.m360-root .m360-btn-light:hover:not(:disabled) {
+  background: var(--m360-gray-100);
+}
+
+.m360-root .m360-btn-lg {
+  --m360-btn-padding-y: 10px;
+  --m360-btn-padding-x: 20px;
+  --m360-btn-font-size: 15px;
+}
+
+.m360-root .m360-btn-lg i {
+  font-size: 15px;
+}
+
+.m360-root .m360-btn-group {
+  display: inline-flex;
+  gap: 0;
+}
+
+.m360-root .m360-btn-group > .m360-btn {
+  border-radius: 0;
+  margin-left: -1px;
+}
+
+.m360-root .m360-btn-group > .m360-btn:first-child {
+  border-top-left-radius: var(--m360-btn-radius);
+  border-bottom-left-radius: var(--m360-btn-radius);
+  margin-left: 0;
+}
+
+.m360-root .m360-btn-group > .m360-btn:last-child {
+  border-top-right-radius: var(--m360-btn-radius);
+  border-bottom-right-radius: var(--m360-btn-radius);
+}
+
+.m360-root .m360-btn-group > .m360-btn:hover:not(:disabled) {
+  z-index: 1;
+}
+
 .m360-root .m360-btn-ghost {
   background: transparent;
   border: 1px solid var(--m360-border);

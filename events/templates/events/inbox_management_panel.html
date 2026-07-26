@@ -1,25 +1,24 @@
-{% extends "panel/panel.html" %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 {% load custom_tags %}
 
 {% block title %}Inbox Management Panel{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title mb-0">
-                        <i class="bi bi-inbox-fill me-2"></i>
+<div class="events-container">
+    <div class="events-row events-mb-4">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+                    <h5 class="events-card-title events-mb-0">
+                        <i class="bi bi-inbox-fill" style="margin-right: var(--m360-space-2);"></i>
                         Inbox Management Panel
-                    </h3>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-primary" id="btn-refresh">
+                    </h5>
+                    <div class="m360-btn-group">
+                        <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-primary" id="btn-refresh">
                             <i class="bi bi-arrow-clockwise"></i> Refresh
                         </button>
-                        <button type="button" class="btn btn-outline-warning" id="btn-pause-auto">
+                        <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-warning" id="btn-pause-auto">
                             <i class="bi bi-pause-circle"></i> Pause Auto-Processing
                         </button>
                     </div>
@@ -28,99 +27,92 @@
         </div>
     </div>
 
-    <!-- Control Panel -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-gear me-2"></i>
+    <div class="events-row events-gap-4 events-mb-4">
+        <div class="events-col-lg-8">
+            <div class="m360-card">
+                <div class="m360-card-header">
+                    <h5 class="events-card-title events-mb-0">
+                        <i class="bi bi-gear" style="margin-right: var(--m360-space-2);"></i>
                         Processing Controls
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="auto-email-processing" checked>
-                                <label class="form-check-label" for="auto-email-processing">
-                                    Auto Email Processing
-                                </label>
+                <div class="m360-card-body">
+                    <div class="events-row events-gap-4">
+                        <div class="events-col-md-4">
+                            <div class="m360-form-check">
+                                <input class="m360-form-check-input" type="checkbox" id="auto-email-processing" checked>
+                                <label class="m360-form-check-label" for="auto-email-processing">Auto Email Processing</label>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="auto-call-queue" checked>
-                                <label class="form-check-label" for="auto-call-queue">
-                                    Auto Call Queue
-                                </label>
+                        <div class="events-col-md-4">
+                            <div class="m360-form-check">
+                                <input class="m360-form-check-input" type="checkbox" id="auto-call-queue" checked>
+                                <label class="m360-form-check-label" for="auto-call-queue">Auto Call Queue</label>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="auto-chat-routing" checked>
-                                <label class="form-check-label" for="auto-chat-routing">
-                                    Auto Chat Routing
-                                </label>
+                        <div class="events-col-md-4">
+                            <div class="m360-form-check">
+                                <input class="m360-form-check-input" type="checkbox" id="auto-chat-routing" checked>
+                                <label class="m360-form-check-label" for="auto-chat-routing">Auto Chat Routing</label>
                             </div>
                         </div>
                     </div>
                     <hr>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="processing-interval" class="form-label">Processing Interval (seconds)</label>
-                            <input type="number" class="form-control" id="processing-interval" value="60" min="30" max="300">
+                    <div class="events-row events-gap-4">
+                        <div class="events-col-md-6">
+                            <label for="processing-interval" class="m360-form-label">Processing Interval (seconds)</label>
+                            <input type="number" class="m360-form-control" id="processing-interval" value="60" min="30" max="300">
                         </div>
-                        <div class="col-md-6">
-                            <label for="max-concurrent" class="form-label">Max Concurrent Items</label>
-                            <input type="number" class="form-control" id="max-concurrent" value="5" min="1" max="20">
+                        <div class="events-col-md-6">
+                            <label for="max-concurrent" class="m360-form-label">Max Concurrent Items</label>
+                            <input type="number" class="m360-form-control" id="max-concurrent" value="5" min="1" max="20">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-graph-up me-2"></i>
+        <div class="events-col-lg-4">
+            <div class="m360-card">
+                <div class="m360-card-header">
+                    <h5 class="events-card-title events-mb-0">
+                        <i class="bi bi-graph-up" style="margin-right: var(--m360-space-2);"></i>
                         Live Metrics
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6">
+                <div class="m360-card-body">
+                    <div class="events-row events-text-center">
+                        <div class="events-col-6">
                             <div class="metric-box">
-                                <h4 class="text-primary" id="active-items">0</h4>
-                                <small class="text-muted">Active Items</small>
+                                <h4 class="events-text-primary" id="active-items">0</h4>
+                                <small class="events-text-muted">Active Items</small>
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="events-col-6">
                             <div class="metric-box">
-                                <h4 class="text-warning" id="pending-items">0</h4>
-                                <small class="text-muted">Pending</small>
+                                <h4 class="events-text-warning" id="pending-items">0</h4>
+                                <small class="events-text-muted">Pending</small>
                             </div>
                         </div>
                     </div>
                     <hr>
-                    <div class="row text-center">
-                        <div class="col-4">
+                    <div class="events-row events-text-center">
+                        <div class="events-col-4">
                             <div class="metric-box">
-                                <h4 class="text-info" id="emails-count">0</h4>
-                                <small class="text-muted">Emails</small>
+                                <h4 class="events-text-info" id="emails-count">0</h4>
+                                <small class="events-text-muted">Emails</small>
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="events-col-4">
                             <div class="metric-box">
-                                <h4 class="text-success" id="calls-count">0</h4>
-                                <small class="text-muted">Calls</small>
+                                <h4 class="events-text-success" id="calls-count">0</h4>
+                                <small class="events-text-muted">Calls</small>
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="events-col-4">
                             <div class="metric-box">
-                                <h4 class="text-secondary" id="chats-count">0</h4>
-                                <small class="text-muted">Chats</small>
+                                <h4 class="events-text-secondary" id="chats-count">0</h4>
+                                <small class="events-text-muted">Chats</small>
                             </div>
                         </div>
                     </div>
@@ -129,150 +121,65 @@
         </div>
     </div>
 
-    <!-- Interaction Queues -->
-    <div class="row">
-        <!-- Email Queue -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-envelope me-2"></i>
-                        Email Queue
-                    </h5>
-                    <span class="badge bg-primary" id="email-queue-count">0</span>
+    <div class="events-row events-gap-4">
+        <div class="events-col-md-4">
+            <div class="m360-card events-h-100">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+                    <h6 class="events-mb-0"><i class="bi bi-envelope" style="margin-right: var(--m360-space-1);"></i>Email Queue</h6>
+                    <span class="m360-badge m360-badge-primary" id="email-queue-count">0</span>
                 </div>
-                <div class="card-body">
+                <div class="m360-card-body">
                     <div class="queue-list" id="email-queue" style="max-height: 400px; overflow-y: auto;">
-                        <!-- Email items will be loaded here -->
                     </div>
                 </div>
-                <div class="card-footer">
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="processEmailQueue()">
+                <div class="m360-card-footer events-d-flex events-gap-2" style="background: transparent; border-top: 1px solid var(--m360-border);">
+                    <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-primary" onclick="processEmailQueue()">
                         <i class="bi bi-play-circle"></i> Process Queue
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="pauseEmailQueue()">
+                    <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-secondary" onclick="pauseEmailQueue()">
                         <i class="bi bi-pause-circle"></i> Pause
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Call Queue -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-telephone me-2"></i>
-                        Call Queue (Inbound)
-                    </h5>
-                    <span class="badge bg-success" id="call-queue-count">0</span>
+        <div class="events-col-md-4">
+            <div class="m360-card events-h-100">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+                    <h6 class="events-mb-0"><i class="bi bi-telephone" style="margin-right: var(--m360-space-1);"></i>Call Queue (Inbound)</h6>
+                    <span class="m360-badge m360-badge-success" id="call-queue-count">0</span>
                 </div>
-                <div class="card-body">
+                <div class="m360-card-body">
                     <div class="queue-list" id="call-queue" style="max-height: 400px; overflow-y: auto;">
-                        <!-- Call items will be loaded here -->
                     </div>
                 </div>
-                <div class="card-footer">
-                    <button type="button" class="btn btn-sm btn-outline-success" onclick="activateCallQueue()">
+                <div class="m360-card-footer events-d-flex events-gap-2" style="background: transparent; border-top: 1px solid var(--m360-border);">
+                    <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-success" onclick="activateCallQueue()">
                         <i class="bi bi-telephone-forward"></i> Activate Inbound
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="pauseCallQueue()">
+                    <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-warning" onclick="pauseCallQueue()">
                         <i class="bi bi-pause-circle"></i> Pause
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Chat Queue -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-chat-dots me-2"></i>
-                        Chat Queue
-                    </h5>
-                    <span class="badge bg-info" id="chat-queue-count">0</span>
+        <div class="events-col-md-4">
+            <div class="m360-card events-h-100">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
+                    <h6 class="events-mb-0"><i class="bi bi-chat-dots" style="margin-right: var(--m360-space-1);"></i>Chat Queue</h6>
+                    <span class="m360-badge m360-badge-info" id="chat-queue-count">0</span>
                 </div>
-                <div class="card-body">
+                <div class="m360-card-body">
                     <div class="queue-list" id="chat-queue" style="max-height: 400px; overflow-y: auto;">
-                        <!-- Chat items will be loaded here -->
                     </div>
                 </div>
-                <div class="card-footer">
-                    <button type="button" class="btn btn-sm btn-outline-info" onclick="processChatQueue()">
+                <div class="m360-card-footer events-d-flex events-gap-2" style="background: transparent; border-top: 1px solid var(--m360-border);">
+                    <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-info" onclick="processChatQueue()">
                         <i class="bi bi-chat-quote"></i> Process Chats
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="pauseChatQueue()">
+                    <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-secondary" onclick="pauseChatQueue()">
                         <i class="bi bi-pause-circle"></i> Pause
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Interaction Details Modal -->
-    <div class="modal fade" id="interactionModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="interactionModalTitle">Interaction Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="interactionModalBody">
-                    <!-- Interaction details will be loaded here -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="assignToAgent()">
-                        <i class="bi bi-person-plus"></i> Assign to Agent
-                    </button>
-                    <button type="button" class="btn btn-success" onclick="markAsResolved()">
-                        <i class="bi bi-check-circle"></i> Mark Resolved
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Agent Assignment Modal -->
-    <div class="modal fade" id="assignModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Assign to Agent</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="assignForm">
-                        <div class="mb-3">
-                            <label for="agent-select" class="form-label">Select Agent</label>
-                            <select class="form-select" id="agent-select" required>
-                                <option value="">Choose an agent...</option>
-                                <option value="bot-cx">Bot CX Auto</option>
-                                <option value="bot-atc">Bot ATC Support</option>
-                                <option value="human-john">John Doe (Human)</option>
-                                <option value="human-jane">Jane Smith (Human)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="priority-select" class="form-label">Priority</label>
-                            <select class="form-select" id="priority-select">
-                                <option value="baja">Low</option>
-                                <option value="media" selected>Medium</option>
-                                <option value="alta">High</option>
-                                <option value="urgente">Urgent</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="notes" rows="3" placeholder="Additional notes for the agent..."></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="confirmAssignment()">
-                        <i class="bi bi-check-circle"></i> Assign
                     </button>
                 </div>
             </div>
@@ -280,790 +187,240 @@
     </div>
 </div>
 
+<div class="m360-modal" id="interactionModal" tabindex="-1" aria-labelledby="interactionModalLabel" aria-hidden="true">
+    <div class="m360-modal-dialog m360-modal-lg">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title" id="interactionModalLabel">Interaction Details</h5>
+                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
+            </div>
+            <div class="m360-modal-body" id="interactionModalBody">
+            </div>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Close</button>
+                <button type="button" class="m360-btn m360-btn-primary" onclick="confirmAssignment()">
+                    <i class="bi bi-person-plus" style="margin-right: var(--m360-space-1);"></i>Assign to Agent
+                </button>
+                <button type="button" class="m360-btn m360-btn-success" onclick="markAsResolved()">
+                    <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Mark Resolved
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="m360-modal" id="assignModal" tabindex="-1" aria-labelledby="assignModalLabel" aria-hidden="true">
+    <div class="m360-modal-dialog">
+        <div class="m360-modal-content">
+            <div class="m360-modal-header">
+                <h5 class="m360-modal-title" id="assignModalLabel">Assign to Agent</h5>
+                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
+            </div>
+            <div class="m360-modal-body">
+                <form id="assignForm">
+                    <div class="events-mb-3">
+                        <label for="agent-select" class="m360-form-label">Select Agent</label>
+                        <select class="m360-form-control" id="agent-select" required>
+                            <option value="">Choose an agent...</option>
+                            <option value="bot-cx">Bot CX Auto</option>
+                            <option value="bot-atc">Bot ATC Support</option>
+                            <option value="human-john">John Doe (Human)</option>
+                            <option value="human-jane">Jane Smith (Human)</option>
+                        </select>
+                    </div>
+                    <div class="events-mb-3">
+                        <label for="priority-select" class="m360-form-label">Priority</label>
+                        <select class="m360-form-control" id="priority-select">
+                            <option value="baja">Low</option>
+                            <option value="media" selected>Medium</option>
+                            <option value="alta">High</option>
+                            <option value="urgente">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="events-mb-3">
+                        <label for="notes" class="m360-form-label">Notes</label>
+                        <textarea class="m360-form-control" id="notes" rows="3" placeholder="Additional notes for the agent..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="m360-modal-footer">
+                <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Cancel</button>
+                <button type="button" class="m360-btn m360-btn-primary" onclick="confirmAssignment()">
+                    <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Assign
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <style>
-.metric-box {
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f8f9fa;
-    margin-bottom: 10px;
-}
-
-.queue-item {
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 5px;
-    border-left: 4px solid;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.queue-item:hover {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transform: translateY(-1px);
-}
-
+.metric-box { padding: 10px; border-radius: 5px; background-color: var(--m360-gray-50); margin-bottom: 10px; }
+.queue-item { padding: 10px; margin-bottom: 8px; border-radius: 5px; border-left: 4px solid; cursor: pointer; transition: all 0.2s; }
+.queue-item:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.1); transform: translateY(-1px); }
 .queue-item.email { border-left-color: #007bff; background-color: #f8f9ff; }
 .queue-item.call { border-left-color: #28a745; background-color: #f8fff8; }
 .queue-item.chat { border-left-color: #17a2b8; background-color: #f8ffff; }
-
 .queue-item.high-priority { border-left-color: #dc3545; background-color: #fff8f8; }
 .queue-item.urgent { border-left-color: #ffc107; background-color: #fffef8; }
-
-.queue-item .priority-badge {
-    font-size: 0.75rem;
-    padding: 2px 6px;
-    border-radius: 3px;
-}
-
-.status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 5px;
-}
-
+.queue-item .priority-badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 3px; }
+.status-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
 .status-active { background-color: #28a745; }
 .status-pending { background-color: #ffc107; }
 .status-paused { background-color: #dc3545; }
 </style>
 
 <script>
-// Global variables
 let currentInteractionId = null;
 let autoRefreshInterval = null;
 
-// Helper function to get CSRF token
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+            if (cookie.substring(0, name.length + 1) === (name + '=')) { cookieValue = decodeURIComponent(cookie.substring(name.length + 1)); break; }
         }
     }
     return cookieValue;
 }
 
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    initializePanel();
-    startAutoRefresh();
-});
+document.addEventListener('DOMContentLoaded', function() { initializePanel(); startAutoRefresh(); });
 
-// Initialize panel
-function initializePanel() {
-    loadQueueData();
-    setupEventListeners();
-}
+function initializePanel() { loadQueueData(); setupEventListeners(); }
 
-// Setup event listeners
 function setupEventListeners() {
-    // Refresh button
     document.getElementById('btn-refresh').addEventListener('click', loadQueueData);
-
-    // Pause auto-processing button
     document.getElementById('btn-pause-auto').addEventListener('click', toggleAutoProcessing);
-
-    // Control switches
-    document.getElementById('auto-email-processing').addEventListener('change', updateProcessingSettings);
-    document.getElementById('auto-call-queue').addEventListener('change', updateProcessingSettings);
-    document.getElementById('auto-chat-routing').addEventListener('change', updateProcessingSettings);
-
-    // Interval and concurrent settings
-    document.getElementById('processing-interval').addEventListener('change', updateProcessingSettings);
-    document.getElementById('max-concurrent').addEventListener('change', updateProcessingSettings);
+    ['auto-email-processing', 'auto-call-queue', 'auto-chat-routing', 'processing-interval', 'max-concurrent'].forEach(id => document.getElementById(id).addEventListener('change', updateProcessingSettings));
 }
 
-// Load queue data
 function loadQueueData() {
-    // Real AJAX call to get queue data
-    fetch('/events/inbox/management/api/queue-data/', {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-        }
-    })
+    fetch('/events/inbox/management/api/queue-data/', { method: 'GET', headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' } })
     .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updateMetrics(data.data);
-        } else {
-            console.error('Error loading queue data:', data.error);
-            // Fallback to sample data
-            updateMetrics({
-                active: 12,
-                pending: 8,
-                emails: 15,
-                calls: 3,
-                chats: 2
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        // Fallback to sample data
-        updateMetrics({
-            active: 12,
-            pending: 8,
-            emails: 15,
-            calls: 3,
-            chats: 2
-        });
-    });
-
-    // Load sample queue items (in real implementation, this would come from API)
-    loadEmailQueue();
-    loadCallQueue();
-    loadChatQueue();
+    .then(data => { if (data.success) updateMetrics(data.data); else console.error('Error loading queue data:', data.error); })
+    .catch(error => console.error('Error:', error));
+    loadEmailQueue(); loadCallQueue(); loadChatQueue();
 }
 
-// Update metrics display
 function updateMetrics(data) {
     document.getElementById('active-items').textContent = data.active;
     document.getElementById('pending-items').textContent = data.pending;
     document.getElementById('emails-count').textContent = data.emails;
     document.getElementById('calls-count').textContent = data.calls;
     document.getElementById('chats-count').textContent = data.chats;
-
     document.getElementById('email-queue-count').textContent = data.emails;
     document.getElementById('call-queue-count').textContent = data.calls;
     document.getElementById('chat-queue-count').textContent = data.chats;
 }
 
-// Load email queue
 function loadEmailQueue() {
-    fetch('/events/inbox/management/api/email-queue/', {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-        }
-    })
+    fetch('/events/inbox/management/api/email-queue/', { method: 'GET', headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' } })
     .then(response => response.json())
     .then(data => {
+        const emailQueue = document.getElementById('email-queue');
         if (data.success) {
-            const emailQueue = document.getElementById('email-queue');
-            if (data.data.length === 0) {
-                emailQueue.innerHTML = '<div class="text-center text-muted py-3">No hay emails pendientes</div>';
-                return;
-            }
-
+            if (data.data.length === 0) { emailQueue.innerHTML = '<div class="events-text-center events-text-muted events-py-3">No hay emails pendientes</div>'; return; }
             emailQueue.innerHTML = data.data.map(email => `
-                <div class="queue-item email ${email.priority === 'alta' ? 'high-priority' : ''}"
-                      onclick="showInteractionDetails(${email.id}, 'email')">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
-                            <div class="fw-bold">${email.title}</div>
-                            <small class="text-muted">${email.sender}</small>
+                <div class="queue-item email ${email.priority === 'alta' ? 'high-priority' : ''}" onclick="showInteractionDetails(${email.id}, 'email')">
+                    <div class="events-d-flex events-justify-between events-align-start">
+                        <div class="events-flex-grow">
+                            <div style="font-weight: var(--m360-font-weight-bold);">${email.title}</div>
+                            <small class="events-text-muted">${email.sender}</small>
                         </div>
-                        <div class="text-end">
-                            <span class="badge bg-${getPriorityColor(email.priority)} priority-badge">${email.priority}</span>
+                        <div class="events-text-end">
+                            <span class="priority-badge m360-badge m360-badge-${email.priority === 'urgente' ? 'danger' : email.priority === 'alta' ? 'warning' : 'secondary'}">${email.priority}</span>
                             <div class="status-indicator status-${email.status}"></div>
                         </div>
                     </div>
-                    <div class="text-muted small mt-1">${email.time}</div>
+                    <div class="events-text-muted events-small events-mt-1">${email.time}</div>
                 </div>
             `).join('');
-        } else {
-            console.error('Error loading email queue:', data.error);
-            const emailQueue = document.getElementById('email-queue');
-            emailQueue.innerHTML = '<div class="text-center text-danger py-3">Error al cargar emails</div>';
-        }
+        } else { emailQueue.innerHTML = '<div class="events-text-center events-text-danger events-py-3">Error al cargar emails</div>'; }
     })
-    .catch(error => {
-        console.error('Error:', error);
-        const emailQueue = document.getElementById('email-queue');
-        emailQueue.innerHTML = '<div class="text-center text-danger py-3">Error de conexión</div>';
-    });
+    .catch(error => { const emailQueue = document.getElementById('email-queue'); emailQueue.innerHTML = '<div class="events-text-center events-text-danger events-py-3">Error de conexión</div>'; });
 }
 
-// Load call queue
 function loadCallQueue() {
-    fetch('/events/inbox/management/api/call-queue/', {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-        }
-    })
+    fetch('/events/inbox/management/api/call-queue/', { method: 'GET', headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' } })
     .then(response => response.json())
     .then(data => {
+        const callQueue = document.getElementById('call-queue');
         if (data.success) {
-            const callQueue = document.getElementById('call-queue');
-            if (data.data.length === 0) {
-                callQueue.innerHTML = '<div class="text-center text-muted py-3">No hay llamadas pendientes</div>';
-                return;
-            }
-
+            if (data.data.length === 0) { callQueue.innerHTML = '<div class="events-text-center events-text-muted events-py-3">No hay llamadas pendientes</div>'; return; }
             callQueue.innerHTML = data.data.map(call => `
-                <div class="queue-item call ${call.priority === 'alta' ? 'high-priority' : ''}"
-                      onclick="showInteractionDetails(${call.id}, 'call')">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
-                            <div class="fw-bold">${call.title}</div>
-                            <small class="text-muted">${call.caller}</small>
-                            <div class="text-warning small">Wait: ${call.waitTime}</div>
+                <div class="queue-item call ${call.priority === 'alta' ? 'high-priority' : ''}" onclick="showInteractionDetails(${call.id}, 'call')">
+                    <div class="events-d-flex events-justify-between events-align-start">
+                        <div class="events-flex-grow">
+                            <div style="font-weight: var(--m360-font-weight-bold);">${call.title}</div>
+                            <small class="events-text-muted">${call.caller}</small>
+                            <div class="events-text-warning events-small">Wait: ${call.waitTime}</div>
                         </div>
-                        <div class="text-end">
-                            <span class="badge bg-${getPriorityColor(call.priority)} priority-badge">${call.priority}</span>
+                        <div class="events-text-end">
+                            <span class="priority-badge m360-badge m360-badge-${call.priority === 'urgente' ? 'danger' : call.priority === 'alta' ? 'warning' : 'secondary'}">${call.priority}</span>
                             <div class="status-indicator status-${call.status}"></div>
                         </div>
                     </div>
-                    <div class="text-muted small mt-1">${call.time}</div>
+                    <div class="events-text-muted events-small events-mt-1">${call.time}</div>
                 </div>
             `).join('');
-        } else {
-            console.error('Error loading call queue:', data.error);
-            const callQueue = document.getElementById('call-queue');
-            callQueue.innerHTML = '<div class="text-center text-danger py-3">Error al cargar llamadas</div>';
-        }
+        } else { callQueue.innerHTML = '<div class="events-text-center events-text-danger events-py-3">Error al cargar llamadas</div>'; }
     })
-    .catch(error => {
-        console.error('Error:', error);
-        const callQueue = document.getElementById('call-queue');
-        callQueue.innerHTML = '<div class="text-center text-danger py-3">Error de conexión</div>';
-    });
+    .catch(error => { const callQueue = document.getElementById('call-queue'); callQueue.innerHTML = '<div class="events-text-center events-text-danger events-py-3">Error de conexión</div>'; });
 }
 
-// Load chat queue
 function loadChatQueue() {
-    fetch('/events/inbox/management/api/chat-queue/', {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-        }
-    })
+    fetch('/events/inbox/management/api/chat-queue/', { method: 'GET', headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' } })
     .then(response => response.json())
     .then(data => {
+        const chatQueue = document.getElementById('chat-queue');
         if (data.success) {
-            const chatQueue = document.getElementById('chat-queue');
-            if (data.data.length === 0) {
-                chatQueue.innerHTML = '<div class="text-center text-muted py-3">No hay chats pendientes</div>';
-                return;
-            }
-
+            if (data.data.length === 0) { chatQueue.innerHTML = '<div class="events-text-center events-text-muted events-py-3">No hay chats pendientes</div>'; return; }
             chatQueue.innerHTML = data.data.map(chat => `
-                <div class="queue-item chat"
-                      onclick="showInteractionDetails(${chat.id}, 'chat')">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
-                            <div class="fw-bold">${chat.title}</div>
-                            <small class="text-muted">${chat.customer}</small>
-                            <div class="text-info small">${chat.messages} messages</div>
+                <div class="queue-item chat" onclick="showInteractionDetails(${chat.id}, 'chat')">
+                    <div class="events-d-flex events-justify-between events-align-start">
+                        <div class="events-flex-grow">
+                            <div style="font-weight: var(--m360-font-weight-bold);">${chat.title}</div>
+                            <small class="events-text-muted">${chat.customer}</small>
+                            <div class="events-text-info events-small">${chat.messages} messages</div>
                         </div>
-                        <div class="text-end">
-                            <span class="badge bg-${getPriorityColor(chat.priority)} priority-badge">${chat.priority}</span>
+                        <div class="events-text-end">
+                            <span class="priority-badge m360-badge m360-badge-${chat.priority === 'urgente' ? 'danger' : chat.priority === 'alta' ? 'warning' : 'secondary'}">${chat.priority}</span>
                             <div class="status-indicator status-${chat.status}"></div>
                         </div>
                     </div>
-                    <div class="text-muted small mt-1">${chat.time}</div>
+                    <div class="events-text-muted events-small events-mt-1">${chat.time}</div>
                 </div>
             `).join('');
-        } else {
-            console.error('Error loading chat queue:', data.error);
-            const chatQueue = document.getElementById('chat-queue');
-            chatQueue.innerHTML = '<div class="text-center text-danger py-3">Error al cargar chats</div>';
-        }
+        } else { chatQueue.innerHTML = '<div class="events-text-center events-text-danger events-py-3">Error al cargar chats</div>'; }
     })
-    .catch(error => {
-        console.error('Error:', error);
-        const chatQueue = document.getElementById('chat-queue');
-        chatQueue.innerHTML = '<div class="text-center text-danger py-3">Error de conexión</div>';
-    });
+    .catch(error => { const chatQueue = document.getElementById('chat-queue'); chatQueue.innerHTML = '<div class="events-text-center events-text-danger events-py-3">Error de conexión</div>'; });
 }
 
-// Helper function for priority colors
-function getPriorityColor(priority) {
-    switch(priority) {
-        case 'urgente': return 'danger';
-        case 'alta': return 'warning';
-        case 'media': return 'primary';
-        case 'baja': return 'secondary';
-        default: return 'secondary';
-    }
-}
+function getPriorityColor(priority) { return { urgente: 'danger', alta: 'warning', media: 'primary', baja: 'secondary' }[priority] || 'secondary'; }
 
-// Show interaction details
 function showInteractionDetails(id, type) {
     currentInteractionId = id;
-
-    let title, content;
-    switch(type) {
-        case 'email':
-            title = 'Email Details';
-            content = getEmailDetails(id);
-            break;
-        case 'call':
-            title = 'Call Details';
-            content = getCallDetails(id);
-            break;
-        case 'chat':
-            title = 'Chat Details';
-            content = getChatDetails(id);
-            break;
-    }
-
-    document.getElementById('interactionModalTitle').textContent = title;
-    document.getElementById('interactionModalBody').innerHTML = content;
-
-    const modal = new bootstrap.Modal(document.getElementById('interactionModal'));
+    const title = { email: 'Email Details', call: 'Call Details', chat: 'Chat Details' }[type];
+    document.getElementById('interactionModalLabel').textContent = title;
+    document.getElementById('interactionModalBody').innerHTML = '<div class="events-text-center events-text-muted events-py-4">Detalles de ' + title.toLowerCase() + ' para ID ' + id + '</div>';
+    const modal = new m360Modal(document.getElementById('interactionModal'));
     modal.show();
 }
 
-// Get email details
-function getEmailDetails(id) {
-    return `
-        <div class="row">
-            <div class="col-md-8">
-                <h6>Subject: Solicitud cambio de plan internet</h6>
-                <p><strong>From:</strong> cliente1@gmail.com</p>
-                <p><strong>To:</strong> soporte@empresa.com</p>
-                <p><strong>Received:</strong> 2025-01-28 14:30:00</p>
-                <hr>
-                <p><strong>Message:</strong></p>
-                <p>Hola, me gustaría cambiar mi plan de internet actual de 50MB a 100MB. Mi contrato actual vence en 2 meses.</p>
-                <p>Cliente ID: CLI001<br>
-                Nombre: Juan Pérez<br>
-                Teléfono: 555-0101</p>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">GTD Classification</h6>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Category:</strong> <span class="badge bg-success">Accionable</span></p>
-                        <p><strong>Action:</strong> <span class="badge bg-primary">Delegar</span></p>
-                        <p><strong>Priority:</strong> <span class="badge bg-warning">Media</span></p>
-                        <p><strong>Context:</strong> Cliente</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Get call details
-function getCallDetails(id) {
-    return `
-        <div class="row">
-            <div class="col-md-8">
-                <h6>Incoming Call - Problema técnico</h6>
-                <p><strong>Caller:</strong> +51 999 888 777</p>
-                <p><strong>Queue:</strong> Technical Support</p>
-                <p><strong>Wait Time:</strong> 00:45</p>
-                <p><strong>Received:</strong> 2025-01-28 14:35:00</p>
-                <hr>
-                <p><strong>Call Notes:</strong></p>
-                <p>Cliente reporta problemas de velocidad de internet. Ya intentó reiniciar el modem.</p>
-                <p><strong>Previous Interactions:</strong> 2 llamadas este mes</p>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">Call Routing</h6>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Recommended:</strong> <span class="badge bg-info">ATC Agent</span></p>
-                        <p><strong>Skills Required:</strong></p>
-                        <ul class="list-unstyled small">
-                            <li>• Technical Support</li>
-                            <li>• Internet Issues</li>
-                        </ul>
-                        <p><strong>Estimated Duration:</strong> 15-20 min</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Get chat details
-function getChatDetails(id) {
-    return `
-        <div class="row">
-            <div class="col-md-8">
-                <h6>Live Chat Session</h6>
-                <p><strong>Customer:</strong> Cliente Web #1247</p>
-                <p><strong>Started:</strong> 2025-01-28 14:40:00</p>
-                <p><strong>Duration:</strong> 00:05:30</p>
-                <hr>
-                <div class="chat-messages" style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; padding: 10px; border-radius: 5px;">
-                    <div class="message customer">
-                        <strong>Cliente:</strong> Hola, tengo una duda sobre mi factura
-                    </div>
-                    <div class="message agent">
-                        <strong>Bot:</strong> ¡Hola! Claro, ¿en qué puedo ayudarte?
-                    </div>
-                    <div class="message customer">
-                        <strong>Cliente:</strong> Me aparece un cargo que no reconozco
-                    </div>
-                    <div class="message agent">
-                        <strong>Bot:</strong> Déjame verificar tu cuenta...
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">Chat Status</h6>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Status:</strong> <span class="badge bg-success">Active</span></p>
-                        <p><strong>Messages:</strong> 5</p>
-                        <p><strong>Sentiment:</strong> <span class="text-warning">Neutral</span></p>
-                        <p><strong>Topic:</strong> Billing</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Queue control functions
-function processEmailQueue() {
-    if (confirm('¿Procesar automáticamente la cola de emails? Esto asignará agentes disponibles a los emails pendientes.')) {
-        fetch('/events/inbox/management/api/process-queue/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                queue_type: 'email',
-                action: 'process'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`Procesamiento completado: ${data.processed_count} emails procesados`);
-                loadQueueData(); // Refresh all data
-            } else {
-                alert('Error al procesar emails: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error de conexión al procesar emails');
-        });
-    }
-}
-
-function pauseEmailQueue() {
-    fetch('/events/inbox/management/api/process-queue/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            queue_type: 'email',
-            action: 'pause'
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Cola de emails pausada');
-        } else {
-            alert('Error al pausar cola: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error de conexión');
-    });
-}
-
-function activateCallQueue() {
-    if (confirm('¿Activar cola de llamadas entrantes? Las llamadas serán enrutadas automáticamente a agentes ATC.')) {
-        fetch('/events/inbox/management/api/process-queue/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                queue_type: 'call',
-                action: 'activate'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`Cola de llamadas activada: ${data.activated_count} llamadas enrutadas`);
-                loadQueueData();
-            } else {
-                alert('Error al activar cola: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error de conexión');
-        });
-    }
-}
-
-function pauseCallQueue() {
-    fetch('/events/inbox/management/api/process-queue/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            queue_type: 'call',
-            action: 'pause'
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Cola de llamadas pausada');
-        } else {
-            alert('Error al pausar cola: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error de conexión');
-    });
-}
-
-function processChatQueue() {
-    if (confirm('¿Procesar automáticamente la cola de chats? Los chats serán asignados a agentes disponibles.')) {
-        fetch('/events/inbox/management/api/process-queue/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                queue_type: 'chat',
-                action: 'process'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`Procesamiento completado: ${data.processed_count} chats procesados`);
-                loadQueueData();
-            } else {
-                alert('Error al procesar chats: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error de conexión al procesar chats');
-        });
-    }
-}
-
-function pauseChatQueue() {
-    fetch('/events/inbox/management/api/process-queue/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            queue_type: 'chat',
-            action: 'pause'
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Cola de chats pausada');
-        } else {
-            alert('Error al pausar cola: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error de conexión');
-    });
-}
-
-// Assignment functions
-function assignToAgent() {
-    const modal = new bootstrap.Modal(document.getElementById('assignModal'));
-    modal.show();
-}
-
-function confirmAssignment() {
-    const agent = document.getElementById('agent-select').value;
-    const priority = document.getElementById('priority-select').value;
-    const notes = document.getElementById('notes').value;
-
-    if (!agent) {
-        alert('Please select an agent');
-        return;
-    }
-
-    if (!currentInteractionId) {
-        alert('No interaction selected');
-        return;
-    }
-
-    // Real API call to assign agent
-    const formData = new FormData();
-    formData.append('interaction_id', currentInteractionId);
-    formData.append('agent_type', agent);
-    formData.append('priority', priority);
-    formData.append('notes', notes);
-
-    fetch('/events/inbox/management/api/assign-agent/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(`Assigned to ${agent} with ${priority} priority`);
-        } else {
-            alert('Error assigning agent: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error assigning agent');
-    });
-
-    // Close modals
-    bootstrap.Modal.getInstance(document.getElementById('assignModal')).hide();
-    bootstrap.Modal.getInstance(document.getElementById('interactionModal')).hide();
-
-    // Refresh data
-    loadQueueData();
-}
-
-function markAsResolved() {
-    if (!currentInteractionId) {
-        alert('No interaction selected');
-        return;
-    }
-
-    const resolutionNotes = prompt('Resolution notes (optional):', '');
-
-    // Real API call to mark as resolved
-    const formData = new FormData();
-    formData.append('interaction_id', currentInteractionId);
-    if (resolutionNotes) {
-        formData.append('resolution_notes', resolutionNotes);
-    }
-
-    fetch('/events/inbox/management/api/mark-resolved/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Interaction marked as resolved');
-        } else {
-            alert('Error marking as resolved: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error marking as resolved');
-    });
-
-    bootstrap.Modal.getInstance(document.getElementById('interactionModal')).hide();
-    loadQueueData();
-}
-
-// Auto-processing controls
-function toggleAutoProcessing() {
-    const btn = document.getElementById('btn-pause-auto');
-    const icon = btn.querySelector('i');
-
-    if (icon.classList.contains('bi-pause-circle')) {
-        icon.classList.remove('bi-pause-circle');
-        icon.classList.add('bi-play-circle');
-        btn.innerHTML = '<i class="bi bi-play-circle"></i> Resume Auto-Processing';
-        btn.classList.remove('btn-outline-warning');
-        btn.classList.add('btn-outline-success');
-
-        // Pause auto-refresh
-        if (autoRefreshInterval) {
-            clearInterval(autoRefreshInterval);
-            autoRefreshInterval = null;
-        }
-    } else {
-        icon.classList.remove('bi-play-circle');
-        icon.classList.add('bi-pause-circle');
-        btn.innerHTML = '<i class="bi bi-pause-circle"></i> Pause Auto-Processing';
-        btn.classList.remove('btn-outline-success');
-        btn.classList.add('btn-outline-warning');
-
-        // Resume auto-refresh
-        startAutoRefresh();
-    }
-}
-
-function updateProcessingSettings() {
-    const emailProcessing = document.getElementById('auto-email-processing').checked;
-    const callQueue = document.getElementById('auto-call-queue').checked;
-    const chatRouting = document.getElementById('auto-chat-routing').checked;
-    const interval = document.getElementById('processing-interval').value;
-    const maxConcurrent = document.getElementById('max-concurrent').value;
-
-    // Real API call to update settings
-    const formData = new FormData();
-    formData.append('auto_email_processing', emailProcessing);
-    formData.append('auto_call_queue', callQueue);
-    formData.append('auto_chat_routing', chatRouting);
-    formData.append('processing_interval', interval);
-    formData.append('max_concurrent', maxConcurrent);
-
-    fetch('/events/inbox/management/api/update-settings/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            console.log('Settings updated successfully');
-        } else {
-            console.error('Error updating settings:', data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
-
-// Auto-refresh functionality
-function startAutoRefresh() {
-    autoRefreshInterval = setInterval(() => {
-        loadQueueData();
-    }, 30000); // Refresh every 30 seconds
-}
-
-// Cleanup on page unload
-window.addEventListener('beforeunload', function() {
-    if (autoRefreshInterval) {
-        clearInterval(autoRefreshInterval);
-    }
-});
+function processEmailQueue() { if (!confirm('¿Procesar automáticamente la cola de emails?')) return; fetch('/events/inbox/management/api/process-queue/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }, body: JSON.stringify({ queue_type: 'email', action: 'process' }) }).then(r => r.json()).then(d => { if (d.success) alert('Cola procesada'); else alert('Error: ' + d.error); }).catch(() => alert('Error de conexión')); }
+function pauseEmailQueue() { fetch('/events/inbox/management/api/process-queue/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }, body: JSON.stringify({ queue_type: 'email', action: 'pause' }) }).then(r => r.json()).then(d => { if (d.success) alert('Cola pausada'); }).catch(() => {}); }
+function activateCallQueue() { if (!confirm('¿Activar cola de llamadas entrantes?')) return; fetch('/events/inbox/management/api/process-queue/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }, body: JSON.stringify({ queue_type: 'call', action: 'activate' }) }).then(r => r.json()).then(d => { if (d.success) { alert('Cola activada'); loadQueueData(); } }).catch(() => alert('Error de conexión')); }
+function pauseCallQueue() { fetch('/events/inbox/management/api/process-queue/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }, body: JSON.stringify({ queue_type: 'call', action: 'pause' }) }).then(r => r.json()).then(d => { if (d.success) alert('Cola pausada'); }).catch(() => {}); }
+function processChatQueue() { if (!confirm('¿Procesar automáticamente la cola de chats?')) return; fetch('/events/inbox/management/api/process-queue/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }, body: JSON.stringify({ queue_type: 'chat', action: 'process' }) }).then(r => r.json()).then(d => { if (d.success) alert('Chats procesados'); loadQueueData(); }).catch(() => alert('Error de conexión')); }
+function pauseChatQueue() { fetch('/events/inbox/management/api/process-queue/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }, body: JSON.stringify({ queue_type: 'chat', action: 'pause' }) }).then(r => r.json()).then(d => { if (d.success) alert('Cola pausada'); }).catch(() => {}); }
+function confirmAssignment() { const agent = document.getElementById('agent-select').value; if (!agent) { alert('Please select an agent'); return; } const formData = new FormData(); formData.append('interaction_id', currentInteractionId); formData.append('agent_type', agent); formData.append('priority', document.getElementById('priority-select').value); formData.append('notes', document.getElementById('notes').value); fetch('/events/inbox/management/api/assign-agent/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, body: formData }).then(r => r.json()).then(d => { if (d.success) alert('Assigned to ' + agent); else alert('Error assigning agent: ' + d.error); }).catch(() => alert('Error assigning agent')); new m360Modal(document.getElementById('assignModal')).hide(); new m360Modal(document.getElementById('interactionModal')).hide(); loadQueueData(); }
+function markAsResolved() { if (!currentInteractionId) { alert('No interaction selected'); return; } const resolutionNotes = prompt('Resolution notes (optional):', ''); const formData = new FormData(); formData.append('interaction_id', currentInteractionId); if (resolutionNotes) formData.append('resolution_notes', resolutionNotes); fetch('/events/inbox/management/api/mark-resolved/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, body: formData }).then(r => r.json()).then(d => { if (d.success) alert('Interaction marked as resolved'); else alert('Error marking as resolved: ' + d.error); }).catch(() => alert('Error marking as resolved')); new m360Modal(document.getElementById('interactionModal')).hide(); loadQueueData(); }
+function toggleAutoProcessing() { const btn = document.getElementById('btn-pause-auto'); if (btn.querySelector('i').classList.contains('bi-pause-circle')) { btn.querySelector('i').classList.replace('bi-pause-circle', 'bi-play-circle'); btn.innerHTML = '<i class="bi bi-play-circle"></i> Resume Auto-Processing'; btn.classList.replace('btn-outline-warning', 'btn-outline-success'); if (autoRefreshInterval) { clearInterval(autoRefreshInterval); autoRefreshInterval = null; } } else { btn.querySelector('i').classList.replace('bi-play-circle', 'bi-pause-circle'); btn.innerHTML = '<i class="bi bi-pause-circle"></i> Pause Auto-Processing'; btn.classList.replace('btn-outline-success', 'btn-outline-warning'); startAutoRefresh(); } }
+function updateProcessingSettings() { const formData = new FormData(); formData.append('auto_email_processing', document.getElementById('auto-email-processing').checked); formData.append('auto_call_queue', document.getElementById('auto-call-queue').checked); formData.append('auto_chat_routing', document.getElementById('auto-chat-routing').checked); formData.append('processing_interval', document.getElementById('processing-interval').value); formData.append('max_concurrent', document.getElementById('max-concurrent').value); fetch('/events/inbox/management/api/update-settings/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, body: formData }).then(r => r.json()).then(d => { if (!d.success) console.error('Error updating settings:', d.error); }).catch(e => console.error('Error:', e)); }
+function startAutoRefresh() { autoRefreshInterval = setInterval(loadQueueData, 30000); }
+window.addEventListener('beforeunload', () => { if (autoRefreshInterval) clearInterval(autoRefreshInterval); });
 </script>
 {% endblock %}

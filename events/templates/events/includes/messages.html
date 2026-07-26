@@ -1,34 +1,22 @@
 <!-- events/includes/messages.html -->
 {% if messages %}
-<div class="messages-container">
+<div class="messages">
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" 
-         role="alert">
-        <div class="alert-content d-flex align-items-start">
-            <div class="alert-icon me-3">
-                {% if message.tags == 'success' %}
-                <i class="bi bi-check-circle-fill"></i>
-                {% elif message.tags == 'error' or message.tags == 'danger' %}
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                {% elif message.tags == 'warning' %}
-                <i class="bi bi-exclamation-circle-fill"></i>
-                {% elif message.tags == 'info' %}
-                <i class="bi bi-info-circle-fill"></i>
-                {% else %}
-                <i class="bi bi-chat-square-text-fill"></i>
-                {% endif %}
-            </div>
-            <div class="alert-text flex-grow-1">
+    <div class="m360-alert m360-alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}{{ message.tags }}{% endif %}" style="position: relative;">
+        <div class="events-d-flex events-align-center events-gap-2">
+            <div class="events-flex-grow">
                 {% if message.extra_tags %}
-                <strong class="d-block alert-title">{{ message.extra_tags }}</strong>
+                <strong class="events-block" style="font-size: var(--m360-text-sm);">{{ message.extra_tags }}</strong>
                 {% endif %}
                 {{ message|safe }}
             </div>
-            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="m360-close-modal" data-m360-close aria-label="Close" style="flex-shrink: 0;">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
         {% if message.tags == 'success' or message.tags == 'info' %}
-        <div class="alert-progress">
-            <div class="progress-bar"></div>
+        <div class="m360-progress" style="position: absolute; bottom: 0; left: 0; height: 3px;">
+            <div class="m360-progress-fill" style="width: 100%; animation: events-progress 5s linear forwards;"></div>
         </div>
         {% endif %}
     </div>

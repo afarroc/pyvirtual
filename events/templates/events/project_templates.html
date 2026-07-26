@@ -1,34 +1,31 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="bi bi-collection me-2"></i>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-card">
+                <div class="m360-card-header events-d-flex events-justify-between events-align-center events-flex-wrap">
+                    <h5 class="m360-card-title events-mb-0">
+                        <i class="bi bi-collection" style="margin-right: var(--m360-space-2);"></i>
                         {{ title }}
-                    </h3>
-                    <div class="card-tools">
-                        <a href="{% url 'events:create_project_template' %}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-plus-circle me-1"></i>
-                            Nueva Plantilla
-                        </a>
-                    </div>
+                    </h5>
+                    <a href="{% url 'events:create_project_template' %}" class="m360-btn m360-btn-primary">
+                        <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>
+                        Nueva Plantilla
+                    </a>
                 </div>
-                <div class="card-body">
-                    <!-- Filtros -->
-                    <div class="row mb-4">
-                        <div class="col-md-8">
-                            <form method="get" class="d-flex gap-2">
-                                <input type="text" name="search" class="form-control"
+                <div class="m360-card-body">
+                    <div class="events-row events-mb-4">
+                        <div class="events-col-md-8">
+                            <form method="get" class="events-d-flex events-flex-wrap events-gap-2">
+                                <input type="text" name="search" class="m360-form-control"
                                        placeholder="Buscar plantillas..."
                                        value="{{ search_query }}">
-                                <select name="category" class="form-select">
+                                <select name="category" class="m360-form-control">
                                     <option value="">Todas las categorías</option>
                                     {% for category in categories %}
                                         <option value="{{ category }}" {% if category == category_filter %}selected{% endif %}>
@@ -36,65 +33,58 @@
                                         </option>
                                     {% endfor %}
                                 </select>
-                                <button type="submit" class="btn btn-outline-primary">
-                                    <i class="bi bi-search me-1"></i>
+                                <button type="submit" class="m360-btn m360-btn-outline-primary">
+                                    <i class="bi bi-search" style="margin-right: var(--m360-space-1);"></i>
                                     Buscar
                                 </button>
                             </form>
                         </div>
-                        <div class="col-md-4 text-end">
-                            <small class="text-muted">
+                        <div class="events-col-md-4 events-text-end">
+                            <small class="events-text-muted">
                                 {{ public_templates.count }} públicas,
                                 {{ user_templates.count }} privadas
                             </small>
                         </div>
                     </div>
 
-                    <!-- Plantillas Públicas -->
                     {% if public_templates %}
-                        <h4 class="mb-3">
-                            <i class="bi bi-globe me-2"></i>
+                        <h5 class="events-mb-3">
+                            <i class="bi bi-globe" style="margin-right: var(--m360-space-2);"></i>
                             Plantillas Públicas
-                        </h4>
-                        <div class="row">
+                        </h5>
+                        <div class="events-row events-gap-3">
                             {% for template in public_templates %}
-                                <div class="col-md-4 mb-4">
-                                    <div class="card h-100 template-card">
-                                        <div class="card-header">
-                                            <h6 class="card-title mb-0">{{ template.name }}</h6>
-                                            <small class="text-muted">
-                                                <i class="bi bi-person me-1"></i>
+                                <div class="events-col-md-4">
+                                    <div class="m360-card events-h-100">
+                                        <div class="m360-card-header" style="background: var(--m360-gray-50); border-bottom: 1px solid var(--m360-border);">
+                                            <h6 class="events-mb-0">{{ template.name }}</h6>
+                                            <small class="events-text-muted">
+                                                <i class="bi bi-person" style="margin-right: var(--m360-space-1);"></i>
                                                 {{ template.created_by.username }}
                                             </small>
                                         </div>
-                                        <div class="card-body">
-                                            <p class="card-text small text-muted">
-                                                {{ template.description|truncatechars:100 }}
-                                            </p>
-                                            <div class="template-meta">
-                                                <span class="badge bg-primary">
-                                                    <i class="bi bi-tag me-1"></i>
+                                        <div class="m360-card-body">
+                                            <p class="events-text-muted" style="font-size: var(--m360-text-sm);">{{ template.description|truncatechars:100 }}</p>
+                                            <div class="events-d-flex events-flex-wrap events-gap-2">
+                                                <span class="m360-badge m360-badge-primary">
+                                                    <i class="bi bi-tag" style="margin-right: var(--m360-space-1);"></i>
                                                     {{ template.category }}
                                                 </span>
-                                                <span class="badge bg-info">
-                                                    <i class="bi bi-clock me-1"></i>
+                                                <span class="m360-badge m360-badge-info">
+                                                    <i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i>
                                                     {{ template.estimated_duration }} días
                                                 </span>
                                             </div>
                                         </div>
-                                        <div class="card-footer">
-                                            <div class="d-flex gap-2">
-                                                <a href="{% url 'events:project_template_detail' template.id %}"
-                                                   class="btn btn-outline-primary btn-sm">
-                                                    <i class="bi bi-eye me-1"></i>
-                                                    Ver
-                                                </a>
-                                                <a href="{% url 'events:use_project_template' template.id %}"
-                                                   class="btn btn-success btn-sm">
-                                                    <i class="bi bi-play-circle me-1"></i>
-                                                    Usar
-                                                </a>
-                                            </div>
+                                        <div class="m360-card-footer events-d-flex events-gap-2" style="background: var(--m360-gray-50); border-top: 1px solid var(--m360-border);">
+                                            <a href="{% url 'events:project_template_detail' template.id %}"
+                                               class="m360-btn m360-btn-sm m360-btn-outline-primary">
+                                                <i class="bi bi-eye" style="margin-right: var(--m360-space-1);"></i>Ver
+                                            </a>
+                                            <a href="{% url 'events:use_project_template' template.id %}"
+                                               class="m360-btn m360-btn-sm m360-btn-success">
+                                                <i class="bi bi-play-circle" style="margin-right: var(--m360-space-1);"></i>Usar
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -102,73 +92,64 @@
                         </div>
                     {% endif %}
 
-                    <!-- Plantillas Privadas del Usuario -->
                     {% if user_templates %}
-                        <h4 class="mb-3 mt-5">
-                            <i class="bi bi-person-circle me-2"></i>
+                        <h5 class="events-mb-3 events-mt-4">
+                            <i class="bi bi-person-circle" style="margin-right: var(--m360-space-2);"></i>
                             Mis Plantillas
-                        </h4>
-                        <div class="row">
+                        </h5>
+                        <div class="events-row events-gap-3">
                             {% for template in user_templates %}
-                                <div class="col-md-4 mb-4">
-                                    <div class="card h-100 template-card">
-                                        <div class="card-header">
-                                            <h6 class="card-title mb-0">{{ template.name }}</h6>
-                                            <small class="text-muted">
-                                                <i class="bi bi-calendar me-1"></i>
+                                <div class="events-col-md-4">
+                                    <div class="m360-card events-h-100">
+                                        <div class="m360-card-header" style="background: var(--m360-gray-50); border-bottom: 1px solid var(--m360-border);">
+                                            <h6 class="events-mb-0">{{ template.name }}</h6>
+                                            <small class="events-text-muted">
+                                                <i class="bi bi-calendar" style="margin-right: var(--m360-space-1);"></i>
                                                 {{ template.created_at|date:"d/m/Y" }}
                                             </small>
                                         </div>
-                                        <div class="card-body">
-                                            <p class="card-text small text-muted">
-                                                {{ template.description|truncatechars:100 }}
-                                            </p>
-                                            <div class="template-meta">
-                                                <span class="badge bg-primary">
-                                                    <i class="bi bi-tag me-1"></i>
+                                        <div class="m360-card-body">
+                                            <p class="events-text-muted" style="font-size: var(--m360-text-sm);">{{ template.description|truncatechars:100 }}</p>
+                                            <div class="events-d-flex events-flex-wrap events-gap-2">
+                                                <span class="m360-badge m360-badge-primary">
+                                                    <i class="bi bi-tag" style="margin-right: var(--m360-space-1);"></i>
                                                     {{ template.category }}
                                                 </span>
-                                                <span class="badge bg-info">
-                                                    <i class="bi bi-clock me-1"></i>
+                                                <span class="m360-badge m360-badge-info">
+                                                    <i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i>
                                                     {{ template.estimated_duration }} días
                                                 </span>
                                                 {% if template.is_public %}
-                                                    <span class="badge bg-success">
-                                                        <i class="bi bi-globe me-1"></i>
+                                                    <span class="m360-badge m360-badge-success">
+                                                        <i class="bi bi-globe" style="margin-right: var(--m360-space-1);"></i>
                                                         Pública
                                                     </span>
                                                 {% else %}
-                                                    <span class="badge bg-secondary">
-                                                        <i class="bi bi-lock me-1"></i>
+                                                    <span class="m360-badge m360-badge-secondary">
+                                                        <i class="bi bi-lock" style="margin-right: var(--m360-space-1);"></i>
                                                         Privada
                                                     </span>
                                                 {% endif %}
                                             </div>
                                         </div>
-                                        <div class="card-footer">
-                                            <div class="d-flex gap-2">
-                                                <a href="{% url 'events:project_template_detail' template.id %}"
-                                                   class="btn btn-outline-primary btn-sm">
-                                                    <i class="bi bi-eye me-1"></i>
-                                                    Ver
-                                                </a>
-                                                <a href="{% url 'events:edit_project_template' template.id %}"
-                                                   class="btn btn-outline-warning btn-sm">
-                                                    <i class="bi bi-pencil me-1"></i>
-                                                    Editar
-                                                </a>
-                                                <a href="{% url 'events:use_project_template' template.id %}"
-                                                   class="btn btn-success btn-sm">
-                                                    <i class="bi bi-play-circle me-1"></i>
-                                                    Usar
-                                                </a>
-                                                <a href="{% url 'events:delete_project_template' template.id %}"
-                                                   class="btn btn-outline-danger btn-sm"
-                                                   onclick="return confirm('¿Eliminar plantilla?')">
-                                                    <i class="bi bi-trash me-1"></i>
-                                                    Eliminar
-                                                </a>
-                                            </div>
+                                        <div class="m360-card-footer events-d-flex events-flex-wrap events-gap-2" style="background: var(--m360-gray-50); border-top: 1px solid var(--m360-border);">
+                                            <a href="{% url 'events:project_template_detail' template.id %}"
+                                               class="m360-btn m360-btn-sm m360-btn-outline-primary">
+                                                <i class="bi bi-eye" style="margin-right: var(--m360-space-1);"></i>Ver
+                                            </a>
+                                            <a href="{% url 'events:edit_project_template' template.id %}"
+                                               class="m360-btn m360-btn-sm m360-btn-outline-warning">
+                                                <i class="bi bi-pencil" style="margin-right: var(--m360-space-1);"></i>Editar
+                                            </a>
+                                            <a href="{% url 'events:use_project_template' template.id %}"
+                                               class="m360-btn m360-btn-sm m360-btn-success">
+                                                <i class="bi bi-play-circle" style="margin-right: var(--m360-space-1);"></i>Usar
+                                            </a>
+                                            <a href="{% url 'events:delete_project_template' template.id %}"
+                                               class="m360-btn m360-btn-sm m360-btn-outline-danger"
+                                               onclick="return confirm('¿Eliminar plantilla?')">
+                                                <i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i>Eliminar
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -176,20 +157,21 @@
                         </div>
                     {% endif %}
 
-                    <!-- Mensaje cuando no hay plantillas -->
                     {% if not public_templates and not user_templates %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-collection display-4 text-muted mb-3"></i>
-                            <h4 class="text-muted">No hay plantillas disponibles</h4>
-                            <p class="text-muted">
+                        <div class="events-text-center events-py-5">
+                            <div style="font-size: var(--m360-icon-2xl); color: var(--m360-text-muted); margin-bottom: var(--m360-space-3);">
+                                <i class="bi bi-collection"></i>
+                            </div>
+                            <h4 class="events-text-muted events-mb-3">No hay plantillas disponibles</h4>
+                            <p class="events-text-muted events-mb-4">
                                 {% if search_query or category_filter %}
                                     No se encontraron plantillas con los filtros aplicados.
                                 {% else %}
                                     Crea tu primera plantilla de proyecto para reutilizar en futuros proyectos.
                                 {% endif %}
                             </p>
-                            <a href="{% url 'events:create_project_template' %}" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-1"></i>
+                            <a href="{% url 'events:create_project_template' %}" class="m360-btn m360-btn-primary">
+                                <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>
                                 Crear Primera Plantilla
                             </a>
                         </div>
@@ -199,50 +181,4 @@
         </div>
     </div>
 </div>
-
-<style>
-.template-card {
-    transition: all 0.3s ease;
-    border: 1px solid #dee2e6;
-}
-
-.template-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.template-meta {
-    margin-top: 1rem;
-}
-
-.template-meta .badge {
-    margin-right: 0.5rem;
-    margin-bottom: 0.25rem;
-}
-
-.card-header {
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.card-footer {
-    background: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-}
-
-.form-select:focus, .form-control:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-.btn-outline-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
-}
-
-.btn-success:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(25, 135, 84, 0.3);
-}
-</style>
 {% endblock %}

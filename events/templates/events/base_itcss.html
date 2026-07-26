@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Events · Management360{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Gestión de eventos, tareas y proyectos de Management360.{% endblock %}">
+  <link rel="stylesheet" href="{% static 'm360/css/_index.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
+  <div class="m360-root">
+    {% include "events/components/_site_header.html" %}
+    <main id="main-content" class="m360-page">
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="m360-alert m360-alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}{{ message.tags }}{% endif %}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+    {% include "events/components/_site_footer.html" %}
+  </div>
+  <script src="{% static 'm360/js/m360-modal.js' %}"></script>
+  <script src="{% static 'm360/js/m360-dropdown.js' %}"></script>
+  <script src="{% static 'm360/js/m360-nav.js' %}"></script>
+  <script src="{% static 'm360/js/m360-tabs.js' %}"></script>
+  <script src="{% static 'm360/js/m360-accordion.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Auto-dismiss alerts
+      document.querySelectorAll('.m360-alert').forEach(function(alert) {
+        var closeBtn = alert.querySelector('.m360-close-modal, [data-m360-close]');
+        if (!closeBtn) {
+          setTimeout(function() {
+            alert.style.transition = 'opacity .5s ease';
+            alert.style.opacity = '0';
+            setTimeout(function() { alert.remove(); }, 500);
+          }, 5000);
+        }
+      });
+
+      // Back to top
+      var backToTop = document.querySelector('[data-back-to-top]');
+      if (backToTop) {
+        var toggleVisibility = function() {
+          backToTop.style.display = window.pageYOffset > 100 ? 'flex' : 'none';
+        };
+        window.addEventListener('scroll', toggleVisibility);
+        toggleVisibility();
+        backToTop.addEventListener('click', function(e) {
+          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

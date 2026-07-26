@@ -1,0 +1,72 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 6. Components
+   File: _accordion.css — accordion without Bootstrap
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-accordion {
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  overflow: hidden;
+}
+
+.m360-root .m360-accordion-item {
+  border-bottom: 1px solid var(--m360-border);
+}
+
+.m360-root .m360-accordion-item:last-child {
+  border-bottom: none;
+}
+
+.m360-root .m360-accordion-header {
+  width: 100%;
+  text-align: left;
+  background: var(--m360-gray-50);
+  border: none;
+  padding: var(--m360-space-3) var(--m360-space-4);
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-semibold);
+  color: var(--m360-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--m360-space-2);
+  transition: background var(--m360-transition), color var(--m360-transition);
+}
+
+.m360-root .m360-accordion-header:hover {
+  background: var(--m360-gray-100);
+}
+
+.m360-root .m360-accordion-header[aria-expanded="true"] {
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-accordion-icon {
+  font-size: var(--m360-icon-sm);
+  transition: transform var(--m360-transition);
+}
+
+.m360-root .m360-accordion-header[aria-expanded="true"] .m360-accordion-icon {
+  transform: rotate(180deg);
+}
+
+.m360-root .m360-accordion-body {
+  display: none;
+  padding: var(--m360-space-4);
+  background: var(--m360-surface);
+  font-size: var(--m360-text-md);
+  color: var(--m360-text-secondary);
+  line-height: 1.6;
+}
+
+.m360-root .m360-accordion-body.m360-open {
+  display: block;
+  animation: m360-fade-down .12s ease;
+}
+
+@keyframes m360-fade-down {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}

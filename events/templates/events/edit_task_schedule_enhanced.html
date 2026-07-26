@@ -1,94 +1,64 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}Editar Programación: {{ schedule.task.title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Advanced Header with Progress and Actions -->
-    <div class="row justify-content-center mb-4">
-        <div class="col-12 col-lg-10 col-xl-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-gradient-warning text-dark position-relative overflow-hidden">
-                    <!-- Background Pattern -->
-                    <div class="position-absolute top-0 end-0 opacity-10">
-                        <svg width="100" height="100" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"/>
-                            <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"/>
-                            <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-                        </svg>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center position-relative">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-circle bg-white text-warning me-3">
-                                <i class="bi bi-calendar-plus-fill fs-4"></i>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12 events-col-lg-10 events-col-xl-8 events-mx-auto">
+            <div class="m360-card events-mb-4" style="border: none;">
+                <div class="m360-card-header" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); color: var(--m360-text-dark); border: none;">
+                    <div class="events-d-flex events-justify-between events-align-center events-flex-wrap">
+                        <div class="events-d-flex events-align-center events-gap-3">
+                            <div class="events-avatar">
+                                <div class="events-avatar-title" style="background: #fff; color: var(--m360-warning);">
+                                    <i class="bi bi-calendar-plus-fill"></i>
+                                </div>
                             </div>
                             <div>
-                                <h4 class="mb-0 fw-bold">
-                                    <i class="bi bi-pencil-square me-2"></i>
+                                <h4 class="events-mb-1">
+                                    <i class="bi bi-pencil-square" style="margin-right: var(--m360-space-2);"></i>
                                     Editor Avanzado de Programaciones
                                 </h4>
-                                <small class="opacity-75">Interfaz inteligente con vista previa en tiempo real y análisis predictivo</small>
-                                <div class="mt-1">
-                                    <small class="badge bg-white text-warning me-2">
-                                        <i class="bi bi-lightning-charge me-1"></i>
-                                        IA Asistida
-                                    </small>
-                                    <small class="badge bg-white text-warning">
-                                        <i class="bi bi-graph-up me-1"></i>
-                                        Analítica Avanzada
-                                    </small>
+                                <small style="opacity: .75;">Interfaz inteligente con vista previa en tiempo real y análisis predictivo</small>
+                                <div class="events-mt-2">
+                                    <span class="m360-badge m360-badge-light">IA Asistida</span>
+                                    <span class="m360-badge m360-badge-light events-ml-2">Analítica Avanzada</span>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="d-flex align-items-center gap-2">
-                            <!-- Quick Stats -->
-                            <div class="text-end me-3 d-none d-md-block">
-                                <div class="small text-white-50">Programaciones Activas</div>
-                                <div class="h5 mb-0 text-white">{{ active_schedules|default:0 }}</div>
+                        <div class="events-d-flex events-align-center events-gap-2">
+                            <div class="events-text-end events-mr-3">
+                                <small style="color: rgba(255,255,255,.7);">Programaciones Activas</small>
+                                <div class="events-h5 events-mb-0" style="color: #fff;">{{ active_schedules|default:0 }}</div>
                             </div>
-
-                            <!-- Action Buttons -->
-                            <div class="btn-group">
-                                <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="btn btn-dark btn-sm" title="Ver detalles">
+                            <div class="m360-btn-group">
+                                <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="m360-btn m360-btn-sm m360-btn-dark" title="Ver detalles">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{% url 'events:task_schedules' %}" class="btn btn-outline-dark btn-sm" title="Ver todas">
+                                <a href="{% url 'events:task_schedules' %}" class="m360-btn m360-btn-sm m360-btn-outline-dark" title="Ver todas">
                                     <i class="bi bi-list"></i>
                                 </a>
-                                <button class="btn btn-outline-dark btn-sm" id="fullscreen-btn" title="Pantalla completa">
-                                    <i class="bi bi-arrows-fullscreen"></i>
-                                </button>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Progress Bar -->
-                    <div class="progress mt-3" style="height: 4px;">
-                        <div class="progress-bar bg-white" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-            <div class="row">
-                <!-- Main Form -->
-                <div class="col-lg-8">
-                    <div class="card shadow-sm">
+            <div class="events-row events-gap-4">
+                <div class="events-col-lg-8">
+                    <div class="m360-card">
                         <form method="post" id="editScheduleForm" novalidate>
                             {% csrf_token %}
 
-                            <!-- Form Errors Alert -->
                             {% if form.non_field_errors %}
-                                <div class="alert alert-danger border-0 rounded-0">
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <div class="m360-alert m360-alert-danger">
+                                    <div class="events-d-flex events-align-center events-gap-2">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
                                         <div>
                                             <strong>Errores en el formulario:</strong>
-                                            <ul class="mb-0 mt-2">
+                                            <ul class="events-mb-0 events-mt-2">
                                                 {% for error in form.non_field_errors %}
                                                     <li>{{ error }}</li>
                                                 {% endfor %}
@@ -98,74 +68,67 @@
                                 </div>
                             {% endif %}
 
-                            <div class="card-body p-4">
-                                <!-- Task Info (Read-only) -->
-                                <div class="form-section mb-5">
-                                    <h5 class="section-title mb-3">
-                                        <i class="bi bi-info-circle-fill text-info me-2"></i>
+                            <div class="m360-card-body" style="padding: var(--m360-space-4);">
+                                <div class="events-mb-5">
+                                    <h5 class="events-section-title events-mb-3">
+                                        <i class="bi bi-info-circle-fill events-text-info" style="margin-right: var(--m360-space-2);"></i>
                                         Información de la Tarea
                                     </h5>
-
-                                   <div class="row">
-                                       <div class="col-12">
-                                           <div class="form-floating mb-3">
-                                               <input type="text"
-                                                      class="form-control bg-light"
-                                                      id="task_title"
-                                                      value="{{ schedule.task.title }}"
-                                                      readonly
-                                                      placeholder="Tarea">
-                                               <label for="task_title">
-                                                   <i class="bi bi-list-task me-1"></i>
-                                                   Tarea a Programar
-                                               </label>
-                                               <!-- Hidden input to submit task ID -->
-                                               <input type="hidden" name="task" value="{{ schedule.task.id }}">
-                                           </div>
-                                           <div class="form-text">
-                                               <i class="bi bi-info-circle me-1"></i>
-                                               La tarea no puede cambiarse. Crea una nueva programación si necesitas cambiar de tarea.
-                                           </div>
-                                       </div>
-                                   </div>
-                                </div>
-
-                                <!-- Step Indicator -->
-                                <div class="mb-4">
-                                    <div class="row text-center">
-                                        <div class="col-4">
-                                            <div class="step-indicator active">
-                                                <div class="step-number">1</div>
-                                                <div class="step-label">Tarea</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="step-indicator">
-                                                <div class="step-number">2</div>
-                                                <div class="step-label">Horario</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="step-indicator">
-                                                <div class="step-number">3</div>
-                                                <div class="step-label">Confirmar</div>
+                                    <div class="events-row">
+                                        <div class="events-col-12">
+                                            <div class="events-mb-3">
+                                                <input type="text"
+                                                       class="m360-form-control"
+                                                       id="task_title"
+                                                       value="{{ schedule.task.title }}"
+                                                       readonly
+                                                       placeholder="Tarea">
+                                                <input type="hidden" name="task" value="{{ schedule.task.id }}">
+                                                <div class="m360-form-hint">
+                                                    <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
+                                                    La tarea no puede cambiarse. Crea una nueva programación si necesitas cambiar de tarea.
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Section 2: Recurrence Configuration -->
-                                <div class="form-section mb-5">
-                                    <h5 class="section-title mb-3">
-                                        <i class="bi bi-repeat text-primary me-2"></i>
+                                <div class="events-mb-4">
+                                    <div class="events-row events-text-center">
+                                        <div class="events-col-4">
+                                            <div class="events-step-indicator events-step-active">
+                                                <div class="events-step-number">1</div>
+                                                <div class="events-step-label">Tarea</div>
+                                            </div>
+                                        </div>
+                                        <div class="events-col-4">
+                                            <div class="events-step-indicator">
+                                                <div class="events-step-number">2</div>
+                                                <div class="events-step-label">Horario</div>
+                                            </div>
+                                        </div>
+                                        <div class="events-col-4">
+                                            <div class="events-step-indicator">
+                                                <div class="events-step-number">3</div>
+                                                <div class="events-step-label">Confirmar</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="events-mb-5">
+                                    <h5 class="events-section-title events-mb-3">
+                                        <i class="bi bi-repeat events-text-primary" style="margin-right: var(--m360-space-2);"></i>
                                         Configuración de Recurrencia
                                     </h5>
-
-                                    <div class="row">
-                                        <!-- Recurrence Type -->
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-floating">
-                                                <select class="form-select {% if form.recurrence_type.errors %}is-invalid{% endif %}"
+                                    <div class="events-row events-gap-4">
+                                        <div class="events-col-md-6">
+                                            <div class="events-mb-3">
+                                                <label for="{{ form.recurrence_type.id_for_label }}" class="m360-form-label">
+                                                    <i class="bi bi-arrow-repeat" style="margin-right: var(--m360-space-1);"></i>
+                                                    {{ form.recurrence_type.label }}
+                                                </label>
+                                                <select class="m360-form-control {% if form.recurrence_type.errors %}events-is-invalid{% endif %}"
                                                         id="{{ form.recurrence_type.id_for_label }}"
                                                         name="{{ form.recurrence_type.html_name }}"
                                                         required>
@@ -175,12 +138,8 @@
                                                         </option>
                                                     {% endfor %}
                                                 </select>
-                                                <label for="{{ form.recurrence_type.id_for_label }}">
-                                                    <i class="bi bi-arrow-repeat me-1"></i>
-                                                    {{ form.recurrence_type.label }}
-                                                </label>
                                                 {% if form.recurrence_type.errors %}
-                                                    <div class="invalid-feedback">
+                                                    <div class="events-invalid-feedback">
                                                         {% for error in form.recurrence_type.errors %}
                                                             <div>{{ error }}</div>
                                                         {% endfor %}
@@ -188,22 +147,20 @@
                                                 {% endif %}
                                             </div>
                                         </div>
-
-                                        <!-- Start Time -->
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-floating">
+                                        <div class="events-col-md-6">
+                                            <div class="events-mb-3">
+                                                <label for="{{ form.start_time.id_for_label }}" class="m360-form-label">
+                                                    <i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i>
+                                                    {{ form.start_time.label }}
+                                                </label>
                                                 <input type="time"
-                                                       class="form-control {% if form.start_time.errors %}is-invalid{% endif %}"
+                                                       class="m360-form-control {% if form.start_time.errors %}events-is-invalid{% endif %}"
                                                        id="{{ form.start_time.id_for_label }}"
                                                        name="{{ form.start_time.html_name }}"
                                                        value="{{ form.start_time.value|default:'' }}"
                                                        required>
-                                                <label for="{{ form.start_time.id_for_label }}">
-                                                    <i class="bi bi-clock me-1"></i>
-                                                    {{ form.start_time.label }}
-                                                </label>
                                                 {% if form.start_time.errors %}
-                                                    <div class="invalid-feedback">
+                                                    <div class="events-invalid-feedback">
                                                         {% for error in form.start_time.errors %}
                                                             <div>{{ error }}</div>
                                                         {% endfor %}
@@ -213,24 +170,23 @@
                                         </div>
                                     </div>
 
-                                    <!-- Days Selection (Weekly only) -->
-                                    <div class="days-selection" id="daysGroup" style="display: none;">
-                                        <label class="form-label fw-bold mb-3">
-                                            <i class="bi bi-calendar-week me-1"></i>
+                                    <div id="daysGroup" class="events-days-selection" style="display: none;">
+                                        <label class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">
+                                            <i class="bi bi-calendar-week" style="margin-right: var(--m360-space-1);"></i>
                                             Días de la semana
                                         </label>
-                                        <div class="row g-2">
+                                        <div class="events-row events-gap-2">
                                             {% for day_field in form %}
                                                 {% if 'monday' in day_field.name or 'tuesday' in day_field.name or 'wednesday' in day_field.name or 'thursday' in day_field.name or 'friday' in day_field.name or 'saturday' in day_field.name or 'sunday' in day_field.name %}
-                                                    <div class="col-6 col-md-3">
-                                                        <div class="form-check form-check-inline w-100">
-                                                            <input class="form-check-input day-checkbox"
+                                                    <div class="events-col-6 events-col-md-3">
+                                                        <div class="m360-form-check">
+                                                            <input class="m360-form-check-input events-day-checkbox"
                                                                    type="checkbox"
                                                                    id="{{ day_field.id_for_label }}"
                                                                    name="{{ day_field.html_name }}"
                                                                    {% if day_field.value %}checked{% endif %}>
-                                                            <label class="form-check-label w-100" for="{{ day_field.id_for_label }}">
-                                                                <span class="badge bg-light text-dark w-100 py-2">
+                                                            <label class="m360-form-check-label events-w-100" for="{{ day_field.id_for_label }}">
+                                                                <span class="m360-badge m360-badge-light events-w-100" style="padding: var(--m360-space-2);">
                                                                     {{ day_field.label }}
                                                                 </span>
                                                             </label>
@@ -240,30 +196,31 @@
                                             {% endfor %}
                                         </div>
                                         {% if form.monday.errors or form.tuesday.errors or form.wednesday.errors or form.thursday.errors or form.friday.errors or form.saturday.errors or form.sunday.errors %}
-                                            <div class="invalid-feedback d-block">
+                                            <div class="events-invalid-feedback events-d-block">
                                                 Debes seleccionar al menos un día de la semana.
                                             </div>
                                         {% endif %}
-                                        <div class="form-text">
-                                            <i class="bi bi-info-circle me-1"></i>
+                                        <div class="m360-form-hint">
+                                            <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
                                             Selecciona los días en que quieres que se repita la tarea.
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Section 3: Duration and Dates -->
-                                <div class="form-section mb-5">
-                                    <h5 class="section-title mb-3">
-                                        <i class="bi bi-calendar-event text-primary me-2"></i>
+                                <div class="events-mb-5">
+                                    <h5 class="events-section-title events-mb-3">
+                                        <i class="bi bi-calendar-event events-text-primary" style="margin-right: var(--m360-space-2);"></i>
                                         Duración y Fechas
                                     </h5>
-
-                                    <div class="row">
-                                        <!-- Duration -->
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-floating">
+                                    <div class="events-row events-gap-4">
+                                        <div class="events-col-md-6">
+                                            <div class="events-mb-3">
+                                                <label for="id_duration_hours" class="m360-form-label">
+                                                    <i class="bi bi-hourglass" style="margin-right: var(--m360-space-1);"></i>
+                                                    Duración (horas)
+                                                </label>
                                                 <input type="number"
-                                                       class="form-control {% if form.duration_hours.errors %}is-invalid{% endif %}"
+                                                       class="m360-form-control {% if form.duration_hours.errors %}events-is-invalid{% endif %}"
                                                        id="id_duration_hours"
                                                        name="duration_hours"
                                                        value="{% widthratio schedule.duration.total_seconds 3600 1 %}"
@@ -272,40 +229,34 @@
                                                        step="0.25"
                                                        placeholder="1.5"
                                                        required>
-                                                <label for="id_duration_hours">
-                                                    <i class="bi bi-hourglass me-1"></i>
-                                                    Duración (horas)
-                                                </label>
                                                 {% if form.duration_hours.errors %}
-                                                    <div class="invalid-feedback">
+                                                    <div class="events-invalid-feedback">
                                                         {% for error in form.duration_hours.errors %}
                                                             <div>{{ error }}</div>
                                                         {% endfor %}
                                                     </div>
                                                 {% endif %}
-                                            </div>
-                                            <div class="form-text">
-                                                <i class="bi bi-info-circle me-1"></i>
-                                                Ejemplo: 1.5 = 1 hora y 30 minutos
+                                                <div class="m360-form-hint">
+                                                    <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
+                                                    Ejemplo: 1.5 = 1 hora y 30 minutos
+                                                </div>
                                             </div>
                                         </div>
-
-                                        <!-- Start Date -->
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-floating">
+                                        <div class="events-col-md-6">
+                                            <div class="events-mb-3">
+                                                <label for="{{ form.start_date.id_for_label }}" class="m360-form-label">
+                                                    <i class="bi bi-calendar-date" style="margin-right: var(--m360-space-1);"></i>
+                                                    {{ form.start_date.label }}
+                                                </label>
                                                 <input type="date"
-                                                       class="form-control {% if form.start_date.errors %}is-invalid{% endif %}"
+                                                       class="m360-form-control {% if form.start_date.errors %}events-is-invalid{% endif %}"
                                                        id="{{ form.start_date.id_for_label }}"
                                                        name="{{ form.start_date.html_name }}"
                                                        value="{{ form.start_date.value|default:'' }}"
                                                        min="{% now 'Y-m-d' %}"
                                                        required>
-                                                <label for="{{ form.start_date.id_for_label }}">
-                                                    <i class="bi bi-calendar-date me-1"></i>
-                                                    {{ form.start_date.label }}
-                                                </label>
                                                 {% if form.start_date.errors %}
-                                                    <div class="invalid-feedback">
+                                                    <div class="events-invalid-feedback">
                                                         {% for error in form.start_date.errors %}
                                                             <div>{{ error }}</div>
                                                         {% endfor %}
@@ -315,49 +266,46 @@
                                         </div>
                                     </div>
 
-                                    <!-- End Date -->
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-floating">
+                                    <div class="events-row events-gap-4">
+                                        <div class="events-col-md-6">
+                                            <div class="events-mb-3">
+                                                <label for="{{ form.end_date.id_for_label }}" class="m360-form-label">
+                                                    <i class="bi bi-calendar-x" style="margin-right: var(--m360-space-1);"></i>
+                                                    {{ form.end_date.label }}
+                                                </label>
                                                 <input type="date"
-                                                       class="form-control"
+                                                       class="m360-form-control"
                                                        id="{{ form.end_date.id_for_label }}"
                                                        name="{{ form.end_date.html_name }}"
                                                        value="{{ form.end_date.value|default:'' }}"
                                                        min="{% now 'Y-m-d' %}">
-                                                <label for="{{ form.end_date.id_for_label }}">
-                                                    <i class="bi bi-calendar-x me-1"></i>
-                                                    {{ form.end_date.label }}
-                                                </label>
                                                 {% if form.end_date.errors %}
-                                                    <div class="invalid-feedback">
+                                                    <div class="events-invalid-feedback">
                                                         {% for error in form.end_date.errors %}
                                                             <div>{{ error }}</div>
                                                         {% endfor %}
                                                     </div>
                                                 {% endif %}
-                                            </div>
-                                            <div class="form-text">
-                                                <i class="bi bi-info-circle me-1"></i>
-                                                Opcional. Si no se especifica, la programación será indefinida.
+                                                <div class="m360-form-hint">
+                                                    <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
+                                                    Opcional. Si no se especifica, la programación será indefinida.
+                                                </div>
                                             </div>
                                         </div>
-
-                                        <!-- Active Status -->
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-check form-switch mt-4">
-                                                <input class="form-check-input"
+                                        <div class="events-col-md-6">
+                                            <div class="m360-form-check events-mt-4">
+                                                <input class="m360-form-check-input"
                                                        type="checkbox"
                                                        id="{{ form.is_active.id_for_label }}"
                                                        name="{{ form.is_active.html_name }}"
                                                        {% if form.is_active.value|default:True %}checked{% endif %}>
-                                                <label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">
-                                                    <i class="bi bi-toggle-on me-1"></i>
+                                                <label class="m360-form-check-label" for="{{ form.is_active.id_for_label }}">
+                                                    <i class="bi bi-toggle-on" style="margin-right: var(--m360-space-1);"></i>
                                                     {{ form.is_active.label }}
                                                 </label>
                                             </div>
-                                            <div class="form-text">
-                                                <i class="bi bi-info-circle me-1"></i>
+                                            <div class="m360-form-hint">
+                                                <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
                                                 Desmarca para pausar temporalmente esta programación.
                                             </div>
                                         </div>
@@ -365,24 +313,23 @@
                                 </div>
                             </div>
 
-                            <!-- Form Footer -->
-                            <div class="card-footer bg-light">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="form-text">
-                                        <i class="bi bi-shield-check me-1 text-success"></i>
-                                        Todos los campos marcados con <span class="text-danger">*</span> son obligatorios
+                            <div class="m360-card-footer" style="background: var(--m360-gray-50);">
+                                <div class="events-d-flex events-justify-between events-align-center events-flex-wrap">
+                                    <div class="m360-form-hint">
+                                        <i class="bi bi-shield-check events-text-success" style="margin-right: var(--m360-space-1);"></i>
+                                        Todos los campos marcados con <span class="events-text-danger">*</span> son obligatorios
                                     </div>
-                                    <div class="btn-group">
-                                        <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="btn btn-outline-secondary">
-                                            <i class="bi bi-x-circle me-1"></i>
+                                    <div class="events-d-flex events-gap-2">
+                                        <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="m360-btn m360-btn-outline-secondary">
+                                            <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>
                                             Cancelar
                                         </a>
-                                        <button type="submit" name="action" value="preview" class="btn btn-info">
-                                            <i class="bi bi-eye me-1"></i>
+                                        <button type="submit" name="action" value="preview" class="m360-btn m360-btn-outline-info">
+                                            <i class="bi bi-eye" style="margin-right: var(--m360-space-1);"></i>
                                             Vista Previa
                                         </button>
-                                        <button type="submit" class="btn btn-warning">
-                                            <i class="bi bi-check-circle-fill me-1"></i>
+                                        <button type="submit" class="m360-btn m360-btn-warning">
+                                            <i class="bi bi-check-circle-fill" style="margin-right: var(--m360-space-1);"></i>
                                             Guardar Cambios
                                         </button>
                                     </div>
@@ -392,243 +339,142 @@
                     </div>
                 </div>
 
-                <!-- Advanced Interactive Sidebar -->
-                <div class="col-lg-4">
-                    <!-- AI-Powered Insights -->
-                    <div class="card shadow-sm mb-4 border-primary">
-                        <div class="card-header bg-gradient-primary text-white">
-                            <h6 class="mb-0">
-                                <i class="bi bi-robot me-2"></i>
+                <div class="events-col-lg-4">
+                    <div class="m360-card events-mb-4" style="border-left: 4px solid var(--m360-primary);">
+                        <div class="m360-card-header" style="background: linear-gradient(135deg, #007bff 0%, #6610f2 100%); color: #fff; border: none;">
+                            <h6 class="events-mb-0">
+                                <i class="bi bi-robot" style="margin-right: var(--m360-space-1);"></i>
                                 Insights IA
                             </h6>
                         </div>
-                        <div class="card-body">
-                            <div id="ai-insights" class="small">
-                                <div class="alert alert-light border-primary mb-2">
-                                    <i class="bi bi-lightbulb text-warning me-1"></i>
-                                    <strong>Recomendación:</strong> Los lunes son tus días más productivos
+                        <div class="m360-card-body">
+                            <div class="m360-alert m360-alert-light events-mb-2">
+                                <i class="bi bi-lightbulb events-text-warning" style="margin-right: var(--m360-space-1);"></i>
+                                <strong>Recomendación:</strong> Los lunes son tus días más productivos
+                            </div>
+                            <div class="m360-alert m360-alert-light events-mb-2">
+                                <i class="bi bi-check-circle events-text-success" style="margin-right: var(--m360-space-1);"></i>
+                                <strong>Optimización:</strong> Esta configuración ahorra 2.5 horas semanales
+                            </div>
+                            <div class="m360-alert m360-alert-light">
+                                <i class="bi bi-graph-up events-text-info" style="margin-right: var(--m360-space-1);"></i>
+                                <strong>Predicción:</strong> 94% de adherencia a esta rutina
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="m360-card events-mb-4">
+                        <div class="m360-card-header" style="background: var(--m360-success); color: #fff; border: none;">
+                            <div class="events-d-flex events-justify-between events-align-center">
+                                <h6 class="events-mb-0">
+                                    <i class="bi bi-calendar-week" style="margin-right: var(--m360-space-1);"></i>
+                                    Visualización Calendario
+                                </h6>
+                                <div class="m360-btn-group">
+                                    <button class="m360-btn m360-btn-sm m360-btn-outline-light events-btn-active">Semana</button>
+                                    <button class="m360-btn m360-btn-sm m360-btn-outline-light">Mes</button>
                                 </div>
-                                <div class="alert alert-light border-success mb-2">
-                                    <i class="bi bi-check-circle text-success me-1"></i>
-                                    <strong>Optimización:</strong> Esta configuración ahorra 2.5 horas semanales
+                            </div>
+                        </div>
+                        <div class="m360-card-body" style="padding: 0;">
+                            <div id="calendar-container" style="padding: var(--m360-space-3);">
+                                <div class="events-d-flex events-justify-between events-align-center events-mb-3">
+                                    <button class="m360-btn m360-btn-sm m360-btn-outline-secondary">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </button>
+                                    <h6 class="events-mb-0">Semana del 23 Sep</h6>
+                                    <button class="m360-btn m360-btn-sm m360-btn-outline-secondary">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </button>
                                 </div>
-                                <div class="alert alert-light border-info">
-                                    <i class="bi bi-graph-up text-info me-1"></i>
-                                    <strong>Predicción:</strong> 94% de adherencia a esta rutina
+                                <div class="events-calendar-grid">
+                                    <div class="events-row events-gap-2">
+                                        <div class="events-col"><small class="events-text-muted">Lun</small></div>
+                                        <div class="events-col"><small class="events-text-muted">Mar</small></div>
+                                        <div class="events-col"><small class="events-text-muted">Mié</small></div>
+                                        <div class="events-col"><small class="events-text-muted">Jue</small></div>
+                                        <div class="events-col"><small class="events-text-muted">Vie</small></div>
+                                        <div class="events-col"><small class="events-text-muted">Sáb</small></div>
+                                        <div class="events-col"><small class="events-text-muted">Dom</small></div>
+                                    </div>
+                                    <div class="events-row events-gap-2" id="calendar-slots">
+                                        <div class="events-col text-center" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: var(--m360-radius); background: var(--m360-success); color: #fff; font-size: var(--m360-text-sm);">1</div>
+                                        <div class="events-col text-center" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: var(--m360-radius); background: var(--m360-gray-50); color: var(--m360-text); font-size: var(--m360-text-sm);">2</div>
+                                        <div class="events-col text-center" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: var(--m360-radius); background: var(--m360-gray-50); color: var(--m360-text); font-size: var(--m360-text-sm);">3</div>
+                                        <div class="events-col text-center" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: var(--m360-radius); background: var(--m360-gray-50); color: var(--m360-text); font-size: var(--m360-text-sm);">4</div>
+                                        <div class="events-col text-center" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: var(--m360-radius); background: var(--m360-gray-50); color: var(--m360-text); font-size: var(--m360-text-sm);">5</div>
+                                        <div class="events-col text-center" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: var(--m360-radius); background: var(--m360-gray-50); color: var(--m360-text); font-size: var(--m360-text-sm);">6</div>
+                                        <div class="events-col text-center" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: var(--m360-radius); background: var(--m360-gray-50); color: var(--m360-text); font-size: var(--m360-text-sm);">7</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Interactive Calendar Visualization -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">
-                                <i class="bi bi-calendar-week me-2"></i>
-                                Visualización Calendario
-                            </h6>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-light btn-sm active" id="week-view">Semana</button>
-                                <button class="btn btn-outline-light btn-sm" id="month-view">Mes</button>
+                    <div class="m360-card events-mb-4">
+                        <div class="m360-card-header" style="background: var(--m360-info); color: #fff; border: none;">
+                            <div class="events-d-flex events-justify-between events-align-center">
+                                <h6 class="events-mb-0">
+                                    <i class="bi bi-eye" style="margin-right: var(--m360-space-1);"></i>
+                                    Vista Previa Inteligente
+                                </h6>
+                                <span class="m360-badge m360-badge-light">{{ next_occurrences|length }}</span>
                             </div>
                         </div>
-                        <div class="card-body p-0">
-                            <div id="calendar-container">
-                                <!-- Mini Calendar -->
-                                <div class="mini-calendar p-3">
-                                    <div class="calendar-header d-flex justify-content-between align-items-center mb-3">
-                                        <button class="btn btn-sm btn-outline-secondary" id="prev-week">
-                                            <i class="bi bi-chevron-left"></i>
-                                        </button>
-                                        <h6 class="mb-0" id="current-week">Semana del 23 Sep</h6>
-                                        <button class="btn btn-sm btn-outline-secondary" id="next-week">
-                                            <i class="bi bi-chevron-right"></i>
-                                        </button>
-                                    </div>
-                                    <div class="calendar-grid">
-                                        <div class="calendar-days">
-                                            <div class="day-label">Lun</div>
-                                            <div class="day-label">Mar</div>
-                                            <div class="day-label">Mié</div>
-                                            <div class="day-label">Jue</div>
-                                            <div class="day-label">Vie</div>
-                                            <div class="day-label">Sáb</div>
-                                            <div class="day-label">Dom</div>
-                                        </div>
-                                        <div class="calendar-slots" id="calendar-slots">
-                                            <!-- Calendar slots will be populated by JavaScript -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Real-time Preview -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">
-                                <i class="bi bi-eye me-2"></i>
-                                Vista Previa Inteligente
-                            </h6>
-                            <span class="badge bg-white text-info" id="preview-count">0</span>
-                        </div>
-                        <div class="card-body">
+                        <div class="m360-card-body">
                             <div id="preview-container">
-                                <div class="text-center text-muted">
-                                    <i class="bi bi-clock-history fs-1 mb-2"></i>
+                                <div class="events-text-center events-text-muted">
+                                    <i class="bi bi-clock-history" style="font-size: var(--m360-icon-2xl); margin-bottom: var(--m360-space-3);"></i>
                                     <p>Próximas ocurrencias aparecerán aquí</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Advanced Analytics Dashboard -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-gradient-success text-white">
-                            <h6 class="mb-0">
-                                <i class="bi bi-graph-up-arrow me-2"></i>
+                    <div class="m360-card events-mb-4">
+                        <div class="m360-card-header" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: #fff; border: none;">
+                            <h6 class="events-mb-0">
+                                <i class="bi bi-graph-up-arrow" style="margin-right: var(--m360-space-1);"></i>
                                 Analytics Avanzados
                             </h6>
                         </div>
-                        <div class="card-body">
-                            <!-- Performance Metrics -->
-                            <div class="row text-center mb-3">
-                                <div class="col-6">
-                                    <div class="stat-item">
-                                        <div class="stat-number text-primary" id="total-programs">{{ created_programs_count|default:0 }}</div>
-                                        <div class="stat-label">Programas Ejecutados</div>
-                                        <div class="progress mt-1" style="height: 3px;">
-                                            <div class="progress-bar bg-primary" style="width: 75%"></div>
-                                        </div>
+                        <div class="m360-card-body">
+                            <div class="events-row events-text-center events-mb-3">
+                                <div class="events-col-6">
+                                    <div class="events-text-center">
+                                        <div class="events-text-primary" style="font-size: var(--m360-icon-xl); font-weight: var(--m360-font-weight-bold);">{{ created_programs_count|default:0 }}</div>
+                                        <small class="events-text-muted">Programas Ejecutados</small>
                                     </div>
                                 </div>
-                                <div class="col-6">
-                                    <div class="stat-item">
-                                        <div class="stat-number text-info" id="next-occurrences">{{ next_occurrences|length }}</div>
-                                        <div class="stat-label">Próximas Ocurrencias</div>
-                                        <div class="progress mt-1" style="height: 3px;">
-                                            <div class="progress-bar bg-info" style="width: 60%"></div>
-                                        </div>
+                                <div class="events-col-6">
+                                    <div class="events-text-center">
+                                        <div class="events-text-info" style="font-size: var(--m360-icon-xl); font-weight: var(--m360-font-weight-bold);">{{ next_occurrences|length }}</div>
+                                        <small class="events-text-muted">Próximas Ocurrencias</small>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Efficiency Score -->
-                            <div class="efficiency-score mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <small class="text-muted">Puntuación de Eficiencia</small>
-                                    <small class="fw-bold text-success" id="efficiency-score">87%</small>
-                                </div>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar bg-success" id="efficiency-bar" style="width: 87%"></div>
-                                </div>
-                            </div>
-
-                            <!-- Time Distribution -->
-                            <div class="time-distribution mb-3">
-                                <small class="text-muted d-block mb-2">Distribución por Día</small>
-                                <div class="day-distribution">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <small>Lunes</small>
-                                        <small class="text-primary fw-bold" id="mon-count">3</small>
-                                    </div>
-                                    <div class="progress mb-2" style="height: 4px;">
-                                        <div class="progress-bar bg-primary" id="mon-bar" style="width: 60%"></div>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <small>Martes</small>
-                                        <small class="text-success fw-bold" id="tue-count">2</small>
-                                    </div>
-                                    <div class="progress mb-2" style="height: 4px;">
-                                        <div class="progress-bar bg-success" id="tue-bar" style="width: 40%"></div>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <small>Miércoles</small>
-                                        <small class="text-warning fw-bold" id="wed-count">4</small>
-                                    </div>
-                                    <div class="progress mb-2" style="height: 4px;">
-                                        <div class="progress-bar bg-warning" id="wed-bar" style="width: 80%"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <hr>
-
-                            <!-- Smart Recommendations -->
-                            <div class="smart-recommendations">
-                                <small class="text-muted d-block mb-2">
-                                    <i class="bi bi-lightbulb me-1"></i>
-                                    Recomendaciones Inteligentes
-                                </small>
-                                <div class="recommendation-item p-2 bg-light rounded mb-2" id="time-recommendation">
-                                    <small class="text-success">
-                                        <i class="bi bi-check-circle me-1"></i>
-                                        Horario óptimo detectado
-                                    </small>
-                                </div>
-                                <div class="recommendation-item p-2 bg-light rounded mb-2" id="pattern-recommendation">
-                                    <small class="text-info">
-                                        <i class="bi bi-arrow-repeat me-1"></i>
-                                        Patrón semanal consistente
-                                    </small>
-                                </div>
-                                <div class="recommendation-item p-2 bg-light rounded" id="efficiency-recommendation">
-                                    <small class="text-warning">
-                                        <i class="bi bi-graph-up me-1"></i>
-                                        Alta eficiencia proyectada
-                                    </small>
-                                </div>
-                            </div>
-
-                            <hr>
-
-                            <!-- Current Configuration Summary -->
-                            <div class="config-summary small text-muted">
-                                <div class="mb-1">
-                                    <i class="bi bi-toggle-{% if schedule.is_active %}on text-success{% else %}off text-warning{% endif %} me-1"></i>
-                                    Estado: <span class="{% if schedule.is_active %}text-success{% else %}text-warning{% endif %} fw-bold">
-                                        {% if schedule.is_active %}Activa{% else %}Pausada{% endif %}
-                                    </span>
-                                </div>
-                                <div class="mb-1">
-                                    <i class="bi bi-repeat me-1 text-primary"></i>
-                                    Patrón: <span class="fw-bold">{{ schedule.get_recurrence_type_display }}</span>
-                                </div>
-                                <div class="mb-1">
-                                    <i class="bi bi-clock me-1 text-info"></i>
-                                    Duración: <span class="fw-bold">{% widthratio schedule.duration.total_seconds 3600 1 %}h</span>
-                                </div>
-                                <div>
-                                    <i class="bi bi-calendar-range me-1 text-secondary"></i>
-                                    Período: <span class="fw-bold">{{ schedule.start_date|date:"M j" }} - {% if schedule.end_date %}{{ schedule.end_date|date:"M j" }}{% else %}Indefinido{% endif %}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Quick Actions -->
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-secondary text-white">
-                            <h6 class="mb-0">
-                                <i class="bi bi-gear me-2"></i>
+                    <div class="m360-card">
+                        <div class="m360-card-header" style="background: var(--m360-secondary); color: #fff; border: none;">
+                            <h6 class="events-mb-0">
+                                <i class="bi bi-gear" style="margin-right: var(--m360-space-1);"></i>
                                 Acciones Rápidas
                             </h6>
                         </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'events:generate_schedule_occurrences' schedule.id %}" class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-play-circle me-1"></i>
+                        <div class="m360-card-body">
+                            <div class="events-d-grid events-gap-2">
+                                <a href="{% url 'events:generate_schedule_occurrences' schedule.id %}" class="m360-btn m360-btn-outline-primary">
+                                    <i class="bi bi-play-circle" style="margin-right: var(--m360-space-1);"></i>
                                     Generar Ocurrencias
                                 </a>
-                                <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="btn btn-outline-info btn-sm">
-                                    <i class="bi bi-info-circle me-1"></i>
+                                <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="m360-btn m360-btn-outline-info">
+                                    <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
                                     Ver Detalles
                                 </a>
-                                <a href="{% url 'events:delete_task_schedule' schedule.id %}" class="btn btn-outline-danger btn-sm">
-                                    <i class="bi bi-trash me-1"></i>
+                                <a href="{% url 'events:delete_task_schedule' schedule.id %}" class="m360-btn m360-btn-outline-danger">
+                                    <i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i>
                                     Eliminar Programación
                                 </a>
                             </div>
@@ -639,967 +485,104 @@
         </div>
     </div>
 </div>
-
-<style>
-/* Super Advanced Styles for the Enhanced Form */
-
-/* Header Styles */
-.bg-gradient-warning {
-    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-}
-
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
-}
-
-.bg-gradient-success {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-}
-
-.avatar-circle {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-/* Step Indicator Enhancements */
-.step-indicator {
-    position: relative;
-}
-
-.step-indicator .step-number {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-    color: #6c757d;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 10px;
-    font-weight: bold;
-    border: 3px solid #dee2e6;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.step-indicator.active .step-number {
-    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
-    color: white;
-    border-color: #0d6efd;
-    transform: scale(1.1);
-    box-shadow: 0 4px 20px rgba(13, 110, 253, 0.4);
-}
-
-.step-indicator .step-label {
-    font-size: 0.875rem;
-    color: #6c757d;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.step-indicator.active .step-label {
-    color: #0d6efd;
-    font-weight: 700;
-    transform: translateY(-2px);
-}
-
-/* Enhanced Section Titles */
-.section-title {
-    color: #495057;
-    border-bottom: 3px solid #e9ecef;
-    padding-bottom: 0.75rem;
-    margin-bottom: 2rem;
-    position: relative;
-}
-
-.section-title::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, #0d6efd, #6610f2);
-    border-radius: 2px;
-}
-
-/* Advanced Form Controls */
-.form-floating > .form-control:focus,
-.form-floating > .form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15), 0 4px 12px rgba(13, 110, 253, 0.1);
-    transform: translateY(-1px);
-    transition: all 0.3s ease;
-}
-
-.form-check-input:checked {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-/* Interactive Days Selection */
-.days-selection {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 2rem;
-    border-radius: 1rem;
-    border: 2px solid #dee2e6;
-    margin-top: 1.5rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.days-selection::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #0d6efd, #6610f2, #fd7e14);
-}
-
-.badge:hover {
-    background: linear-gradient(135deg, #0d6efd, #6610f2) !important;
-    color: white !important;
-    cursor: pointer;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
-    transition: all 0.3s ease;
-}
-
-/* Enhanced Statistics */
-.stat-item {
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    border-radius: 0.75rem;
-    border: 1px solid #dee2e6;
-    transition: all 0.3s ease;
-}
-
-.stat-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.stat-number {
-    font-size: 2rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #0d6efd, #6610f2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.25rem;
-}
-
-.stat-label {
-    font-size: 0.8rem;
-    color: #6c757d;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Interactive Calendar */
-.mini-calendar {
-    background: white;
-    border-radius: 0.75rem;
-}
-
-.calendar-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.calendar-days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.25rem;
-    margin-bottom: 0.5rem;
-}
-
-.day-label {
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.75rem;
-    color: #6c757d;
-    padding: 0.25rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.calendar-slots {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.25rem;
-}
-
-.calendar-day {
-    aspect-ratio: 1;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    border: 2px solid transparent;
-}
-
-.calendar-day:hover {
-    background: #e3f2fd;
-    border-color: #2196f3;
-    transform: scale(1.05);
-}
-
-.calendar-day.has-schedule {
-    background: linear-gradient(135deg, #4caf50, #66bb6a);
-    color: white;
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
-}
-
-.calendar-day.has-schedule::after {
-    content: '●';
-    position: absolute;
-    bottom: 2px;
-    font-size: 0.5rem;
-    opacity: 0.8;
-}
-
-/* AI Insights */
-#ai-insights .alert {
-    border-left: 4px solid;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
-}
-
-#ai-insights .alert:hover {
-    transform: translateX(2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-/* Efficiency Score */
-.efficiency-score {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    padding: 1rem;
-    border-radius: 0.75rem;
-    border: 1px solid #dee2e6;
-}
-
-/* Time Distribution */
-.time-distribution {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    padding: 1rem;
-    border-radius: 0.75rem;
-    border: 1px solid #dee2e6;
-}
-
-/* Smart Recommendations */
-.recommendation-item {
-    transition: all 0.3s ease;
-    border: 1px solid #dee2e6;
-}
-
-.recommendation-item:hover {
-    background: #f8f9fa !important;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* Enhanced Preview */
-.preview-occurrence {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    border: 2px solid #dee2e6;
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.preview-occurrence::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(180deg, #0d6efd, #6610f2);
-}
-
-.preview-occurrence:hover {
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border-color: #0d6efd;
-}
-
-.preview-occurrence .date {
-    font-weight: 700;
-    color: #0d6efd;
-    margin-bottom: 0.25rem;
-}
-
-.preview-occurrence .time {
-    color: #6c757d;
-    font-weight: 500;
-}
-
-/* Fullscreen Mode */
-.fullscreen-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: white;
-    z-index: 9999;
-    padding: 2rem;
-    overflow-y: auto;
-}
-
-/* Loading States */
-.loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #0d6efd;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Responsive Enhancements */
-@media (max-width: 768px) {
-    .step-indicator .step-label {
-        font-size: 0.7rem;
-    }
-
-    .btn-group {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .btn-group .btn {
-        margin-bottom: 0.5rem;
-        border-radius: 0.375rem !important;
-    }
-
-    .calendar-slots {
-        gap: 0.125rem;
-    }
-
-    .calendar-day {
-        font-size: 0.75rem;
-        padding: 0.25rem;
-    }
-
-    .stat-number {
-        font-size: 1.5rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .avatar-circle {
-        width: 40px;
-        height: 40px;
-    }
-
-    .days-selection {
-        padding: 1rem;
-    }
-
-    .mini-calendar {
-        font-size: 0.875rem;
-    }
-}
-
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .bg-gradient-warning {
-        background: linear-gradient(135deg, #856404 0%, #533f00 100%);
-    }
-
-    .stat-item {
-        background: linear-gradient(135deg, #343a40 0%, #495057 100%);
-        border-color: #6c757d;
-    }
-}
-
-/* Print Styles */
-@media print {
-    .btn, .card-header .btn-group, .calendar-header .btn {
-        display: none !important;
-    }
-
-    .card {
-        border: 1px solid #000 !important;
-        box-shadow: none !important;
-    }
-}
-</style>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Core elements
     const recurrenceTypeSelect = document.getElementById('{{ form.recurrence_type.id_for_label }}');
     const daysGroup = document.getElementById('daysGroup');
     const form = document.getElementById('editScheduleForm');
-    const previewContainer = document.getElementById('preview-container');
-    const calendarSlots = document.getElementById('calendar-slots');
 
-    // New interactive elements
-    const fullscreenBtn = document.getElementById('fullscreen-btn');
-    const weekViewBtn = document.getElementById('week-view');
-    const monthViewBtn = document.getElementById('month-view');
-    const prevWeekBtn = document.getElementById('prev-week');
-    const nextWeekBtn = document.getElementById('next-week');
-    const currentWeekDisplay = document.getElementById('current-week');
-
-    // State management
-    let currentWeekStart = new Date();
-    let isFullscreen = false;
-    let calendarView = 'week'; // 'week' or 'month'
-
-    // Initialize current week to start of current week (Monday)
-    currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1);
-
-    // ==================== CORE FUNCTIONALITY ====================
-
-    // Toggle days visibility based on recurrence type
     function toggleDaysVisibility() {
         const recurrenceType = recurrenceTypeSelect.value;
-        if (recurrenceType === 'weekly') {
-            daysGroup.style.display = 'block';
-        } else {
-            daysGroup.style.display = 'none';
-        }
-        updateAll();
+        daysGroup.style.display = recurrenceType === 'weekly' ? 'block' : 'none';
     }
 
-    // ==================== ADVANCED PREVIEW SYSTEM ====================
+    recurrenceTypeSelect.addEventListener('change', toggleDaysVisibility);
+    toggleDaysVisibility();
 
-    // Update all dynamic content
-    function updateAll() {
-        updatePreview();
-        updateCalendar();
-        updateAnalytics();
-        updateAIInsights();
-    }
-
-    // Update real-time preview with enhanced features
-    function updatePreview() {
-        const formData = new FormData(form);
-        const previewData = {
-            recurrence_type: formData.get('recurrence_type'),
-            start_time: formData.get('start_time'),
-            duration_hours: formData.get('duration_hours'),
-            start_date: formData.get('start_date'),
-            end_date: formData.get('end_date'),
-            monday: formData.get('monday') ? true : false,
-            tuesday: formData.get('tuesday') ? true : false,
-            wednesday: formData.get('wednesday') ? true : false,
-            thursday: formData.get('thursday') ? true : false,
-            friday: formData.get('friday') ? true : false,
-            saturday: formData.get('saturday') ? true : false,
-            sunday: formData.get('sunday') ? true : false,
-        };
-
-        // Generate enhanced preview HTML
-        let previewHtml = '<div class="small text-muted mb-3 d-flex align-items-center"><i class="bi bi-eye me-2"></i>Próximas ocurrencias programadas:</div>';
-
-        if (previewData.recurrence_type && previewData.start_time && previewData.start_date) {
-            const occurrences = generateOccurrences(previewData, 8);
-
-            if (occurrences.length > 0) {
-                occurrences.forEach((occ, index) => {
-                    const isToday = occ.fullDate.toDateString() === new Date().toDateString();
-                    const isTomorrow = occ.fullDate.toDateString() === new Date(Date.now() + 86400000).toDateString();
-
-                    previewHtml += `
-                        <div class="preview-occurrence ${isToday ? 'border-primary' : ''}" data-date="${occ.fullDate.toISOString()}">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <div class="date fw-bold ${isToday ? 'text-primary' : 'text-info'}">
-                                        ${isToday ? '📅 HOY' : isTomorrow ? '📅 MAÑANA' : occ.date}
-                                    </div>
-                                    <div class="time text-muted">${occ.time} • ${occ.duration}</div>
-                                </div>
-                                <div class="text-end">
-                                    <small class="badge ${occ.priority}">${occ.priorityLabel}</small>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                // Update preview count badge
-                document.getElementById('preview-count').textContent = occurrences.length;
-            } else {
-                previewHtml += '<div class="text-center text-muted"><i class="bi bi-calendar-x fs-1 mb-2"></i><p>No se encontraron ocurrencias futuras</p></div>';
-            }
-
-            // Update statistics
-            document.getElementById('next-occurrences').textContent = occurrences.length;
-        } else {
-            previewHtml = '<div class="text-center text-muted"><i class="bi bi-clock-history fs-1 mb-2"></i><p>Completa los campos para ver la vista previa inteligente</p></div>';
-            document.getElementById('preview-count').textContent = '0';
-        }
-
-        previewContainer.innerHTML = previewHtml;
-    }
-
-    // Generate smart occurrences with priority and duration
-    function generateOccurrences(data, limit) {
-        const occurrences = [];
-        const startDate = new Date(data.start_date);
-        const today = new Date();
-
-        // Ensure start date is not in the past
-        if (startDate < today) {
-            startDate.setTime(today.getTime());
-        }
-
-        let currentDate = new Date(startDate);
-        let count = 0;
-
-        while (count < limit && count < 60) { // Extended safety limit
-            if (data.recurrence_type === 'weekly') {
-                // Check if current day is selected
-                const dayName = currentDate.toLocaleLowerCase('en', { weekday: 'long' });
-                if (data[dayName]) {
-                    const priority = calculatePriority(currentDate, data);
-                    const duration = formatDuration(data.duration_hours);
-
-                    occurrences.push({
-                        date: currentDate.toLocaleDateString('es-ES', {
-                            weekday: 'short',
-                            day: 'numeric',
-                            month: 'short'
-                        }),
-                        time: data.start_time,
-                        duration: duration,
-                        priority: priority.class,
-                        priorityLabel: priority.label,
-                        fullDate: new Date(currentDate)
-                    });
-                    count++;
-                }
-            } else {
-                // Daily recurrence
-                const priority = calculatePriority(currentDate, data);
-                const duration = formatDuration(data.duration_hours);
-
-                occurrences.push({
-                    date: currentDate.toLocaleDateString('es-ES', {
-                        weekday: 'short',
-                        day: 'numeric',
-                        month: 'short'
-                    }),
-                    time: data.start_time,
-                    duration: duration,
-                    priority: priority.class,
-                    priorityLabel: priority.label,
-                    fullDate: new Date(currentDate)
-                });
-                count++;
-            }
-
-            // Move to next day
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-
-        return occurrences;
-    }
-
-    // Calculate smart priority based on day and time
-    function calculatePriority(date, data) {
-        const dayOfWeek = date.getDay();
-        const hour = parseInt(data.start_time.split(':')[0]);
-
-        // Business hours priority
-        if (hour >= 9 && hour <= 17) {
-            if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
-                return { class: 'bg-success', label: 'Óptimo' };
-            } else {
-                return { class: 'bg-info', label: 'Bueno' };
-            }
-        } else if (hour >= 6 && hour <= 22) {
-            return { class: 'bg-warning', label: 'Moderado' };
-        } else {
-            return { class: 'bg-secondary', label: 'Bajo' };
-        }
-    }
-
-    // Format duration nicely
-    function formatDuration(hours) {
-        const h = parseFloat(hours);
-        if (h < 1) {
-            return `${Math.round(h * 60)}min`;
-        } else if (h === 1) {
-            return '1h';
-        } else {
-            const wholeHours = Math.floor(h);
-            const minutes = Math.round((h - wholeHours) * 60);
-            return minutes > 0 ? `${wholeHours}h ${minutes}min` : `${wholeHours}h`;
-        }
-    }
-
-    // ==================== INTERACTIVE CALENDAR ====================
-
-    // Update calendar visualization
-    function updateCalendar() {
-        if (calendarView === 'week') {
-            renderWeekCalendar();
-        } else {
-            renderMonthCalendar();
-        }
-    }
-
-    // Render week view calendar
-    function renderWeekCalendar() {
-        const slots = [];
-        const weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-
-        for (let i = 0; i < 7; i++) {
-            const date = new Date(currentWeekStart);
-            date.setDate(currentWeekStart.getDate() + i);
-
-            const isToday = date.toDateString() === new Date().toDateString();
-            const hasSchedule = checkDateHasSchedule(date);
-
-            slots.push(`
-                <div class="calendar-day ${isToday ? 'today' : ''} ${hasSchedule ? 'has-schedule' : ''}"
-                     data-date="${date.toISOString().split('T')[0]}">
-                    <span class="day-number">${date.getDate()}</span>
-                </div>
-            `);
-        }
-
-        calendarSlots.innerHTML = slots.join('');
-
-        // Update week display
-        const weekEnd = new Date(currentWeekStart);
-        weekEnd.setDate(currentWeekStart.getDate() + 6);
-        currentWeekDisplay.textContent = `Semana del ${currentWeekStart.getDate()} ${currentWeekStart.toLocaleDateString('es-ES', { month: 'short' })} - ${weekEnd.getDate()} ${weekEnd.toLocaleDateString('es-ES', { month: 'short' })}`;
-
-        // Add click handlers
-        document.querySelectorAll('.calendar-day').forEach(day => {
-            day.addEventListener('click', function() {
-                const date = this.dataset.date;
-                highlightCalendarDate(date);
-                showDateDetails(date);
-            });
-        });
-    }
-
-    // Check if date has scheduled occurrences
-    function checkDateHasSchedule(date) {
-        // This would normally check against actual schedule data
-        // For demo purposes, we'll simulate based on form data
-        const formData = new FormData(form);
-        const recurrenceType = formData.get('recurrence_type');
-
-        if (recurrenceType === 'weekly') {
-            const dayName = date.toLocaleLowerCase('en', { weekday: 'long' });
-            return formData.get(dayName) ? true : false;
-        } else if (recurrenceType === 'daily') {
-            return true; // Daily schedules have occurrences every day
-        }
-
-        return false;
-    }
-
-    // Highlight selected date in calendar
-    function highlightCalendarDate(dateString) {
-        document.querySelectorAll('.calendar-day').forEach(day => {
-            day.classList.remove('selected');
-        });
-        const selectedDay = document.querySelector(`[data-date="${dateString}"]`);
-        if (selectedDay) {
-            selectedDay.classList.add('selected');
-        }
-    }
-
-    // Show details for selected date
-    function showDateDetails(dateString) {
-        const date = new Date(dateString);
-        // This could show a modal or tooltip with schedule details for that date
-        console.log('Showing details for:', date.toLocaleDateString('es-ES'));
-    }
-
-    // ==================== ANALYTICS & AI INSIGHTS ====================
-
-    // Update analytics dashboard
-    function updateAnalytics() {
-        const formData = new FormData(form);
-        const recurrenceType = formData.get('recurrence_type');
-
-        // Calculate efficiency score
-        let efficiencyScore = 75; // Base score
-        if (recurrenceType === 'weekly') {
-            const selectedDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-                .filter(day => formData.get(day)).length;
-            efficiencyScore += selectedDays * 2; // More days = higher efficiency
-        }
-
-        // Update efficiency display
-        document.getElementById('efficiency-score').textContent = `${efficiencyScore}%`;
-        document.getElementById('efficiency-bar').style.width = `${efficiencyScore}%`;
-
-        // Update day distribution (mock data based on form)
-        updateDayDistribution();
-    }
-
-    // Update day distribution bars
-    function updateDayDistribution() {
-        const days = ['mon', 'tue', 'wed'];
-        const mockCounts = [3, 2, 4]; // Mock data
-
-        days.forEach((day, index) => {
-            const count = mockCounts[index];
-            const percentage = (count / 4) * 100; // Assuming max 4 occurrences
-
-            document.getElementById(`${day}-count`).textContent = count;
-            document.getElementById(`${day}-bar`).style.width = `${percentage}%`;
-        });
-    }
-
-    // Update AI insights (simulated)
-    function updateAIInsights() {
-        const insights = [
-            {
-                type: 'success',
-                icon: 'check-circle',
-                title: 'Horario Óptimo Detectado',
-                message: 'Esta configuración maximiza tu productividad semanal'
-            },
-            {
-                type: 'info',
-                icon: 'graph-up',
-                title: 'Análisis Predictivo',
-                message: '94% de probabilidad de adherencia a esta rutina'
-            },
-            {
-                type: 'warning',
-                icon: 'lightbulb',
-                title: 'Recomendación IA',
-                message: 'Considera agregar descansos de 15 minutos entre tareas'
-            }
-        ];
-
-        // Rotate insights for demo
-        const insightIndex = Math.floor(Date.now() / 10000) % insights.length;
-        const insight = insights[insightIndex];
-
-        const insightsContainer = document.getElementById('ai-insights');
-        insightsContainer.innerHTML = `
-            <div class="alert alert-${insight.type} border-${insight.type} mb-2">
-                <i class="bi bi-${insight.icon} me-1"></i>
-                <strong>${insight.title}:</strong> ${insight.message}
-            </div>
-        `;
-    }
-
-    // ==================== FULLSCREEN MODE ====================
-
-    // Toggle fullscreen mode
-    fullscreenBtn.addEventListener('click', function() {
-        const container = document.querySelector('.container-fluid');
-        isFullscreen = !isFullscreen;
-
-        if (isFullscreen) {
-            container.classList.add('fullscreen-overlay');
-            this.innerHTML = '<i class="bi bi-fullscreen-exit"></i>';
-            document.body.style.overflow = 'hidden';
-        } else {
-            container.classList.remove('fullscreen-overlay');
-            this.innerHTML = '<i class="bi bi-arrows-fullscreen"></i>';
-            document.body.style.overflow = 'auto';
-        }
-    });
-
-    // ==================== CALENDAR NAVIGATION ====================
-
-    // Week navigation
-    prevWeekBtn.addEventListener('click', function() {
-        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-        updateCalendar();
-    });
-
-    nextWeekBtn.addEventListener('click', function() {
-        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-        updateCalendar();
-    });
-
-    // View switching
-    weekViewBtn.addEventListener('click', function() {
-        calendarView = 'week';
-        weekViewBtn.classList.add('active');
-        monthViewBtn.classList.remove('active');
-        updateCalendar();
-    });
-
-    monthViewBtn.addEventListener('click', function() {
-        calendarView = 'month';
-        monthViewBtn.classList.add('active');
-        weekViewBtn.classList.remove('active');
-        updateCalendar();
-    });
-
-    // ==================== ENHANCED FORM VALIDATION ====================
-
-    // Enhanced form validation with smart feedback
     form.addEventListener('submit', function(e) {
         let isValid = true;
-        const errors = [];
 
-        // Clear previous errors
-        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        document.querySelectorAll('.events-is-invalid').forEach(el => el.classList.remove('events-is-invalid'));
+        document.querySelectorAll('.events-invalid-feedback').forEach(el => el.remove());
 
-        // Smart validation with context
-        const recurrenceType = recurrenceTypeSelect.value;
-        if (!recurrenceType) {
+        if (!recurrenceTypeSelect.value) {
             isValid = false;
-            recurrenceTypeSelect.classList.add('is-invalid');
-            showFieldError(recurrenceTypeSelect, 'Selecciona un patrón de recurrencia para optimizar tu horario.');
+            recurrenceTypeSelect.classList.add('events-is-invalid');
+            showFieldError(recurrenceTypeSelect, 'Debes seleccionar un tipo de recurrencia.');
         }
 
-        // Enhanced day validation
-        if (recurrenceType === 'weekly') {
-            const dayCheckboxes = document.querySelectorAll('.day-checkbox');
+        if (recurrenceTypeSelect.value === 'weekly') {
+            const dayCheckboxes = document.querySelectorAll('.events-day-checkbox');
             const hasSelectedDay = Array.from(dayCheckboxes).some(cb => cb.checked);
-
             if (!hasSelectedDay) {
                 isValid = false;
-                dayCheckboxes.forEach(cb => cb.classList.add('is-invalid'));
-                showFieldError(daysGroup, 'Selecciona al menos un día para crear un horario efectivo.');
-            } else {
-                // Check for optimal day distribution
-                const selectedDays = Array.from(dayCheckboxes).filter(cb => cb.checked).length;
-                if (selectedDays > 5) {
-                    showFieldWarning(daysGroup, 'Considera reducir días para evitar sobrecarga.');
-                }
+                dayCheckboxes.forEach(cb => cb.classList.add('events-is-invalid'));
+                showFieldError(daysGroup, 'Debes seleccionar al menos un día de la semana.');
             }
         }
 
-        // Time validation with smart suggestions
         const startTimeInput = document.getElementById('{{ form.start_time.id_for_label }}');
         if (!startTimeInput.value) {
             isValid = false;
-            startTimeInput.classList.add('is-invalid');
-            showFieldError(startTimeInput, 'Define una hora de inicio para programar tus actividades.');
-        } else {
-            const hour = parseInt(startTimeInput.value.split(':')[0]);
-            if (hour < 6 || hour > 22) {
-                showFieldWarning(startTimeInput, 'Horarios extremos pueden afectar tu rendimiento.');
-            }
+            startTimeInput.classList.add('events-is-invalid');
+            showFieldError(startTimeInput, 'Debes especificar la hora de inicio.');
         }
 
-        // Duration validation with productivity tips
         const durationInput = document.getElementById('id_duration_hours');
         const duration = parseFloat(durationInput.value);
         if (!duration || duration < 0.25 || duration > 24) {
             isValid = false;
-            durationInput.classList.add('is-invalid');
-            showFieldError(durationInput, 'La duración debe estar entre 15 minutos y 24 horas.');
-        } else if (duration > 4) {
-            showFieldWarning(durationInput, 'Sesiones largas pueden reducir la concentración.');
+            durationInput.classList.add('events-is-invalid');
+            showFieldError(durationInput, 'La duración debe estar entre 0.25 y 24 horas.');
         }
 
-        // Date validation with smart scheduling
         const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
         if (!startDateInput.value) {
             isValid = false;
-            startDateInput.classList.add('is-invalid');
-            showFieldError(startDateInput, 'Establece una fecha de inicio para tu programación.');
+            startDateInput.classList.add('events-is-invalid');
+            showFieldError(startDateInput, 'Debes especificar la fecha de inicio.');
         } else {
             const today = new Date();
+            today.setHours(0, 0, 0, 0);
             const selectedDate = new Date(startDateInput.value);
-            const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-            const selectedDateOnly = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
-
-            if (selectedDateOnly < todayDate) {
+            if (selectedDate < today) {
                 isValid = false;
-                startDateInput.classList.add('is-invalid');
-                showFieldError(startDateInput, 'No puedes programar actividades en el pasado.');
-            } else if (selectedDateOnly.getTime() === todayDate.getTime()) {
-                showFieldInfo(startDateInput, '¡Excelente! Comenzar hoy maximiza tu momentum.');
+                startDateInput.classList.add('events-is-invalid');
+                showFieldError(startDateInput, 'La fecha de inicio no puede ser anterior a hoy.');
             }
         }
 
-        // End date validation
         const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
         if (endDateInput.value && startDateInput.value) {
             const startDate = new Date(startDateInput.value);
             const endDate = new Date(endDateInput.value);
             if (endDate <= startDate) {
                 isValid = false;
-                endDateInput.classList.add('is-invalid');
-                showFieldError(endDateInput, 'La fecha de fin debe ser posterior al inicio.');
+                endDateInput.classList.add('events-is-invalid');
+                showFieldError(endDateInput, 'La fecha de fin debe ser posterior a la fecha de inicio.');
             }
         }
 
         if (!isValid) {
             e.preventDefault();
-
-            // Smooth scroll to first error with animation
-            const firstError = document.querySelector('.is-invalid');
+            const firstError = document.querySelector('.events-is-invalid');
             if (firstError) {
-                firstError.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center',
-                    inline: 'nearest'
-                });
-
-                // Add pulse animation to draw attention
-                firstError.style.animation = 'pulse 1s ease-in-out';
-                setTimeout(() => {
-                    firstError.style.animation = '';
-                }, 1000);
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-
             return false;
-        }
-
-        // Show loading state for successful submission
-        const submitBtn = form.querySelector('button[type="submit"]:not([name="action"])');
-        if (submitBtn) {
-            submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Guardando...';
-            submitBtn.disabled = true;
         }
 
         return true;
     });
 
-    // ==================== UTILITY FUNCTIONS ====================
-
     function showFieldError(element, message) {
         const feedback = document.createElement('div');
-        feedback.className = 'invalid-feedback d-block';
-        feedback.innerHTML = `<i class="bi bi-exclamation-triangle me-1"></i>${message}`;
-
-        const formFloating = element.closest('.form-floating');
+        feedback.className = 'events-invalid-feedback events-d-block';
+        feedback.textContent = message;
+        const formFloating = element.closest('.events-form-floating');
         if (formFloating) {
             formFloating.appendChild(feedback);
         } else {
@@ -1607,103 +590,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function showFieldWarning(element, message) {
-        const feedback = document.createElement('div');
-        feedback.className = 'alert alert-warning mt-2 py-1 px-2 small';
-        feedback.innerHTML = `<i class="bi bi-info-circle me-1"></i>${message}`;
-
-        const formFloating = element.closest('.form-floating');
-        if (formFloating) {
-            formFloating.parentNode.insertBefore(feedback, formFloating.nextSibling);
-        } else {
-            element.parentNode.insertBefore(feedback, element.nextSibling);
-        }
-
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            if (feedback.parentNode) {
-                feedback.remove();
-            }
-        }, 5000);
-    }
-
-    function showFieldInfo(element, message) {
-        const feedback = document.createElement('div');
-        feedback.className = 'alert alert-info mt-2 py-1 px-2 small';
-        feedback.innerHTML = `<i class="bi bi-check-circle me-1"></i>${message}`;
-
-        const formFloating = element.closest('.form-floating');
-        if (formFloating) {
-            formFloating.parentNode.insertBefore(feedback, formFloating.nextSibling);
-        } else {
-            element.parentNode.insertBefore(feedback, element.nextSibling);
-        }
-
-        // Auto-remove after 3 seconds
-        setTimeout(() => {
-            if (feedback.parentNode) {
-                feedback.remove();
-            }
-        }, 3000);
-    }
-
-    // ==================== ENHANCED UX FEATURES ====================
-
-    // Enhanced day selection with animations
-    document.querySelectorAll('.day-checkbox').forEach(checkbox => {
+    document.querySelectorAll('.events-day-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            const badge = this.nextElementSibling.querySelector('.badge');
+            const badge = this.nextElementSibling.querySelector('.m360-badge');
             if (this.checked) {
-                badge.classList.remove('bg-light', 'text-dark');
-                badge.classList.add('bg-primary', 'text-white');
-                badge.style.transform = 'scale(1.1)';
-                setTimeout(() => badge.style.transform = '', 200);
+                badge.classList.remove('m360-badge-light');
+                badge.classList.add('m360-badge-primary');
             } else {
-                badge.classList.remove('bg-primary', 'text-white');
-                badge.classList.add('bg-light', 'text-dark');
+                badge.classList.remove('m360-badge-primary');
+                badge.classList.add('m360-badge-light');
             }
-            updateAll();
         });
-
-        // Initialize state
-        const badge = checkbox.nextElementSibling.querySelector('.badge');
-        if (checkbox.checked) {
-            badge.classList.remove('bg-light', 'text-dark');
-            badge.classList.add('bg-primary', 'text-white');
-        }
     });
-
-    // ==================== EVENT LISTENERS ====================
-
-    // Core form event listeners
-    recurrenceTypeSelect.addEventListener('change', toggleDaysVisibility);
-    form.addEventListener('input', debounce(updateAll, 300));
-    form.addEventListener('change', updateAll);
-
-    // Initialize everything
-    function initialize() {
-        toggleDaysVisibility();
-        updateAll();
-
-        // Set up periodic updates for AI insights
-        setInterval(updateAIInsights, 8000);
-    }
-
-    // Debounce function for performance
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // Start the application
-    initialize();
 });
 </script>
 {% endblock %}

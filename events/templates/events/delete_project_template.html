@@ -1,119 +1,87 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 
 {% block title %}Eliminar Plantilla de Proyecto{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h4 class="card-title mb-0">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-md-8 events-col-lg-6 events-mx-auto">
+            <div class="m360-card" style="border-left: 4px solid var(--m360-danger);">
+                <div class="m360-card-header" style="background: var(--m360-danger); color: #fff; border: none;">
+                    <h5 class="m360-card-title events-mb-0" style="color: inherit;">
+                        <i class="bi bi-exclamation-triangle" style="margin-right: var(--m360-space-2);"></i>
                         Confirmar Eliminación
-                    </h4>
+                    </h5>
                 </div>
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-trash text-danger" style="font-size: 4rem;"></i>
+                <div class="m360-card-body events-text-center">
+                    <div class="events-mb-4">
+                        <i class="bi bi-trash" style="font-size: var(--m360-icon-2xl); color: var(--m360-danger);"></i>
                     </div>
 
-                    <div class="alert alert-warning">
-                        <h5 class="alert-heading">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
+                    <div class="m360-alert m360-alert-warning">
+                        <h6 class="m360-card-title events-mb-1">
+                            <i class="bi bi-exclamation-triangle" style="margin-right: var(--m360-space-1);"></i>
                             ¿Estás seguro de que deseas eliminar esta plantilla?
-                        </h5>
-                        <p class="mb-0">
+                        </h6>
+                        <p class="events-mb-0">
                             Esta acción no se puede deshacer. Se eliminará permanentemente la plantilla
                             <strong>"{{ template.name }}"</strong> y todas sus tareas asociadas.
                         </p>
                     </div>
 
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <h6 class="card-title">
-                                <i class="bi bi-info-circle me-2"></i>
+                    <div class="m360-card" style="background: var(--m360-gray-50);">
+                        <div class="m360-card-body">
+                            <h6 class="m360-card-title events-mb-3">
+                                <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
                                 Detalles de la Plantilla
                             </h6>
-                            <div class="row">
-                                <div class="col-sm-4">
-                                    <strong>Nombre:</strong>
-                                </div>
-                                <div class="col-sm-8">
-                                    {{ template.name }}
-                                </div>
-                            </div>
-                            {% if template.description %}
-                                <div class="row mt-2">
-                                    <div class="col-sm-4">
-                                        <strong>Descripción:</strong>
-                                    </div>
-                                    <div class="col-sm-8">
-                                        {{ template.description|truncatechars:100 }}
-                                    </div>
-                                </div>
-                            {% endif %}
-                            <div class="row mt-2">
-                                <div class="col-sm-4">
-                                    <strong>Categoría:</strong>
-                                </div>
-                                <div class="col-sm-8">
-                                    {{ template.category }}
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-sm-4">
-                                    <strong>Tareas:</strong>
-                                </div>
-                                <div class="col-sm-8">
-                                    {{ template.templatetask_set.count }} tarea{{ template.templatetask_set.count|pluralize }}
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-sm-4">
-                                    <strong>Horas estimadas:</strong>
-                                </div>
-                                <div class="col-sm-8">
+                            <div class="events-row events-gap-3">
+                                <div class="events-col-sm-4"><strong>Nombre:</strong></div>
+                                <div class="events-col-sm-8">{{ template.name }}</div>
+                                {% if template.description %}
+                                <div class="events-col-sm-4"><strong>Descripción:</strong></div>
+                                <div class="events-col-sm-8">{{ template.description|truncatechars:100 }}</div>
+                                {% endif %}
+                                <div class="events-col-sm-4"><strong>Categoría:</strong></div>
+                                <div class="events-col-sm-8">{{ template.category }}</div>
+                                <div class="events-col-sm-4"><strong>Tareas:</strong></div>
+                                <div class="events-col-sm-8">{{ template.templatetask_set.count }} tarea{{ template.templatetask_set.count|pluralize }}</div>
+                                <div class="events-col-sm-4"><strong>Horas estimadas:</strong></div>
+                                <div class="events-col-sm-8">
                                     {% if template.templatetask_set.exists %}
                                         {{ template.templatetask_set.aggregate(total=Sum('estimated_hours')).total|floatformat:1 }} horas
                                     {% else %}
                                         0 horas
                                     {% endif %}
                                 </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-sm-4">
-                                    <strong>Creada:</strong>
-                                </div>
-                                <div class="col-sm-8">
-                                    {{ template.created_at|date:"d/m/Y H:i" }}
-                                </div>
+                                <div class="events-col-sm-4"><strong>Creada:</strong></div>
+                                <div class="events-col-sm-8">{{ template.created_at|date:"d/m/Y H:i" }}</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="alert alert-info mt-3">
-                        <h6 class="alert-heading">
-                            <i class="bi bi-info-circle me-2"></i>
+                    <div class="m360-alert m360-alert-info events-mt-3">
+                        <h6 class="m360-card-title events-mb-1">
+                            <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
                             Importante
                         </h6>
-                        <ul class="mb-0">
+                        <ul class="events-mb-0">
                             <li>Esta plantilla ya no estará disponible para crear nuevos proyectos</li>
                             <li>Los proyectos existentes creados con esta plantilla no se verán afectados</li>
                             <li>Si es una plantilla pública, otros usuarios perderán acceso a ella</li>
                         </ul>
                     </div>
 
-                    <form method="post" class="mt-4">
+                    <form method="post" class="events-mt-4">
                         {% csrf_token %}
-                        <div class="d-flex gap-2 justify-content-center">
-                            <button type="submit" class="btn btn-danger btn-lg">
-                                <i class="bi bi-trash me-2"></i>
+                        <div class="events-d-flex events-justify-center events-gap-2">
+                            <button type="submit" class="m360-btn m360-btn-danger">
+                                <i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i>
                                 Sí, Eliminar Plantilla
                             </button>
-                            <a href="{% url 'events:project_template_detail' template.id %}" class="btn btn-secondary btn-lg">
-                                <i class="bi bi-x-circle me-2"></i>
+                            <a href="{% url 'events:project_template_detail' template.id %}" class="m360-btn m360-btn-outline-secondary">
+                                <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>
                                 Cancelar
                             </a>
                         </div>
@@ -123,59 +91,14 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-.card {
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.card-header {
-    border-bottom: none;
-}
-
-.btn-danger:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-}
-
-.btn-secondary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
-}
-
-.alert {
-    border: none;
-}
-
-.alert-warning {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.alert-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-}
-
-.text-danger {
-    color: #dc3545 !important;
-}
-
-.bg-danger {
-    background-color: #dc3545 !important;
-}
-</style>
-
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Agregar confirmación adicional al botón de eliminar
-    const deleteButton = document.querySelector('button[type="submit"]');
-    const form = document.querySelector('form');
-
+    var form = document.querySelector('form');
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-
-        // Mostrar confirmación final
         if (confirm('¿Estás completamente seguro? Esta acción no se puede deshacer.')) {
             form.submit();
         }

@@ -1,172 +1,71 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 {% block content %}
 {% if messages %}
-<div class="alert alert-info" role="alert">
-    {% for message in messages %}
-    <p{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
-        {% endfor %}
+<div class="events-container">
+    <div class="events-row">
+        <div class="events-col-12">
+            <div class="m360-alert m360-alert-info" role="alert">
+                {% for message in messages %}
+                <p{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endif %}
-<div class="pagetitle">
-    <h1>{{title}}</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'events:event_panel' %}">Events Panel</a></li>
-            <li class="breadcrumb-item active">{{title}}</li>
-        </ol>
-    </nav>
-</div><!-- End Page Title -->
 
-<section class="section dashboard">
-    <div class="row">
+<div class="events-container">
+    <div class="events-page-header">
+        <h1 class="events-page-title">{{ title }}</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="events-breadcrumb">
+                <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Home</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li><a href="{% url 'events:event_panel' %}"><i class="bi bi-calendar-event"></i> Events Panel</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li style="color: var(--m360-text);">{{ title }}</li>
+            </ol>
+        </nav>
+    </div>
 
-        <!-- Left side columns -->
-        <div class="col-lg-8">
-            <div class="row">
-                
-                
+    <div class="events-row">
+        <div class="events-col-lg-8">
+            <div class="events-row events-gap-4">
                 {% if events %}
-                {% include 'events/includes/event_top.html' %}
+                    {% include 'events/includes/event_top.html' %}
+
+                    {% if event_projects %}
+                        {% for project in event_projects %}
+                        {% include 'projects/includes/project_card.html' %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if event_tasks %}
+                        {% for task in event_tasks %}
+                        {% include 'tasks/includes/task_card.html' %}
+                        {% endfor %}
+                    {% endif %}
                 {% else %}
 
-
-                <!-- Sales Card -->
-                <div class="col-xxl-4 col-md-6">
-                    <div class="card info-card sales-card">
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-
-                                <li><a class="dropdown-item" href="#">Today</a></li>
-                                <li><a class="dropdown-item" href="#">This Month</a></li>
-                                <li><a class="dropdown-item" href="#">This Year</a></li>
-                            </ul>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">{{event.title}} <span>| Event Id:{{event.id}}</span></h5>
-
-                            <div class="d-flex align-items-center">
-                                <div
-                                    class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-cart"></i>
-                                </div>
-                                <div class="ps-3">
-                                    <h6>{{event.id}}</h6>
-                                    <span class="text-success small pt-1 fw-bold"></span> <span
-                                        class="text-muted small pt-2 ps-1"></span>
-
-                                </div>
-                                
+                <div class="events-col-12">
+                    <div class="m360-card">
+                        <div class="m360-card-body events-text-center">
+                            <div class="events-empty-state-icon">
+                                <i class="bi bi-calendar-x"></i>
                             </div>
-
-
-
-                        </div>
-                        <div class="card-body">
-                            <form id="form-{{ event.id }}" action="{% url 'events:event_assign' event.id %}" method="POST">
-                                {% csrf_token %}
-                                <div class="form-floating mb-3">
-                
-                                    <select name="assign_project_id" class="form-select" aria-label="Default select example">
-                                        {% for project in available_projects %}
-                                            <option value="{{ project.id }}" {% if project.id|stringformat:"s" == event.project_id.id|stringformat:"s" %}selected{% endif %}>
-                                            {{ project.title }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                    <label for="floatingSelect">Project</label>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Cambiar Estado</button>
-                            </form> 
+                            <h4 class="events-empty-state-title">No hay eventos disponibles</h4>
+                            <p class="events-empty-state-text">No hay eventos para asignar en este momento.</p>
                         </div>
                     </div>
-                </div><!-- End Sales Card -->
-
-
-                <!-- Sales Card -->
-                <div class="col-xxl-4 col-md-6">
-                    <div class="card info-card sales-card">
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-                                <li><a class="dropdown-item" href="#">Today</a></li>
-                                <li><a class="dropdown-item" href="#">This Month</a></li>
-                                <li><a class="dropdown-item" href="#">This Year</a></li>
-                            </ul>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">{{event.title}} <span>| Event Id:{{event.id}}</span></h5>
-
-                            <div class="d-flex align-items-center">
-                                <div
-                                    class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-cart"></i>
-                                </div>
-                                <div class="ps-3">
-                                    <h6>{{event.id}}</h6>
-                                    <span class="text-success small pt-1 fw-bold"></span> <span
-                                        class="text-muted small pt-2 ps-1"></span>
-
-                                </div>
-                                
-                            </div>
-
-
-
-                        </div>
-                        <div class="card-body">
-                            <form id="form-{{ event.id }}" action="{% url 'events:event_assign' event.id %}" method="POST">
-                                {% csrf_token %}
-                                <div class="form-floating mb-3">
-                
-                                    <select name="assign_task_id" class="form-select" aria-label="Default select example">
-                                        {% for task in available_tasks %}
-                                            <option value="{{ task.id }}" {% if task.id|stringformat:"s" == event.project_id.id|stringformat:"s" %}selected{% endif %}>
-                                            {{ task.title }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                    <label for="floatingSelect">Task</label>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Cambiar Estado</button>
-                            </form> 
-                        </div>
-
-
-                    </div>
-                </div><!-- End Sales Card -->
-
-                {% if event_projects %}
-                {% for project in event_projects %}
-                {% include 'projects/includes/project_card.html' %}
-                {% endfor %}
+                </div>
                 {% endif %}
-
-                {% if event_tasks %}
-                {% for task in event_tasks %}
-                {% include 'tasks/includes/task_card.html' %}
-                {% endfor %}
-                {% endif %}
-
-                {% endif %}
-
             </div>
-        </div><!-- End Left side columns -->
+        </div>
 
-        <!-- Right side columns -->
-        <div class="col-lg-4">
-
-        </div><!-- End Right side columns -->
-
+        <div class="events-col-lg-4">
+            <!-- Right side columns -->
+        </div>
     </div>
-</section>
-
+</div>
 {% endblock %}

@@ -1,65 +1,60 @@
-{% extends 'layouts/base.html' %}
+{% extends 'events/base_itcss.html' %}
 {% load static %}
 {% load event_extras %}
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'events/css/components.css' %}">
-{% endblock %}
-
 {% block content %}
+<div class="events-container">
+    <!-- ============================================= -->
+    <!-- ENCABEZADO Y MIGAS DE PAN                    -->
+    <!-- ============================================= -->
+    <div class="m360-page-header">
+        <h1 class="m360-page-header__title">
+            <i class="bi bi-pencil-square" style="margin-right: var(--m360-space-2);"></i>
+            {{ title }}
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="events-d-flex events-flex-wrap events-align-center events-gap-2" style="list-style: none; padding: 0; margin: 0; font-size: var(--m360-text-sm);">
+                <li><a href="{% url 'index' %}" style="text-decoration: none; color: var(--m360-text-muted);"><i class="bi bi-house-door"></i> Home</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li><a href="{% url 'events:event_panel' %}" style="text-decoration: none; color: var(--m360-text-muted);">Eventos</a></li>
+                <li style="color: var(--m360-text-muted);">/</li>
+                <li style="color: var(--m360-text);">{{ title }}</li>
+            </ol>
+        </nav>
+    </div>
 
-<!-- ============================================= -->
-<!-- ENCABEZADO Y MIGAS DE PAN                    -->
-<!-- ============================================= -->
-<div class="pagetitle">
-    <h1>{{ title }}</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url 'index' %}"><i class="bi bi-house-door me-1"></i>Home</a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="{% url 'events:event_panel' %}">Eventos</a>
-            </li>
-            <li class="breadcrumb-item active">{{ title }}</li>
-        </ol>
-    </nav>
-</div>
+    <!-- ============================================= -->
+    <!-- MENSAJES DEL SISTEMA                         -->
+    <!-- ============================================= -->
+    {% include 'events/includes/messages.html' %}
 
-<!-- ============================================= -->
-<!-- MENSAJES DEL SISTEMA                         -->
-<!-- ============================================= -->
-{% include 'events/includes/messages.html' %}
-
-<!-- ============================================= -->
-<!-- CONTENIDO PRINCIPAL                         -->
-<!-- ============================================= -->
-<section class="section dashboard">
-    <div class="row">
-
+    <!-- ============================================= -->
+    <!-- CONTENIDO PRINCIPAL                         -->
+    <!-- ============================================= -->
+    <div class="events-row">
         <!-- ======================================== -->
         <!-- COLUMNA IZQUIERDA (8) - FORMULARIO      -->
         <!-- ======================================== -->
-        <div class="col-lg-8">
-            <div class="row">
+        <div class="events-col-lg-8">
+            <div class="events-row">
                 {% if event %}
                     <form method="POST" action="{% url 'events:event_edit' event.id %}">
                         {% csrf_token %}
                         {% include 'events/includes/event_form.html' %}
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <div class="d-grid gap-2 d-md-flex justify-content-md-between">
-                                    <button type="submit" name="save_and_continue" class="btn btn-primary">
-                                        <i class="bi bi-save me-2"></i>Guardar cambios
+                        <div class="m360-card events-mb-4">
+                            <div class="m360-card-body">
+                                <div class="events-d-flex events-flex-col events-gap-2">
+                                    <button type="submit" name="save_and_continue" class="m360-btn m360-btn-primary events-w-100">
+                                        <i class="bi bi-save" style="margin-right: var(--m360-space-2);"></i>Guardar cambios
                                     </button>
-                                    <div>
-                                        <a href="{% url 'events:event_detail' event.id %}" class="btn btn-outline-secondary me-2">
-                                            <i class="bi bi-x-circle me-2"></i>Cancelar
+                                    <div class="events-d-flex events-flex-wrap events-gap-2">
+                                        <a href="{% url 'events:event_detail' event.id %}" class="m360-btn m360-btn-outline-secondary events-flex-grow">
+                                            <i class="bi bi-x-circle" style="margin-right: var(--m360-space-2);"></i>Cancelar
                                         </a>
-                                        <button type="submit" name="save_and_view" class="btn btn-success">
-                                            <i class="bi bi-check-circle me-2"></i>Guardar y ver
+                                        <button type="submit" name="save_and_view" class="m360-btn m360-btn-success events-flex-grow">
+                                            <i class="bi bi-check-circle" style="margin-right: var(--m360-space-2);"></i>Guardar y ver
                                         </button>
                                     </div>
                                 </div>
@@ -67,9 +62,9 @@
                         </div>
                     </form>
                 {% else %}
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle me-2"></i>No se encontraron datos del evento.
-                    </div>
+                <div class="m360-alert m360-alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> No se encontraron datos del evento.
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -77,94 +72,107 @@
         <!-- ======================================== -->
         <!-- COLUMNA DERECHA (4) - SIDEBAR          -->
         <!-- ======================================== -->
-        <div class="col-lg-4">
-            <div class="row g-3">
-
+        <div class="events-col-lg-4">
+            <div class="events-row events-flex-col events-gap-4">
                 <!-- ACORDEÓN DE INFORMACIÓN -->
-                <div class="col-12">
-                    {% include 'layouts/includes/information/info_acordeon.html' %}
+                <div class="events-col-12">
+                    <div class="m360-accordion">
+                        <div class="m360-accordion-item">
+                            <button class="m360-accordion-header" data-m360-toggle="collapse" data-m360-target="#infoAccordion" aria-expanded="true">
+                                <span>
+                                    <i class="bi bi-info-circle me-2"></i>Links
+                                </span>
+                                <i class="bi bi-chevron-down m360-accordion-icon"></i>
+                            </button>
+                            <div class="m360-accordion-body m360-open" id="infoAccordion">
+                                <div class="events-d-flex events-flex-col events-gap-2">
+                                    <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-outline-secondary events-w-100">
+                                        <i class="bi bi-grid-3x3-gap"></i> Panel
+                                    </a>
+                                    <a href="{% url 'events:events' %}" class="m360-btn m360-btn-outline-info events-w-100">
+                                        <i class="bi bi-search"></i> Buscar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- ACTIVIDAD RECIENTE DEL EVENTO -->
-                <div class="col-12">
-                    <div class="card activity-card">
-                        <div class="card-body">
-                            <h5 class="card-title d-flex justify-content-between align-items-center">
+                {% if event %}
+                <div class="events-col-12">
+                    <div class="m360-card">
+                        <div class="m360-card-body">
+                            <h5 class="m360-card-title events-d-flex events-justify-between events-align-center">
                                 <span>
-                                    <i class="bi bi-activity me-2"></i>Historial del evento
+                                    <i class="bi bi-activity" style="margin-right: var(--m360-space-2);"></i>Historial del evento
                                 </span>
-                                <span class="badge bg-primary rounded-pill">
-                                    {{ event.eventstate_set.count }}
-                                </span>
+                                <span class="m360-badge m360-badge-info">{{ event.eventstate_set.count }}</span>
                             </h5>
                             
-                            <div class="activity" style="max-height: 400px; overflow-y: auto;">
+                            <div style="max-height: 400px; overflow-y: auto;">
                                 {% with event_states=event.eventstate_set.all|dictsortreversed:"start_time"|slice:":15" %}
                                     {% if event_states %}
                                         {% for state in event_states %}
-                                            <div class="activity-item d-flex align-items-start mb-3 pb-2 border-bottom">
-                                                <div class="flex-shrink-0">
-                                                    <div class="activite-label fw-semibold small">
-                                                        {{ state.start_time|duration:state.end_time }}
-                                                    </div>
-                                                    <small class="text-muted d-block">
-                                                        {{ state.start_time|date:"H:i" }}
-                                                        {% if state.end_time %} - {{ state.end_time|date:"H:i" }}{% endif %}
+                                        <div class="events-d-flex events-align-start events-gap-2 events-mb-3" style="padding-bottom: var(--m360-space-2); border-bottom: 1px solid var(--m360-border);">
+                                            <div style="flex-shrink: 0;">
+                                                <div style="font-weight: var(--m360-font-weight-semibold); font-size: var(--m360-text-sm);">
+                                                    {{ state.start_time|duration:state.end_time }}
+                                                </div>
+                                                <small class="events-text-muted" style="display: block;">
+                                                    {{ state.start_time|date:"H:i" }}
+                                                    {% if state.end_time %} - {{ state.end_time|date:"H:i" }}{% endif %}
+                                                </small>
+                                            </div>
+                                            <i class="bi bi-circle-fill" style="color: {{ state.status.color|default:'#6c757d' }}; font-size: 0.8rem; margin: 2px var(--m360-space-2) 0 0;"></i>
+                                            <div class="events-flex-grow">
+                                                <div>
+                                                    <span style="font-weight: var(--m360-font-weight-semibold);">
+                                                        Estado cambiado a 
+                                                        <span class="m360-badge" style="background: var(--m360-gray-100);">{{ state.status.status_name }}</span>
+                                                    </span>
+                                                    <small class="events-text-muted" style="display: block; margin-top: var(--m360-space-1);">
+                                                        <i class="bi bi-person"></i> {{ event.host.username|default:"Sistema" }}
                                                     </small>
                                                 </div>
-                                                <i class="bi bi-circle-fill activity-badge mx-3" 
-                                                   style="color: {{ state.status.color|default:'#6c757d' }}; font-size: 0.8rem;"></i>
-                                                <div class="flex-grow-1">
-                                                    <div class="activity-content">
-                                                        <span class="fw-semibold">
-                                                            Estado cambiado a 
-                                                            <span class="badge bg-{{ state.status.status_name|status_color }} bg-opacity-10">
-                                                                {{ state.status.status_name }}
-                                                            </span>
-                                                        </span>
-                                                        <small class="text-muted d-block mt-1">
-                                                            <i class="bi bi-person me-1"></i>{{ event.host.username|default:"Sistema" }}
-                                                        </small>
-                                                    </div>
-                                                </div>
                                             </div>
+                                        </div>
                                         {% endfor %}
                                     {% else %}
-                                        <div class="text-center py-5">
-                                            <div class="display-6 text-muted mb-3">
-                                                <i class="bi bi-clock-history"></i>
-                                            </div>
-                                            <h6 class="text-muted">Sin cambios registrados</h6>
-                                            <p class="small text-muted mb-0">
-                                                Los cambios de estado aparecerán aquí
-                                            </p>
+                                    <div class="events-empty-state" style="padding: var(--m360-space-6) var(--m360-space-4);">
+                                        <div class="events-empty-state-icon">
+                                            <i class="bi bi-clock-history"></i>
                                         </div>
+                                        <div class="events-empty-state-title">Sin cambios registrados</div>
+                                        <p class="events-empty-state-text">Los cambios de estado aparecerán aquí</p>
+                                    </div>
                                     {% endif %}
                                 {% endwith %}
                             </div>
                         </div>
                     </div>
                 </div>
+                {% endif %}
 
                 <!-- ACCIONES RÁPIDAS (opcional) -->
                 {% if user.is_authenticated %}
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white py-2">
-                            <h5 class="card-title mb-0 text-white">
-                                <i class="bi bi-lightning me-2"></i>Acciones
+                <div class="events-col-12">
+                    <div class="m360-card">
+                        <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
+                            <h5 class="m360-card-title" style="color: inherit;">
+                                <i class="bi bi-lightning" style="margin-right: var(--m360-space-2);"></i>Acciones
                             </h5>
                         </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'events:event_detail' event.id %}" class="btn btn-outline-primary">
-                                    <i class="bi bi-eye me-2"></i>Ver detalle
+                        <div class="m360-card-body">
+                            <div class="events-d-flex events-flex-col events-gap-2">
+                                <a href="{% url 'events:event_detail' event.id %}" class="m360-btn m360-btn-outline-primary events-w-100">
+                                    <i class="bi bi-eye" style="margin-right: var(--m360-space-2);"></i>Ver detalle
                                 </a>
-                                <a href="{% url 'events:event_assign' event.id %}" class="btn btn-outline-info">
-                                    <i class="bi bi-link me-2"></i>Asignar recursos
+                                <a href="{% url 'events:event_assign' event.id %}" class="m360-btn m360-btn-outline-info events-w-100">
+                                    <i class="bi bi-link" style="margin-right: var(--m360-space-2);"></i>Asignar recursos
                                 </a>
-                                <a href="{% url 'events:event_panel' %}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left me-2"></i>Volver al panel
+                                <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-outline-secondary events-w-100">
+                                    <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-2);"></i>Volver al panel
                                 </a>
                             </div>
                         </div>
@@ -176,8 +184,7 @@
         </div><!-- End col-lg-4 -->
 
     </div><!-- End row principal -->
-</section>
-
+</div>
 {% endblock %}
 
 {% block extra_js %}
