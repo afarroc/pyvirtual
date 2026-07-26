@@ -17,7 +17,7 @@
       {% if messages %}
       <div class="messages">
         {% for message in messages %}
-        <div class="m360-alert m360-alert-{{ message.tags }}">{{ message }}</div>
+        <div class="m360-alert m360-alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}{{ message.tags }}{% endif %}">{{ message }}</div>
         {% endfor %}
       </div>
       {% endif %}

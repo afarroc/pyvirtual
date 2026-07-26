@@ -65,14 +65,12 @@
       <form method="post" class="m360-form">
         {% csrf_token %}
         <input type="hidden" name="action" value="agregar_documento">
-        <input type="hidden" name="language" value="es">
-        <input type="hidden" name="rights" value="Derechos reservados UPN">
         {% if form_doc.non_field_errors %}
-          <div class="m360-alert m360-alert-danger m360-mb-3">
-            {% for error in form_doc.non_field_errors %}
-              <div>{{ error }}</div>
-            {% endfor %}
-          </div>
+        <div class="m360-alert m360-alert-danger m360-mb-3">
+          {% for error in form_doc.non_field_errors %}
+            <div>{{ error }}</div>
+          {% endfor %}
+        </div>
         {% endif %}
         <div class="m360-grid m360-grid-2 m360-gap-2">
           <div class="m360-form-group">
@@ -118,6 +116,22 @@
             <label class="m360-form-label" for="{{ form_doc.fecha_documento.id_for_label }}">{{ form_doc.fecha_documento.label }}</label>
             {% if form_doc.fecha_documento.errors %}{{ form_doc.fecha_documento|add_class:"error" }}{% else %}{{ form_doc.fecha_documento }}{% endif %}
             {% for error in form_doc.fecha_documento.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="m360-grid m360-grid-2 m360-gap-2">
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ form_doc.language.id_for_label }}">{{ form_doc.language.label }}</label>
+            {% if form_doc.language.errors %}{{ form_doc.language|add_class:"error" }}{% else %}{{ form_doc.language }}{% endif %}
+            {% for error in form_doc.language.errors %}
+              <div class="m360-text-danger m360-text-sm">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="m360-form-group">
+            <label class="m360-form-label" for="{{ form_doc.rights.id_for_label }}">{{ form_doc.rights.label }}</label>
+            {% if form_doc.rights.errors %}{{ form_doc.rights|add_class:"error" }}{% else %}{{ form_doc.rights }}{% endif %}
+            {% for error in form_doc.rights.errors %}
               <div class="m360-text-danger m360-text-sm">{{ error }}</div>
             {% endfor %}
           </div>
