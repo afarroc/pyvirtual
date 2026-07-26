@@ -403,7 +403,7 @@ class ProjectAdmin(admin.ModelAdmin):
     def host_link(self, obj):
         """Link to the host user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.host.id]),
+                         reverse('admin:accounts_user_change', args=[obj.host.id]),
                          obj.host.username)
     host_link.short_description = 'Host'
     host_link.admin_order_field = 'host__username'
@@ -556,7 +556,7 @@ class TaskAdmin(admin.ModelAdmin):
     def assigned_to_link(self, obj):
         """Link to the assigned user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.assigned_to.id]),
+                         reverse('admin:accounts_user_change', args=[obj.assigned_to.id]),
                          obj.assigned_to.username)
     assigned_to_link.short_description = 'Assigned To'
     assigned_to_link.admin_order_field = 'assigned_to__username'
@@ -671,7 +671,7 @@ class TaskProgramAdmin(admin.ModelAdmin):
     def host_link(self, obj):
         """Link to the host user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.host.id]),
+                         reverse('admin:accounts_user_change', args=[obj.host.id]),
                          obj.host.username)
     host_link.short_description = 'Host'
     host_link.admin_order_field = 'host__username'
@@ -790,7 +790,7 @@ class TaskScheduleAdmin(admin.ModelAdmin):
     def host_link(self, obj):
         """Link to the host user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.host.id]),
+                         reverse('admin:accounts_user_change', args=[obj.host.id]),
                          obj.host.username)
     host_link.short_description = 'Host'
     host_link.admin_order_field = 'host__username'
@@ -934,7 +934,7 @@ class EventAdmin(admin.ModelAdmin):
     def host_link(self, obj):
         """Link to the host user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.host.id]),
+                         reverse('admin:accounts_user_change', args=[obj.host.id]),
                          obj.host.username)
     host_link.short_description = 'Host'
     host_link.admin_order_field = 'host__username'
@@ -1075,7 +1075,7 @@ class ProjectTemplateAdmin(admin.ModelAdmin):
     def created_by_link(self, obj):
         """Link to the creator user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.created_by.id]),
+                         reverse('admin:accounts_user_change', args=[obj.created_by.id]),
                          obj.created_by.username)
     created_by_link.short_description = 'Created By'
 
@@ -1275,7 +1275,7 @@ class InboxItemAdmin(admin.ModelAdmin):
     def created_by_link(self, obj):
         from django.urls import reverse
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.created_by.id]),
+                         reverse('admin:accounts_user_change', args=[obj.created_by.id]),
                          obj.created_by.username)
     created_by_link.short_description = 'Created By'
     created_by_link.admin_order_field = 'created_by__username'
@@ -1284,7 +1284,7 @@ class InboxItemAdmin(admin.ModelAdmin):
         from django.urls import reverse
         if obj.assigned_to:
             return format_html('<a href="{}">{}</a>',
-                             reverse('admin:auth_user_change', args=[obj.assigned_to.id]),
+                             reverse('admin:accounts_user_change', args=[obj.assigned_to.id]),
                              obj.assigned_to.username)
         return "-"
     assigned_to_link.short_description = 'Assigned To'
@@ -1433,14 +1433,14 @@ class InboxItemAuthorizationAdmin(admin.ModelAdmin):
     def user_link(self, obj):
         """Link to user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.user.id]),
+                         reverse('admin:accounts_user_change', args=[obj.user.id]),
                          obj.user.username)
     user_link.short_description = 'User'
 
     def granted_by_link(self, obj):
         """Link to grantor"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.granted_by.id]),
+                         reverse('admin:accounts_user_change', args=[obj.granted_by.id]),
                          obj.granted_by.username)
     granted_by_link.short_description = 'Granted By'
 
@@ -1494,7 +1494,7 @@ class InboxItemClassificationAdmin(admin.ModelAdmin):
     def user_link(self, obj):
         """Link to user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.user.id]),
+                         reverse('admin:accounts_user_change', args=[obj.user.id]),
                          obj.user.username)
     user_link.short_description = 'User'
 
@@ -1581,7 +1581,7 @@ class InboxItemHistoryAdmin(admin.ModelAdmin):
     def user_link(self, obj):
         """Link to user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.user.id]),
+                         reverse('admin:accounts_user_change', args=[obj.user.id]),
                          obj.user.username)
     user_link.short_description = 'User'
 
@@ -1712,7 +1712,7 @@ class GTDClassificationPatternAdmin(admin.ModelAdmin):
     def created_by_link(self, obj):
         """Link to creator user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.created_by.id]),
+                         reverse('admin:accounts_user_change', args=[obj.created_by.id]),
                          obj.created_by.username)
     created_by_link.short_description = 'Created By'
 
@@ -1786,7 +1786,7 @@ class GTDLearningEntryAdmin(admin.ModelAdmin):
     def user_link(self, obj):
         """Link to user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.user.id]),
+                         reverse('admin:accounts_user_change', args=[obj.user.id]),
                          obj.user.username)
     user_link.short_description = 'User'
 
@@ -1878,7 +1878,7 @@ class GTDProcessingSettingsAdmin(admin.ModelAdmin):
     def created_by_link(self, obj):
         """Link to creator user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.created_by.id]),
+                         reverse('admin:accounts_user_change', args=[obj.created_by.id]),
                          obj.created_by.username)
     created_by_link.short_description = 'Created By'
 
@@ -1954,7 +1954,7 @@ class ReminderAdmin(admin.ModelAdmin):
     def created_by_link(self, obj):
         """Link to creator user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.created_by.id]),
+                         reverse('admin:accounts_user_change', args=[obj.created_by.id]),
                          obj.created_by.username)
     created_by_link.short_description = 'Created By'
 
@@ -2009,7 +2009,7 @@ class CreditAccountAdmin(admin.ModelAdmin):
     def user_link(self, obj):
         """Link to user"""
         return format_html('<a href="{}">{}</a>',
-                         reverse('admin:auth_user_change', args=[obj.user.id]),
+                         reverse('admin:accounts_user_change', args=[obj.user.id]),
                          obj.user.username)
     user_link.short_description = 'User'
 

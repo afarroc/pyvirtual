@@ -284,6 +284,7 @@ class TaskSchedule(models.Model):
         ('daily', 'Diaria'),
         ('custom', 'Personalizada')
     ], default='weekly')
+    interval_days = models.PositiveIntegerField(default=1, help_text="Cantidad de días entre ocurrencias (solo para recurrencia personalizada)")
 
     # Días de la semana (para recurrencia semanal)
     monday = models.BooleanField(default=False)
@@ -307,33 +308,16 @@ class TaskSchedule(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
-    def get_next_occurrences(self, limit=10):
-        """Genera las próximas ocurrencias basadas en la configuración"""
-        from datetime import datetime, timedelta
-        occurrences = []
-        current_date = max(self.start_date, timezone.now().date())
-
-        while len(occurrences) < limit:
-            if self.end_date and current_date > self.end_date:
-                break
-
-            if self._should_schedule_on_date(current_date):
-                start_datetime = datetime.combine(current_date, self.start_time)
-                end_datetime = start_datetime + self.duration
-                occurrences.append({
-                    'date': current_date,
-                    'start_time': start_datetime,
-                    'end_time': end_datetime
-                })
-
-            current_date += timedelta(days=1)
-
-        return occurrences
-
     def _should_schedule_on_date(self, date):
         """Determina si la tarea debe programarse en una fecha específica"""
         if self.recurrence_type == 'daily':
             return True
+
+        if self.recurrence_type == 'custom':
+            if not self.interval_days or self.interval_days < 1:
+                return False
+            days_since_start = (date - self.start_date).days
+            return days_since_start >= 0 and days_since_start % self.interval_days == 0
 
         weekday = date.weekday()  # 0=lunes, 6=domingo
         weekday_map = {
@@ -350,6 +334,9 @@ class TaskSchedule(models.Model):
 
     def get_selected_days_display(self):
         """Retorna una representación legible de los días seleccionados"""
+        if self.recurrence_type == 'custom':
+            return f"Cada {self.interval_days} día(s)"
+
         days = []
         if self.monday: days.append('Lun')
         if self.tuesday: days.append('Mar')
@@ -377,7 +364,7 @@ class TaskSchedule(models.Model):
                 break
 
             if self._should_schedule_on_date(current_date):
-                start_datetime = datetime.combine(current_date, self.start_time)
+                start_datetime = timezone.make_aware(datetime.combine(current_date, self.start_time))
                 end_datetime = start_datetime + self.duration
                 occurrences.append({
                     'date': current_date,

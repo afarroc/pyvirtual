@@ -318,13 +318,23 @@ class TaskScheduleForm(forms.ModelForm):
             'invalid': 'Ingrese una duración válida en horas (ej: 1.5).'
         }
     )
+    interval_days = forms.IntegerField(
+        min_value=1,
+        initial=1,
+        required=False,
+        help_text="Cantidad de días entre repeticiones (solo para recurrencia personalizada).",
+        error_messages={
+            'required': 'Para recurrencia personalizada debes indicar cada cuántos días se repite.',
+            'min_value': 'El intervalo debe ser de al menos 1 día.'
+        }
+    )
 
     class Meta:
         model = TaskSchedule
         fields = [
             'task', 'recurrence_type', 'monday', 'tuesday', 'wednesday',
             'thursday', 'friday', 'saturday', 'sunday', 'start_time',
-            'start_date', 'end_date', 'is_active'
+            'start_date', 'end_date', 'is_active', 'interval_days'
         ]
         widgets = {
             'task': forms.Select(attrs={
@@ -409,6 +419,7 @@ class TaskScheduleForm(forms.ModelForm):
             'start_date': 'Fecha de Inicio',
             'end_date': 'Fecha de Fin (Opcional)',
             'is_active': 'Programación Activa',
+            'interval_days': 'Intervalo de días',
         }
         help_texts = {
             'recurrence_type': 'Selecciona cómo se repetirá esta tarea',
@@ -494,6 +505,14 @@ class TaskScheduleForm(forms.ModelForm):
                     'friday': 'Por favor, indica qué días debe repetirse la tarea.',
                     'saturday': 'Selecciona al menos un día para continuar con la configuración.',
                     'sunday': 'Debes marcar al menos un día para la programación semanal.'
+                })
+
+        # Validar intervalo en días para recurrencia personalizada
+        if recurrence_type == 'custom':
+            interval_days = cleaned_data.get('interval_days')
+            if not interval_days or interval_days < 1:
+                raise forms.ValidationError({
+                    'interval_days': 'Para la recurrencia personalizada debes indicar un intervalo mayor o igual a 1 día.'
                 })
 
         # Validar que la tarea no tenga ya una programación activa
