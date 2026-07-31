@@ -1,0 +1,305 @@
+{% load static %}
+<div
+    data-widget-rail-panel="chat"
+    class="m360-widget-rail-panel"
+    aria-hidden="true"
+    aria-label="Chat panel"
+>
+    <div class="m360-widget-rail-panel-header">
+        <span class="m360-widget-rail-panel-title">Chat</span>
+            <button class="m360-widget-rail-panel-close" type="button" aria-label="Close chat">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+    </div>
+    <div class="m360-widget-rail-panel-body">
+        <div id="chat-log">
+            <div class="text-center p-4">
+                <span class="text-muted">Cargando chat...</span>
+            </div>
+        </div>
+    </div>
+    <div class="chat-info-containers" style="padding:10px 16px 14px;">
+        <div class="input-group">
+            <input id="chat-message-input" type="text" class="form-control" placeholder="Escribe tu mensaje..." autocomplete="off">
+            <button id="chat-message-submit" type="button" aria-label="Send message" style="background:transparent;border:1px solid var(--m360-border, #e5e7eb);border-radius:8px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;color:var(--m360-text-secondary, #6b7280);cursor:pointer;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    (function() {
+        'use strict';
+        if (window.__chatRailWidgetInitialized) return;
+        window.__chatRailWidgetInitialized = true;
+
+        function initChatRail() {
+            try {
+                const WidgetRailCtor = window.WidgetRail;
+                const rail = window.widgetRailInstance = window.widgetRailInstance || new WidgetRailCtor();
+                const chatButton = document.querySelector('[data-widget-rail-item="chat"]');
+                const closeBtn = document.querySelector('[data-widget-rail-panel="chat"] .m360-widget-rail-panel-close');
+
+                function getCsrfToken() {
+                    const form = document.getElementById('csrf-form');
+                    if (!form) return '';
+                    const input = form.querySelector('[name=csrfmiddlewaretoken]');
+                    return input ? input.value : '';
+                }
+
+                const currentUserId = "{{ user.id|default:'' }}";
+                const chatLog = document.getElementById('chat-log');
+                const chatInput = document.getElementById('chat-message-input');
+                const chatSubmit = document.getElementById('chat-message-submit');
+
+                let chatSocket = null;
+                let reconnectTimeout = null;
+                let intentionalClose = false;
+                let typingTimeout = null;
+                let isTyping = false;
+                let lastRoomId = null;
+                let roomSelector = null;
+
+                function ensureRoomSelector() {
+                    if (roomSelector) return roomSelector;
+                    roomSelector = document.createElement('select');
+                    roomSelector.id = 'chat-room-selector';
+                    roomSelector.className = 'form-select form-select-sm';
+                    roomSelector.style.marginLeft = '6px';
+                    roomSelector.innerHTML = '<option value="" disabled selected>Selecciona...</option>';
+                    const header = document.querySelector('[data-widget-rail-panel="chat"] .m360-widget-rail-panel-header');
+                    if (header && header.firstElementChild) {
+                        header.insertBefore(roomSelector, header.firstElementChild.nextSibling);
+                    }
+                    return roomSelector;
+                }
+
+                function disconnect() {
+                    if (chatSocket) {
+                        intentionalClose = true;
+                        chatSocket.close();
+                        chatSocket = null;
+                    }
+                    if (reconnectTimeout) {
+                        clearTimeout(reconnectTimeout);
+                        reconnectTimeout = null;
+                    }
+                }
+
+                async function getLastRoom() {
+                    try {
+                        const response = await fetch('/chat/api/chat/last-room/', {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'same-origin'
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            return data.room_name || 'global';
+                        }
+                    } catch (e) {
+                        console.error('Rail chat: last room fetch failed', e);
+                    }
+                    return 'global';
+                }
+
+                async function loadRooms() {
+                    try {
+                        const response = await fetch('/chat/api/chat/room-list/', {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'same-origin'
+                        });
+                        if (!response.ok) return [];
+                        const data = await response.json();
+                        return Array.isArray(data.rooms) ? data.rooms : [];
+                    } catch (e) {
+                        console.error('Rail chat: room list failed', e);
+                        return [];
+                    }
+                }
+
+                async function connect(roomId) {
+                    if (lastRoomId === roomId) return;
+                    if (!roomId || !String(roomId).trim()) return;
+
+                    lastRoomId = roomId;
+                    await loadHistory(roomId);
+
+                    disconnect();
+
+                    const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+                    const wsPath = `${wsScheme}://${window.location.host}/ws/chat/${roomId}/`;
+                    chatSocket = new WebSocket(wsPath);
+
+                    chatSocket.onmessage = function(e) {
+                        let data;
+                        try { data = JSON.parse(e.data); } catch (err) { return; }
+
+                        if (data.type === 'typing_start' || data.type === 'typing_stop') {
+                            return;
+                        }
+                        if (data.type === 'history_cleared') {
+                            chatLog.innerHTML = '<div class="text-center p-4"><span class="text-muted">Chat history has been cleared</span></div>';
+                            return;
+                        }
+                        if (!data.message) return;
+
+                        const isCurrentUser = data.user_id == currentUserId;
+                        const timestamp = data.timestamp ? data.timestamp.substring(11, 19) : '';
+                        const msgHtml = `<div class="d-flex mb-2 justify-content-${isCurrentUser ? 'end' : 'start'}">
+                            <div class="message-bubble px-3 py-2 ${isCurrentUser ? 'outgoing text-white text-end' : 'incoming text-dark text-start'}" style="max-width: 75%; border-radius: 1.2em; background:${isCurrentUser ? '#007bff' : '#f8f9fa'};">
+                                <div class="small fw-bold mb-1">${data.display_name || 'Usuario'}</div>
+                                <div class="message-content">${data.message}</div>
+                                <div class="message-time small mt-1 text-muted">${timestamp}</div>
+                            </div>
+                        </div>`;
+                        chatLog.insertAdjacentHTML('beforeend', msgHtml);
+                        chatLog.scrollTop = chatLog.scrollHeight;
+                    };
+
+                    chatSocket.onclose = function() {
+                        if (!intentionalClose && lastRoomId === roomId) {
+                            reconnectTimeout = setTimeout(() => connect(roomId), 2000);
+                        }
+                    };
+                }
+
+                async function loadHistory(roomId) {
+                    chatLog.innerHTML = '<div class="text-center p-4"><span class="text-muted">Cargando mensajes...</span></div>';
+
+                    try {
+                        const response = await fetch(`/chat/api/chat/room-history/${roomId}/`, {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'same-origin'
+                        });
+                        if (!response.ok) {
+                            chatLog.innerHTML = '<div class="text-center p-4"><span class="text-muted">Sin mensajes</span></div>';
+                            return;
+                        }
+
+                        const data = await response.json();
+                        if (!Array.isArray(data.history) || data.history.length === 0) {
+                            chatLog.innerHTML = '<div class="text-center p-4"><span class="text-muted">Sin mensajes en esta sala</span></div>';
+                            return;
+                        }
+
+                        chatLog.innerHTML = '';
+                        data.history.forEach(msg => {
+                            const isCurrentUser = msg.user_id == currentUserId;
+                            const timestamp = msg.timestamp ? msg.timestamp.substring(11, 19) : '';
+                            const msgHtml = `<div class="d-flex mb-2 justify-content-${isCurrentUser ? 'end' : 'start'}">
+                                <div class="message-bubble px-3 py-2 ${isCurrentUser ? 'outgoing text-white text-end' : 'incoming text-dark text-start'}" style="max-width: 75%; border-radius: 1.2em; background:${isCurrentUser ? '#007bff' : '#f8f9fa'};">
+                                    <div class="small fw-bold mb-1">${msg.display_name || 'Usuario'}</div>
+                                    <div class="message-content">${msg.content}</div>
+                                    <div class="message-time small mt-1 text-muted">${timestamp}</div>
+                                </div>
+                            </div>`;
+                            chatLog.insertAdjacentHTML('beforeend', msgHtml);
+                        });
+                        chatLog.scrollTop = chatLog.scrollHeight;
+                    } catch (e) {
+                        console.error('Rail chat: history failed', e);
+                        chatLog.innerHTML = '<div class="text-center p-4"><span class="text-muted">Sin mensajes</span></div>';
+                    }
+                }
+
+                async function onOpen() {
+                    ensureRoomSelector();
+                    const rooms = await loadRooms();
+                    roomSelector.innerHTML = '<option value="" disabled>Selecciona una sala...</option>';
+                    rooms.forEach(room => {
+                        const option = document.createElement('option');
+                        option.value = room.id;
+                        option.textContent = room.name;
+                        roomSelector.appendChild(option);
+                    });
+
+                    const saved = (() => { try { return localStorage.getItem('chatPanelLastRoom'); } catch (e) { return null; } })();
+                    const lastRoom = await getLastRoom();
+                    const firstRoom = rooms[0];
+
+                    if (saved && rooms.some(room => room.id == saved)) {
+                        roomSelector.value = saved;
+                    } else if (lastRoom && rooms.some(room => room.id == lastRoom)) {
+                        roomSelector.value = lastRoom;
+                    } else if (firstRoom) {
+                        roomSelector.value = firstRoom.id;
+                    }
+
+                    const selected = roomSelector.value;
+                    if (selected) {
+                        await connect(selected);
+                    }
+
+                    roomSelector.onchange = async function() {
+                        const newRoomId = this.value;
+                        if (!newRoomId) return;
+                        try { localStorage.setItem('chatPanelLastRoom', newRoomId); } catch (e) {}
+                        await connect(newRoomId);
+                    };
+                }
+
+                function onClose() {
+                    disconnect();
+                }
+
+                function sendMessage() {
+                    const message = chatInput.value.trim();
+                    if (!message || !chatSocket || chatSocket.readyState !== WebSocket.OPEN) return;
+                    chatSocket.send(JSON.stringify({ message }));
+                    chatInput.value = '';
+                }
+
+                if (rail) {
+                    rail.register({
+                        id: 'chat',
+                        label: 'Chat',
+                        icon: 'bi-chat-dots',
+                        onOpen,
+                        onClose,
+                        onBadgeChange(widgetId, count) {
+                            if (window.NotificationManager && typeof window.NotificationManager.forceRefresh === 'function') {
+                                window.NotificationManager.forceRefresh();
+                            }
+                        }
+                    });
+
+                    if (chatButton) {
+                        chatButton.addEventListener('click', () => rail.toggle('chat'));
+                    } else {
+                        console.warn('Rail chat: button not found');
+                    }
+
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', () => rail.toggle('chat'));
+                    }
+
+                    chatSubmit.addEventListener('click', sendMessage);
+                    chatInput.addEventListener('keyup', (e) => {
+                        if (e.key === 'Enter') sendMessage();
+                    });
+
+                    rail.restoreState();
+                } else {
+                    console.warn('Rail chat: WidgetRail not available');
+                }
+            } catch (e) {
+                console.error('Rail chat: init failed', e);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initChatRail);
+        } else {
+            initChatRail();
+        }
+    })();
+</script>
