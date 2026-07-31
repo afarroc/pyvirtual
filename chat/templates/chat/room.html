@@ -4,7 +4,7 @@
 {% block content %}
 <!-- Chat Panel -->
 <!-- Botón flotante para restaurar chat -->
-<button id="chat-restore-btn" style="display:none;position:fixed;bottom:90px;right:20px;z-index:10001;background:#007bff;color:#fff;border:none;border-radius:50%;width:48px;height:48px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:1.7rem;align-items:center;justify-content:center;cursor:pointer;">
+<button id="chat-room-restore-btn" style="display:none;position:fixed;bottom:90px;right:20px;z-index:10001;background:#007bff;color:#fff;border:none;border-radius:50%;width:48px;height:48px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:1.7rem;align-items:center;justify-content:center;cursor:pointer;">
     <i class="bi bi-chat-dots"></i>
 </button>
 <div id="chat-panel" style="background:#fff;box-shadow:0 4px 24px rgba(0,0,0,0.2);overflow:hidden;display:flex;flex-direction:column;">
@@ -138,7 +138,7 @@
 
 <!-- Panel CSS -->
 <style>
-    #chat-restore-btn {
+    #chat-room-restore-btn {
         transition: opacity 0.2s;
     }
     /* No floating/docked styles for maximized chat panel in main chat page */
@@ -681,7 +681,7 @@
         const panel = document.getElementById('chat-panel');
     const togglePanelModeBtn = document.getElementById('toggle-panel-mode-btn');
         const toggleChatPanelBtn = document.getElementById('toggle-chat-panel');
-        const restoreBtn = document.getElementById('chat-restore-btn');
+        const restoreBtn = document.getElementById('chat-room-restore-btn');
 
         // Inicializa modo según página y dispositivo
         if (isChatMainPage()) {
