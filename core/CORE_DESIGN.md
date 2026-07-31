@@ -106,10 +106,11 @@ No hay invalidación activa de caché — los datos se actualizan solo por expir
 | ID | Tarea | Prioridad |
 |----|-------|-----------|
 | CORE-1 | Corregir `upcoming_events`: cambiar `created_at__gte` por campo de fecha real de `Event.start_date` | 🔴 |
-| CORE-2 | Agregar `@login_required` a `search_view` — expone datos a anónimos | 🔴 |
-| CORE-3 | Eliminar `@csrf_exempt` de `refresh_dashboard_data` | 🔴 |
+| CORE-2 | ~~Agregar `@login_required` a `search_view`~~ → completada | ✅ |
+| CORE-3 | ~~Eliminar `@csrf_exempt` de `refresh_dashboard_data`~~ → completada | ✅ |
 | CORE-4 | Corregir `Article.get_absolute_url()` — reverse `'article_detail'` no existe | 🟠 |
 | CORE-5 | Agregar `@login_required` a `url_map_view` — expone arquitectura del proyecto | 🟠 |
+| CORE-10 | Duplicidad `'home'`/`'index'` en `core/urls.py` — se mantiene por compatibilidad hasta migración completa | 🟡 |
 
 ### Sprint 8
 
@@ -133,8 +134,12 @@ No hay invalidación activa de caché — los datos se actualizan solo por expir
 ---
 
 ## Notas para Claude
-
-- **`'index'` y `'home'` son el mismo endpoint** — en redirects y templates del proyecto se usa `'index'`. Nunca eliminar ese name sin grep global
+- **Bootstrap removido desde `core`** — se eliminó la carga global de `vendor/bootstrap`, icon packs y `main.js` desde `base.html`. Quedan muchas clases Bootstrap en templates, CSS inline y JS como deuda controlada; resolverla por app, no en bloque.
+- **Base ITCSS M360 activa** — `core/templates/layouts/base.html` ahora carga `static/m360/css/...` (tokens/base/utilities/components/layout/sections/index) como sistema de diseño principal. Seguir este orden al introducir nuevos estilos de `core`.
+- **Header M360 migrado** — `core/templates/layouts/header.html` se migró a clases ITCSS `.m360-site-header`, `.m360-dropdown`, `.m360-btn`, `.m360-badge`; los icons legacy quedaron como placeholders Unicode pendientes de migrar.
+- **Iconos pendientes** — `core/header.html` usa placeholders Unicode porque se removieron Bootstrap Icons. Documentado como deuda separada: migrar a icon set propio o SVG inline antes de extender a más apps.
+- **Deuda Bootstrap/NiceAdmin remanente en `core`** — Quedan referencias en `core/templates/home/home.html`, `core/templates/search/search.html`, `core/templates/layouts/includes/alert.html` y `core/templates/base.html` (alerts/inline close). No se están tocando en este paso para no bloquear el avance; resolver en pasos siguientes por template.
+- **`'index'` y `'home'` son el mismo endpoint** — en redirects y templates del proyecto se usa `'index'`. `'home'` también está ampliamente referenciado; no eliminar ningún name sin migrar también `redirect('home')`, `LOGIN_REDIRECT_URL='home'` y los templates que usan `{% url 'home' %}`.
 - **`core` depende de `events`** — import directo en `utils.py` y `views.py`. Si `events` no existe o falla migración, `core` no arranca
 - **`upcoming_events` es un bug semántico** — filtra por `created_at__gte=now()`, no por fecha de inicio del evento. Cualquier query con ese nombre en templates o JS devuelve datos incorrectos
 - **`@csrf_exempt` en `refresh_dashboard_data`** — existe pero está prohibido; no replicar en nuevos endpoints

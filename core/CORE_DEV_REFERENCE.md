@@ -134,7 +134,7 @@ Todas sin `@login_required`, sin estado, sin forms.
 
 ### AJAX endpoints
 
-Todos `@require_GET` + `@login_required` (excepto `refresh_dashboard_data`).
+Los endpoints GET usan `@require_GET` + `@login_required`. `refresh_dashboard_data` usa `@require_POST` + `@login_required`.
 
 #### `load_more_activities` — `/api/activities/more/`
 
@@ -175,12 +175,9 @@ La rama `'projects'` tiene un `except: pass` desnudo — traga cualquier excepci
 ```python
 @require_POST
 @login_required
-@csrf_exempt   # ⚠️ PROHIBIDO por convención del proyecto
 ```
 
 `data_type` acepta: `'all'`, `'stats'`, `'status_counts'`, `'activities'`.
-
-⚠️ **`@csrf_exempt` sobre un endpoint POST autenticado** — violación explícita de la convención del proyecto (ver PROJECT_DEV_REFERENCE §5 y bugs #12 de bitacora, SC-2 de simcity).
 
 ---
 
@@ -205,7 +202,7 @@ Estructura de respuesta:
 
 ### `search_view` — `/search/`
 
-Sin `@login_required`. Busca simultáneamente en `Article`, `Event`, `Project`, `Task` con `Q(field__icontains=query)`.
+Tiene `@login_required`. Busca simultáneamente en `Article`, `Event`, `Project`, `Task` con `Q(field__icontains=query)`.
 
 Campos buscados por modelo:
 
@@ -337,7 +334,7 @@ Combina apps de `INSTALLED_APPS` (excluye `django.*`) con directorios del filesy
 
 > **⚠️ Violación de convención:** `core` **NO declara `app_name`** en `urls.py`. Sin namespace declarado.
 
-> **⚠️ Bug de routing:** dos patterns distintos (`'home'` e `'index'`) apuntan al mismo path `''`. Django solo ejecuta el primero que coincide, pero ambos nombres quedan registrados. `{% url 'index' %}` funciona porque el include externo lo resuelve, pero es ambiguo.
+> **Nota de deuda:** `'home'` e `'index'` apuntan al mismo `path('')`. Se mantienen ambos names porque el proyecto usa `{% url 'index' %}` masivamente y además existen `redirect('home')`, `LOGIN_REDIRECT_URL='home'` y templates con `{% url 'home' %}`. Eliminar cualquiera sin migración completa rompe navegación y login.
 
 | URL | Name | Vista | Auth | Método |
 |-----|------|-------|------|--------|
@@ -349,12 +346,12 @@ Combina apps de `INSTALLED_APPS` (excluye `django.*`) con directorios del filesy
 | `/blank/` | `blank` | `blank_view` | ❌ | GET |
 | `/<int:days>/` | `home_by_days` | `home_view` | ✅ | GET |
 | `/<int:days>/<int:days_ago>/` | `home_by_days_range` | `home_view` | ✅ | GET |
-| `/search/` | `search` | `search_view` | ❌ | GET |
+| `/search/` | `search` | `search_view` | ✅ | GET |
 | `/url-map/` | `url_map` | `url_map_view` | ❌ | GET |
 | `/api/activities/more/` | `load_more_activities` | `load_more_activities` | ✅ | GET |
 | `/api/items/<str:item_type>/more/` | `load_more_recent_items` | `load_more_recent_items` | ✅ | GET |
 | `/api/categories/<str:category_type>/more/` | `load_more_categories` | `load_more_categories` | ✅ | GET |
-| `/api/dashboard/refresh/` | `refresh_dashboard_data` | `refresh_dashboard_data` | ✅ | POST ⚠️csrf_exempt |
+| `/api/dashboard/refresh/` | `refresh_dashboard_data` | `refresh_dashboard_data` | ✅ | POST |
 | `/api/dashboard/stats/` | `dashboard_stats` | `get_dashboard_stats` | ✅ | GET |
 
 ---
@@ -370,7 +367,7 @@ templates/layouts/
 ├── sidebar.html           ← navegación lateral (92 líneas)
 ├── mask.html              ← overlay/loading (44 líneas)
 └── includes/
-    ├── alert.html         ← componente de alertas Bootstrap
+    Bootstrap removido del stack cargado por `core`.`core/templates/layouts/base.html` ya no incluye `bootstrap.min.css`, `bootstrap.bundle.min.js`, icon packs ni `main.js`. Quedan clases y helpers Bootstrap en templates y JS como deuda técnica para migrar por app sin romper layouts.
     ├── disabled_link.html ← link deshabilitado con tooltip
     ├── header/
     │   └── credit.html    ← widget de créditos del usuario
@@ -467,12 +464,12 @@ Este patrón está **prohibido** por convención del proyecto. El endpoint funci
 | B1 | ⬜ activo | `Article.get_absolute_url()` hace reverse de `'article_detail'` — URL que **no existe** en `urls.py`; llamarla lanza `NoReverseMatch` |
 | B2 | ⬜ activo | `app_name` no declarado en `urls.py` — sin namespace propio |
 | B3 | ⬜ activo | `upcoming_events` filtrado por `created_at__gte=now()` en lugar de campo de fecha de inicio del evento — semánticamente incorrecto |
-| B4 | ⬜ activo | `refresh_dashboard_data` tiene `@csrf_exempt` en endpoint POST autenticado — violación de convención del proyecto |
+| B4 | ✅ cerrado | `refresh_dashboard_data` tenía `@csrf_exempt` en endpoint POST autenticado — corregido |
 | B5 | ⬜ activo | `home_view` llama `validate_time_parameters(days, days_ago)` dos veces (una para log, otra para uso) — query redundante |
 | B6 | ⬜ activo | `generate_home_alerts(user, stats)` recibe `user` pero nunca lo usa — parámetro muerto |
 | B7 | ⬜ activo | `action_url` en `generate_home_alerts()` hardcodeado con strings de URL — no usa `reverse()` |
 | B8 | ⬜ activo | `load_more_categories` rama `'projects'` tiene `except: pass` desnudo — traga excepciones silenciosamente |
-| B9 | ⬜ activo | `search_view` sin `@login_required` — expone datos de Events/Projects/Tasks a usuarios anónimos |
+| B9 | ✅ cerrado | `search_view` sin `@login_required` — corregido |
 | B10 | ⬜ activo | `url_map_view` sin `@login_required` — expone arquitectura interna del proyecto públicamente |
 | B11 | ⬜ activo | `profile_completion: 50` hardcodeado en contexto de `home_view` — placeholder nunca implementado |
 | B12 | ⬜ activo | `Article` no tiene `created_by`, `updated_at`, ni UUID pk — fuera de convenciones del proyecto |
@@ -484,13 +481,12 @@ Este patrón está **prohibido** por convención del proyecto. El endpoint funci
 
 **Alta prioridad:**
 - **Corregir `upcoming_events`** — cambiar `created_at__gte` por el campo de fecha de inicio real de `Event` (verificar migración de `events`)
-- **Proteger `search_view` y `url_map_view`** con `@login_required` — actualmente exponen datos y arquitectura a usuarios anónimos
-- **Eliminar `@csrf_exempt`** de `refresh_dashboard_data` — reemplazar por manejo correcto de CSRF en el cliente JS
+- **Proteger `url_map_view`** con `@login_required` — actualmente expone arquitectura a usuarios anónimos
 - **Corregir `Article.get_absolute_url()`** — registrar URL `'article_detail'` o cambiar el reverse
 
 **Media prioridad:**
 - **Declarar `app_name = 'core'`** en `urls.py`
-- **Resolver la duplicidad `'home'`/`'index'`** — mantener solo `'index'` (que es el usado en el proyecto) y eliminar o renombrar `'home'`
+- **Resolución controlada de `'home'`/`index`** — requiere migrar `redirect('home')`, `LOGIN_REDIRECT_URL`, templates y rutas hermanas; no es seguro quitar uno sin migración completa
 - **Reemplazar strings hardcodeados de status** en `get_cached_status_counts()` por constantes o referencias a PKs para evitar dependencia frágil de nombres
 - **`generate_home_alerts`** — usar `reverse()` para `action_url` y eliminar parámetro `user` si no se usa
 - **Paginación en `search_view`** — sin límite puede devolver cientos de resultados
