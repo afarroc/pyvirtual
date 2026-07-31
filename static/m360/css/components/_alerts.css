@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════════
    M360 Design System — ITCSS Foundation
-   Layer: 6. Components
+   Layer: 5. Components
    File: _alerts.css — alert messages, banners, notices
    ═══════════════════════════════════════════════════════════════════════════════ */
 
@@ -45,6 +45,50 @@
   flex-direction: column;
   gap: var(--m360-space-2);
   margin-bottom: var(--m360-space-4);
+}
+
+/* Colored variants for wrap-without-Bootstrap usage */
+.m360-root .m360-alert-info {
+  background: var(--m360-primary-light);
+  color: var(--m360-primary);
+  border: 1px solid #93c5fd;
+}
+
+.m360-root .m360-alert-warning {
+  background: var(--m360-warning-light);
+  color: var(--m360-warning);
+  border: 1px solid var(--m360-warning-border);
+}
+
+.m360-root .m360-alert-success {
+  background: var(--m360-success-light);
+  color: var(--m360-success);
+  border: 1px solid var(--m360-success-border);
+}
+
+.m360-root .m360-alert-danger {
+  background: var(--m360-danger-light);
+  color: var(--m360-danger);
+  border: 1px solid var(--m360-danger-border);
+}
+
+/* Dismiss button */
+.m360-root .m360-alert-dismiss {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-size: var(--m360-text-lg);
+  line-height: 1;
+  padding: var(--m360-space-1);
+  margin-left: auto;
+  opacity: .6;
+  transition: opacity var(--m360-transition);
+}
+
+.m360-root .m360-alert-dismiss:hover {
+  opacity: 1;
 }
 
 /* Skip link */

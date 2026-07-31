@@ -8,20 +8,22 @@
 @import 'tokens/_tools.css';
 
 /* Layer 2: Generic / Reset */
-@import 'base/_normalize.css';
+@import 'generic/_normalize.css';
+@import 'generic/_generic-fallback.css';
 
-/* Layer 3: Base / Elements */
-@import 'base/_typography.css';
-@import 'base/_helpers.css';
+/* Layer 3: Elements / Base */
+@import 'elements/_typography.css';
+@import 'elements/_helpers.css';
 
-/* Layer 4: Layout */
-@import 'layout/_grid.css';
-@import 'layout/_page.css';
-@import 'layout/_sidebar.css';
-@import 'layout/_toolbar.css';
-@import 'layout/_tabs.css';
-@import 'layout/_header.css';
-@import 'layout/_footer.css';
+/* Layer 4: Objects / Layout */
+@import 'objects/_grid.css';
+@import 'objects/_page.css';
+@import 'objects/_header.css';
+@import 'objects/_sidebar.css';
+@import 'objects/_footer.css';
+@import 'objects/_tabs.css';
+@import 'objects/_toolbar.css';
+@import 'objects/_widget-rail.css';
 
 /* Layer 5: Components */
 @import 'components/_buttons.css';
@@ -39,13 +41,16 @@
 @import 'components/_stats.css';
 @import 'components/_dropdown.css';
 @import 'components/_accordion.css';
+@import 'components/_list-group.css';
+@import 'components/_dashboard.css';
+@import 'components/_inbox.css';
 
-/* Layer 6: Sections */
+/* Layer 6: Sections / Pages */
 @import 'sections/_analyst.css';
 @import 'sections/_upload.css';
 @import 'sections/_etl.css';
 @import 'sections/_schema.css';
-@import 'sections/_events.css';
+@import 'sections/_events-section.css';
 @import 'sections/_kanban.css';
 
 /* Layer 7: Utilities */

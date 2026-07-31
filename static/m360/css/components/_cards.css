@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════════
    M360 Design System — ITCSS Foundation
-   Layer: 6. Components
+   Layer: 5. Components
    File: _cards.css — card containers, card headers, card bodies
    ═══════════════════════════════════════════════════════════════════════════════ */
 
@@ -64,6 +64,23 @@
   color: var(--m360-text-secondary);
   line-height: 1.5;
 }
+
+/* Card icon */
+.m360-root .m360-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--m360-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--m360-icon-lg);
+  color: #fff;
+}
+
+.m360-root .m360-card-icon-primary { background: var(--m360-primary); }
+.m360-root .m360-card-icon-success { background: var(--m360-success); }
+.m360-root .m360-card-icon-warning { background: var(--m360-warning); }
+.m360-root .m360-card-icon-danger { background: var(--m360-danger); }
 
 /* List card (sidebar list items) */
 .m360-root .m360-list-card {

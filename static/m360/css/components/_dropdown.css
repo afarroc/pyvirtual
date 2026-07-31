@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════════
    M360 Design System — ITCSS Foundation
-   Layer: 6. Components
+   Layer: 5. Components
    File: _dropdown.css — dropdown menus, select wrappers
    ═══════════════════════════════════════════════════════════════════════════════ */
 
@@ -11,20 +11,26 @@
 .m360-root .m360-dropdown-menu {
   display: none;
   position: absolute;
-  top: 100%;
+  top: calc(100% + var(--m360-space-1));
   left: 0;
   min-width: 210px;
+  max-width: min(320px, 92vw);
   background: var(--m360-surface);
   border: 1px solid var(--m360-border);
   border-radius: var(--m360-radius);
   box-shadow: var(--m360-shadow);
   z-index: var(--m360-z-dropdown);
   padding: var(--m360-space-1) 0;
-  max-height: 300px;
+  max-height: 320px;
   overflow-y: auto;
 }
 
-.m360-root .m360-dropdown-menu.m360-open {
+.m360-root .m360-dropdown-menu-end {
+  right: 0;
+  left: auto;
+}
+
+.m360-root .m360-dropdown.m360-open .m360-dropdown-menu {
   display: block;
   animation: m360-fade-down .12s ease;
 }
