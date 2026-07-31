@@ -422,7 +422,6 @@ else:
 
 # Misc
 DEFAULT_AUTO_FIELD  = 'django.db.models.BigAutoField'
-CRISPY_TEMPLATE_PACK = 'bootstrap5'
 LOGIN_REDIRECT_URL  = 'home'
 
 if not DEBUG:
@@ -454,7 +453,7 @@ TINYMCE_DEFAULT_CONFIG = {
         'link image media | emoticons charmap | code codesample | '
         'fullscreen preview | insertdatetime | table | hr pagebreak | template'
     ),
-    'content_css': '/static/assets/css/style.css',
+
     'skin': 'oxide',
     'content_style': (
         'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,'
