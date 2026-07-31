@@ -460,11 +460,8 @@ def modules_overview(request):
 
     # Estadísticas generales
     total_courses = courses.count()
-    total_modules = sum(course.modules.count() for course in courses)
-    total_lessons = sum(
-        sum(module.lessons.count() for module in course.modules.all())
-        for course in courses
-    )
+    total_modules = courses.aggregate(total=models.Count('modules'))['total'] or 0
+    total_lessons = courses.aggregate(total=models.Count('modules__lessons'))['total'] or 0
 
     # Módulos recientes
     recent_modules = Module.objects.filter(

@@ -1,6 +1,7 @@
 import os
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
@@ -130,7 +131,7 @@ class Course(models.Model):
 
         # Validar que el tutor tenga un perfil de CV
         if not hasattr(self.tutor, 'cv') or self.tutor.cv is None:
-            raise ValueError("El tutor debe tener un perfil de CV válido para crear cursos.")
+            raise ValidationError("El tutor debe tener un perfil de CV válido para crear cursos.")
 
         super().save(*args, **kwargs)
     
@@ -244,9 +245,9 @@ class LessonAttachment(models.Model):
         size = self.file_size
         for unit in ['B', 'KB', 'MB', 'GB']:
             if size < 1024.0:
-                return ".1f"
+                return f"{size:.1f} {unit}"
             size /= 1024.0
-        return ".1f"
+        return f"{size:.1f} TB"
 
 
 class Lesson(models.Model):
@@ -294,6 +295,8 @@ class Lesson(models.Model):
 
     # Para quizzes
     quiz_questions = models.JSONField(default=list, blank=True)  # Almacena preguntas y respuestas
+    quiz_feedback_correct = models.TextField(blank=True, help_text="Retroalimentación general si acierta")
+    quiz_feedback_incorrect = models.TextField(blank=True, help_text="Retroalimentación general si falla")
 
     # Para assignments
     assignment_instructions = models.TextField(blank=True)
@@ -429,12 +432,7 @@ class Review(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Actualizar la calificación promedio del curso
-        reviews = self.course.reviews.all()
-        if reviews:
-            total_rating = sum(review.rating for review in reviews)
-            self.course.average_rating = total_rating / reviews.count()
-            self.course.save()
+
 
 # ======================
 # CONTENT MANAGEMENT SYSTEM
@@ -590,6 +588,90 @@ class Bibliografia(models.Model):
     
     def __str__(self):
         return f"{self.autor} - {self.titulo}"
+
+# ======================
+# MODELOS PEDAGÓGICOS
+# ======================
+
+class LearningObjective(models.Model):
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='learning_objectives',
+        null=True,
+        blank=True
+    )
+    module = models.ForeignKey(
+        Module,
+        on_delete=models.CASCADE,
+        related_name='learning_objectives',
+        null=True,
+        blank=True
+    )
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name='learning_objectives',
+        null=True,
+        blank=True
+    )
+    code = models.CharField(max_length=50, blank=True, help_text="Código internalizable (ej. UPN-comp-01)")
+    description = models.TextField(help_text="Objetivo de aprendizaje medible")
+    bloom_level = models.CharField(max_length=50, blank=True, help_text="Nivel taxonomía Bloom")
+
+    class Meta:
+        ordering = ['code']
+        verbose_name = 'Objetivo de aprendizaje'
+        verbose_name_plural = 'Objetivos de aprendizaje'
+
+    def __str__(self):
+        return self.code or self.description[:80]
+
+    def save(self, *args, **kwargs):
+        if not any([self.course_id, self.module_id, self.lesson_id]):
+            raise ValidationError('Debe asociarse a un curso, módulo o lección.')
+        super().save(*args, **kwargs)
+
+
+class LessonOutcome(models.Model):
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name='outcomes'
+    )
+    description = models.TextField(help_text="Resultado de aprendizaje esperado")
+    criteria = models.TextField(blank=True, help_text="Criterio de evaluación")
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Resultado de lección'
+        verbose_name_plural = 'Resultados de lección'
+
+    def __str__(self):
+        return f"{self.lesson.title} — {self.description[:60]}"
+
+
+class Prerequisite(models.Model):
+    from_lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name='prerequisites_from'
+    )
+    to_lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name='prerequisites_to'
+    )
+    description = models.CharField(max_length=300, blank=True)
+
+    class Meta:
+        unique_together = ['from_lesson', 'to_lesson']
+        verbose_name = 'Prerrequisito'
+        verbose_name_plural = 'Prerrequisitos'
+
+    def __str__(self):
+        return f"{self.from_lesson_id} → {self.to_lesson_id}"
+
 
 # ======================
 # SIGNALS

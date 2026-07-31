@@ -556,6 +556,15 @@
                       <div class="alert alert-success">
                         <strong>Quiz completado.</strong> Puntuación: {{ lesson_progress.score|floatformat:1 }}%
                       </div>
+                      {% if current_lesson.quiz_feedback_correct and lesson_progress.score >= 70 %}
+                      <div class="alert alert-success">
+                        <strong>Retroalimentación:</strong> {{ current_lesson.quiz_feedback_correct }}
+                      </div>
+                      {% elif current_lesson.quiz_feedback_incorrect and lesson_progress.score < 70 %}
+                      <div class="alert alert-warning">
+                        <strong>Retroalimentación:</strong> {{ current_lesson.quiz_feedback_incorrect }}
+                      </div>
+                      {% endif %}
                       {% for question in current_lesson.quiz_questions %}
                       <div style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-3); background: var(--color-surface);">
                         <h3 style="font-size: var(--text-base); font-weight: 600; margin-bottom: var(--space-3);">{{ forloop.counter }}. {{ question.question }}</h3>
@@ -611,6 +620,15 @@
                   <div class="alert alert-success">
                     <strong>Quiz completado.</strong> Puntuación: {{ lesson_progress.score|floatformat:1 }}%
                   </div>
+                  {% if current_lesson.quiz_feedback_correct and lesson_progress.score >= 70 %}
+                  <div class="alert alert-success">
+                    <strong>Retroalimentación:</strong> {{ current_lesson.quiz_feedback_correct }}
+                  </div>
+                  {% elif current_lesson.quiz_feedback_incorrect and lesson_progress.score < 70 %}
+                  <div class="alert alert-warning">
+                    <strong>Retroalimentación:</strong> {{ current_lesson.quiz_feedback_incorrect }}
+                  </div>
+                  {% endif %}
                   {% for question in current_lesson.quiz_questions %}
                   <div style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-3); background: var(--color-surface);">
                     <h3 style="font-size: var(--text-base); font-weight: 600; margin-bottom: var(--space-3);">{{ forloop.counter }}. {{ question.question }}</h3>

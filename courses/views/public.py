@@ -97,12 +97,8 @@ def course_list(request, category_slug=None):
         )
 
     # Calcular estadísticas
-    total_students = sum(course.students_count for course in courses)
-    average_rating = 0
-    if courses:
-        ratings = [course.average_rating for course in courses if course.average_rating > 0]
-        if ratings:
-            average_rating = sum(ratings) / len(ratings)
+    total_students = courses.aggregate(total=models.Sum('students_count'))['total'] or 0
+    average_rating = courses.aggregate(avg=models.Avg('average_rating', filter=models.Q(average_rating__gt=0)))['avg'] or 0
 
     context = {
         'courses': courses,

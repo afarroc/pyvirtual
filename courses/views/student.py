@@ -262,22 +262,27 @@ def _handle_lesson_submission(request, lesson, progress):
 
 
 def _handle_quiz_submission(request, lesson, progress):
-    """Procesar envío de quiz"""
+    """Procesar envío de quiz con feedback inmediato"""
     score = 0
     total_questions = len(lesson.quiz_questions)
-    
+
     for i, question in enumerate(lesson.quiz_questions):
         user_answer = request.POST.get(f'question_{i+1}')
         if user_answer and user_answer == question.get('correct_answer'):
             score += 1
-    
+
     percentage = (score / total_questions * 100) if total_questions > 0 else 0
     progress.score = percentage
     progress.completed = True
     progress.completed_at = timezone.now()
     progress.save()
-    
-    messages.success(request, f"¡Quiz completado! Puntuación: {score}/{total_questions} ({percentage:.1f}%)")
+
+    if percentage >= 70:
+        feedback = lesson.quiz_feedback_correct or f"¡Quiz completado! Puntuación: {score}/{total_questions} ({percentage:.1f}%)"
+        messages.success(request, feedback)
+    else:
+        feedback = lesson.quiz_feedback_incorrect or f"Quiz completado. Puntuación: {score}/{total_questions} ({percentage:.1f}%). Repasa los temas y vuelve a intentarlo."
+        messages.warning(request, feedback)
 
 
 def _handle_assignment_submission(request, progress):
@@ -296,28 +301,35 @@ def _handle_assignment_submission(request, progress):
 def mark_lesson_complete(request, lesson_id):
     """Marcar una lección como completada (AJAX/HTTP)"""
     lesson = get_object_or_404(Lesson, id=lesson_id)
+
+    if lesson.module is None:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'message': 'Las lecciones independientes no soportan esta acción.'}, status=400)
+        messages.error(request, 'Las lecciones independientes no soportan esta acción.')
+        return redirect('courses:standalone_lesson_detail', slug=lesson.slug)
+
     enrollment = get_object_or_404(
-        Enrollment, 
-        student=request.user, 
-        course=lesson.module.course, 
+        Enrollment,
+        student=request.user,
+        course=lesson.module.course,
         status=EnrollmentStatusChoices.ACTIVE
     )
-    
+
     progress, created = Progress.objects.get_or_create(
         enrollment=enrollment,
         lesson=lesson
     )
-    
+
     progress.completed = True
     progress.completed_at = timezone.now()
     progress.save()
-    
+
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'status': 'success'})
-    
+
     messages.success(request, f"¡Lección '{lesson.title}' completada!")
-    return redirect('courses:course_learning_lesson', 
-                   slug=lesson.module.course.slug, 
+    return redirect('courses:course_learning_lesson',
+                   slug=lesson.module.course.slug,
                    lesson_id=lesson.id)
 
 
