@@ -1,10 +1,10 @@
-{% extends 'events/base_itcss.html' %}
+{% extends 'layouts/base.html' %}
 {% load static %}
 {% load custom_tags %}
 
 {% block title %}{{ title }} - Panel Kanban Organizado{% endblock %}
 
-{% block extra_css %}
+{% block extra_head %}
 <style>
 :root {
     --kanban-primary: #4f46e5;
