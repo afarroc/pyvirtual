@@ -1,0 +1,364 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 5. Components
+   File: _inbox.css — inbox floating button, panel, tooltip, toast
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Floating button */
+.m360-root .m360-inbox-floating-button {
+  position: fixed;
+  bottom: var(--m360-space-4);
+  right: var(--m360-space-4);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: var(--m360-primary);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1060;
+  box-shadow: var(--m360-shadow-lg);
+  transition: transform var(--m360-transition), box-shadow var(--m360-transition);
+}
+
+.m360-root .m360-inbox-floating-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, .35);
+}
+
+.m360-root .m360-inbox-floating-button:active {
+  transform: translateY(0);
+}
+
+.m360-root .m360-inbox-floating-button .m360-inbox-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  background: var(--m360-danger);
+  color: #fff;
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+  line-height: 20px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, .4);
+}
+
+/* Panel */
+.m360-root .m360-inbox-panel {
+  position: fixed;
+  bottom: calc(var(--m360-space-4) + 52px + var(--m360-space-2));
+  right: var(--m360-space-4);
+  width: 360px;
+  max-width: calc(100% - var(--m360-space-4) * 2);
+  max-height: calc(100vh - var(--m360-space-4) - 52px - var(--m360-space-3));
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-lg);
+  box-shadow: var(--m360-shadow-lg);
+  z-index: 1060;
+  display: none;
+  flex-direction: column;
+}
+
+.m360-root .m360-inbox-panel.is-open {
+  display: flex;
+}
+
+.m360-root .m360-inbox-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--m360-space-2);
+  padding: var(--m360-space-3) var(--m360-space-4);
+  border-bottom: 1px solid var(--m360-border);
+}
+
+.m360-root .m360-inbox-panel-title {
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+}
+
+.m360-root .m360-inbox-panel-close {
+  background: transparent;
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--m360-text-secondary);
+  cursor: pointer;
+  transition: background var(--m360-transition), color var(--m360-transition);
+}
+
+.m360-root .m360-inbox-panel-close:hover {
+  background: var(--m360-gray-50);
+  color: var(--m360-text);
+}
+
+.m360-root .m360-inbox-panel-body {
+  padding: var(--m360-space-3) var(--m360-space-4);
+  overflow: auto;
+}
+
+.m360-root .m360-inbox-form-group {
+  margin-bottom: var(--m360-space-3);
+}
+
+.m360-root .m360-inbox-form-group label {
+  display: block;
+  font-size: var(--m360-text-sm);
+  font-weight: var(--m360-font-weight-semibold);
+  color: var(--m360-text);
+  margin-bottom: var(--m360-space-1);
+}
+
+.m360-root .m360-inbox-form-group input,
+.m360-root .m360-inbox-form-group textarea {
+  width: 100%;
+  background: var(--m360-gray-50);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  padding: var(--m360-space-2) var(--m360-space-3);
+  color: var(--m360-text);
+  outline: none;
+  transition: border-color var(--m360-transition), box-shadow var(--m360-transition);
+}
+
+.m360-root .m360-inbox-form-group input:focus,
+.m360-root .m360-inbox-form-group textarea:focus {
+  border-color: var(--m360-primary);
+  box-shadow: 0 0 0 3px var(--m360-primary-ring);
+}
+
+.m360-root .m360-inbox-form-actions {
+  display: flex;
+  gap: var(--m360-space-2);
+  margin-top: var(--m360-space-3);
+  flex-wrap: wrap;
+}
+
+.m360-root .m360-inbox-btn {
+  padding: var(--m360-space-2) var(--m360-space-3);
+  border-radius: var(--m360-radius);
+  border: none;
+  font-size: var(--m360-text-sm);
+  font-weight: var(--m360-font-weight-medium);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--m360-space-2);
+  transition: background var(--m360-transition), transform var(--m360-transition);
+  min-height: 40px;
+}
+
+.m360-root .m360-inbox-btn-primary {
+  background: var(--m360-primary);
+  color: #fff;
+}
+
+.m360-root .m360-inbox-btn-primary:hover {
+  background: var(--m360-primary-dark);
+  transform: translateY(-1px);
+}
+
+.m360-root .m360-inbox-btn-secondary {
+  background: var(--m360-gray-200);
+  color: var(--m360-text);
+}
+
+.m360-root .m360-inbox-btn-secondary:hover {
+  background: var(--m360-gray-300);
+}
+
+.m360-root .m360-inbox-btn:disabled {
+  opacity: .7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Stats */
+.m360-root .m360-inbox-stats {
+  margin-top: var(--m360-space-4);
+}
+
+.m360-root .m360-inbox-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--m360-space-2);
+}
+
+.m360-root .m360-inbox-stat-item {
+  background: var(--m360-gray-50);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  padding: var(--m360-space-2);
+  text-align: center;
+}
+
+.m360-root .m360-inbox-stat-number {
+  font-size: var(--m360-text-lg);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+}
+
+.m360-root .m360-inbox-stat-label {
+  font-size: var(--m360-text-xs);
+  color: var(--m360-text-muted);
+}
+
+/* Tooltip */
+.m360-root .m360-inbox-tooltip {
+  position: fixed;
+  bottom: calc(var(--m360-space-4) + 52px + var(--m360-space-2));
+  right: calc(var(--m360-space-4) + 52px + var(--m360-space-2));
+  background: rgba(0, 0, 0, .9);
+  color: #fff;
+  padding: var(--m360-space-2) var(--m360-space-3);
+  border-radius: var(--m360-radius);
+  font-size: var(--m360-text-sm);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--m360-transition), visibility var(--m360-transition);
+  z-index: 1061;
+  white-space: nowrap;
+}
+
+.m360-root .m360-inbox-tooltip.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Toast */
+.m360-root .m360-inbox-toast {
+  position: fixed;
+  top: var(--m360-space-3);
+  right: var(--m360-space-3);
+  background: var(--m360-surface);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  box-shadow: var(--m360-shadow-lg);
+  padding: var(--m360-space-3);
+  min-width: 280px;
+  max-width: calc(100vw - var(--m360-space-3) * 2);
+  z-index: 1070;
+  transform: translateX(120%);
+  transition: transform var(--m360-transition);
+}
+
+.m360-root .m360-inbox-toast.is-visible {
+  transform: translateX(0);
+}
+
+.m360-root .m360-inbox-toast-content {
+  display: flex;
+  gap: var(--m360-space-2);
+  align-items: flex-start;
+}
+
+.m360-root .m360-inbox-toast-icon {
+  font-size: var(--m360-icon-md);
+  flex-shrink: 0;
+}
+
+.m360-root .m360-inbox-toast-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.m360-root .m360-inbox-toast-title {
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+}
+
+.m360-root .m360-inbox-toast-message {
+  font-size: var(--m360-text-sm);
+  color: var(--m360-text-secondary);
+}
+
+.m360-root .m360-inbox-toast-close {
+  background: transparent;
+  border: none;
+  color: var(--m360-text-muted);
+  cursor: pointer;
+  padding: var(--m360-space-1);
+  line-height: 0;
+}
+
+.m360-root .m360-inbox-toast-close:hover {
+  color: var(--m360-text);
+}
+
+/* Pulse ring */
+.m360-root .m360-inbox-pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--m360-primary);
+  opacity: 0;
+  pointer-events: none;
+  animation: inboxPulseRing 2s infinite;
+}
+
+@keyframes inboxPulseRing {
+  0% { transform: scale(1); opacity: .6; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+/* Spinner */
+.m360-root .m360-inbox-spinning {
+  animation: inboxSpinning 1s linear infinite;
+}
+
+@keyframes inboxSpinning {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .m360-root .m360-inbox-panel {
+    right: var(--m360-space-2);
+    bottom: calc(var(--m360-space-2) + 52px + var(--m360-space-2));
+    width: calc(100% - var(--m360-space-2) * 2);
+    max-width: none;
+  }
+
+  .m360-root .m360-inbox-floating-button {
+    right: var(--m360-space-2);
+    bottom: var(--m360-space-2);
+  }
+
+  .m360-root .m360-inbox-tooltip {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .m360-root .m360-inbox-panel-body {
+    padding: var(--m360-space-2) var(--m360-space-3);
+  }
+
+  .m360-root .m360-inbox-form-actions {
+    flex-direction: column;
+  }
+
+  .m360-root .m360-inbox-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+}

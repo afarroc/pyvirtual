@@ -1,0 +1,258 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 5. Objects
+   File: _grid.css — container/row/12-col grid with responsive stacking
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-container,
+.m360-root .m360-container-fluid {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.m360-root .m360-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: var(--m360-space-4) var(--m360-space-3) var(--m360-space-10);
+}
+
+.m360-root .m360-container-fluid {
+  padding-left: var(--m360-space-3);
+  padding-right: var(--m360-space-3);
+}
+
+/* Mobile-first grid: 1 column by default, then expand at breakpoints */
+.m360-root .m360-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--m360-space-4);
+}
+
+.m360-root .m360-row.m360-gap-2 {
+  gap: var(--m360-space-2);
+}
+
+/* Base column */
+.m360-root .m360-col {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.m360-root .m360-col-auto {
+  grid-column: auto;
+}
+
+/* Default mobile: all columns stack full width unless sized with breakpoint classes */
+.m360-root .m360-col-12,
+.m360-root .m360-col-xs-12 {
+  grid-column: span 12 / span 12;
+}
+
+@media (min-width: 576px) {
+  .m360-root .m360-row {
+    grid-template-columns: repeat(12, 1fr);
+  }
+
+  .m360-root .m360-col-sm-6 {
+    grid-column: span 6 / span 6;
+  }
+  .m360-root .m360-col-sm-12 {
+    grid-column: span 12 / span 12;
+  }
+
+  /* Inherit larger breakpoints into sm so columns don't collapse unexpectedly */
+  .m360-root .m360-col-md-4,
+  .m360-root .m360-col-lg-4,
+  .m360-root .m360-col-xl-4,
+  .m360-root .m360-col-xxl-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-md-6,
+  .m360-root .m360-col-lg-6,
+  .m360-root .m360-col-xl-6,
+  .m360-root .m360-col-xxl-6 {
+    grid-column: span 6 / span 6;
+  }
+  .m360-root .m360-col-md-8,
+  .m360-root .m360-col-lg-8,
+  .m360-root .m360-col-xl-8,
+  .m360-root .m360-col-xxl-8 {
+    grid-column: span 8 / span 8;
+  }
+  .m360-root .m360-col-md-12,
+  .m360-root .m360-col-lg-12,
+  .m360-root .m360-col-xl-12,
+  .m360-root .m360-col-xxl-12 {
+    grid-column: span 12 / span 12;
+  }
+}
+
+@media (min-width: 768px) {
+  .m360-root .m360-col-md-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-md-6 {
+    grid-column: span 6 / span 6;
+  }
+  .m360-root .m360-col-md-8 {
+    grid-column: span 8 / span 8;
+  }
+  .m360-root .m360-col-md-12 {
+    grid-column: span 12 / span 12;
+  }
+
+  /* Inherit larger breakpoints into md */
+  .m360-root .m360-col-lg-4,
+  .m360-root .m360-col-xl-4,
+  .m360-root .m360-col-xxl-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-lg-6,
+  .m360-root .m360-col-xl-6,
+  .m360-root .m360-col-xxl-6 {
+    grid-column: span 6 / span 6;
+  }
+  .m360-root .m360-col-lg-8,
+  .m360-root .m360-col-xl-8,
+  .m360-root .m360-col-xxl-8 {
+    grid-column: span 8 / span 8;
+  }
+  .m360-root .m360-col-lg-12,
+  .m360-root .m360-col-xl-12,
+  .m360-root .m360-col-xxl-12 {
+    grid-column: span 12 / span 12;
+  }
+}
+
+@media (min-width: 992px) {
+  .m360-root .m360-col-lg-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-lg-6 {
+    grid-column: span 6 / span 6;
+  }
+  .m360-root .m360-col-lg-8 {
+    grid-column: span 8 / span 8;
+  }
+  .m360-root .m360-col-lg-12 {
+    grid-column: span 12 / span 12;
+  }
+
+  /* Inherit larger breakpoints into lg */
+  .m360-root .m360-col-xl-4,
+  .m360-root .m360-col-xxl-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-xl-8,
+  .m360-root .m360-col-xxl-8 {
+    grid-column: span 8 / span 8;
+  }
+  .m360-root .m360-col-xl-12,
+  .m360-root .m360-col-xxl-12 {
+    grid-column: span 12 / span 12;
+  }
+}
+
+@media (min-width: 1200px) {
+  .m360-root .m360-col-xl-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-xl-8 {
+    grid-column: span 8 / span 8;
+  }
+  .m360-root .m360-col-xl-12 {
+    grid-column: span 12 / span 12;
+  }
+
+  /* Inherit xxl into xl */
+  .m360-root .m360-col-xxl-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-xxl-8 {
+    grid-column: span 8 / span 8;
+  }
+  .m360-root .m360-col-xxl-12 {
+    grid-column: span 12 / span 12;
+  }
+}
+
+@media (min-width: 1400px) {
+  .m360-root .m360-col-xxl-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-xxl-8 {
+    grid-column: span 8 / span 8;
+  }
+  .m360-root .m360-col-xxl-12 {
+    grid-column: span 12 / span 12;
+  }
+}
+
+  .m360-root .m360-col-sm-6 {
+    grid-column: span 6 / span 6;
+  }
+  .m360-root .m360-col-sm-12 {
+    grid-column: span 12 / span 12;
+  }
+}
+
+@media (min-width: 768px) {
+  .m360-root .m360-col-md-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-md-6 {
+    grid-column: span 6 / span 6;
+  }
+  .m360-root .m360-col-md-8 {
+    grid-column: span 8 / span 8;
+  }
+  .m360-root .m360-col-md-12 {
+    grid-column: span 12 / span 12;
+  }
+}
+
+@media (min-width: 992px) {
+  .m360-root .m360-col-lg-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-lg-6 {
+    grid-column: span 6 / span 6;
+  }
+  .m360-root .m360-col-lg-8 {
+    grid-column: span 8 / span 8;
+  }
+  .m360-root .m360-col-lg-12 {
+    grid-column: span 12 / span 12;
+  }
+}
+
+@media (min-width: 1200px) {
+  .m360-root .m360-col-xl-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-xl-8 {
+    grid-column: span 8 / span 8;
+  }
+}
+
+@media (min-width: 1400px) {
+  .m360-root .m360-col-xxl-4 {
+    grid-column: span 4 / span 4;
+  }
+  .m360-root .m360-col-xxl-8 {
+    grid-column: span 8 / span 8;
+  }
+}
+
+.m360-root .m360-divider {
+  border: none;
+  border-top: 1px solid var(--m360-border);
+  margin: var(--m360-space-4) 0;
+}
+
+@media (max-width: 768px) {
+  .m360-root .m360-container {
+    padding: var(--m360-space-2) var(--m360-space-1) var(--m360-space-6);
+  }
+}

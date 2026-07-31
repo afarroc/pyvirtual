@@ -1,0 +1,27 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — Generic fallback helpers
+   File: _generic-fallback.css
+   Scope: .m360-root
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-alert-dismiss {
+  background: transparent;
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  padding: var(--m360-space-2);
+  color: var(--m360-text-secondary);
+  cursor: pointer;
+  line-height: 0;
+  transition: background var(--m360-transition), color var(--m360-transition), border-color var(--m360-transition);
+}
+
+.m360-root .m360-alert-dismiss:hover {
+  background: var(--m360-gray-50);
+  color: var(--m360-text);
+  border-color: var(--m360-text-muted);
+}
+
+.m360-root .m360-alert-dismiss:focus-visible {
+  outline: 2px solid var(--m360-primary);
+  outline-offset: 2px;
+}

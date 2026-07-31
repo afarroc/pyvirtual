@@ -1,0 +1,61 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 4. Elements
+   File: _typography.css — fonts, headings, body text
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root {
+  font-family: var(--m360-font-family);
+  font-size: var(--m360-font-size-base);
+  color: var(--m360-text);
+  line-height: var(--m360-line-height);
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.m360-root h1,
+.m360-root h2,
+.m360-root h3,
+.m360-root h4,
+.m360-root h5,
+.m360-root h6 {
+  font-family: var(--m360-font-family);
+  color: var(--m360-text);
+  margin-bottom: 0;
+  line-height: 1.3;
+}
+
+.m360-root h1 { font-size: var(--m360-text-2xl); font-weight: var(--m360-font-weight-extrabold); }
+.m360-root h2 { font-size: var(--m360-text-xl);  font-weight: var(--m360-font-weight-bold); }
+.m360-root h3 { font-size: var(--m360-text-lg);  font-weight: var(--m360-font-weight-bold); }
+.m360-root h4 { font-size: var(--m360-text-md);  font-weight: var(--m360-font-weight-bold); }
+.m360-root h5 { font-size: var(--m360-text-base);font-weight: var(--m360-font-weight-bold); }
+.m360-root h6 { font-size: var(--m360-text-sm);  font-weight: var(--m360-font-weight-bold); }
+
+.m360-root p {
+  font-size: var(--m360-text-md);
+  color: var(--m360-text-secondary);
+  margin-top: 0;
+}
+
+.m360-root small {
+  font-size: var(--m360-text-xs);
+  color: var(--m360-text-muted);
+  display: block;
+  margin-top: var(--m360-space-1);
+}
+
+.m360-root a {
+  color: var(--m360-primary);
+  text-decoration: none;
+}
+
+.m360-root a:hover {
+  color: var(--m360-primary-dark);
+  text-decoration: underline;
+}
+
+.m360-root table {
+  border-collapse: collapse;
+}

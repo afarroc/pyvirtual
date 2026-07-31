@@ -1,0 +1,36 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+    Footer — unified M360 + analyst styling
+    ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-site-footer {
+  width: 100%;
+  background: var(--m360-surface);
+  border-top: 1px solid var(--m360-border);
+  padding: var(--m360-space-4) var(--m360-space-4);
+  font-size: var(--m360-text-sm);
+  color: var(--m360-text-muted);
+  text-align: center;
+}
+
+.m360-root .m360-site-footer-inner {
+  max-width: var(--m360-max-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--m360-space-2);
+  flex-wrap: wrap;
+}
+
+.m360-root .m360-site-footer-inner strong,
+.m360-root .m360-site-footer span {
+  color: var(--m360-text);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .m360-root .m360-site-footer {
+    padding: var(--m360-space-3) var(--m360-space-3);
+    font-size: var(--m360-text-xs);
+  }
+}

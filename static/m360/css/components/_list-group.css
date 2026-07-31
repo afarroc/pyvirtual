@@ -1,0 +1,83 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 5. Components
+   File: _list-group.css — list groups, action rows, flush variant
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-list-group {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  background: var(--m360-surface);
+  overflow: hidden;
+}
+
+.m360-root .m360-list-group-flush {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.m360-root .m360-list-group-item {
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-3);
+  padding: var(--m360-space-3) var(--m360-space-4);
+  background: var(--m360-surface);
+  border-bottom: 1px solid var(--m360-border-light);
+  color: var(--m360-text);
+  text-decoration: none;
+  font-size: var(--m360-text-md);
+  transition: background var(--m360-transition), color var(--m360-transition);
+}
+
+.m360-root .m360-list-group-item:last-child {
+  border-bottom: 0;
+}
+
+.m360-root .m360-list-group-item:hover {
+  background: var(--m360-gray-50);
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-list-group-item.m360-active {
+  background: var(--m360-primary-light);
+  color: var(--m360-primary);
+  font-weight: var(--m360-font-weight-semibold);
+}
+
+.m360-root .m360-list-group-item-action {
+  cursor: pointer;
+}
+
+.m360-root .m360-list-group-item-title {
+  font-size: var(--m360-text-sm);
+  font-weight: var(--m360-font-weight-semibold);
+  color: var(--m360-text);
+}
+
+.m360-root .m360-list-group-item-meta {
+  font-size: var(--m360-text-xs);
+  color: var(--m360-text-muted);
+  margin-top: 2px;
+}
+
+.m360-root .m360-list-group-item-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m360-space-1);
+  margin-left: auto;
+}
+
+/* Responsive: on small screens allow items to wrap if needed */
+@media (max-width: 576px) {
+  .m360-root .m360-list-group-item {
+    flex-wrap: wrap;
+  }
+  .m360-root .m360-list-group-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: var(--m360-space-2);
+  }
+}

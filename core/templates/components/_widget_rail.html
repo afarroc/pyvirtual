@@ -1,0 +1,15 @@
+{% load static %}
+<!-- Widget Rail: cinta lateral derecha para herramientas/chat/inbox -->
+<div id="widget-rail" class="m360-widget-rail" aria-label="Widget rail">
+    <div class="m360-widget-rail-items" role="toolbar" aria-label="Active widgets">
+        {% if user.is_authenticated %}
+            {% include 'chat/widget_rail_button.html' %}
+            {% include 'inbox/widget_rail_button.html' %}
+        {% endif %}
+    </div>
+    <div class="m360-widget-rail-expand" aria-hidden="true"></div>
+</div>
+{% if user.is_authenticated %}
+    {% include 'chat/widget_rail_panel.html' %}
+    {% include 'inbox/widget_rail_panel.html' %}
+{% endif %}

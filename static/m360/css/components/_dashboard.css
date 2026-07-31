@@ -1,0 +1,85 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 5. Components
+   File: _dashboard.css — dashboard-specific components previously in css/dashboard.css
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Activity timeline */
+.m360-root .m360-activity {
+  position: relative;
+  padding-left: 30px;
+}
+
+.m360-root .m360-activity::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--m360-border);
+}
+
+.m360-root .m360-activity-item {
+  position: relative;
+  padding-bottom: var(--m360-space-4);
+}
+
+.m360-root .m360-activity-badge {
+  position: absolute;
+  left: -22px;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--m360-radius-pill);
+  border: 2px solid var(--m360-surface);
+  top: 6px;
+}
+
+/* Profile card image */
+.m360-root .m360-profile-card img {
+  border: 3px solid var(--m360-gray-50);
+  box-shadow: var(--m360-shadow-sm);
+}
+
+/* Counter */
+.m360-root .m360-counter {
+  font-weight: var(--m360-font-weight-semibold);
+  color: var(--m360-text-secondary);
+}
+
+/* Responsive dashboard */
+@media (max-width: 768px) {
+  .m360-root .m360-card-icon {
+    width: 40px;
+    height: 40px;
+    font-size: var(--m360-icon-md);
+  }
+
+  .m360-root .m360-activity {
+    padding-left: 20px;
+  }
+
+  .m360-root .m360-activity-badge {
+    left: -16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .m360-root .m360-page-header {
+    padding: var(--m360-space-2) 0;
+  }
+
+  .m360-root .m360-page-header h1 {
+    font-size: var(--m360-text-lg);
+  }
+}
+
+/* Print styles */
+@media print {
+  .m360-root .m360-nav-tabs-wrapper,
+  .m360-root .m360-btn,
+  .m360-root .m360-card:hover {
+    box-shadow: none;
+    transform: none;
+  }
+}

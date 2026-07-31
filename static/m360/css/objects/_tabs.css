@@ -1,0 +1,231 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 5. Objects
+   File: _tabs.css — tab navigation, mode tabs, section tabs
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Tab navigation bar */
+.m360-root .m360-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--m360-border);
+  margin-bottom: var(--m360-space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.m360-root .m360-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.m360-root .m360-tab {
+  padding: var(--m360-space-2) var(--m360-space-4);
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-semibold);
+  color: var(--m360-text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  transition: color var(--m360-transition), border-color var(--m360-transition);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-1);
+}
+
+.m360-root .m360-tab:hover:not(.m360-active) {
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-tab.m360-active {
+  color: var(--m360-primary);
+  border-bottom-color: var(--m360-primary);
+}
+
+.m360-root .m360-tab-count {
+  background: var(--m360-gray-100);
+  color: var(--m360-text-muted);
+  font-size: var(--m360-text-xs);
+  font-weight: var(--m360-font-weight-bold);
+  padding: 1px var(--m360-space-1);
+  border-radius: var(--m360-radius-pill);
+}
+
+.m360-root .m360-tab.m360-active .m360-tab-count {
+  background: var(--m360-primary-light);
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-tab-pane {
+  display: none;
+}
+
+.m360-root .m360-tab-pane.m360-active {
+  display: block;
+}
+
+/* Home-style tab navigation */
+.m360-root .m360-tab-nav {
+  display: flex;
+  gap: var(--m360-space-1);
+  background: var(--m360-surface);
+  border-radius: var(--m360-radius);
+  padding: var(--m360-space-1);
+  box-shadow: var(--m360-card-shadow);
+  border: 1px solid var(--m360-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.m360-root .m360-tab-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.m360-root .m360-tab-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--m360-radius-sm);
+  padding: var(--m360-space-2) var(--m360-space-3);
+  font-size: var(--m360-text-sm);
+  font-weight: var(--m360-font-weight-medium);
+  color: var(--m360-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--m360-transition), color var(--m360-transition), border-color var(--m360-transition), box-shadow var(--m360-transition);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m360-space-1);
+}
+
+.m360-root .m360-tab-btn:hover:not(.m360-active) {
+  background: var(--m360-gray-50);
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-tab-btn.m360-active {
+  background: var(--m360-primary-light);
+  color: var(--m360-primary);
+  border-color: var(--m360-primary);
+  box-shadow: var(--m360-shadow-sm);
+}
+
+/* Mode tabs (segmented control) */
+.m360-root .m360-mode-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: var(--m360-space-3);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  overflow: hidden;
+}
+
+.m360-root .m360-mode-tab {
+  flex: 1;
+  padding: var(--m360-space-2) var(--m360-space-3);
+  font-size: var(--m360-text-sm);
+  font-weight: var(--m360-font-weight-bold);
+  cursor: pointer;
+  border: none;
+  background: #f8fafc;
+  color: var(--m360-text-secondary);
+  text-align: center;
+  transition: background var(--m360-transition), color var(--m360-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--m360-space-1);
+}
+
+.m360-root .m360-mode-tab.m360-active {
+  background: var(--m360-primary);
+  color: #fff;
+}
+
+.m360-root .m360-mode-tab:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+/* Import source tabs */
+.m360-root .m360-import-src-tabs {
+  display: flex;
+  gap: var(--m360-space-2);
+  margin-bottom: var(--m360-space-4);
+  flex-wrap: wrap;
+}
+
+.m360-root .m360-import-src-tab {
+  padding: var(--m360-space-2) var(--m360-space-3);
+  background: var(--m360-gray-50);
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  font-size: var(--m360-text-sm);
+  font-weight: var(--m360-font-weight-semibold);
+  cursor: pointer;
+  color: var(--m360-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-1);
+  transition: background var(--m360-transition), border-color var(--m360-transition), color var(--m360-transition);
+}
+
+.m360-root .m360-import-src-tab:hover {
+  border-color: var(--m360-primary);
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-import-src-tab.m360-active {
+  background: var(--m360-primary-light);
+  border-color: var(--m360-primary);
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-import-src-pane {
+  display: none;
+}
+
+.m360-root .m360-import-src-pane.m360-active {
+  display: block;
+}
+
+/* Edit tabs */
+.m360-root .m360-edit-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--m360-border);
+  margin-bottom: var(--m360-space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.m360-root .m360-edit-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.m360-root .m360-edit-tab {
+  padding: var(--m360-space-2) var(--m360-space-4);
+  font-size: var(--m360-text-md);
+  font-weight: var(--m360-font-weight-semibold);
+  color: var(--m360-text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  transition: color var(--m360-transition), border-color var(--m360-transition);
+}
+
+.m360-root .m360-edit-tab:hover {
+  color: var(--m360-primary);
+}
+
+.m360-root .m360-edit-tab.m360-active {
+  color: var(--m360-primary);
+  border-bottom-color: var(--m360-primary);
+}
+
+@media (max-width: 768px) {
+  .m360-root .m360-tab {
+    padding: var(--m360-space-2);
+  }
+}

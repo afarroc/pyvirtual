@@ -1,0 +1,60 @@
+{% load icon_tags %}
+<nav class="m360-site-header-actions" data-nav-menu>
+  {% if user.is_authenticated %}
+    {% include 'layouts/includes/header/credit.html' %}
+
+    <span class="m360-dropdown m360-dropend">
+      <button type="button" data-m360-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Notifications" class="m360-btn-icon m360-btn-icon-sm">
+        <span class="m360-relative">
+            {% icon 'bell' %}
+            <span id="header-notification-badge" class="m360-badge m360-badge-danger m360-badge-absolute" style="top:-5px;right:-5px;display:none;">0</span>
+        </span>
+      </button>
+      <ul class="m360-dropdown-menu m360-dropdown-menu-end m360-dropdown-menu-lg">
+        <li class="m360-dropdown-header">
+            <span>Notifications</span>
+            <button id="header-mark-all-read-btn" type="button" class="m360-btn m360-btn-primary m360-ml-auto" style="display:none;">Mark All Read</button>
+        </li>
+        <li id="header-notifications-list">
+          <div class="m360-dropdown-item m360-d-flex m360-items-center m360-justify-center m360-text-center">
+            <span>{% icon 'bell' %}</span>
+            <span>No notifications</span>
+          </div>
+        </li>
+        <li class="m360-dropdown-footer"><a href="{% url 'chat:room_list' %}">View all notifications</a></li>
+      </ul>
+    </span>
+
+    <span class="m360-dropdown m360-dropend">
+      <button type="button" data-m360-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Profile" class="m360-btn-icon m360-btn-icon-sm">
+        <span class="m360-d-inline-flex m360-items-center m360-gap-2">
+          {% if user.cv.profile_picture %}
+            <img src="{{ user.cv.profile_picture.url }}" alt="Profile" class="m360-header-avatar-sm">
+          {% else %}
+            <span class="m360-header-avatar-sm">{{ user.get_full_name|first }}</span>
+          {% endif %}
+          <span class="m360-sr-only">{{ user.get_full_name }}</span>
+        </span>
+      </button>
+      <ul class="m360-dropdown-menu m360-dropdown-menu-end">
+        <li class="m360-dropdown-header">
+            <span>{{ user.cv.user.get_full_name }}</span>
+            <br>
+            <span class="m360-fw-normal">{{ user.cv.role }}</span>
+        </li>
+        <li class="m360-dropdown-sep"></li>
+        <li><a class="m360-dropdown-item" href="{% url 'cv:cv_detail'%}">{% icon 'person' %} <span>My Profile</span></a></li>
+        <li class="m360-dropdown-sep"></li>
+        <li><a class="m360-dropdown-item" href="{% url 'cv:cv_edit' %}">{% icon 'gear' %} <span>Account Settings</span></a></li>
+        <li class="m360-dropdown-sep"></li>
+        <li><a class="m360-dropdown-item" href="{% url 'help:help_home' %}">{% icon 'question-circle' %} <span>Help Center</span></a></li>
+        <li><a class="m360-dropdown-item" href="{% url 'about' %}">{% icon 'info-circle' %} <span>About</span></a></li>
+        <li class="m360-dropdown-sep"></li>
+        <li><a class="m360-dropdown-item" href="{% url 'logout' %}">{% icon 'door-open' %} <span>Log Out</span></a></li>
+      </ul>
+    </span>
+  {% else %}
+    <a class="m360-btn" href="{% url 'signup' %}">{% icon 'person-plus' %}<span>Signup</span></a>
+    <a class="m360-btn" href="{% url 'login' %}">{% icon 'key' %}<span>Log In</span></a>
+  {% endif %}
+</nav>

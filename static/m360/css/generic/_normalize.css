@@ -1,0 +1,12 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 3. Generic
+   File: _normalize.css — box-sizing reset + scope-safe declarations
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Box-sizing only — no margin/padding that could break parent layouts */
+.m360-root *,
+.m360-root *::before,
+.m360-root *::after {
+  box-sizing: border-box;
+}

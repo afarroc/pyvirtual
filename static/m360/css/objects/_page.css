@@ -1,0 +1,257 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   M360 Design System — ITCSS Foundation
+   Layer: 5. Objects
+   File: _page.css — page headers, dashboard containers, page structure
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-page {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--m360-space-6) var(--m360-space-3) var(--m360-space-8);
+}
+
+.m360-root .m360-page-header {
+  margin-bottom: var(--m360-space-2);
+  padding: var(--m360-space-2) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-3);
+  flex-wrap: wrap;
+}
+
+.m360-root .m360-page-header h1 {
+  font-size: var(--m360-text-xl);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.m360-root .m360-page-header h1 .m360-icon {
+  color: var(--m360-primary);
+  font-size: var(--m360-icon-lg);
+}
+
+.m360-root .m360-icon-xl {
+  font-size: var(--m360-icon-xl);
+  line-height: 1;
+}
+
+.m360-root .m360-page-header p {
+  font-size: var(--m360-text-sm);
+  color: var(--m360-text-secondary);
+  margin: var(--m360-space-1) 0 0;
+  width: 100%;
+}
+
+.m360-root .m360-page-actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--m360-space-2);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .m360-root .m360-page-header {
+    padding: var(--m360-space-2) 0;
+  }
+  .m360-root .m360-page-header h1 {
+    font-size: var(--m360-text-lg);
+  }
+}
+
+.m360-root .m360-page-header h1 {
+  font-size: var(--m360-text-xl);
+  font-weight: var(--m360-font-weight-bold);
+  color: var(--m360-text);
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.m360-root .m360-page-header h1 .m360-icon {
+  color: var(--m360-primary);
+  font-size: var(--m360-icon-lg);
+}
+
+.m360-root .m360-icon-xl {
+  font-size: var(--m360-icon-xl);
+  line-height: 1;
+}
+
+.m360-root .m360-page-header p {
+  font-size: var(--m360-text-sm);
+  color: var(--m360-text-secondary);
+  margin: var(--m360-space-1) 0 0;
+  width: 100%;
+}
+
+.m360-root .m360-page-actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--m360-space-2);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .m360-root .m360-page {
+    padding: var(--m360-space-2) var(--m360-space-1) var(--m360-space-6);
+  }
+  .m360-root .m360-page-header {
+    padding: var(--m360-space-2) 0;
+  }
+  .m360-root .m360-page-header h1 {
+    font-size: var(--m360-text-lg);
+  }
+}
+
+/* ── Lote items (preparacion) ── */
+.m360-root .m360-lote-item {
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  padding: var(--m360-space-3);
+  margin-bottom: var(--m360-space-3);
+  background: var(--m360-surface);
+}
+
+.m360-root .m360-lote-item:last-child {
+  margin-bottom: 0;
+}
+
+.m360-root .m360-lote-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--m360-space-3);
+  margin-bottom: var(--m360-space-3);
+}
+
+.m360-root .m360-lote-meta {
+  margin-bottom: var(--m360-space-3);
+}
+
+.m360-root .m360-lote-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .m360-root .m360-lote-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .m360-root .m360-lote-actions {
+    width: 100%;
+  }
+
+  .m360-root .m360-lote-actions .m360-btn {
+    width: 100%;
+  }
+
+  .m360-root .m360-lote-footer {
+    justify-content: stretch;
+  }
+
+  .m360-root .m360-lote-footer .m360-btn {
+    width: 100%;
+  }
+}
+
+/* ── Scan preview thumbnails ── */
+.m360-root .m360-scan-preview {
+  width: 80px;
+  height: 100px;
+  object-fit: cover;
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  background: var(--m360-gray-50);
+  box-shadow: var(--m360-shadow-sm);
+}
+
+/* ═════════════════════════════════════════════════════════════════===============
+   Page layout helpers (M360 IT CSS)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.m360-root .m360-main,
+.m360-root #main.main {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.m360-root .m360-main > .m360-page,
+.m360-root #main.main > .m360-page,
+.m360-root #main.main > .container-fluid {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Home-style tabs wrapper */
+.m360-root .m360-nav-tabs-wrapper {
+  background: var(--m360-surface);
+  border-radius: var(--m360-radius);
+  padding: var(--m360-space-2);
+  box-shadow: var(--m360-card-shadow);
+  border: 1px solid var(--m360-border);
+  margin-top: var(--m360-space-2);
+  margin-bottom: var(--m360-space-4);
+}
+
+/* Page header container spacing */
+.m360-root .m360-page-header .m360-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--m360-space-3);
+}
+
+.m360-root .m360-page-header .m360-breadcrumb {
+  margin-top: var(--m360-space-1);
+}
+
+/* Breadcrumb */
+.m360-root .m360-breadcrumb {
+  display: flex;
+  gap: var(--m360-space-2);
+  list-style: none;
+  padding: 0;
+  margin: var(--m360-space-2) 0 0;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.m360-root .m360-breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: var(--m360-space-2);
+  font-size: var(--m360-text-sm);
+  color: var(--m360-text-muted);
+}
+
+.m360-root .m360-breadcrumb-item:not(:last-child)::after {
+  content: '/';
+  color: var(--m360-text-muted);
+  margin-left: var(--m360-space-2);
+}
+
+.m360-root .m360-breadcrumb-item a {
+  color: var(--m360-text-muted);
+  text-decoration: none;
+}
+
+.m360-root .m360-breadcrumb-item a:hover {
+  color: var(--m360-primary);
+  text-decoration: underline;
+}
+
+.m360-root .m360-breadcrumb-item.m360-active {
+  color: var(--m360-text);
+  font-weight: var(--m360-font-weight-semibold);
+}
