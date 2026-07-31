@@ -1,146 +1,25 @@
+{% load icon_tags %}
 <!-- =======================================================
      ANALYST APP — Plataforma de Datos
      ======================================================= -->
-<li class="nav-item">
-    <a class="nav-link collapsed" data-bs-target="#analyst-nav" data-bs-toggle="collapse" href="{% url 'analyst:data_upload' %}">
-        <i class="bi bi-bar-chart-steps"></i><span>Analyst</span><i class="bi bi-chevron-down ms-auto"></i>
-    </a>
-    <ul id="analyst-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+<li class="m360-sidebar-nav-item" role="none">
+    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#analyst-nav" data-m360-toggle="collapse" data-m360-tooltip="Analyst">
+        {% icon 'bar-chart-steps' %}<span>Analyst</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+    </button>
+    <ul id="analyst-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
 
         <!-- ── Datos ──────────────────────────────────────────── -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#analyst-datos-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-database-up"></i><span>Datos</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="analyst-datos-nav" class="nav-content collapse" data-bs-parent="#analyst-nav">
-                <li>
-                    <a href="{% url 'analyst:data_upload' %}">
-                        <i class="bi bi-upload"></i><span>Carga de Datos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'analyst:dataset_list' %}">
-                        <i class="bi bi-layers"></i><span>Datasets</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'analyst:clipboard_details' %}">
-                        <i class="bi bi-clipboard-data"></i><span>Clipboard</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#analyst-datos-nav" data-m360-toggle="collapse" data-m360-tooltip="Datos">
+                {% icon 'database-up' %}<span>Datos</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+            </button>
+            <ul id="analyst-datos-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#analyst-nav" role="menu">
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'analyst:data_upload' %}" role="menuitem">
+                        {% icon 'upload' %}<span>Carga de Datos</span>
                     </a>
                 </li>
             </ul>
         </li>
-
-        <!-- ── Modelado ───────────────────────────────────────── -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#analyst-modelado-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-diagram-2"></i><span>Modelado</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="analyst-modelado-nav" class="nav-content collapse" data-bs-parent="#analyst-nav">
-                <li>
-                    <a href="{% url 'analyst:base_list' %}">
-                        <i class="bi bi-database"></i><span>Bases de Datos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'analyst:etl_list' %}">
-                        <i class="bi bi-arrow-repeat"></i><span>ETL</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'analyst:cross_list' %}">
-                        <i class="bi bi-shuffle"></i><span>Cruces</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-
-        <!-- ── Análisis ───────────────────────────────────────── -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#analyst-analisis-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-graph-up-arrow"></i><span>Análisis</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="analyst-analisis-nav" class="nav-content collapse" data-bs-parent="#analyst-nav">
-                <li>
-                    <a href="{% url 'analyst:report_list' %}">
-                        <i class="bi bi-file-earmark-bar-graph"></i><span>Reportes</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'analyst:dashboard_list' %}">
-                        <i class="bi bi-grid-3x3-gap"></i><span>Dashboards</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'sim:simulator_list' %}">
-                        <i class="bi bi-broadcast"></i><span>Simulador WFM</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'sim:sim_dashboard' %}">
-                        <i class="bi bi-speedometer2"></i><span>Sim Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'sim:training_panel' %}">
-                        <i class="bi bi-mortarboard"></i><span>Training Mode</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-
-        <!-- ── Herramientas ───────────────────────────────────── -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#analyst-tools-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-tools"></i><span>Herramientas</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="analyst-tools-nav" class="nav-content collapse" data-bs-parent="#analyst-nav">
-                <li>
-                    <a href="{% url 'analyst:calculate_agents' %}">
-                        <i class="bi bi-headset"></i><span>Calculadora Agentes</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'analyst:traffic_intensity' %}">
-                        <i class="bi bi-reception-4"></i><span>Intensidad de Tráfico</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'analyst:file_tree' %}">
-                        <i class="bi bi-folder-symlink"></i><span>Árbol de Archivos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'sim:gtr_panel' %}">
-                        <i class="bi bi-broadcast-pin"></i><span>GTR Live</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-
-        <!-- ── Docs ───────────────────────────────────────────── -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#analyst-docs-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-book"></i><span>Docs</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="analyst-docs-nav" class="nav-content collapse" data-bs-parent="#analyst-nav">
-                <li>
-                    <a href="{% url 'analyst:docs' 'context' %}">
-                        <i class="bi bi-map"></i><span>Mapa de Contexto</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'analyst:docs' 'reference' %}">
-                        <i class="bi bi-journal-code"></i><span>Referencia Dev</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'analyst:docs' 'design' %}">
-                        <i class="bi bi-clipboard2-check"></i><span>Diseño de Plataforma</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-
     </ul>
-</li><!-- End Analyst Nav -->
+</li>

@@ -1,119 +1,120 @@
+{% load icon_tags %}
 <!-- =======================================================
      OPTIMIZED TASKS SECTION
      ======================================================= -->
-<li class="nav-item">
-    <a class="nav-link collapsed" data-bs-target="#tasks-nav" data-bs-toggle="collapse" href="{% url 'events:tasks' %}">
-        <i class="bi bi-calendar-check"></i><span>Tasks</span><i class="bi bi-chevron-down ms-auto"></i>
-    </a>
-    <ul id="tasks-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+<li class="m360-sidebar-nav-item" role="none">
+    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#tasks-nav" data-m360-toggle="collapse" data-m360-tooltip="Tasks">
+        {% icon 'calendar-check' %}<span>Tasks</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+    </button>
+    <ul id="tasks-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
 
         <!-- Main Views -->
-        <li>
-            <a href="{% url 'events:tasks' %}">
-                <i class="bi bi-list-ul"></i><span>All Tasks</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:tasks' %}" role="menuitem">
+                {% icon 'list-ul' %}<span>All Tasks</span>
             </a>
         </li>
-        <li>
-            <a href="{% url 'events:task_panel' %}">
-                <i class="bi bi-speedometer2"></i><span>Task Panel</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:task_panel' %}" role="menuitem">
+                {% icon 'speedometer2' %}<span>Task Panel</span>
             </a>
         </li>
 
         <!-- Actions -->
         {% if user.is_authenticated %}
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#task-actions-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-gear"></i><span>Task Actions</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="task-actions-nav" class="nav-content collapse" data-bs-parent="#tasks-nav">
-                <li>
-                    <a href="{% url 'events:task_create' %}">
-                        <i class="bi bi-plus-circle"></i><span>Create Task</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#task-actions-nav" data-m360-toggle="collapse" data-m360-tooltip="Task Actions">
+                {% icon 'gear' %}<span>Task Actions</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+            </button>
+            <ul id="task-actions-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#tasks-nav" role="menu">
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_create' %}" role="menuitem">
+                        {% icon 'plus-circle' %}<span>Create Task</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{% url 'events:task_edit_no_id' %}">
-                        <i class="bi bi-pencil"></i><span>Edit Task</span>
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_edit_no_id' %}" role="menuitem">
+                        {% icon 'pencil' %}<span>Edit Task</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{% url 'events:task_activate_no_id' %}">
-                        <i class="bi bi-play-circle"></i><span>Activate Task</span>
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_activate_no_id' %}" role="menuitem">
+                        {% icon 'play-circle' %}<span>Activate Task</span>
                     </a>
                 </li>
             </ul>
         </li>
 
         <!-- Advanced Task Features -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#task-advanced-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-diagram-3"></i><span>Advanced Features</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="task-advanced-nav" class="nav-content collapse" data-bs-parent="#tasks-nav">
-                <li>
-                    <a href="{% url 'events:task_dependencies_list' %}">
-                        <i class="bi bi-link"></i><span>Task Dependencies</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#task-advanced-nav" data-m360-toggle="collapse" data-m360-tooltip="Advanced Features">
+                {% icon 'diagram-3' %}<span>Advanced Features</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+            </button>
+            <ul id="task-advanced-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#tasks-nav" role="menu">
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_dependencies_list' %}" role="menuitem">
+                        {% icon 'link' %}<span>Task Dependencies</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{% url 'events:task_dependencies_list' %}">
-                        <i class="bi bi-list-ul"></i><span>All Dependencies</span>
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_dependencies_list' %}" role="menuitem">
+                        {% icon 'list-ul' %}<span>All Dependencies</span>
                     </a>
                 </li>
             </ul>
         </li>
 
         <!-- Scheduling & Calendar -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#task-scheduling-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-calendar-week"></i><span>Scheduling & Calendar</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="task-scheduling-nav" class="nav-content collapse" data-bs-parent="#tasks-nav">
-                <li>
-                    <a href="{% url 'events:task_schedules' %}">
-                        <i class="bi bi-arrow-repeat"></i><span>Task Schedules</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#task-scheduling-nav" data-m360-toggle="collapse" data-m360-tooltip="Scheduling & Calendar">
+                {% icon 'calendar-week' %}<span>Scheduling &amp; Calendar</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+            </button>
+            <ul id="task-scheduling-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#tasks-nav" role="menu">
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_schedules' %}" role="menuitem">
+                        {% icon 'arrow-repeat' %}<span>Task Schedules</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{% url 'events:create_task_schedule' %}">
-                        <i class="bi bi-plus-circle"></i><span>Create Schedule</span>
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:create_task_schedule' %}" role="menuitem">
+                        {% icon 'plus-circle' %}<span>Create Schedule</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{% url 'events:planning_task' %}">
-                        <i class="bi bi-calendar-week"></i><span>Task Planning</span>
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:planning_task' %}" role="menuitem">
+                        {% icon 'calendar-week' %}<span>Task Planning</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{% url 'events:task_programs_calendar' %}">
-                        <i class="bi bi-calendar-month"></i><span>Task Calendar</span>
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_programs_calendar' %}" role="menuitem">
+                        {% icon 'calendar-month' %}<span>Task Calendar</span>
                     </a>
                 </li>
             </ul>
         </li>
 
         <!-- Reports -->
-        <li>
-            <a href="{% url 'events:task_export' %}">
-                <i class="bi bi-download"></i><span>Export Tasks</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:task_export' %}" role="menuitem">
+                {% icon 'download' %}<span>Export Tasks</span>
             </a>
         </li>
 
         <!-- Admin Schedules (Superuser only) -->
         {% if user.is_superuser %}
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#schedule-admin-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-calendar-event"></i><span>Schedule Admin</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="schedule-admin-nav" class="nav-content collapse" data-bs-parent="#tasks-nav">
-                <li>
-                    <a href="{% url 'events:schedule_admin_dashboard' %}">
-                        <i class="bi bi-speedometer2"></i><span>Admin Dashboard</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#schedule-admin-nav" data-m360-toggle="collapse" data-m360-tooltip="Schedule Admin">
+                {% icon 'calendar-event' %}<span>Schedule Admin</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+            </button>
+            <ul id="schedule-admin-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#tasks-nav" role="menu">
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:schedule_admin_dashboard' %}" role="menuitem">
+                        {% icon 'speedometer2' %}<span>Admin Dashboard</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{% url 'events:user_schedules_panel' %}">
-                        <i class="bi bi-people"></i><span>User Schedules</span>
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:user_schedules_panel' %}" role="menuitem">
+                        {% icon 'people' %}<span>User Schedules</span>
                     </a>
                 </li>
             </ul>

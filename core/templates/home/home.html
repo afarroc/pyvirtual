@@ -6,123 +6,285 @@
 {% load widget_tweaks %}
 {% load custom_tags %}
 {% load cache %}
+{% load icon_tags %}
+
+{% block extra_head %}
+<style>
+#home-root *,#home-root *::before,#home-root *::after{box-sizing:border-box}
+#home-root{
+  --ar-bg:#f4f6f9;--ar-surface:#fff;--ar-border:#e5e7eb;--ar-border-light:#f3f4f6;
+  --ar-primary:#2563eb;--ar-primary-light:#eff6ff;--ar-primary-dark:#1d4ed8;
+  --ar-success:#059669;--ar-success-light:#ecfdf5;--ar-success-border:#6ee7b7;
+  --ar-warning:#d97706;--ar-warning-light:#fffbeb;--ar-warning-border:#fcd34d;
+  --ar-danger:#dc2626;--ar-danger-light:#fef2f2;--ar-danger-border:#fca5a5;
+  --ar-text:#111827;--ar-text-secondary:#4b5563;--ar-text-muted:#9ca3af;
+  --ar-gray-50:#f9fafb;--ar-gray-100:#f3f4f6;--ar-gray-200:#e5e7eb;--ar-gray-300:#d1d5db;
+  --ar-radius-sm:6px;--ar-radius:8px;--ar-radius-lg:12px;
+  --ar-shadow-sm:0 1px 3px rgba(0,0,0,.07);--ar-shadow:0 2px 8px rgba(0,0,0,.08);
+  --ar-transition:.15s ease;
+  font-family:'Nunito',system-ui,sans-serif;font-size:14px;color:var(--ar-text);
+  line-height:1.5;width:100%;min-width:0;
+}
+/* Toolbar */
+#home-root .analyst-toolbar{display:flex;align-items:center;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;gap:2px;background:var(--ar-surface);border:1px solid var(--ar-border);border-bottom:2px solid var(--ar-primary);border-radius:var(--ar-radius);padding:6px 10px;margin-bottom:14px;box-shadow:var(--ar-shadow-sm)}
+#home-root .analyst-toolbar::-webkit-scrollbar{display:none}
+#home-root .tb-section{display:flex;align-items:center;gap:2px;padding:0 8px;border-right:1px solid var(--ar-border)}
+#home-root .tb-section:last-child{border-right:none}
+#home-root .tb-label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--ar-text-muted);letter-spacing:.06em;padding:0 4px;white-space:nowrap}
+#home-root .tb-btn{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 7px;background:transparent!important;border:1px solid transparent;border-radius:var(--ar-radius-sm);cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;color:var(--ar-text-secondary);white-space:nowrap;text-decoration:none!important;min-width:44px;transition:background .12s,border-color .12s,color .12s,transform .1s;line-height:1}
+#home-root .tb-btn:hover:not(:disabled){transform:translateY(-1px);border-color:var(--ar-border)}
+#home-root .tb-btn:disabled{opacity:.38;cursor:default}
+#home-root .tb-icon-pill{display:flex!important;align-items:center!important;justify-content:center!important;width:28px;height:28px;border-radius:8px;font-size:13px;line-height:1;transition:background .12s}
+#home-root .tb-btn span{font-size:10px;line-height:1;color:var(--ar-text-muted)}
+#home-root .tb-spacer{flex:1}
+#home-root .tip-blue{background:#dbeafe!important;color:#1d4ed8!important}
+#home-root .tip-green{background:#d1fae5!important;color:#047857!important}
+#home-root .tip-amber{background:#fef3c7!important;color:#b45309!important}
+#home-root .tip-purple{background:#ede9fe!important;color:#6d28d9!important}
+#home-root .tip-teal{background:#ccfbf1!important;color:#0f766e!important}
+#home-root .tip-orange{background:#ffedd5!important;color:#c2410c!important}
+#home-root .tip-red{background:#fee2e2!important;color:#b91c1c!important}
+/* Page header */
+#home-root .page-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--ar-border)}
+#home-root .page-title{font-size:20px;font-weight:700;color:var(--ar-text);display:flex;align-items:center;gap:10px}
+#home-root .page-icon{width:40px;height:40px;background:var(--ar-primary-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid #bfdbfe;flex-shrink:0}
+#home-root .page-subtitle{font-size:13px;color:var(--ar-text-secondary);margin-top:2px;font-weight:400}
+/* Cards */
+#home-root .card{background:var(--ar-surface);border:1px solid var(--ar-border);border-radius:var(--ar-radius-lg);margin-bottom:14px;box-shadow:var(--ar-shadow-sm)}
+#home-root .card-header{padding:12px 16px;border-bottom:1px solid var(--ar-border);font-size:13px;font-weight:700;color:var(--ar-text);background:var(--ar-gray-50);border-radius:var(--ar-radius-lg) var(--ar-radius-lg) 0 0;display:flex;align-items:center;justify-content:space-between;gap:6px}
+#home-root .card-body{padding:14px 16px}
+/* Buttons */
+#home-root .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:var(--ar-radius-sm);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--ar-border);background:var(--ar-surface);color:var(--ar-text);text-decoration:none;white-space:nowrap;transition:background var(--ar-transition),border-color var(--ar-transition),color var(--ar-transition)}
+#home-root .btn:disabled{opacity:.4;cursor:default;pointer-events:none}
+#home-root .btn-primary{background:var(--ar-primary);color:#fff;border-color:var(--ar-primary)}
+#home-root .btn-primary:hover{background:var(--ar-primary-dark);border-color:var(--ar-primary-dark)}
+#home-root .btn-ghost{background:var(--ar-surface);color:var(--ar-text-secondary);border-color:var(--ar-border)}
+#home-root .btn-ghost:hover{background:var(--ar-gray-50)}
+#home-root .btn-danger{background:var(--ar-danger-light);color:var(--ar-danger);border-color:var(--ar-danger-border)}
+#home-root .btn-sm{padding:4px 10px;font-size:12px}
+#home-root .btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* Forms */
+#home-root .f-group{margin-bottom:12px}
+#home-root .f-group:last-child{margin-bottom:0}
+#home-root .f-label{display:block;font-size:12.5px;font-weight:700;color:var(--ar-text);margin-bottom:5px}
+#home-root .f-label.req::after{content:' *';color:var(--ar-danger)}
+#home-root .f-input,#home-root .f-select,#home-root .f-textarea{width:100%;padding:8px 10px;border:1px solid var(--ar-gray-300);border-radius:var(--ar-radius-sm);font-family:inherit;font-size:13px;color:var(--ar-text);background:var(--ar-surface);outline:none;transition:border-color var(--ar-transition),box-shadow var(--ar-transition);line-height:1.5}
+#home-root .f-input:focus,#home-root .f-select:focus,#home-root .f-textarea:focus{border-color:var(--ar-primary);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+#home-root .f-textarea{resize:vertical;min-height:60px}
+#home-root .f-hint{font-size:11.5px;color:var(--ar-text-muted);margin-top:4px}
+#home-root .f-select-multi{min-height:80px}
+#home-root .cb-row{display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0}
+#home-root .cb-row input{accent-color:var(--ar-primary);width:15px;height:15px}
+/* Dashboard list */
+#home-root .db-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+#home-root .db-card{background:var(--ar-surface);border:1px solid var(--ar-border);border-left:4px solid var(--ar-primary);border-radius:var(--ar-radius-lg);padding:14px 16px;cursor:pointer;transition:box-shadow var(--ar-transition),border-color var(--ar-transition)}
+#home-root .db-card:hover{box-shadow:0 4px 16px rgba(37,99,235,.12);border-color:var(--ar-primary)}
+#home-root .db-card-title{font-size:14px;font-weight:700;color:var(--ar-text);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+#home-root .db-card-meta{font-size:12px;color:var(--ar-text-muted)}
+/* Dashboard viewer */
+#home-root .db-view-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+#home-root .db-view-title{font-size:18px;font-weight:700;color:var(--ar-text);flex:1}
+/* Widget grid — 12 columns */
+#home-root .widget-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;align-items:start}
+#home-root .widget-cell{min-width:0}
+/* Widget card */
+#home-root .widget-card{background:var(--ar-surface);border:1px solid var(--ar-border);border-radius:var(--ar-radius-lg);box-shadow:var(--ar-shadow-sm);overflow:hidden;height:100%}
+#home-root .widget-card.edit-mode{border-color:var(--ar-primary);border-style:dashed}
+#home-root .widget-header{padding:10px 14px;border-bottom:1px solid var(--ar-border);background:var(--ar-gray-50);display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12.5px;font-weight:700;color:var(--ar-text)}
+#home-root .widget-body{padding:14px}
+#home-root .widget-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+#home-root .widget-card:hover .widget-actions{opacity:1}
+/* KPI card */
+#home-root .kpi-value{font-size:32px;font-weight:800;color:var(--ar-primary);line-height:1.1;margin-bottom:4px}
+#home-root .kpi-label{font-size:12px;color:var(--ar-text-muted);font-weight:500}
+#home-root .kpi-rows{font-size:11px;color:var(--ar-text-muted);margin-top:6px}
+/* Table widget */
+#home-root .wt-wrap{overflow-x:auto;overflow-y:auto;max-height:280px;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+#home-root .wt-table{width:100%;min-width:max-content;border-collapse:collapse;font-size:12px}
+#home-root .wt-table th{background:var(--ar-gray-50);border-bottom:2px solid var(--ar-border);padding:6px 10px;text-align:left;white-space:nowrap;font-size:11px;font-weight:700;color:var(--ar-text-secondary);position:sticky;top:0;z-index:1;text-transform:uppercase;letter-spacing:.3px}
+#home-root .wt-table td{border-bottom:1px solid var(--ar-border-light);padding:5px 10px;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+#home-root .wt-table tr:nth-child(even) td{background:var(--ar-gray-50)}
+#home-root .wt-pager{display:flex;align-items:center;gap:4px;padding:8px 0 0;font-size:12px;color:var(--ar-text-muted)}
+/* Chart wrapper */
+#home-root .chart-wrap{position:relative;width:100%;min-height:220px}
+/* Text widget */
+#home-root .text-widget{font-size:13px;color:var(--ar-text-secondary);line-height:1.7;white-space:pre-wrap}
+/* Empty / error states */
+#home-root .widget-empty{text-align:center;padding:32px 16px;color:var(--ar-text-muted);font-size:13px}
+#home-root .widget-error{background:var(--ar-danger-light);color:var(--ar-danger);border-radius:var(--ar-radius-sm);padding:8px 12px;font-size:12px;margin:8px 0}
+/* Modal */
+#home-root .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);z-index:1050;align-items:center;justify-content:center;padding:16px}
+#home-root .modal.active{display:flex}
+#home-root .modal-content{background:var(--ar-surface);border:1px solid var(--ar-border);border-radius:var(--ar-radius-lg);box-shadow:0 20px 40px rgba(0,0,0,.14);width:100%;max-width:540px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:dbModalIn .18s ease}
+@keyframes dbModalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+#home-root .modal-header{background:var(--ar-gray-50);border-bottom:1px solid var(--ar-border);padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+#home-root .modal-header h3{margin:0;font-size:14px;font-weight:700;color:var(--ar-text);display:flex;align-items:center;gap:7px}
+#home-root .modal-body{padding:18px;overflow-y:auto;flex:1}
+#home-root .modal-footer{padding:12px 18px;border-top:1px solid var(--ar-border);background:var(--ar-gray-50);display:flex;justify-content:flex-end;gap:8px}
+#home-root .close-modal{background:none;border:1px solid transparent;border-radius:var(--ar-radius-sm);color:var(--ar-text-muted);font-size:18px;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+#home-root .close-modal:hover{background:var(--ar-gray-100);color:var(--ar-text)}
+/* Notifications */
+#db-notifs{position:fixed;top:calc(var(--ni-header-h,60px) + 6px);right:1.2rem;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.db-notif{padding:10px 14px;font-size:13px;border-radius:8px;display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);max-width:320px;font-weight:600;animation:dbModalIn .18s ease}
+.db-notif-ok{background:#ecfdf5;border:1px solid #6ee7b7;color:#059669}
+.db-notif-err{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626}
+.db-notif-inf{background:#eff6ff;border:1px solid #93c5fd;color:#2563eb}
+/* Spinner */
+#home-root .spinner{width:24px;height:24px;border:3px solid var(--ar-gray-200);border-top-color:var(--ar-primary);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Responsive */
+@media(max-width:768px){
+  #home-root .analyst-toolbar{padding:4px 6px}
+  #home-root .tb-label{display:none}
+  #home-root .tb-btn span{display:none}
+  #home-root .tb-btn{min-width:34px;padding:5px}
+  #home-root .tb-icon-pill{width:24px;height:24px;font-size:11px;border-radius:6px}
+  #home-root .widget-grid{grid-template-columns:1fr}
+  #home-root .widget-cell{grid-column:1 / -1 !important}
+  #home-root .db-grid{grid-template-columns:1fr}
+  #home-root .kpi-value{font-size:26px}
+  #home-root .card-body{padding:10px 12px}
+  #home-root .m360-row{flex-direction:column}
+  #home-root .m360-row > [class*="m360-col-"]{flex:0 0 100%;max-width:100%;width:100%}
+  #home-root .m360-container-fluid{padding-left:8px;padding-right:8px}
+  #home-root .page-header{padding-left:8px;padding-right:8px}
+  #home-root .btn-row{flex-direction:column;align-items:stretch}
+  #home-root .btn-row .btn{width:100%;justify-content:center}
+  #home-root .db-card{min-width:0}
+}
+</style>
+{% endblock %}
 
 {% block content %}
+  <div id="home-root">
   {# Message Notifications #}
   {% if messages %}
     {% include 'layouts/includes/alert.html' %}
   {% endif %}
 
   {# Page Header with Navigation #}
-  <div class="pagetitle">
-    <div class="container">
-      <h1>{{ page_title }}</h1>
-      <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-          <li class="breadcrumb-item active">{{ page_title }}</li>
-        </ol>
-      </nav>
+  <div class="page-header">
+    <div class="page-title">
+      <div class="page-icon">{% icon 'grid' %}</div>
+      <div>
+        {{ page_title }}
+        <div class="page-subtitle">Resumen general del panel</div>
+      </div>
     </div>
   </div>
 
+  {# Main Toolbar #}
+  <div class="analyst-toolbar">
+    <div class="tb-section">
+      <span class="tb-label">Principal</span>
+      <a href="{% url 'events:event_create' %}" class="tb-btn" title="Nuevo evento">
+        <div class="tb-icon-pill tip-blue">{% icon 'calendar-plus' %}</div>
+        <span>Evento</span>
+      </a>
+      <a href="{% url 'events:project_create' %}" class="tb-btn" title="Nuevo proyecto">
+        <div class="tb-icon-pill tip-green">{% icon 'folder-plus' %}</div>
+        <span>Proyecto</span>
+      </a>
+      <a href="{% url 'events:task_create' %}" class="tb-btn" title="Nueva tarea">
+        <div class="tb-icon-pill tip-purple">{% icon 'plus-circle' %}</div>
+        <span>Tarea</span>
+      </a>
+    </div>
+    <div class="tb-section">
+      <span class="tb-label">Ir a</span>
+      <a href="{% url 'events:events' %}" class="tb-btn" title="Eventos">
+        <div class="tb-icon-pill tip-teal">{% icon 'calendar-event' %}</div>
+        <span>Eventos</span>
+      </a>
+      <a href="{% url 'events:projects' %}" class="tb-btn" title="Proyectos">
+        <div class="tb-icon-pill tip-orange">{% icon 'kanban' %}</div>
+        <span>Proyectos</span>
+      </a>
+      <a href="{% url 'events:tasks' %}" class="tb-btn" title="Tareas">
+        <div class="tb-icon-pill tip-amber">{% icon 'list-check' %}</div>
+        <span>Tareas</span>
+      </a>
+    </div>
+    <div class="tb-section">
+      <span class="tb-label">Datos</span>
+      <a href="{% url 'analyst:report_list' %}" class="tb-btn" title="Reportes">
+        <div class="tb-icon-pill tip-amber">{% icon 'bar-chart-line' %}</div>
+        <span>Reportes</span>
+      </a>
+      <a href="{% url 'analyst:cross_list' %}" class="tb-btn" title="Cruces">
+        <div class="tb-icon-pill tip-orange">{% icon 'shuffle' %}</div>
+        <span>Cruces</span>
+      </a>
+    </div>
+    <div class="tb-spacer"></div>
+  </div>
+
   {# Main Navigation Tabs #}
-  <div class="container-fluid mb-4">
-    <div class="nav-tabs-wrapper">
-      <ul class="nav nav-tabs nav-fill" id="mainTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">
-            <i class="bi bi-speedometer2 me-2"></i>
-            <span class="d-none d-sm-inline">Dashboard</span>
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
-            <i class="bi bi-calendar-event me-2"></i>
-            <span class="d-none d-sm-inline">Events</span>
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects" type="button" role="tab">
-            <i class="bi bi-kanban me-2"></i>
-            <span class="d-none d-sm-inline">Projects</span>
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="courses-tab" data-bs-toggle="tab" data-bs-target="#courses" type="button" role="tab">
-            <i class="bi bi-book me-2"></i>
-            <span class="d-none d-sm-inline">Courses</span>
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="tools-tab" data-bs-toggle="tab" data-bs-target="#tools" type="button" role="tab">
-            <i class="bi bi-tools me-2"></i>
-            <span class="d-none d-sm-inline">Tools</span>
-          </button>
-        </li>
-      </ul>
+  <div class="m360-container-fluid">
+    <div class="m360-nav-tabs-wrapper">
+      <div class="m360-tab-nav" role="tablist">
+        <button class="m360-tab-btn m360-active" id="dashboard-tab" data-m360-toggle="tab" data-m360-target="#dashboard" data-tab-title="Dashboard" data-tab-breadcrumb="Dashboard" type="button" role="tab" aria-selected="true">
+          {% icon 'speedometer2' %}
+          <span class="m360-d-none m360-d-sm-inline">Dashboard</span>
+        </button>
+        <button class="m360-tab-btn" id="events-tab" data-m360-toggle="tab" data-m360-target="#events" data-tab-title="Events" data-tab-breadcrumb="Events" type="button" role="tab" aria-selected="false">
+          {% icon 'calendar-event' %}
+          <span class="m360-d-none m360-d-sm-inline">Events</span>
+        </button>
+        <button class="m360-tab-btn" id="projects-tab" data-m360-toggle="tab" data-m360-target="#projects" data-tab-title="Projects" data-tab-breadcrumb="Projects" type="button" role="tab" aria-selected="false">
+          {% icon 'kanban' %}
+          <span class="m360-d-none m360-d-sm-inline">Projects</span>
+        </button>
+        <button class="m360-tab-btn" id="courses-tab" data-m360-toggle="tab" data-m360-target="#courses" data-tab-title="Courses" data-tab-breadcrumb="Courses" type="button" role="tab" aria-selected="false">
+          {% icon 'book' %}
+          <span class="m360-d-none m360-d-sm-inline">Courses</span>
+        </button>
+        <button class="m360-tab-btn" id="tools-tab" data-m360-toggle="tab" data-m360-target="#tools" data-tab-title="Tools" data-tab-breadcrumb="Tools" type="button" role="tab" aria-selected="false">
+          {% icon 'tools' %}
+          <span class="m360-d-none m360-d-sm-inline">Tools</span>
+        </button>
+      </div>
     </div>
   </div>
 
   {# Main Content Sections #}
-  <div class="tab-content" id="mainTabsContent">
+  <div class="m360-tab-content" id="mainTabsContent">
     
     {# Dashboard Tab #}
-    <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+    <div class="m360-tab-pane m360-active" id="dashboard" role="tabpanel">
       <section class="section dashboard">
-        <div class="row">
+        <div class="m360-row">
           {# Left Side Content #}
-          <div class="col-lg-8">
+          <div class="m360-col-md-8">
             {# Cached Quick Stats Row #}
             {% cache 300 dashboard_stats user.username days days_ago %}
-            <div class="row">
-              <div class="col-xxl-4 col-md-6">
-                <div class="card info-card sales-card">
-                  <div class="card-body">
-                    <h5 class="card-title">Tasks <span>| Today</span></h5>
-                    <div class="d-flex align-items-center">
-                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="bi bi-list-check"></i>
-                      </div>
-                      <div class="ps-3">
-                        <h6 class="counter" data-target="{{ pending_tasks }}">{{ pending_tasks }}</h6>
-                        <span class="text-muted small pt-2 ps-1">Pending Tasks</span>
-                      </div>
-                    </div>
+              <div class="m360-row">
+              <div class="m360-col-sm-6 m360-col-md-4 m360-col-lg-4 m360-col-xl-4 m360-col-xxl-4">
+                <div class="widget-card">
+                  <div class="widget-body">
+                    <div class="kpi-value">{{ pending_tasks }}</div>
+                    <div class="kpi-label">Pending Tasks</div>
+                    <div class="kpi-rows">Tasks · Today</div>
                   </div>
                 </div>
               </div>
 
-              <div class="col-xxl-4 col-md-6">
-                <div class="card info-card revenue-card">
-                  <div class="card-body">
-                    <h5 class="card-title">Events <span>| This Week</span></h5>
-                    <div class="d-flex align-items-center">
-                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="bi bi-calendar-event"></i>
-                      </div>
-                      <div class="ps-3">
-                        <h6 class="counter" data-target="{{ upcoming_events_count }}">{{ upcoming_events_count }}</h6>
-                        <span class="text-muted small pt-2 ps-1">Upcoming Events</span>
-                      </div>
-                    </div>
+              <div class="m360-col-sm-6 m360-col-md-4 m360-col-lg-4 m360-col-xl-4 m360-col-xxl-4">
+                <div class="widget-card">
+                  <div class="widget-body">
+                    <div class="kpi-value">{{ upcoming_events_count }}</div>
+                    <div class="kpi-label">Upcoming Events</div>
+                    <div class="kpi-rows">Events · This Week</div>
                   </div>
                 </div>
               </div>
 
-              <div class="col-xxl-4 col-md-6">
-                <div class="card info-card customers-card">
-                  <div class="card-body">
-                    <h5 class="card-title">Projects <span>| Active</span></h5>
-                    <div class="d-flex align-items-center">
-                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="bi bi-kanban"></i>
-                      </div>
-                      <div class="ps-3">
-                        <h6 class="counter" data-target="{{ active_projects }}">{{ active_projects }}</h6>
-                        <span class="text-muted small pt-2 ps-1">Active Projects</span>
-                      </div>
-                    </div>
+              <div class="m360-col-sm-6 m360-col-md-4 m360-col-lg-4 m360-col-xl-4 m360-col-xxl-4">
+                <div class="widget-card">
+                  <div class="widget-body">
+                    <div class="kpi-value">{{ active_projects }}</div>
+                    <div class="kpi-label">Active Projects</div>
+                    <div class="kpi-rows">Projects · Active</div>
                   </div>
                 </div>
               </div>
@@ -131,59 +293,46 @@
 
             {# Quick Actions #}
             <div class="card">
+              <div class="card-header">
+                <span>Quick Actions</span>
+              </div>
               <div class="card-body">
-                <h5 class="card-title">Quick Actions</h5>
-                <div class="row g-2">
-                  <div class="col-md-6">
-                    <a href="{% url 'events:event_create' %}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
-                      <i class="bi bi-calendar-plus me-2"></i>
-                      <span>Create Event</span>
-                    </a>
-                  </div>
-                  <div class="col-md-6">
-                    <a href="{% url 'events:task_create' %}" class="btn btn-success w-100 d-flex align-items-center justify-content-center">
-                      <i class="bi bi-plus-circle me-2"></i>
-                      <span>Add Task</span>
-                    </a>
-                  </div>
-                  <div class="col-md-6">
-                    <a href="{% url 'events:project_create' %}" class="btn btn-info w-100 d-flex align-items-center justify-content-center">
-                      <i class="bi bi-folder-plus me-2"></i>
-                      <span>New Project</span>
-                    </a>
-                  </div>
-                  <div class="col-md-6">
-                    <a href="{% url 'events:events' %}" class="btn btn-secondary w-100 d-flex align-items-center justify-content-center">
-                      <i class="bi bi-grid me-2"></i>
-                      <span>View All</span>
-                    </a>
-                  </div>
+                <div class="btn-row">
+                  <a href="{% url 'events:event_create' %}" class="btn btn-primary">
+                    {% icon 'calendar-plus' %} <span>Create Event</span>
+                  </a>
+                  <a href="{% url 'events:task_create' %}" class="btn btn-primary">
+                    {% icon 'plus-circle' %} <span>Add Task</span>
+                  </a>
+                  <a href="{% url 'events:project_create' %}" class="btn btn-primary">
+                    {% icon 'folder-plus' %} <span>New Project</span>
+                  </a>
+                  <a href="{% url 'events:events' %}" class="btn btn-ghost">
+                    {% icon 'grid' %} <span>View All</span>
+                  </a>
                 </div>
               </div>
             </div>
 
             {# Recent Activities Timeline #}
             <div class="card">
+              <div class="card-header">
+                <span>Recent Activities</span>
+                <a href="{% url 'events:events' %}" class="btn btn-sm btn-ghost">View All</a>
+              </div>
               <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h5 class="card-title">Recent Activities</h5>
-                  <a href="{% url 'events:events' %}" class="btn btn-sm btn-outline-primary">View All</a>
-                </div>
                 <div class="activity">
                   {% for activity in recent_activities|slice:":5" %}
-                    <div class="activity-item d-flex">
-                      <div class="activite-label">{{ activity.timestamp|timesince }} ago</div>
-                      <i class="bi bi-circle-fill activity-badge text-{{ activity.get_badge_color }} align-self-start"></i>
-                      <div class="activity-content">
+                    <div class="m360-d-flex m360-items-center m360-mb-2">
+                      <div class="m360-me-2" style="min-width: 70px; color: var(--ar-text-muted); font-size: 11px;">{{ activity.timestamp|timesince }} ago</div>
+                      <div class="m360-me-2">{% icon 'circle-fill' %}</div>
+                      <div class="m360-flex-1">
                         {{ activity.object_repr }}
-                        <div class="text-muted small">{{ activity.timestamp|date:"M d, h:i A" }}</div>
+                        <div style="font-size: 11.5px; color: var(--ar-text-muted);">{{ activity.timestamp|date:"M d, h:i A" }}</div>
                       </div>
                     </div>
                   {% empty %}
-                    <div class="text-center py-4">
-                      <i class="bi bi-activity text-muted" style="font-size: 2rem;"></i>
-                      <p class="text-muted mt-2">No recent activities</p>
-                    </div>
+                    <div class="widget-empty">No recent activities</div>
                   {% endfor %}
                 </div>
               </div>
@@ -191,30 +340,22 @@
           </div>
 
           {# Right Sidebar #}
-          <div class="col-lg-4">
+          <div class="m360-col-md-4">
             {# User Profile Card #}
             <div class="card">
-              <div class="card-body profile-card text-center">
-                <div class="profile-avatar-container mb-3">
-                  <img src="{% static 'images/default-avatar.png' %}"
-                       alt="Profile"
-                       class="rounded-circle lazy"
-                       width="80"
-                       height="80"
-                       loading="lazy"
-                       data-src="{% static 'images/default-avatar.png' %}">
-                </div>
-                <h5 class="card-title">{{ user.get_full_name|default:user.username }}</h5>
-                <p class="text-muted">Management360 User</p>
+              <div class="card-header">
+                <span>{{ user.get_full_name|default:user.username }}</span>
+                <span style="color: var(--ar-text-muted); font-weight: 400; font-size: 11px;">{{ profile_completion }}% complete</span>
+              </div>
+              <div class="card-body m360-text-center">
+                <div class="page-icon m360-mb-3" style="margin: 0 auto 12px;">{% icon 'person-circle' %}</div>
+                <h5 class="m360-card-title">{{ user.get_full_name|default:user.username }}</h5>
+                <p class="m360-text-muted">Management360 User</p>
 
                 {# Profile Completion #}
-                <div class="mt-3">
-                  <div class="d-flex justify-content-between small mb-1">
-                    <span>Profile Completion</span>
-                    <span>{{ profile_completion }}%</span>
-                  </div>
-                  <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-success" role="progressbar"
+                <div class="m360-mt-3">
+                  <div class="m360-progress" style="height: 6px;">
+                    <div class="m360-progress-fill" role="progressbar"
                          style="width: {{ profile_completion }}%"
                          aria-valuenow="{{ profile_completion }}"
                          aria-valuemin="0" aria-valuemax="100"></div>
@@ -222,15 +363,15 @@
                 </div>
 
                 {# Quick Links #}
-                <div class="mt-3">
-                  <a href="{% url 'events:events' %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
-                    <i class="bi bi-calendar-event me-1"></i> My Events
+                <div class="m360-mt-3 btn-row" style="justify-content: center;">
+                  <a href="{% url 'events:events' %}" class="btn btn-sm btn-ghost">
+                    {% icon 'calendar-event' %} <span>My Events</span>
                   </a>
-                  <a href="{% url 'events:projects' %}" class="btn btn-outline-success btn-sm w-100 mb-2">
-                    <i class="bi bi-kanban me-1"></i> My Projects
+                  <a href="{% url 'events:projects' %}" class="btn btn-sm btn-ghost">
+                    {% icon 'kanban' %} <span>My Projects</span>
                   </a>
-                  <a href="{% url 'events:tasks' %}" class="btn btn-outline-info btn-sm w-100">
-                    <i class="bi bi-list-check me-1"></i> My Tasks
+                  <a href="{% url 'events:tasks' %}" class="btn btn-sm btn-ghost">
+                    {% icon 'list-check' %} <span>My Tasks</span>
                   </a>
                 </div>
               </div>
@@ -238,42 +379,108 @@
 
             {# Upcoming Events #}
             <div class="card">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h5 class="card-title">Upcoming Events</h5>
-                  <a href="{% url 'events:event_create' %}" class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-plus"></i>
+              <div class="card-header">
+                <span>Upcoming Events</span>
+                <a href="{% url 'events:event_create' %}" class="btn btn-sm btn-primary">
+                  {% icon 'plus' %}
+                </a>
+              </div>
+
+              {% if upcoming_events %}
+                <div class="db-grid">
+                  {% for event in upcoming_events|slice:":3" %}
+                    <a href="{% url 'events:event_detail' event.id %}" class="db-card">
+                      <div class="db-card-title">
+                        {% icon 'calendar-event' %}
+                        {{ event.title|truncatechars:25 }}
+                      </div>
+                      <div class="db-card-meta">{{ event.start_time|date:"M d, h:i A" }}</div>
+                    </a>
+                  {% endfor %}
+                </div>
+                <div class="card-body" style="padding-top: 0;">
+                  <a href="{% url 'events:events' %}" class="btn btn-ghost" style="width: 100%; justify-content: center;">View All Events</a>
+                </div>
+              {% else %}
+                <div class="card-body">
+                  <div class="widget-empty">
+                    <div style="font-size: 36px; opacity: .4; margin-bottom: 10px;">{% icon 'calendar' %}</div>
+                    <p style="font-size: 13px; color: var(--ar-text-muted); margin-bottom: 12px;">No upcoming events</p>
+                    <a href="{% url 'events:event_create' %}" class="btn btn-primary btn-sm">Create Event</a>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+                <h5 class="m360-card-title">{{ user.get_full_name|default:user.username }}</h5>
+                <p class="m360-text-muted">Management360 User</p>
+
+                {# Profile Completion #}
+                <div class="m360-mt-3">
+                  <div class="m360-d-flex m360-justify-between m360-small m360-mb-1">
+                    <span>Profile Completion</span>
+                    <span>{{ profile_completion }}%</span>
+                  </div>
+                  <div class="m360-progress" style="height: 6px;">
+                    <div class="m360-progress-fill" role="progressbar"
+                         style="width: {{ profile_completion }}%"
+                         aria-valuenow="{{ profile_completion }}"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                </div>
+
+                {# Quick Links #}
+                <div class="m360-mt-3">
+                  <a href="{% url 'events:events' %}" class="m360-btn m360-btn-outline-primary m360-btn-sm m360-w-100 m360-mb-2">
+                    {% icon 'calendar-event' %} My Events
+                  </a>
+                  <a href="{% url 'events:projects' %}" class="m360-btn m360-btn-outline-success m360-btn-sm m360-w-100 m360-mb-2">
+                    {% icon 'kanban' %} My Projects
+                  </a>
+                  <a href="{% url 'events:tasks' %}" class="m360-btn m360-btn-outline-info m360-btn-sm m360-w-100">
+                    {% icon 'list-check' %} My Tasks
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {# Upcoming Events #}
+            <div class="m360-card">
+              <div class="m360-card-body">
+                <div class="m360-d-flex m360-justify-between m360-items-center m360-mb-3">
+                  <h5 class="m360-card-title">Upcoming Events</h5>
+                  <a href="{% url 'events:event_create' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
+                    {% icon 'plus' %}
                   </a>
                 </div>
 
                 {% if upcoming_events %}
-                  <div class="list-group list-group-flush">
+                  <div class="m360-list-group m360-list-group-flush">
                     {% for event in upcoming_events|slice:":3" %}
-                      <a href="{% url 'events:event_detail' event.id %}" class="list-group-item list-group-item-action px-0">
-                        <div class="d-flex align-items-center">
-                          <div class="flex-shrink-0 me-3">
-                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                              <i class="bi bi-calendar-event text-white" style="font-size: 14px;"></i>
+                      <a href="{% url 'events:event_detail' event.id %}" class="m360-list-group-item m360-list-group-item-action px-0">
+                        <div class="m360-d-flex m360-items-center">
+                          <div class="m360-flex-shrink-0 m360-mr-3">
+                            <div class="m360-badge m360-rounded-circle m360-d-flex m360-items-center m360-justify-center" style="width: 32px; height: 32px;">
+                              {% icon 'calendar-event' %}
                             </div>
                           </div>
-                          <div class="flex-grow-1">
-                            <h6 class="mb-0 small">{{ event.title|truncatechars:25 }}</h6>
-                            <small class="text-muted">{{ event.start_time|date:"M d, h:i A" }}</small>
+                          <div class="m360-flex-1">
+                            <h6 class="mb-0 m360-small">{{ event.title|truncatechars:25 }}</h6>
+                            <small class="m360-text-muted">{{ event.start_time|date:"M d, h:i A" }}</small>
                           </div>
                         </div>
                       </a>
                     {% endfor %}
                   </div>
-                  <div class="mt-3">
-                    <a href="{% url 'events:events' %}" class="btn btn-sm btn-outline-primary w-100">
+                  <div class="m360-mt-3">
+                    <a href="{% url 'events:events' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary m360-w-100">
                       View All Events
                     </a>
                   </div>
                 {% else %}
-                  <div class="text-center py-4">
-                    <i class="bi bi-calendar text-muted" style="font-size: 2rem;"></i>
-                    <p class="text-muted mt-2 small">No upcoming events</p>
-                    <a href="{% url 'events:event_create' %}" class="btn btn-sm btn-primary">Create Event</a>
+                  <div class="m360-text-center m360-py-4">
+                    {% icon 'calendar' %}
+                    <p class="m360-text-muted m360-mt-2 m360-small">No upcoming events</p>
+                    <a href="{% url 'events:event_create' %}" class="m360-btn m360-btn-sm m360-btn-primary">Create Event</a>
                   </div>
                 {% endif %}
               </div>
@@ -284,21 +491,21 @@
     </div>
 
     {# Events Tab #}
-    <div class="tab-pane fade" id="events" role="tabpanel">
+    <div class="m360-tab-pane" id="events" role="tabpanel">
       <section class="section">
-        <div class="row">
-          <div class="col-lg-8">
+        <div class="m360-row">
+          <div class="m360-col-lg-8">
             {# Events Calendar View #}
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h5 class="card-title">Events Calendar</h5>
+            <div class="m360-card m360-shadow-sm">
+              <div class="m360-card-body">
+                <div class="m360-d-flex m360-justify-between m360-items-center m360-mb-3">
+                  <h5 class="m360-card-title">Events Calendar</h5>
                   <div>
-                    <a href="{% url 'events:event_create' %}" class="btn btn-sm btn-primary">
-                      <i class="bi bi-plus"></i> New Event
+                    <a href="{% url 'events:event_create' %}" class="m360-btn m360-btn-sm m360-btn-primary">
+                      {% icon 'plus' %} New Event
                     </a>
-                    <a href="{% url 'events:event_panel' %}" class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-grid"></i> Panel View
+                    <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
+                      {% icon 'grid' %} Panel View
                     </a>
                   </div>
                 </div>
@@ -307,11 +514,11 @@
             </div>
 
             {# Recent Events #}
-            <div class="card shadow-sm mt-4">
-              <div class="card-body">
-                <h5 class="card-title">Recent Events</h5>
-                <div class="table-responsive">
-                  <table class="table table-hover">
+            <div class="m360-card m360-shadow-sm m360-mt-4">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">Recent Events</h5>
+                <div class="m360-table-responsive">
+                  <m360-table class="m360-table m360-table-hover">
                     <thead>
                       <tr>
                         <th>Title</th>
@@ -325,58 +532,58 @@
                         <tr>
                           <td>{{ event.title }}</td>
                           <td>{{ event.start_time|date:"M d, Y" }}</td>
-                          <td><span class="badge bg-{{ event.get_status_class }}">{{ event.get_status_display }}</span></td>
+                          <td><span class="badge m360-badge-{{ event.get_status_class }}">{{ event.get_status_display }}</span></td>
                           <td>
-                            <a href="{% url 'events:event_detail' event.id %}" class="btn btn-sm btn-outline-primary">
-                              <i class="bi bi-eye"></i>
+                            <a href="{% url 'events:event_detail' event.id %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
+                              {% icon 'eye' %}
                             </a>
-                            <a href="{% url 'events:event_edit' event.id %}" class="btn btn-sm btn-outline-secondary">
-                              <i class="bi bi-pencil"></i>
+                            <a href="{% url 'events:event_edit' event.id %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
+                              {% icon 'pencil' %}
                             </a>
                           </td>
                         </tr>
                       {% empty %}
                         <tr>
-                          <td colspan="4" class="text-center py-4 text-muted">No recent events</td>
+                          <td colspan="4" class="m360-text-center m360-py-4 m360-text-muted">No recent events</td>
                         </tr>
                       {% endfor %}
                     </tbody>
                   </table>
                 </div>
-                <a href="{% url 'events:events' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                <a href="{% url 'events:events' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary m360-w-100 m360-mt-2">
                   View All Events
                 </a>
               </div>
             </div>
           </div>
 
-          <div class="col-lg-4">
+          <div class="m360-col-lg-4">
             {# Cached Event Categories #}
             {% cache 900 event_categories %}
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h5 class="card-title">Event Categories</h5>
-                  <a href="#" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                    <i class="bi bi-plus"></i> Add
+            <div class="m360-card m360-shadow-sm">
+              <div class="m360-card-body">
+                <div class="m360-d-flex m360-justify-between m360-items-center m360-mb-3">
+                  <h5 class="m360-card-title">Event Categories</h5>
+                  <a href="#" class="m360-btn m360-btn-sm m360-btn-outline-primary" data-m360-open="#addCategoryModal" data-m360-target="#addCategoryModal">
+                    {% icon 'plus' %} Add
                   </a>
                 </div>
-                <div class="list-group">
+                <div class="m360-list-group">
                   {% for category in event_categories %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="m360-list-group-item m360-d-flex m360-justify-between m360-items-center">
                       <span>
-                        <span class="badge me-2" style="background-color: {{ category.color }}">&nbsp;</span>
+                        <span class="badge m360-mr-2" style="background-color: {{ category.color }}">&nbsp;</span>
                         {{ category.name }}
                       </span>
                       <div>
-                        <a href="#" class="btn btn-sm p-0 text-primary"><i class="bi bi-pencil"></i></a>
-                        <a href="#" class="btn btn-sm p-0 text-danger"><i class="bi bi-trash"></i></a>
+                        <a href="#" class="m360-btn m360-btn-sm m360-p-0 m360-text-primary">{% icon 'pencil' %}</a>
+                        <a href="#" class="m360-btn m360-btn-sm m360-p-0 m360-text-danger">{% icon 'trash' %}</a>
                       </div>
                     </div>
                   {% empty %}
-                    <div class="text-center py-4 text-muted">
-                      <i class="bi bi-tags" style="font-size: 2rem;"></i>
-                      <p class="mt-2">No categories defined</p>
+                    <div class="m360-text-center m360-py-4 m360-text-muted">
+                      {% icon 'tags' %}
+                      <p class="m360-mt-2">No categories defined</p>
                     </div>
                   {% endfor %}
                 </div>
@@ -385,31 +592,31 @@
             {% endcache %}
 
             {# Event Status Management #}
-            <div class="card shadow-sm mt-4">
-              <div class="card-body">
-                <h5 class="card-title">Event Status</h5>
-                <div class="list-group">
+            <div class="m360-card m360-shadow-sm m360-mt-4">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">Event Status</h5>
+                <div class="m360-list-group">
                   {% for status in event_statuses %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="m360-list-group-item m360-d-flex m360-justify-between m360-items-center">
                       <span>
-                        <span class="badge bg-{{ status.color_class }} me-2">{{ status.name }}</span>
+                        <span class="badge m360-badge-{{ status.color_class }} m360-mr-2">{{ status.name }}</span>
                         {{ status.description }}
                       </span>
                       <div>
-                        <a href="{% url 'events:status_edit' status.id %}" class="btn btn-sm p-0 text-primary">
-                          <i class="bi bi-pencil"></i>
+                        <a href="{% url 'events:status_edit' status.id %}" class="m360-btn m360-btn-sm m360-p-0 m360-text-primary">
+                          {% icon 'pencil' %}
                         </a>
                       </div>
                     </div>
                   {% empty %}
-                    <div class="text-center py-4 text-muted">
-                      <i class="bi bi-list-check" style="font-size: 2rem;"></i>
-                      <p class="mt-2">No statuses defined</p>
+                    <div class="m360-text-center m360-py-4 m360-text-muted">
+                      {% icon 'list-check' %}
+                      <p class="m360-mt-2">No statuses defined</p>
                     </div>
                   {% endfor %}
                 </div>
-                <a href="{% url 'events:status_create' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
-                  <i class="bi bi-plus"></i> Add Status
+                <a href="{% url 'events:status_create' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary m360-w-100 m360-mt-2">
+                  {% icon 'plus' %} Add Status
                 </a>
               </div>
             </div>
@@ -417,61 +624,61 @@
         </div>
 
         {# Event Status Management #}
-        <div class="card shadow-sm mt-4">
-          <div class="card-body">
-            <h5 class="card-title">Event Status</h5>
-            <div class="list-group">
+        <div class="m360-card m360-shadow-sm m360-mt-4">
+          <div class="m360-card-body">
+            <h5 class="m360-card-title">Event Status</h5>
+            <div class="m360-list-group">
               {% for status in event_statuses %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="m360-list-group-item m360-d-flex m360-justify-between m360-items-center">
                   <span>
-                    <span class="badge bg-{{ status.color_class }} me-2">{{ status.name }}</span>
+                    <span class="badge m360-badge-{{ status.color_class }} m360-mr-2">{{ status.name }}</span>
                     {{ status.description }}
                   </span>
                   <div>
-                    <a href="{% url 'events:status_edit' status.id %}" class="btn btn-sm p-0 text-primary">
-                      <i class="bi bi-pencil"></i>
+                    <a href="{% url 'events:status_edit' status.id %}" class="m360-btn m360-btn-sm m360-p-0 m360-text-primary">
+                      {% icon 'pencil' %}
                     </a>
                   </div>
                 </div>
               {% empty %}
-                <div class="text-center py-4 text-muted">
-                  <i class="bi bi-list-check" style="font-size: 2rem;"></i>
-                  <p class="mt-2">No statuses defined</p>
+                <div class="m360-text-center m360-py-4 m360-text-muted">
+                  {% icon 'list-check' %}
+                  <p class="m360-mt-2">No statuses defined</p>
                 </div>
               {% endfor %}
             </div>
-            <a href="{% url 'events:status_create' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
-              <i class="bi bi-plus"></i> Add Status
+            <a href="{% url 'events:status_create' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary m360-w-100 m360-mt-2">
+              {% icon 'plus' %} Add Status
             </a>
           </div>
         </div>
 
         {# Quick Actions #}
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Quick Actions</h5>
-            <div class="row g-2">
-              <div class="col-md-6">
-                <a href="{% url 'events:event_create' %}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
-                  <i class="bi bi-calendar-plus me-2"></i>
+        <div class="m360-card">
+          <div class="m360-card-body">
+            <h5 class="m360-card-title">Quick Actions</h5>
+            <div class="m360-row m360-gap-2">
+              <div class="m360-col-md-6">
+                <a href="{% url 'events:event_create' %}" class="m360-btn m360-btn-primary m360-w-100 m360-d-flex m360-items-center m360-justify-center">
+                  {% icon 'calendar-plus' %}
                   <span>Create Event</span>
                 </a>
               </div>
-              <div class="col-md-6">
-                <a href="{% url 'events:task_create' %}" class="btn btn-success w-100 d-flex align-items-center justify-content-center">
-                  <i class="bi bi-plus-circle me-2"></i>
+              <div class="m360-col-md-6">
+                <a href="{% url 'events:task_create' %}" class="m360-btn m360-btn-success m360-w-100 m360-d-flex m360-items-center m360-justify-center">
+                  {% icon 'plus-circle' %}
                   <span>Add Task</span>
                 </a>
               </div>
-              <div class="col-md-6">
-                <a href="{% url 'events:project_create' %}" class="btn btn-info w-100 d-flex align-items-center justify-content-center">
-                  <i class="bi bi-folder-plus me-2"></i>
+              <div class="m360-col-md-6">
+                <a href="{% url 'events:project_create' %}" class="m360-btn m360-btn-info m360-w-100 m360-d-flex m360-items-center m360-justify-center">
+                  {% icon 'folder-plus' %}
                   <span>New Project</span>
                 </a>
               </div>
-              <div class="col-md-6">
-                <a href="{% url 'events:events' %}" class="btn btn-secondary w-100 d-flex align-items-center justify-content-center">
-                  <i class="bi bi-grid me-2"></i>
+              <div class="m360-col-md-6">
+                <a href="{% url 'events:events' %}" class="m360-btn m360-btn-secondary m360-w-100 m360-d-flex m360-items-center m360-justify-center">
+                  {% icon 'grid' %}
                   <span>View All</span>
                 </a>
               </div>
@@ -482,73 +689,73 @@
     </div>
 
     {# Projects Tab #}
-    <div class="tab-pane fade" id="projects" role="tabpanel">
+    <div class="m360-tab-pane" id="projects" role="tabpanel">
       <section class="section">
-        <div class="row">
-          <div class="col-lg-8">
+        <div class="m360-row">
+          <div class="m360-col-lg-8">
             {# Projects Overview #}
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h5 class="card-title">My Projects</h5>
-                  <a href="{% url 'events:project_create' %}" class="btn btn-sm btn-primary">
-                    <i class="bi bi-plus"></i> New Project
+            <div class="m360-card m360-shadow-sm">
+              <div class="m360-card-body">
+                <div class="m360-d-flex m360-justify-between m360-items-center m360-mb-3">
+                  <h5 class="m360-card-title">My Projects</h5>
+                  <a href="{% url 'events:project_create' %}" class="m360-btn m360-btn-sm m360-btn-primary">
+                    {% icon 'plus' %} New Project
                   </a>
                 </div>
                 
-                <div class="row">
+                <div class="m360-row">
                   {% for project in active_projects_list|slice:":3" %}
-                    <div class="col-md-4">
-                      <div class="card project-card mb-3">
-                        <div class="card-body">
-                          <div class="d-flex justify-content-between align-items-start">
+                    <div class="m360-col-md-4">
+                      <div class="m360-card m360-mb-3">
+                        <div class="m360-card-body">
+                          <div class="m360-d-flex m360-justify-between m360-items-start">
                             <h6>{{ project.name }}</h6>
-                            <span class="badge bg-{{ project.get_status_class }}">{{ project.get_status_display }}</span>
+                            <span class="badge m360-badge-{{ project.get_status_class }}">{{ project.get_status_display }}</span>
                           </div>
-                          <p class="small text-muted mt-2">{{ project.description|truncatechars:60 }}</p>
-                          <div class="progress mb-2" style="height: 5px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ project.completion_percentage }}%" 
+                          <p class="m360-small m360-text-muted m360-mt-2">{{ project.description|truncatechars:60 }}</p>
+                          <div class="m360-progress m360-mb-2" style="height: 5px;">
+                            <div class="m360-progress-fill" role="progressbar" style="width: {{ project.completion_percentage }}%" 
                                  aria-valuenow="{{ project.completion_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                           </div>
-                          <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">{{ project.completion_percentage }}% complete</small>
-                            <small class="text-muted">{{ project.tasks.count }} tasks</small>
+                          <div class="m360-d-flex m360-justify-between m360-items-center">
+                            <small class="m360-text-muted">{{ project.completion_percentage }}% complete</small>
+                            <small class="m360-text-muted">{{ project.tasks.count }} tasks</small>
                           </div>
-                          <div class="mt-3 d-flex gap-2">
-                            <a href="{% url 'events:project_detail' project.id %}" class="btn btn-sm btn-outline-primary">
-                              <i class="bi bi-eye"></i>
+                          <div class="m360-mt-3 m360-d-flex m360-gap-2">
+                            <a href="{% url 'events:project_detail' project.id %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
+                              {% icon 'eye' %}
                             </a>
-                            <a href="{% url 'events:project_edit' project.id %}" class="btn btn-sm btn-outline-secondary">
-                              <i class="bi bi-pencil"></i>
+                            <a href="{% url 'events:project_edit' project.id %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
+                              {% icon 'pencil' %}
                             </a>
-                            <a href="{% url 'events:task_create' %}?project={{ project.id }}" class="btn btn-sm btn-outline-success">
-                              <i class="bi bi-plus"></i> Task
+                            <a href="{% url 'events:task_create' %}?project={{ project.id }}" class="m360-btn m360-btn-sm m360-btn-outline-success">
+                              {% icon 'plus' %} Task
                             </a>
                           </div>
                         </div>
                       </div>
                     </div>
                   {% empty %}
-                    <div class="col-12 text-center py-4 text-muted">
-                      <i class="bi bi-folder" style="font-size: 2rem;"></i>
-                      <p class="mt-2">No active projects</p>
-                      <a href="{% url 'events:project_create' %}" class="btn btn-sm btn-primary">Create Project</a>
+                    <div class="m360-col-12 m360-text-center m360-py-4 m360-text-muted">
+                      {% icon 'folder' %}
+                      <p class="m360-mt-2">No active projects</p>
+                      <a href="{% url 'events:project_create' %}" class="m360-btn m360-btn-sm m360-btn-primary">Create Project</a>
                     </div>
                   {% endfor %}
                 </div>
                 
-                <a href="{% url 'events:projects' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                <a href="{% url 'events:projects' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary m360-w-100 m360-mt-2">
                   View All Projects
                 </a>
               </div>
             </div>
 
             {# Project Tasks #}
-            <div class="card shadow-sm mt-4">
-              <div class="card-body">
-                <h5 class="card-title">Recent Tasks</h5>
-                <div class="table-responsive">
-                  <table class="table table-hover">
+            <div class="m360-card m360-shadow-sm m360-mt-4">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">Recent Tasks</h5>
+                <div class="m360-table-responsive">
+                  <m360-table class="m360-table m360-table-hover">
                     <thead>
                       <tr>
                         <th>Task</th>
@@ -566,89 +773,89 @@
                             {% if task.project %}
                               <a href="{% url 'events:project_detail' task.project.id %}">{{ task.project.name }}</a>
                             {% else %}
-                              <span class="text-muted">None</span>
+                              <span class="m360-text-muted">None</span>
                             {% endif %}
                           </td>
                           <td>{{ task.due_date|date:"M d, Y"|default:"-" }}</td>
-                          <td><span class="badge bg-{{ task.get_status_class }}">{{ task.get_status_display }}</span></td>
+                          <td><span class="badge m360-badge-{{ task.get_status_class }}">{{ task.get_status_display }}</span></td>
                           <td>
-                            <a href="{% url 'events:task_edit' task.id %}" class="btn btn-sm btn-outline-primary">
-                              <i class="bi bi-pencil"></i>
+                            <a href="{% url 'events:task_edit' task.id %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
+                              {% icon 'pencil' %}
                             </a>
                           </td>
                         </tr>
                       {% empty %}
                         <tr>
-                          <td colspan="5" class="text-center py-4 text-muted">No recent tasks</td>
+                          <td colspan="5" class="m360-text-center m360-py-4 m360-text-muted">No recent tasks</td>
                         </tr>
                       {% endfor %}
                     </tbody>
                   </table>
                 </div>
-                <a href="{% url 'events:tasks' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                <a href="{% url 'events:tasks' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary m360-w-100 m360-mt-2">
                   View All Tasks
                 </a>
               </div>
             </div>
           </div>
 
-          <div class="col-lg-4">
+          <div class="m360-col-lg-4">
             {# Project Status Management #}
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title">Project Status</h5>
-                <div class="list-group">
+            <div class="m360-card m360-shadow-sm">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">Project Status</h5>
+                <div class="m360-list-group">
                   {% for status in project_statuses %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="m360-list-group-item m360-d-flex m360-justify-between m360-items-center">
                       <span>
-                        <span class="badge bg-{{ status.color_class }} me-2">{{ status.name }}</span>
+                        <span class="badge m360-badge-{{ status.color_class }} m360-mr-2">{{ status.name }}</span>
                         {{ status.description }}
                       </span>
                       <div>
-                        <a href="{% url 'events:status_edit' status.id %}" class="btn btn-sm p-0 text-primary">
-                          <i class="bi bi-pencil"></i>
+                        <a href="{% url 'events:status_edit' status.id %}" class="m360-btn m360-btn-sm m360-p-0 m360-text-primary">
+                          {% icon 'pencil' %}
                         </a>
                       </div>
                     </div>
                   {% empty %}
-                    <div class="text-center py-4 text-muted">
-                      <i class="bi bi-list-check" style="font-size: 2rem;"></i>
-                      <p class="mt-2">No statuses defined</p>
+                    <div class="m360-text-center m360-py-4 m360-text-muted">
+                      {% icon 'list-check' %}
+                      <p class="m360-mt-2">No statuses defined</p>
                     </div>
                   {% endfor %}
                 </div>
-                <a href="{% url 'events:status_create' %}?model=project" class="btn btn-sm btn-outline-primary w-100 mt-2">
-                  <i class="bi bi-plus"></i> Add Status
+                <a href="{% url 'events:status_create' %}?model=project" class="m360-btn m360-btn-sm m360-btn-outline-primary m360-w-100 m360-mt-2">
+                  {% icon 'plus' %} Add Status
                 </a>
               </div>
             </div>
 
             {# Project Categories #}
-            <div class="card shadow-sm mt-4">
-              <div class="card-body">
-                <h5 class="card-title">Project Categories</h5>
-                <div class="list-group">
+            <div class="m360-card m360-shadow-sm m360-mt-4">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">Project Categories</h5>
+                <div class="m360-list-group">
                   {% for category in project_categories %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="m360-list-group-item m360-d-flex m360-justify-between m360-items-center">
                       <span>{{ category.name }}</span>
                       <div>
-                        <a href="{% url 'events:edit_classification' category.id %}" class="btn btn-sm p-0 text-primary">
-                          <i class="bi bi-pencil"></i>
+                        <a href="{% url 'events:edit_classification' category.id %}" class="m360-btn m360-btn-sm m360-p-0 m360-text-primary">
+                          {% icon 'pencil' %}
                         </a>
-                        <a href="{% url 'events:delete_classification' category.id %}" class="btn btn-sm p-0 text-danger">
-                          <i class="bi bi-trash"></i>
+                        <a href="{% url 'events:delete_classification' category.id %}" class="m360-btn m360-btn-sm m360-p-0 m360-text-danger">
+                          {% icon 'trash' %}
                         </a>
                       </div>
                     </div>
                   {% empty %}
-                    <div class="text-center py-4 text-muted">
-                      <i class="bi bi-tags" style="font-size: 2rem;"></i>
-                      <p class="mt-2">No categories defined</p>
+                    <div class="m360-text-center m360-py-4 m360-text-muted">
+                      {% icon 'tags' %}
+                      <p class="m360-mt-2">No categories defined</p>
                     </div>
                   {% endfor %}
                 </div>
-                <a href="{% url 'events:create_classification' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
-                  <i class="bi bi-plus"></i> Add Category
+                <a href="{% url 'events:create_classification' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary m360-w-100 m360-mt-2">
+                  {% icon 'plus' %} Add Category
                 </a>
               </div>
             </div>
@@ -658,99 +865,99 @@
     </div>
 
     {# Courses Tab #}
-    <div class="tab-pane fade" id="courses" role="tabpanel">
+    <div class="m360-tab-pane" id="courses" role="tabpanel">
       <section class="section">
-        <div class="row">
-          <div class="col-lg-8">
+        <div class="m360-row">
+          <div class="m360-col-lg-8">
             {# Courses Overview #}
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h5 class="card-title">Courses & Learning</h5>
+            <div class="m360-card m360-shadow-sm">
+              <div class="m360-card-body">
+                <div class="m360-d-flex m360-justify-between m360-items-center m360-mb-3">
+                  <h5 class="m360-card-title">Courses & Learning</h5>
                   <div>
-                    <a href="{% url 'courses:courses_list' %}" class="btn btn-sm btn-primary">
-                      <i class="bi bi-search"></i> Explore Courses
+                    <a href="{% url 'courses:courses_list' %}" class="m360-btn m360-btn-sm m360-btn-primary">
+                      {% icon 'search' %} Explore Courses
                     </a>
-                    <a href="{% url 'courses:create_course_wizard' %}" class="btn btn-sm btn-outline-success">
-                      <i class="bi bi-plus"></i> Create Course
+                    <a href="{% url 'courses:create_course_wizard' %}" class="m360-btn m360-btn-sm m360-btn-outline-success">
+                      {% icon 'plus' %} Create Course
                     </a>
                   </div>
                 </div>
 
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="card course-card mb-3">
-                      <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                          <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
-                            <i class="bi bi-book text-primary fs-4"></i>
+                <div class="m360-row">
+                  <div class="m360-col-md-6">
+                    <div class="m360-card m360-mb-3">
+                      <div class="m360-card-body">
+                        <div class="m360-d-flex m360-items-center m360-mb-3">
+                          <div class="m360-badge m360-badge-primary m360-badge-opacity-75 m360-rounded-circle m360-p-3 m360-mr-3">
+                            {% icon 'book' %}
                           </div>
                           <div>
-                            <h6 class="mb-1">Browse Courses</h6>
-                            <small class="text-muted">Explore available courses</small>
+                            <h6 class="m360-mb-1">Browse Courses</h6>
+                            <small class="m360-text-muted">Explore available courses</small>
                           </div>
                         </div>
-                        <a href="{% url 'courses:courses_list' %}" class="btn btn-outline-primary btn-sm">
-                          <i class="bi bi-search me-1"></i>View All Courses
+                        <a href="{% url 'courses:courses_list' %}" class="m360-btn m360-btn-outline-primary m360-btn-sm">
+                          {% icon 'search' %}View All Courses
                         </a>
                       </div>
                     </div>
                   </div>
 
-                  <div class="col-md-6">
-                    <div class="card course-card mb-3">
-                      <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                          <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
-                            <i class="bi bi-file-earmark-text text-success fs-4"></i>
+                  <div class="m360-col-md-6">
+                    <div class="m360-card m360-mb-3">
+                      <div class="m360-card-body">
+                        <div class="m360-d-flex m360-items-center m360-mb-3">
+                          <div class="m360-badge-success m360-badge-opacity-75 m360-rounded-circle m360-p-3 m360-mr-3">
+                            {% icon 'file-earmark-text' %}
                           </div>
                           <div>
-                            <h6 class="mb-1">Free Lessons</h6>
-                            <small class="text-muted">Independent learning content</small>
+                            <h6 class="m360-mb-1">Free Lessons</h6>
+                            <small class="m360-text-muted">Independent learning content</small>
                           </div>
                         </div>
-                        <a href="{% url 'courses:standalone_lessons_list' %}" class="btn btn-outline-success btn-sm">
-                          <i class="bi bi-book-open me-1"></i>View Free Content
+                        <a href="{% url 'courses:standalone_lessons_list' %}" class="m360-btn m360-btn-outline-success m360-btn-sm">
+                          {% icon 'book-open' %}View Free Content
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <a href="{% url 'courses:dashboard' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
-                  <i class="bi bi-speedometer2 me-1"></i>Go to Courses Dashboard
+                <a href="{% url 'courses:dashboard' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary m360-w-100 m360-mt-2">
+                  {% icon 'speedometer2' %}Go to Courses Dashboard
                 </a>
               </div>
             </div>
 
             {# Recent Course Activity #}
-            <div class="card shadow-sm mt-4">
-              <div class="card-body">
-                <h5 class="card-title">Learning Resources</h5>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="d-flex align-items-center p-3 border rounded mb-3">
-                      <i class="bi bi-journal-text text-primary fs-3 me-3"></i>
+            <div class="m360-card m360-shadow-sm m360-mt-4">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">Learning Resources</h5>
+                <div class="m360-row">
+                  <div class="m360-col-md-6">
+                    <div class="m360-d-flex m360-items-center m360-p-3 m360-border m360-rounded m360-mb-3">
+                      {% icon 'journal-text' %}
                       <div>
-                        <h6 class="mb-1">My Courses</h6>
-                        <small class="text-muted">Manage your enrolled courses</small>
+                        <h6 class="m360-mb-1">My Courses</h6>
+                        <small class="m360-text-muted">Manage your enrolled courses</small>
                         <br>
-                        <a href="{% url 'courses:dashboard' %}" class="btn btn-sm btn-outline-primary mt-2">
-                          <i class="bi bi-eye me-1"></i>View Dashboard
+                        <a href="{% url 'courses:dashboard' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary m360-mt-2">
+                          {% icon 'eye' %}View Dashboard
                         </a>
                       </div>
                     </div>
                   </div>
 
-                  <div class="col-md-6">
-                    <div class="d-flex align-items-center p-3 border rounded mb-3">
-                      <i class="bi bi-pencil-square text-success fs-3 me-3"></i>
+                  <div class="m360-col-md-6">
+                    <div class="m360-d-flex m360-items-center m360-p-3 m360-border m360-rounded m360-mb-3">
+                      {% icon 'pencil-square' %}
                       <div>
-                        <h6 class="mb-1">Create Content</h6>
-                        <small class="text-muted">Author courses and lessons</small>
+                        <h6 class="m360-mb-1">Create Content</h6>
+                        <small class="m360-text-muted">Author courses and lessons</small>
                         <br>
-                        <a href="{% url 'courses:manage_courses' %}" class="btn btn-sm btn-outline-success mt-2">
-                          <i class="bi bi-plus-circle me-1"></i>Manage Courses
+                        <a href="{% url 'courses:manage_courses' %}" class="m360-btn m360-btn-sm m360-btn-outline-success m360-mt-2">
+                          {% icon 'plus-circle' %}Manage Courses
                         </a>
                       </div>
                     </div>
@@ -760,44 +967,44 @@
             </div>
           </div>
 
-          <div class="col-lg-4">
+          <div class="m360-col-lg-4">
             {# Course Statistics #}
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title">Learning Stats</h5>
-                <div class="list-group list-group-flush">
-                  <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-book me-2 text-primary"></i>Available Courses</span>
-                    <span class="badge bg-primary">Browse</span>
+            <div class="m360-card m360-shadow-sm">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">Learning Stats</h5>
+                <div class="m360-list-group m360-list-group-flush">
+                  <div class="m360-list-group-item m360-d-flex m360-justify-between m360-items-center">
+                    <span>{% icon 'book' %}Available Courses</span>
+                    <span class="m360-badge m360-badge-primary">Browse</span>
                   </div>
-                  <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-file-earmark-text me-2 text-success"></i>Free Lessons</span>
-                    <span class="badge bg-success">Explore</span>
+                  <div class="m360-list-group-item m360-d-flex m360-justify-between m360-items-center">
+                    <span>{% icon 'file-earmark-text' %}Free Lessons</span>
+                    <span class="badge m360-badge-success">Explore</span>
                   </div>
-                  <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-bar-chart me-2 text-info"></i>Learning Tools</span>
-                    <span class="badge bg-info">Available</span>
+                  <div class="m360-list-group-item m360-d-flex m360-justify-between m360-items-center">
+                    <span>{% icon 'bar-chart' %}Learning Tools</span>
+                    <span class="badge m360-badge-info">Available</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {# Quick Course Actions #}
-            <div class="card shadow-sm mt-4">
-              <div class="card-body">
-                <h5 class="card-title">Quick Actions</h5>
-                <div class="d-grid gap-2">
-                  <a href="{% url 'courses:create_standalone_lesson' %}" class="btn btn-outline-primary btn-sm">
-                    <i class="bi bi-plus-circle me-1"></i>Create Lesson
+            <div class="m360-card m360-shadow-sm m360-mt-4">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">Quick Actions</h5>
+                <div class="d-grid m360-gap-2">
+                  <a href="{% url 'courses:create_standalone_lesson' %}" class="m360-btn m360-btn-outline-primary m360-btn-sm">
+                    {% icon 'plus-circle' %}Create Lesson
                   </a>
-                  <a href="{% url 'courses:content_manager' %}" class="btn btn-outline-success btn-sm">
-                    <i class="bi bi-cubes me-1"></i>Content Manager
+                  <a href="{% url 'courses:content_manager' %}" class="m360-btn m360-btn-outline-success m360-btn-sm">
+                    {% icon 'cubes' %}Content Manager
                   </a>
-                  <a href="{% url 'courses:manage_categories' %}" class="btn btn-outline-info btn-sm">
-                    <i class="bi bi-tags me-1"></i>Categories
+                  <a href="{% url 'courses:manage_categories' %}" class="m360-btn m360-btn-outline-info m360-btn-sm">
+                    {% icon 'tags' %}Categories
                   </a>
-                  <a href="{% url 'courses:modules_overview' %}" class="btn btn-outline-warning btn-sm">
-                    <i class="bi bi-diagram-3 me-1"></i>Modules
+                  <a href="{% url 'courses:modules_overview' %}" class="m360-btn m360-btn-outline-warning m360-btn-sm">
+                    {% icon 'diagram-3' %}Modules
                   </a>
                 </div>
               </div>
@@ -808,27 +1015,27 @@
     </div>
 
     {# Tools Tab #}
-    <div class="tab-pane fade" id="tools" role="tabpanel">
+    <div class="m360-tab-pane" id="tools" role="tabpanel">
       <section class="section">
         {% cache 1800 tools_section user.username %}
-        <div class="row">
+        <div class="m360-row">
           {# CV Tools #}
-          <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <h5 class="card-title">
-                  <i class="bi bi-file-earmark-person me-2"></i> CV Management
+          <div class="m360-col-md-6">
+            <div class="m360-card m360-h-100">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">
+                  {% icon 'file-earmark-person' %} CV Management
                 </h5>
-                <p class="card-text">Manage your professional curriculum vitae and documents.</p>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                  <a href="{% url 'cv:cv_detail' %}" class="btn btn-outline-primary">
-                    <i class="bi bi-eye"></i> View CV
+                <p class="m360-card-text">Manage your professional curriculum vitae and documents.</p>
+                <div class="m360-d-flex m360-flex-wrap m360-gap-2 m360-mt-3">
+                  <a href="{% url 'cv:cv_detail' %}" class="m360-btn m360-btn-outline-primary">
+                    {% icon 'eye' %} View CV
                   </a>
-                  <a href="{% url 'cv:cv_edit' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-pencil"></i> Edit Basic
+                  <a href="{% url 'cv:cv_edit' %}" class="m360-btn m360-btn-outline-secondary">
+                    {% icon 'pencil' %} Edit Basic
                   </a>
-                  <a href="{% url 'cv:document_upload' %}" class="btn btn-outline-success">
-                    <i class="bi bi-upload"></i> Upload Docs
+                  <a href="{% url 'cv:document_upload' %}" class="m360-btn m360-btn-outline-success">
+                    {% icon 'upload' %} Upload Docs
                   </a>
                 </div>
               </div>
@@ -836,19 +1043,19 @@
           </div>
 
           {# Password Generator #}
-          <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <h5 class="card-title">
-                  <i class="bi bi-key me-2"></i> Password Generator
+          <div class="m360-col-md-6">
+            <div class="m360-card m360-h-100">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">
+                  {% icon 'key' %} Password Generator
                 </h5>
-                <p class="card-text">Generate secure passwords for your accounts.</p>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                  <a href="{% url 'generate_password' %}" class="btn btn-outline-primary">
-                    <i class="bi bi-key"></i> Generate
+                <p class="m360-card-text">Generate secure passwords for your accounts.</p>
+                <div class="m360-d-flex m360-flex-wrap m360-gap-2 m360-mt-3">
+                  <a href="{% url 'generate_password' %}" class="m360-btn m360-btn-outline-primary">
+                    {% icon 'key' %} Generate
                   </a>
-                  <a href="{% url 'password_help' %}" class="btn btn-outline-info">
-                    <i class="bi bi-question-circle"></i> Help
+                  <a href="{% url 'password_help' %}" class="m360-btn m360-btn-outline-info">
+                    {% icon 'question-circle' %} Help
                   </a>
                 </div>
               </div>
@@ -856,19 +1063,19 @@
           </div>
 
           {# Memento Mori #}
-          <div class="col-md-6 mt-4">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <h5 class="card-title">
-                  <i class="bi bi-clock-history me-2"></i> Memento Mori
+          <div class="m360-col-md-6 m360-mt-4">
+            <div class="m360-card m360-h-100">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">
+                  {% icon 'clock-history' %} Memento Mori
                 </h5>
-                <p class="card-text">Reflect on the passage of time and life's impermanence.</p>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                  <a href="{% url 'memento_default' %}" class="btn btn-outline-dark">
-                    <i class="bi bi-eye"></i> View
+                <p class="m360-card-text">Reflect on the passage of time and life's impermanence.</p>
+                <div class="m360-d-flex m360-flex-wrap m360-gap-2 m360-mt-3">
+                  <a href="{% url 'memento_default' %}" class="m360-btn m360-btn-outline-dark">
+                    {% icon 'eye' %} View
                   </a>
-                  <a href="{% url 'memento_create' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-gear"></i> Configure
+                  <a href="{% url 'memento_create' %}" class="m360-btn m360-btn-outline-secondary">
+                    {% icon 'gear' %} Configure
                   </a>
                 </div>
               </div>
@@ -876,22 +1083,22 @@
           </div>
 
           {# Chat Tools #}
-          <div class="col-md-6 mt-4">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <h5 class="card-title">
-                  <i class="bi bi-chat-left-text me-2"></i> Chat Tools
+          <div class="m360-col-md-6 m360-mt-4">
+            <div class="m360-card m360-h-100">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">
+                  {% icon 'chat-left-text' %} Chat Tools
                 </h5>
-                <p class="card-text">Communicate with your team and AI assistant.</p>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                  <a href="{% url 'chat:room_list' %}" class="btn btn-outline-primary">
-                    <i class="bi bi-chat"></i> General Chat
+                <p class="m360-card-text">Communicate with your team and AI assistant.</p>
+                <div class="m360-d-flex m360-flex-wrap m360-gap-2 m360-mt-3">
+                  <a href="{% url 'chat:room_list' %}" class="m360-btn m360-btn-outline-primary">
+                    {% icon 'chat' %} General Chat
                   </a>
-                  <a href="{% url 'chat:assistant_ui' %}" class="btn btn-outline-info">
-                    <i class="bi bi-robot"></i> AI Assistant
+                  <a href="{% url 'chat:assistant_ui' %}" class="m360-btn m360-btn-outline-info">
+                    {% icon 'robot' %} AI Assistant
                   </a>
-                  <a href="{% url 'chat:clear_history' %}" class="btn btn-outline-danger">
-                    <i class="bi bi-trash"></i> Clear Chat
+                  <a href="{% url 'chat:clear_history' %}" class="m360-btn m360-btn-outline-danger">
+                    {% icon 'trash' %} Clear Chat
                   </a>
                 </div>
               </div>
@@ -899,19 +1106,19 @@
           </div>
 
           {# KPI Dashboard #}
-          <div class="col-md-6 mt-4">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <h5 class="card-title">
-                  <i class="bi bi-bar-chart-line me-2"></i> KPI Dashboard
+          <div class="m360-col-md-6 m360-mt-4">
+            <div class="m360-card m360-h-100">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">
+                  {% icon 'bar-chart-line' %} KPI Dashboard
                 </h5>
-                <p class="card-text">Track your key performance indicators and metrics.</p>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                  <a href="{% url 'kpis:dashboard' %}" class="btn btn-outline-primary">
-                    <i class="bi bi-speedometer2"></i> View Dashboard
+                <p class="m360-card-text">Track your key performance indicators and metrics.</p>
+                <div class="m360-d-flex m360-flex-wrap m360-gap-2 m360-mt-3">
+                  <a href="{% url 'kpis:dashboard' %}" class="m360-btn m360-btn-outline-primary">
+                    {% icon 'speedometer2' %} View Dashboard
                   </a>
-                  <a href="{% url 'kpis:export_data' %}" class="btn btn-outline-success">
-                    <i class="bi bi-download"></i> Export Data
+                  <a href="{% url 'kpis:export_data' %}" class="m360-btn m360-btn-outline-success">
+                    {% icon 'download' %} Export Data
                   </a>
                 </div>
               </div>
@@ -919,19 +1126,19 @@
           </div>
 
           {# Room Management #}
-          <div class="col-md-6 mt-4">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <h5 class="card-title">
-                  <i class="bi bi-door-open me-2"></i> Room Management
+          <div class="m360-col-md-6 m360-mt-4">
+            <div class="m360-card m360-h-100">
+              <div class="m360-card-body">
+                <h5 class="m360-card-title">
+                  {% icon 'door-open' %} Room Management
                 </h5>
-                <p class="card-text">Manage your virtual rooms and spaces.</p>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                  <a href="{% url 'chat:room' room_name='general' %}" class="btn btn-outline-primary">
-                    <i class="bi bi-door-open"></i> Join Room
+                <p class="m360-card-text">Manage your virtual rooms and spaces.</p>
+                <div class="m360-d-flex m360-flex-wrap m360-gap-2 m360-mt-3">
+                  <a href="{% url 'chat:room' room_name='general' %}" class="m360-btn m360-btn-outline-primary">
+                    {% icon 'door-open' %} Join Room
                   </a>
-                  <a href="#" class="btn btn-outline-secondary">
-                    <i class="bi bi-gear"></i> Manage
+                  <a href="#" class="m360-btn m360-btn-outline-secondary">
+                    {% icon 'gear' %} Manage
                   </a>
                 </div>
               </div>
@@ -944,31 +1151,31 @@
   </div>
 
   {# Add Category Modal #}
-  <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Add New Category</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="m360-modal" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="m360-modal-dialog">
+      <div class="m360-modal-content">
+        <div class="m360-modal-header">
+          <h5 class="m360-modal-title">Add New Category</h5>
+          <button type="button" class="m360-close-modal" data-m360-close aria-label="Close"></button>
         </div>
-        <div class="modal-body">
+        <div class="m360-modal-body">
           <form method="post" action="{% url 'events:status_create' %}">
             {% csrf_token %}
-            <div class="mb-3">
+            <div class="m360-mb-3">
               <label for="categoryName" class="form-label">Category Name</label>
-              <input type="text" class="form-control" id="categoryName" name="name" required>
+              <input type="text" class="m360-form-control" id="categoryName" name="name" required>
             </div>
-            <div class="mb-3">
+            <div class="m360-mb-3">
               <label for="categoryColor" class="form-label">Color</label>
-              <input type="color" class="form-control form-control-color" id="categoryColor" name="color" value="#0d6efd">
+              <input type="color" class="m360-form-control m360-form-control-color" id="categoryColor" name="color" value="#0d6efd">
             </div>
-            <div class="mb-3">
+            <div class="m360-mb-3">
               <label for="categoryDescription" class="form-label">Description</label>
-              <textarea class="form-control" id="categoryDescription" name="description" rows="3"></textarea>
+              <textarea class="m360-form-control" id="categoryDescription" name="description" rows="3"></textarea>
             </div>
-            <div class="d-flex justify-content-end gap-2">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-primary">Save Category</button>
+            <div class="m360-d-flex m360-justify-end m360-gap-2">
+              <button type="button" class="m360-btn m360-btn-secondary" data-m360-close>Cancel</button>
+              <button type="submit" class="m360-btn m360-btn-primary">Save Category</button>
             </div>
           </form>
         </div>
@@ -991,16 +1198,22 @@
     };
 
     // DOM ready event
-    document.addEventListener('DOMContentLoaded', function() {
+    function onDomReady() {
       perfData.domReady = true;
       console.log('DOM ready in:', performance.now() - perfData.startTime, 'ms');
 
-      // Initialize lazy loading for images
+      // Initialize m360-lazy loading for images
       initLazyLoading();
 
       // Initialize dashboard components
       initDashboard();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', onDomReady);
+    } else {
+      onDomReady();
+    }
 
     // Window load event
     window.addEventListener('load', function() {
@@ -1027,15 +1240,6 @@
 
     // Dashboard initialization
     function initDashboard() {
-      // Tab functionality with lazy loading
-      const tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
-      tabEls.forEach(tabEl => {
-        tabEl.addEventListener('shown.bs.tab', function (event) {
-          const targetId = event.target.getAttribute('data-bs-target');
-          loadTabContent(targetId);
-        });
-      });
-
       // Initialize counters with requestAnimationFrame for better performance
       initAnimatedCounters();
     }
@@ -1089,44 +1293,8 @@
       requestAnimationFrame(update);
     }
   </script>
+  </div>
 {% endblock %}
 
 {% block extra_css %}
-  <!-- Optimized Dashboard Styles -->
-  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-
-  <!-- Critical CSS for above-the-fold content -->
-  <style>
-    /* Critical styles loaded immediately */
-    .pagetitle { margin-bottom: 20px; padding: 15px 0; }
-    .nav-tabs-wrapper {
-      background: white;
-      border-radius: 10px;
-      padding: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-      margin-bottom: 20px;
-    }
-    .card {
-      border: none;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s ease;
-      margin-bottom: 20px;
-    }
-
-    /* Lazy loading placeholder */
-    .lazy {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .lazy.loaded {
-      opacity: 1;
-    }
-
-    /* Performance optimizations */
-    .counter {
-      font-weight: 600;
-      color: #495057;
-    }
-  </style>
 {% endblock %}

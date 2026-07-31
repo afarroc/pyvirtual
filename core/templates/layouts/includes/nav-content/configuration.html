@@ -1,32 +1,30 @@
-<li class="nav-item">
-    <a class="nav-link collapsed" data-bs-target="#configuration-nav" data-bs-toggle="collapse" href="#">
-        <i class="bi bi-gear"></i><span>Configuration</span><i class="bi bi-chevron-down ms-auto"></i>
-    </a>
-    <ul id="configuration-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+{% load icon_tags %}
+<li class="m360-sidebar-nav-item" role="none">
+    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#configuration-nav" data-m360-toggle="collapse" data-m360-tooltip="Configuration">
+        {% icon 'gear' %}<span>Configuration</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+    </button>
+    <ul id="configuration-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
         <!-- Crear nueva tipificación -->
-        <li>
-            <a href="{% url 'events:status' %}">
-                <i class="bi bi-circle"></i><span>Status Panel</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:status' %}" role="menuitem">
+                {% icon 'circle' %}<span>Status Panel</span>
             </a>
         </li>
 
         <!-- Gestionar classificationes -->
-        <li>
-            <a href="{% url 'events:status_create' %}">
-                <i class="bi bi-circle"></i><span>Status Create</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:status_create' %}" role="menuitem">
+                {% icon 'circle' %}<span>Status Create</span>
             </a>
         </li>
 
         <!-- Divider -->
-        <li>
-            <hr class="dropdown-divider">
-
-        </li>
+        <li class="m360-dropdown-sep" role="separator" aria-hidden="true"></li>
 
         <!-- Crear nuevo estado -->
-        <li>
-            <a href="{% url 'events:status_edit_no_model' %}">
-                <i class="bi bi-circle"></i><span>Status Edit</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:status_edit_no_model' %}" role="menuitem">
+                {% icon 'circle' %}<span>Status Edit</span>
             </a>
         </li>
     </ul>

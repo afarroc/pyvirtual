@@ -1,36 +1,25 @@
-<li class="nav-item">
-    <a class="nav-link collapsed" data-bs-target="#rooms-nav" data-bs-toggle="collapse" href="{% url 'rooms:lobby' %}">
-        <i class="bi bi-columns-gap"></i><span>rooms</span><i class="bi bi-chevron-down ms-auto"></i>
-    </a>
-    <ul id="rooms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-        <li>
-            <a href="{% url 'rooms:lobby' %}">
-                <i class="bi bi-circle"></i><span>Lobbby</span>
+{% load icon_tags %}
+<li class="m360-sidebar-nav-item" role="none">
+    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#rooms-nav" data-m360-toggle="collapse" data-m360-tooltip="Rooms">
+        {% icon 'columns-gap' %}<span>Rooms</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+    </button>
+    <ul id="rooms-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'rooms:lobby' %}" role="menuitem">
+                {% icon 'circle' %}<span>Lobby</span>
             </a>
         </li>
-        <li>
-            <a href="{% url 'rooms:room_list' %}">
-                <i class="bi bi-circle"></i><span>Rooms</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'rooms:room_list' %}" role="menuitem">
+                {% icon 'circle' %}<span>Rooms</span>
             </a>
         </li>
         {% if user.is_authenticated %}
-        <li>
-            <a href="{% url 'rooms:room_create' %}">
-                <i class="bi bi-circle"></i><span>Create room</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'rooms:room_create' %}" role="menuitem">
+                {% icon 'circle' %}<span>Create Room</span>
             </a>
         </li>
-        <li>
-            <a href="{% url 'rooms:entrance_exit_list' %}">
-                <i class="bi bi-circle"></i><span>Entrances</span>
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'rooms:portal_list' %}">
-                <i class="bi bi-circle"></i><span>Portals</span>
-            </a>
-        </li>
-
         {% endif %}
-
     </ul>
-</li><!-- End rooms Nav -->
+</li>

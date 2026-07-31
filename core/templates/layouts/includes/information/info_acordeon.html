@@ -1,18 +1,16 @@
-<div class="card">
+<div class="m360-card">
         <!-- Default Accordion -->
-        <div class="accordion" id="accordionExample">
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        {{title}} Links
+        <div class="m360-accordion" id="accordionExample">
+            <div class="m360-accordion-item">
+                <h2 class="m360-accordion-header" id="headingOne">
+                    <button class="m360-accordion-header" type="button" data-m360-toggle="collapse"
+                        data-m360-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        {{title}} Links<i class="bi bi-chevron-down m360-accordion-icon"></i>
                     </button>
                 </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
-                    data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        {% include 'layouts/includes/information/info_links.html' %}
-                    </div>
+                <div id="collapseOne" class="m360-accordion-body m360-collapse m360-open" aria-labelledby="headingOne"
+                    data-m360-parent="#accordionExample">
+                    {% include 'layouts/includes/information/info_links.html' %}
                 </div>
             </div>
         </div><!-- End Default Accordion Example -->

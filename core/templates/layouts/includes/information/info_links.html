@@ -2,16 +2,16 @@
     {% if urls %}    
     {% for url in urls %}
         {% if url.id %}
-            <a href="{% url url.url_name url.id %}" class="btn btn-success" style="margin-bottom: 10px;">{{url.name}}</a>
+            <a href="{% url url.url_name url.id %}" class="m360-btn m360-btn-success" style="margin-bottom: 10px;">{{url.name}}</a>
         {% else %}
-            <a href="{% url url.url_name %}" class="btn btn-success" style="margin-bottom: 10px;">{{url.name}}</a>
+            <a href="{% url url.url_name %}" class="m360-btn m360-btn-success" style="margin-bottom: 10px;">{{url.name}}</a>
         {% endif %}
     {% endfor %}
     {% endif %}
     
     {% if form_urls %}    
     {% for url in form_urls %}
-    <a href="{% url url.url_name url.form_id %}" class="btn btn-info" style="margin-bottom: 10px;">{{url.name}}</a>
+    <a href="{% url url.url_name url.form_id %}" class="m360-btn m360-btn-info" style="margin-bottom: 10px;">{{url.name}}</a>
     {% endfor %}
     {% endif %}
 </span>

@@ -1,38 +1,39 @@
-<li class="nav-item">
-    <a class="nav-link collapsed" data-bs-target="#cv-nav" data-bs-toggle="collapse" href="{% url 'cv:cv_detail' %}">
-        <i class="bi bi-person-circle"></i><span>Currículum</span><i class="bi bi-chevron-down ms-auto"></i>
-    </a>
-    <ul id="cv-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+{% load icon_tags %}
+<li class="m360-sidebar-nav-item" role="none">
+    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#cv-nav" data-m360-toggle="collapse" data-m360-tooltip="Currículum">
+        {% icon 'person-circle' %}<span>Currículum</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+    </button>
+    <ul id="cv-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
 
-        <li>
-            <a href="{% url 'cv:cv_detail' %}">
-                <i class="bi bi-circle"></i><span>Mi Perfil</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:cv_detail' %}" role="menuitem">
+                {% icon 'circle' %}<span>Mi Perfil</span>
             </a>
         </li>
-        <li>
-            <a href="{% url 'cv:cv_edit' %}">
-                <i class="bi bi-circle"></i><span>Editar Perfil</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:cv_edit' %}" role="menuitem">
+                {% icon 'circle' %}<span>Editar Perfil</span>
             </a>
         </li>
-        <li>
-            <a href="{% url 'cv:docsview' %}">
-                <i class="bi bi-circle"></i><span>Documentos</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:docsview' %}" role="menuitem">
+                {% icon 'circle' %}<span>Documentos</span>
             </a>
         </li>
-        <li class="nav-heading">Subir Archivos</li>
-        <li>
-            <a href="{% url 'cv:document_upload' %}">
-                <i class="bi bi-circle"></i><span>Documento</span>
+        <li class="m360-sidebar-nav-heading" role="separator" aria-hidden="true">Subir Archivos</li>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:document_upload' %}" role="menuitem">
+                {% icon 'circle' %}<span>Documento</span>
             </a>
         </li>
-        <li>
-            <a href="{% url 'cv:image_upload' %}">
-                <i class="bi bi-circle"></i><span>Imagen</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:image_upload' %}" role="menuitem">
+                {% icon 'circle' %}<span>Imagen</span>
             </a>
         </li>
-        <li>
-            <a href="{% url 'cv:upload_db' %}">
-                <i class="bi bi-circle"></i><span>Base de Datos</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:upload_db' %}" role="menuitem">
+                {% icon 'circle' %}<span>Base de Datos</span>
             </a>
         </li>
 

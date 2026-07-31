@@ -1,61 +1,63 @@
+{% load icon_tags %}
 <!-- =======================================================
      OPTIMIZED PROJECTS SECTION
      ======================================================= -->
-<li class="nav-item">
-    <a class="nav-link collapsed" data-bs-target="#projects-nav" data-bs-toggle="collapse" href="{% url 'events:projects' %}">
-        <i class="bi bi-calendar3-range"></i><span>Projects</span><i class="bi bi-chevron-down ms-auto"></i>
-    </a>
-    <ul id="projects-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+<li class="m360-sidebar-nav-item" role="none">
+    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#projects-nav" data-m360-toggle="collapse" data-m360-tooltip="Projects">
+        {% icon 'calendar3-range' %}<span>Projects</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+    </button>
+    <ul id="projects-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
+
         <!-- Main Views -->
-        <li>
-            <a href="{% url 'events:projects' %}">
-                <i class="bi bi-list-ul"></i><span>All Projects</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:projects' %}" role="menuitem">
+                {% icon 'list-ul' %}<span>All Projects</span>
             </a>
         </li>
-        <li>
-            <a href="{% url 'events:project_panel' %}">
-                <i class="bi bi-speedometer2"></i><span>Project Panel</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:project_panel' %}" role="menuitem">
+                {% icon 'speedometer2' %}<span>Project Panel</span>
             </a>
         </li>
 
         <!-- Actions -->
         {% if user.is_authenticated %}
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#project-actions-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-gear"></i><span>Project Actions</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="project-actions-nav" class="nav-content collapse" data-bs-parent="#projects-nav">
-                <li>
-                    <a href="{% url 'events:project_create' %}">
-                        <i class="bi bi-plus-circle"></i><span>Create Project</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#project-actions-nav" data-m360-toggle="collapse" data-m360-tooltip="Project Actions">
+                {% icon 'gear' %}<span>Project Actions</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+            </button>
+            <ul id="project-actions-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#projects-nav" role="menu">
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_create' %}" role="menuitem">
+                        {% icon 'plus-circle' %}<span>Create Project</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{% url 'events:project_edit_no_id' %}">
-                        <i class="bi bi-pencil"></i><span>Edit Project</span>
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_edit_no_id' %}" role="menuitem">
+                        {% icon 'pencil' %}<span>Edit Project</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{% url 'events:project_activate_no_id' %}">
-                        <i class="bi bi-play-circle"></i><span>Activate Project</span>
+                <li class="m360-sidebar-nav-item" role="none">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_activate_no_id' %}" role="menuitem">
+                        {% icon 'play-circle' %}<span>Activate Project</span>
                     </a>
                 </li>
             </ul>
         </li>
+        {% endif %}
 
         <!-- Templates -->
-        <li>
-            <a href="{% url 'events:project_templates' %}">
-                <i class="bi bi-file-earmark-plus"></i><span>Project Templates</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:project_templates' %}" role="menuitem">
+                {% icon 'file-earmark-plus' %}<span>Project Templates</span>
             </a>
         </li>
 
         <!-- Reports -->
-        <li>
-            <a href="{% url 'events:project_export' %}">
-                <i class="bi bi-download"></i><span>Export Projects</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:project_export' %}" role="menuitem">
+                {% icon 'download' %}<span>Export Projects</span>
             </a>
         </li>
-        {% endif %}
     </ul>
 </li><!-- End Optimized Projects Nav -->

@@ -1,22 +1,21 @@
-<!-- help.html -->
-
-<li class="nav-item">
-    <a class="nav-link collapsed" href="{% url 'help:help_home' %}">
-        <i class="bi bi-question-circle"></i>
+{% load icon_tags %}
+<li class="m360-sidebar-nav-item" role="none">
+    <a class="m360-sidebar-nav-link" href="{% url 'help:help_home' %}" role="menuitem">
+        {% icon 'question-circle' %}
         <span>Help Center</span>
     </a>
 </li><!-- End Help Center Nav -->
 
-<li class="nav-item">
-    <a class="nav-link collapsed" href="{% url 'help:category_list' %}">
-        <i class="bi bi-tags"></i>
+<li class="m360-sidebar-nav-item" role="none">
+    <a class="m360-sidebar-nav-link" href="{% url 'help:category_list' %}" role="menuitem">
+        {% icon 'tags' %}
         <span>Categories</span>
     </a>
 </li><!-- End Categories Nav -->
 
-<li class="nav-item">
-    <a class="nav-link collapsed" href="{% url 'help:search' %}">
-        <i class="bi bi-search"></i>
+<li class="m360-sidebar-nav-item" role="none">
+    <a class="m360-sidebar-nav-link" href="{% url 'help:search' %}" role="menuitem">
+        {% icon 'search' %}
         <span>Search Help</span>
     </a>
 </li><!-- End Search Help Nav -->

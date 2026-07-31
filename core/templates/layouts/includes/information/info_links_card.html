@@ -1,14 +1,14 @@
 
-<div class="col-lg-12 alert alert-light alert-dismissible fade show" role="alert">
-    <div class="card ">
-        <div class="card-header"><i class="bi bi-info-circle"></i> Info</div>
-        <div class="card-body">
-            <h6 class="card-title">A few instructions:</h6>
+<div class="m360-alert m360-alert-light m360-alert-dismissible fade show" role="alert">
+    <div class="m360-card ">
+        <div class="m360-card-header"><i class="bi bi-info-circle"></i> Info</div>
+        <div class="m360-card-body">
+            <h6 class="m360-card-title">A few instructions:</h6>
             {% for instruction in instructions %}
             <li style="list-style-type: none;">{{instruction.instruction}}</li>
             {% endfor %}
         </div>
-        <div class="card-footer"></div>
+        <div class="m360-card-footer"></div>
     </div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <button type="button" class="m360-alert-dismiss" data-m360-dismiss="alert" aria-label="Close">✕</button>
 </div>

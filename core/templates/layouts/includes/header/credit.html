@@ -1,48 +1,34 @@
-<li class="nav-item dropdown">
-    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-        <i class="bi bi-coin"></i>
-        <span class="badge bg-primary badge-number">{{ user.creditaccount.balance }}</span>
-    </a><!-- End Credit Icon -->
-    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-        <li class="dropdown-header">
-            Credit Account
-            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">Manage</span></a>
-        </li>
-        <li>
-            <hr class="dropdown-divider">
-        </li>
-        <li class="notification-item">
-            <i class="bi bi-wallet2 text-success"></i>
-            <div>
-                <h4>Recharge Credits</h4>
-                <p>Add funds to your credit account.</p>
-            </div>
-        </li>
-        <li>
-            <hr class="dropdown-divider">
-        </li>
-        <li class="notification-item">
-            <i class="bi bi-arrow-left-right text-warning"></i>
-            <div>
-                <h4>Transfer Credits</h4>
-                <p>Send credits to another user.</p>
-            </div>
-        </li>
-        <li>
-            <hr class="dropdown-divider">
-        </li>
-        <li class="notification-item">
-            <i class="bi bi-receipt text-info"></i>
-            <div>
-                <h4>Transaction History</h4>
-                <p>View your credit transactions.</p>
-            </div>
-        </li>
-        <li>
-            <hr class="dropdown-divider">
-        </li>
-        <li class="dropdown-footer">
-            <a href="#">More credit options</a>
-        </li>
-    </ul><!-- End Credit Dropdown Items -->
-</li><!-- End Credit Nav -->
+{% load static %}
+<span class="m360-dropdown m360-dropend">
+  <button type="button" data-m360-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Credit Account">
+    <i class="bi bi-coin"></i>
+    {% if user.creditaccount.balance %}
+      <span class="m360-badge m360-badge-primary">{{ user.creditaccount.balance }}</span>
+    {% else %}
+      <span class="m360-badge m360-badge-primary">0</span>
+    {% endif %}
+  </button>
+  <ul class="m360-dropdown-menu m360-dropdown-menu-end">
+    <li class="m360-dropdown-header">
+      <span>Credit Account</span>
+      <a href="#" class="m360-badge m360-badge-primary" style="margin-left:var(--m360-space-2);">Manage</a>
+    </li>
+    <li class="m360-dropdown-sep"></li>
+    <li class="m360-dropdown-item">
+      <span>💳</span>
+      <span>Recharge Credits</span>
+    </li>
+    <li class="m360-dropdown-sep"></li>
+    <li class="m360-dropdown-item">
+      <span>🔁</span>
+      <span>Transfer Credits</span>
+    </li>
+    <li class="m360-dropdown-sep"></li>
+    <li class="m360-dropdown-item">
+      <span>🧾</span>
+      <span>Transaction History</span>
+    </li>
+    <li class="m360-dropdown-sep"></li>
+    <li class="m360-dropdown-footer"><a href="#">More credit options</a></li>
+  </ul>
+</span>

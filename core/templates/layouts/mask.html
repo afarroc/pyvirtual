@@ -4,38 +4,28 @@
 
 <!-- Mensajes de confirmación y éxito -->
 {% if messages %}
-<div class="alert alert-info" role="alert">
+<div class="m360-alert m360-alert-info" role="alert">
     {% for message in messages %}
     <p{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
         {% endfor %}
 </div>
 {% endif %}
 
-<div class="pagetitle">
+<div class="m360-page-header">
     <h1>Dashboard</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-            <li class="breadcrumb-item active">Dashboard</li>
-        </ol>
-    </nav>
 </div><!-- End Page Title -->
 
 <section class="section dashboard">
-    <div class="row">
-
+    <div class="m360-row">
         <!-- Left side columns -->
-        <div class="col-lg-8">
-            <div class="row">
-
-
+        <div class="m360-col">
+            <div class="m360-row">
 
             </div>
         </div><!-- End Left side columns -->
 
         <!-- Right side columns -->
-        <div class="col-lg-4">
-
+        <div class="m360-col">
 
         </div><!-- End Right side columns -->
 

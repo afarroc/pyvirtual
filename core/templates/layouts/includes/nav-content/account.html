@@ -1,40 +1,25 @@
-<li class="nav-item">
-    <a class="nav-link collapsed" data-bs-target="#accounts-nav" data-bs-toggle="collapse" href="{% url 'accounts' %}">
-        <i class="bi bi-person-gear"></i><span>Account</span><i class="bi bi-chevron-down ms-auto"></i>
-    </a>
-    <ul id="accounts-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-        <li>
-            <a href="{% url 'accounts' %}">
-                <i class="bi bi-circle"></i><span>My Account</span>
+{% load icon_tags %}
+<li class="m360-sidebar-nav-item" role="none">
+    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#accounts-nav" data-m360-toggle="collapse" data-m360-tooltip="Account">
+        {% icon 'person-gear' %}<span>Account</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+    </button>
+    <ul id="accounts-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'accounts' %}" role="menuitem">
+                {% icon 'circle' %}<span>My Account</span>
             </a>
         </li>
         {% if user.is_authenticated %}
-        <li>
-            <a href="{% url 'password_change' %}">
-                <i class="bi bi-circle"></i><span>Change Password</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'password_change' %}" role="menuitem">
+                {% icon 'circle' %}<span>Change Password</span>
             </a>
         </li>
-        <li>
-            <a href="{% url 'logout' %}">
-                <i class="bi bi-circle"></i><span>Log Out</span>
-            </a>
-        </li>
-        {% else %}
-        <li>
-            <a href="{% url 'login' %}">
-                <i class="bi bi-circle"></i><span>Log In</span>
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'signup' %}">
-                <i class="bi bi-circle"></i><span>Register</span>
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'password_reset' %}">
-                <i class="bi bi-circle"></i><span>Forgot Password</span>
+        <li class="m360-sidebar-nav-item" role="none">
+            <a class="m360-sidebar-nav-link" href="{% url 'logout' %}" role="menuitem">
+                {% icon 'circle' %}<span>Log Out</span>
             </a>
         </li>
         {% endif %}
     </ul>
-</li><!-- End Account Nav -->
+</li>

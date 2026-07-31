@@ -1,35 +1,34 @@
+{% load icon_tags %}
 
 <!-- pages.html -->
 
-<li class="nav-heading">Pages</li>
+<li class="m360-sidebar-nav-heading" role="separator" aria-hidden="true">Pages</li>
 {% if user.is_authenticated %}
-<li class="nav-item">
-    <a class="nav-link collapsed" href="{% url 'cv:cv_detail'  %}">
-        <i class="bi bi-person"></i>
+<li class="m360-sidebar-nav-item" role="none">
+    <a class="m360-sidebar-nav-link" href="{% url 'cv:cv_detail'  %}" role="menuitem">
+        {% icon 'person' %}
         <span>Profile</span>
     </a>
 </li><!-- End Profile Page Nav -->
 {% else %}
 {% endif %}
-<li class="nav-item">
-    <a class="nav-link collapsed" href="{% url 'faq' %}">
-        <i class="bi bi-question-circle"></i>
+<li class="m360-sidebar-nav-item" role="none">
+    <a class="m360-sidebar-nav-link" href="{% url 'faq' %}" role="menuitem">
+        {% icon 'question-circle' %}
         <span>F.A.Q</span>
     </a>
 </li><!-- End F.A.Q Page Nav -->
 
-<li class="nav-item">
-    <a class="nav-link collapsed" href="{% url 'contact' %}">
-        <i class="bi bi-envelope"></i>
+<li class="m360-sidebar-nav-item" role="none">
+    <a class="m360-sidebar-nav-link" href="{% url 'contact' %}" role="menuitem">
+        {% icon 'envelope' %}
         <span>Contact</span>
     </a>
 </li><!-- End Contact Page Nav -->
 
-<li class="nav-item">
-    <a class="nav-link collapsed" href="{% url 'about' %}">
-        <i class="bi bi-info-circle"></i>
+<li class="m360-sidebar-nav-item" role="none">
+    <a class="m360-sidebar-nav-link" href="{% url 'about' %}" role="menuitem">
+        {% icon 'info-circle' %}
         <span>About</span>
     </a>    
-
 </li><!-- End About Page Nav -->
-

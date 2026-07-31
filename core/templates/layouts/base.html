@@ -22,52 +22,42 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i">
     </noscript>
 
-    <!-- Core CSS -->
-    <link rel="stylesheet" href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/vendor/boxicons/css/boxicons.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-
-    <!-- Optional CSS -->
-    <link rel="stylesheet" href="{% static 'assets/css/alerts-styles.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/chat.css' %}">
-    
-    {% if user.is_authenticated %}
-    <link rel="stylesheet" href="{% static 'assets/css/inbox_floating_button.css' %}">
-    {% endif %}
+    <!-- M360 ITCSS -->
+    <link rel="stylesheet" href="{% static 'm360/css/_index.css' %}">
 
     {% block extra_head %}{% endblock %}
 </head>
 
-<body {% if user.is_authenticated %}data-user-authenticated="true"{% endif %}>
+<body {% if user.is_authenticated %}data-user-authenticated="true"{% endif %} class="m360-root sidebar-closed">
     {% include 'layouts/header.html' %}
-    {% include 'layouts/sidebar.html' %}
-
-    <main id="main" class="main">
+    <div class="m360-page-layout">
+        <div class="m360-sidebar-overlay" data-m360-sidebar-overlay="#sidebar"></div>
+        {% include 'layouts/sidebar.html' %}
+        <main id="main" class="m360-main">
         <!-- Alerts Section -->
         {% if messages or alerts %}
-        <div class="alerts-container" id="alertsContainer">
+        <div class="m360-alerts m360-mb-3" id="alertsContainer">
             {% if alerts %}
                 {% for alert in alerts %}
-                <div class="alert alert-{{ alert.type }} alert-dismissible fade show d-flex align-items-center" role="alert">
-                    <i class="bi {{ alert.icon }} me-2 fs-5"></i>
-                    <div class="flex-grow-1">
+                <div class="m360-alert m360-alert-{{ alert.type }} m360-alert-dismissible m360-d-flex m360-items-center" role="alert">
+                    <i class="bi {{ alert.icon }} m360-mr-2" style="font-size: var(--m360-text-lg);"></i>
+                    <div class="m360-flex-1">
                         <strong>{{ alert.title }}</strong>
-                        <div class="alert-message">{{ alert.message }}</div>
+                        <div class="m360-alert-message">{{ alert.message }}</div>
                     </div>
                     {% if alert.action_url %}
-                    <a href="{{ alert.action_url }}" class="btn btn-sm btn-outline-{{ alert.type }} ms-2">{{ alert.action_text }}</a>
+                    <a href="{{ alert.action_url }}" class="m360-btn m360-btn-sm m360-btn-outline-{{ alert.type }} m360-ml-2">{{ alert.action_text }}</a>
                     {% endif %}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="m360-alert-dismiss" data-m360-dismiss="alert" aria-label="Close">✕</button>
                 </div>
                 {% endfor %}
             {% endif %}
 
             {% if messages %}
                 {% for message in messages %}
-                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                <div class="m360-alert m360-alert-{{ message.tags|default:'info' }} m360-alert-dismissible m360-d-flex m360-items-center" role="alert">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="m360-alert-dismiss" data-m360-dismiss="alert" aria-label="Close">✕</button>
                 </div>
                 {% endfor %}
             {% endif %}
@@ -75,101 +65,43 @@
         {% endif %}
 
         <!-- Content -->
-        <div class="container-fluid">
+        <div class="m360-page">
             <form id="csrf-form" style="display: none;">
                 {% csrf_token %}
             </form>
 
             {% block content %}{% endblock %}
-
-            {% if '/chat/room' not in request.path %}
-                {% include 'chat/panel.html' %}
-            {% endif %}
-
-            {% if user.is_authenticated %}
-                {% include 'events/components/inbox_floating_button.html' %}
-            {% endif %}
         </div>
-    </main>
+        </main>
 
-    <footer id="footer" class="footer">
-        <div class="container">
-            <div class="row justify-content-center text-center">
-                <div class="col-12 col-md-8">
-                    <div class="project-credits mb-2">
-                        <div class="copyright">
-                            &copy; Copyright <strong><span>Management360</span></strong>. Todos los derechos reservados
-                        </div>
-                    </div>
-                    <div class="third-party-credits">
-                        <div class="credits">
-                            <p>Plantilla base: <strong>NiceAdmin</strong></p>
-                            <p>&copy; Copyright <strong>NiceAdmin</strong>. All Rights Reserved</p>
-                            <p>Diseñado por <a href="https://bootstrapmade.com/" rel="noopener noreferrer" target="_blank">BootstrapMade</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
+        {% if '/chat/room' not in request.path %}
+            <script src="{% static 'm360/js/widget-rail.js' %}"></script>
+            {% include 'components/_widget_rail.html' %}
+        {% endif %}
+    </div>
 
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center" aria-label="Back to top">
-        <i class="bi bi-arrow-up-short"></i>
-    </a>
+    {% include 'layouts/footer.html' %}
+
+    {% include 'components/_back_to_top.html' %}
 
     <!-- Core JavaScript -->
-    <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}" defer></script>
-    <script src="{% static 'assets/js/main.js' %}" defer></script>
-
-    <!-- Optional JavaScript -->
+    <script src="{% static 'm360/js/m360-dropdown.js' %}" defer></script>
+    <script src="{% static 'm360/js/m360-sidebar-collapse.js' %}" defer></script>
+    <script src="{% static 'm360/js/m360-sidebar-toggle.js' %}" defer></script>
+    <script src="{% static 'm360/js/m360-tabs.js' %}" defer></script>
+    <script src="{% static 'm360/js/m360-tooltip.js' %}" defer></script>
+    <script src="{% static 'm360/js/m360-popover.js' %}" defer></script>
+    <script src="{% static 'm360/js/m360-alerts.js' %}" defer></script>
+    <script src="{% static 'm360/js/m360-back-to-top.js' %}" defer></script>
     {% if user.is_authenticated %}
     <script src="{% static 'assets/js/notifications.js' %}" defer></script>
-    <script src="{% static 'assets/js/inbox_floating_button.js' %}" defer></script>
     {% endif %}
 
     {% block extra_js %}{% endblock %}
 
     <!-- Inline Script -->
     <script nonce="{{ request.csp_nonce }}">
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto-dismiss alerts
-            document.querySelectorAll('.alert').forEach(alert => {
-                const closeButton = alert.querySelector('.btn-close');
-                if (closeButton) {
-                    closeButton.addEventListener('click', () => {
-                        alert.style.transition = 'opacity 0.5s ease';
-                        alert.style.opacity = '0';
-                        setTimeout(() => alert.remove(), 500);
-                    });
-                }
-                
-                setTimeout(() => {
-                    if (alert.parentNode) {
-                        alert.style.transition = 'opacity 0.5s ease';
-                        alert.style.opacity = '0';
-                        setTimeout(() => alert.remove(), 500);
-                    }
-                }, 5000);
-            });
-
-            // Back to top button
-            const backToTopButton = document.querySelector('.back-to-top');
-            if (backToTopButton) {
-                const toggleVisibility = () => {
-                    backToTopButton.style.display = window.pageYOffset > 100 ? 'flex' : 'none';
-                };
-                window.addEventListener('scroll', toggleVisibility);
-                toggleVisibility();
-                
-                backToTopButton.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                });
-            }
-        });
+        // Back to top behavior (migrated to m360-back-to-top.js)
     </script>
 </body>
 </html>
