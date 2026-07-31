@@ -5,6 +5,9 @@ urlpatterns = [
     # Main pages
     path('', views.home_view, name='home'),
     path('', views.home_view, name='index'),
+    # Nota: ambos names apuntan al mismo path. Por ahora se mantienen
+    # porque muchos templates/rutas usan 'index' y varias vistas usan redirect('home').
+    # Requiere migración completa de templates para resolver CORE-10 sin riesgo.
 
     path('about/', views.about_view, name='about'),
     path('contact/', views.contact_view, name='contact'),

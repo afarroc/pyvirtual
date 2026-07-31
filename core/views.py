@@ -247,7 +247,6 @@ def load_more_categories(request, category_type):
 
 @require_POST
 @login_required
-@csrf_exempt
 def refresh_dashboard_data(request):
     """Refresh dashboard data."""
     try:
@@ -318,6 +317,7 @@ def get_dashboard_stats(request):
 
 
 # Utility views
+@login_required
 def search_view(request):
     """Search across all models."""
     query = request.GET.get('query', '').strip()
