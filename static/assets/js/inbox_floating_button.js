@@ -4,7 +4,7 @@
  * ============================================================================
  * This JavaScript file contains all the functionality for the global inbox GTD
  * floating button that provides quick access to inbox functionality from any page.
-
+ *
  * Features:
  * - Floating button with pulse animation
  * - Expandable panel with quick capture form
@@ -14,18 +14,16 @@
  * - Auto-save functionality
  * - Responsive design
  * - Accessibility features
-
+ *
  * Dependencies:
- * - jQuery (for AJAX calls)
- * - Bootstrap 5.x (for modals and tooltips)
  * - Main application JavaScript
-
+ *
  * API Endpoints:
  * - /events/inbox/api/stats/ - Get inbox statistics
  * - /events/inbox/ - Create new inbox item
  * - /events/inbox/api/tasks/ - Get available tasks
  * - /events/inbox/api/projects/ - Get available projects
-
+ *
  * ============================================================================
  */
 
@@ -111,9 +109,15 @@ class InboxGTDManager {
 
         // Click outside to close
         document.addEventListener('click', (e) => {
-            if (this.isPanelOpen && !e.target.closest('.inbox-floating-container')) {
-                this.closePanel();
-            }
+            if (!this.isPanelOpen) return;
+
+            const container = document.getElementById('inboxFloatingContainer');
+            if (container && container.contains(e.target)) return;
+
+            const panel = document.getElementById('inboxPanel');
+            if (panel && panel.contains(e.target)) return;
+
+            this.closePanel();
         });
 
         // Escape key to close
@@ -197,8 +201,8 @@ class InboxGTDManager {
             const floatingButton = document.getElementById('inboxFloatingButton');
 
             if (panel && floatingButton) {
-                panel.classList.add('show');
-                floatingButton.classList.add('active');
+                panel.classList.add('is-open');
+                floatingButton.classList.add('is-open');
                 this.isPanelOpen = true;
 
                 // Focus on title input
@@ -232,8 +236,8 @@ class InboxGTDManager {
         const floatingButton = document.getElementById('inboxFloatingButton');
 
         if (panel && floatingButton) {
-            panel.classList.remove('show');
-            floatingButton.classList.remove('active');
+            panel.classList.remove('is-open');
+            floatingButton.classList.remove('is-open');
             this.isPanelOpen = false;
 
             // Save draft
@@ -412,15 +416,15 @@ class InboxGTDManager {
      */
     showToast(message, type = 'info') {
         const toast = document.createElement('div');
-        toast.className = `inbox-toast ${type}`;
+        toast.className = `m360-inbox-toast ${type}`;
         toast.innerHTML = `
-            <div class="inbox-toast-content">
-                <i class="inbox-toast-icon bi ${this.getToastIcon(type)}"></i>
-                <div class="inbox-toast-text">
-                    <div class="inbox-toast-title">${type === 'success' ? '¡Éxito!' : type === 'error' ? 'Error' : 'Información'}</div>
-                    <div class="inbox-toast-message">${message}</div>
+            <div class="m360-inbox-toast-content">
+                <i class="m360-inbox-toast-icon bi ${this.getToastIcon(type)}"></i>
+                <div class="m360-inbox-toast-text">
+                    <div class="m360-inbox-toast-title">${type === 'success' ? '¡Éxito!' : type === 'error' ? 'Error' : 'Información'}</div>
+                    <div class="m360-inbox-toast-message">${message}</div>
                 </div>
-                <button class="inbox-toast-close" onclick="this.parentElement.parentElement.remove()">
+                <button class="m360-inbox-toast-close" aria-label="Cerrar">
                     <i class="bi bi-x"></i>
                 </button>
             </div>
@@ -429,13 +433,22 @@ class InboxGTDManager {
         document.body.appendChild(toast);
 
         // Animate in
-        setTimeout(() => toast.classList.add('show'), 100);
+        setTimeout(() => toast.classList.add('is-visible'), 100);
 
         // Auto remove
         setTimeout(() => {
-            toast.classList.remove('show');
+            toast.classList.remove('is-visible');
             setTimeout(() => toast.remove(), 300);
         }, this.config.toastDuration);
+
+        // Bind close button
+        const closeBtn = toast.querySelector('.m360-inbox-toast-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                toast.classList.remove('is-visible');
+                setTimeout(() => toast.remove(), 300);
+            });
+        }
     }
 
     /**
@@ -458,7 +471,7 @@ class InboxGTDManager {
         const submitButton = document.getElementById('inboxQuickSubmit');
         if (submitButton) {
             submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="bi bi-arrow-clockwise spinning"></i> Creando...';
+            submitButton.innerHTML = '<i class="bi bi-arrow-clockwise m360-inbox-spinning"></i> Creando...';
         }
     }
 
@@ -630,6 +643,16 @@ async function updateInboxStats() {
         await window.inboxGTDManager.updateStatistics();
     }
 }
+
+/**
+ * Global hook for external components (chat widget) to refresh inbox counts
+ */
+window.updateNotificationFromWidget = function() {
+    if (window.inboxGTDManager) {
+        window.inboxGTDManager.updateStatistics();
+    }
+};
+
 
 // ============================================================================
 // CSS ANIMATIONS

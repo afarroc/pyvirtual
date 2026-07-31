@@ -368,26 +368,25 @@ class NotificationManager {
      * Show error message
      */
     showError(message) {
-        // You can implement a toast notification system here
-        console.error(message);
-
-        // For now, just show a simple alert
-        // In production, you'd want a proper toast system
         const errorDiv = document.createElement('div');
-        errorDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed';
-        errorDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        errorDiv.className = 'm360-alert m360-alert-danger m360-alert-dismissible m360-d-flex m360-items-center';
+        errorDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; position: fixed;';
+        errorDiv.setAttribute('role', 'alert');
         errorDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <i class="bi bi-exclamation-triangle-fill m360-mr-2"></i>
+            <div class="m360-flex-1">${message}</div>
+            <button type="button" class="m360-alert-dismiss" aria-label="Cerrar">✕</button>
         `;
 
         document.body.appendChild(errorDiv);
 
-        // Auto-remove after 5 seconds
+        const closeBtn = errorDiv.querySelector('.m360-alert-dismiss');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => errorDiv.remove());
+        }
+
         setTimeout(() => {
-            if (errorDiv.parentNode) {
-                errorDiv.remove();
-            }
+            if (errorDiv.parentNode) errorDiv.remove();
         }, 5000);
     }
 
@@ -465,8 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
         notificationManager.init();
 
         // Make debug and test functions available globally
-        window.debugNotifications = () => notificationManager.debug();
-        window.testCreateNotification = () => notificationManager.testCreateNotification();
+        window.updateNotificationCount = () => notificationManager.loadNotifications();
         window.forceNotificationRefresh = () => notificationManager.forceRefresh();
 
         // Cleanup on page unload
