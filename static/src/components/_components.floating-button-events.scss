@@ -1,0 +1,302 @@
+/* =======================================================
+   INBOX GTD - ESTILOS DEL COMPONENTE FLOTANTE GLOBAL
+   ======================================================= */
+
+/* MOBILE FIRST APPROACH - FIXES FOR KEYBOARD */
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Contenedor Principal - POSICIÓN FIJA CON VALORES EXPLÍCITOS */
+.inbox-floating-container {
+    position: fixed;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
+    font-family: 'Poppins', sans-serif;
+    /* Prevenir cualquier transformación que cause desplazamiento */
+    transform: none !important;
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+}
+
+/* Botón Principal - TAMAÑO FIJO PARA MÓVIL */
+.inbox-floating-button {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    overflow: hidden;
+    /* CRÍTICO: Prevenir zoom y comportamientos indeseados en iOS */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    /* Fijar posición para evitar saltos */
+    position: fixed !important;
+    right: 20px !important;
+    bottom: 20px !important;
+    z-index: 10000 !important;
+}
+
+/* PANEL - SOLUCIÓN AGGRESIVA PARA MÓVIL */
+.inbox-panel {
+    position: fixed !important;
+    width: 90vw !important;
+    max-width: 400px;
+    max-height: 70vh !important;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100%) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    backdrop-filter: blur(10px);
+    /* CRÍTICO: Fijar posición y prevenir scroll */
+    top: auto !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: 20px !important;
+    transform: translateX(-50%) translateY(100%) !important;
+    z-index: 9998 !important;
+    /* Forzar rendering en GPU */
+    -webkit-transform: translate3d(-50%, 100%, 0);
+    transform: translate3d(-50%, 100%, 0);
+    will-change: transform;
+    /* Prevenir cualquier overflow */
+    overflow: hidden !important;
+}
+
+.inbox-panel.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0) !important;
+    -webkit-transform: translate3d(-50%, 0, 0) !important;
+    transform: translate3d(-50%, 0, 0) !important;
+}
+
+/* CUANDO EL TECLADO ESTÁ VISIBLE - POSICIÓN ABSOLUTA ARRIBA */
+.inbox-panel.keyboard-visible {
+    top: 10px !important;
+    bottom: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    max-height: 80vh !important;
+    position: fixed !important;
+}
+
+/* CUERPO DEL PANEL - SCROLL INTERNO CONTROLADO */
+.inbox-panel-body {
+    padding: 20px;
+    max-height: calc(70vh - 40px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Prevenir scroll del body cuando estamos dentro del panel */
+    overscroll-behavior: contain;
+}
+
+.inbox-panel.keyboard-visible .inbox-panel-body {
+    max-height: calc(80vh - 40px);
+}
+
+/* FORMULARIO - INPUTS CON TAMAÑO DE FUENTE FIJO */
+.inbox-quick-form {
+    position: relative;
+}
+
+.inbox-form-group input,
+.inbox-form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e3e8ff;
+    border-radius: 8px;
+    font-size: 16px !important; /* CRÍTICO: Prevenir zoom en iOS */
+    line-height: 1.4;
+    background: white;
+    /* Deshabilitar todos los comportamientos automáticos de iOS */
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-user-select: text;
+    user-select: text;
+    /* Prevenir ajuste de tamaño automático */
+    resize: none;
+    /* Forzar rendering consistente */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.inbox-form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* BOTONES - TAMAÑOS MÍNIMOS PARA TACTO */
+.inbox-btn {
+    padding: 12px 20px !important;
+    min-height: 44px !important; /* Tamaño mínimo para tacto en iOS */
+    font-size: 16px !important; /* Prevenir zoom */
+    touch-action: manipulation;
+}
+
+/* OVERLAY PARA BLOQUEAR EL BODY CUANDO EL PANEL ESTÁ ABIERTO */
+.inbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9997;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.inbox-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* =======================================================
+   MEDIA QUERIES ESPECÍFICAS PARA MÓVIL
+   ======================================================= */
+
+/* DISPOSITIVOS MÓVILES - REGLAS ESTRICTAS */
+@media screen and (max-width: 768px) {
+    /* BLOQUEAR SCROLL DEL BODY CUANDO EL PANEL ESTÁ ABIERTO */
+    body.inbox-panel-open {
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        overscroll-behavior: none !important;
+    }
+
+    /* POSICIÓN ABSOLUTA DEL BOTÓN CUANDO EL TECLADO ESTÁ VISIBLE */
+    .inbox-floating-button.keyboard-visible {
+        display: none !important;
+    }
+
+    /* PANEL CON TECLADO VISIBLE - MÁXIMA PRIORIDAD */
+    .inbox-panel.keyboard-visible {
+        top: 10px !important;
+        bottom: auto !important;
+        max-height: 80vh !important;
+        z-index: 10001 !important; /* Por encima de TODO */
+    }
+
+    /* INPUTS - PREVENIR CUALQUIER COMPORTAMIENTO RARO */
+    .inbox-form-group input:focus,
+    .inbox-form-group textarea:focus {
+        position: relative;
+        z-index: 10002;
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        /* Forzar que se quede en su lugar */
+        transform: none !important;
+        -webkit-transform: none !important;
+    }
+
+    /* ESTILOS PARA SAFARI iOS */
+    @supports (-webkit-touch-callout: none) {
+        .inbox-panel {
+            /* Forzar hardware acceleration */
+            -webkit-transform: translate3d(-50%, 100%, 0);
+            transform: translate3d(-50%, 100%, 0);
+        }
+        
+        .inbox-panel.show {
+            -webkit-transform: translate3d(-50%, 0, 0);
+            transform: translate3d(-50%, 0, 0);
+        }
+        
+        /* Prevenir elastic scrolling */
+        .inbox-panel-body {
+            -webkit-overflow-scrolling: touch;
+            overflow-y: scroll;
+        }
+        
+        /* Deshabilitar pull-to-refresh */
+        body {
+            overscroll-behavior-y: none;
+        }
+    }
+
+    /* ANDROID CHROME */
+    @media screen and (-webkit-min-device-pixel-ratio:0) {
+        .inbox-form-group input,
+        .inbox-form-group textarea {
+            font-size: 16px !important;
+        }
+    }
+}
+
+/* PANTALLAS MUY PEQUEÑAS */
+@media screen and (max-width: 480px) {
+    .inbox-panel {
+        width: 95vw !important;
+        max-width: none;
+        bottom: 10px !important;
+    }
+    
+    .inbox-panel.keyboard-visible {
+        top: 5px !important;
+        max-height: 85vh !important;
+    }
+    
+    .inbox-panel-body {
+        padding: 15px;
+        max-height: calc(85vh - 30px);
+    }
+}
+
+/* ORIENTACIÓN HORIZONTAL */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .inbox-panel {
+        max-height: 90vh !important;
+        width: 80vw !important;
+    }
+    
+    .inbox-panel.keyboard-visible {
+        top: 5px !important;
+        max-height: 70vh !important;
+    }
+    
+    .inbox-panel-body {
+        max-height: calc(70vh - 40px);
+    }
+    
+    .inbox-form-group textarea {
+        min-height: 60px;
+        max-height: 80px;
+    }
+}
+
+/* SAFE AREA INSETS PARA IPHONE X+ */
+@supports (padding: max(0px)) {
+    .inbox-floating-container {
+        bottom: max(20px, env(safe-area-inset-bottom)) !important;
+        right: max(20px, env(safe-area-inset-right)) !important;
+    }
+    
+    .inbox-panel {
+        bottom: max(20px, env(safe-area-inset-bottom)) !important;
+    }
+    
+    .inbox-panel.keyboard-visible {
+        top: max(10px, env(safe-area-inset-top)) !important;
+    }
+}

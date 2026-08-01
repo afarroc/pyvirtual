@@ -1,0 +1,654 @@
+/* process_inbox_item.css */
+/* Estilos para la vista de procesamiento de inbox items */
+
+/* ============================================================================
+   ESTRUCTURA PRINCIPAL Y LAYOUT
+   ============================================================================ */
+
+.inbox-control-panel {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+@media (max-width: 768px) {
+    .inbox-control-panel {
+        padding: 1rem 0.5rem;
+    }
+}
+
+/* ============================================================================
+   TARJETAS DE INFORMACIÓN
+   ============================================================================ */
+
+.card {
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px 12px 0 0 !important;
+    border: none;
+}
+
+.card-header h5,
+.card-header h6 {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* ============================================================================
+   PREVIEW DEL ITEM DEL INBOX
+   ============================================================================ */
+
+.inbox-item-preview {
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+    border: 1px solid #e3e8ff;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.inbox-item-preview h4 {
+    color: #2d3748;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .inbox-item-preview {
+        padding: 1.5rem;
+    }
+}
+
+/* ============================================================================
+   METADATA Y METADATOS DEL ITEM
+   ============================================================================ */
+
+.item-metadata {
+    background: rgba(255,255,255,0.8);
+    padding: 1rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.metadata-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.metadata-item:last-child {
+    border-bottom: none;
+}
+
+.metadata-item i {
+    width: 20px;
+    text-align: center;
+}
+
+/* ============================================================================
+   BADGES Y ESTADOS
+   ============================================================================ */
+
+.status-badges .badge {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.badge-sm {
+    font-size: 0.7em;
+    padding: 0.2em 0.4em;
+}
+
+/* ============================================================================
+   PANEL DE CONSENSO
+   ============================================================================ */
+
+.consensus-item {
+    background: rgba(255,255,255,0.6);
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.consensus-item:last-child {
+    margin-bottom: 0;
+}
+
+/* ============================================================================
+   ESTADÍSTICAS
+   ============================================================================ */
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255,255,255,0.8);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.stat-item:last-child {
+    margin-bottom: 0;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #007bff;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* ============================================================================
+   TARJETAS DE ACCIÓN GTD
+   ============================================================================ */
+
+.action-card {
+    border: none;
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    height: 100%;
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .action-card {
+        min-height: 240px;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Variantes de tarjetas de acción */
+.primary-action {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+}
+
+.danger-action {
+    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+    color: white;
+}
+
+.warning-action {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+    color: white;
+}
+
+.info-action {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+}
+
+.secondary-action {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+}
+
+.light-action {
+    background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+    color: white;
+}
+
+.success-action {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-left: 4px solid #2196f3;
+}
+
+/* Contenido de tarjetas de acción */
+.action-card .card-body {
+    padding: 2rem 1.5rem;
+}
+
+.action-icon {
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.action-card .card-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.action-card .btn {
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.action-card .btn:hover {
+    transform: scale(1.05);
+    border-color: rgba(255,255,255,0.6);
+}
+
+/* ============================================================================
+   BOTONES Y CONTROLES
+   ============================================================================ */
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+@media (max-width: 768px) {
+    .btn-group-sm {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group-sm .btn {
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* ============================================================================
+   PASOS DEL PROCESO GTD
+   ============================================================================ */
+
+.gtd-decision-flow .alert {
+    border: none;
+    border-left: 4px solid #4299e1;
+}
+
+.gtd-steps {
+    margin: 1rem 0;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.step-number {
+    background: #667eea;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.step-content strong {
+    color: #2d3748;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.step-content small {
+    font-size: 0.8rem;
+    color: #718096;
+}
+
+/* ============================================================================
+   MODALES
+   ============================================================================ */
+
+.modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px 16px 0 0;
+    border: none;
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+/* ============================================================================
+   LISTAS DE ELEMENTOS (TAREAS/PROYECTOS)
+   ============================================================================ */
+
+.task-item,
+.project-item {
+    border: none;
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+.task-item:hover,
+.project-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-left-color: #667eea;
+}
+
+.task-item h6,
+.project-item h6 {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.list-group-item.selected {
+    background-color: #e3f2fd;
+    border-left: 4px solid #667eea;
+}
+
+/* ============================================================================
+   BÚSQUEDA Y FILTROS
+   ============================================================================ */
+
+#taskSearch,
+#projectSearch {
+    border-radius: 25px;
+    border: 2px solid #e3e8ff;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+}
+
+#taskSearch:focus,
+#projectSearch:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* ============================================================================
+   ANIMACIONES Y ESTADOS ESPECIALES
+   ============================================================================ */
+
+/* Indicador de estado */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+@keyframes pulse-success {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.status-indicator.active {
+    background-color: #48bb78;
+    animation: pulse-success 2s infinite;
+}
+
+.status-indicator.inactive {
+    background-color: #e53e3e;
+}
+
+/* Animación de carga */
+.action-card.processing {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.action-card.processing .btn {
+    position: relative;
+}
+
+.action-card.processing .btn::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: auto;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Estados de éxito/error */
+.action-success {
+    animation: successPulse 0.6s ease-out;
+}
+
+.action-error {
+    animation: errorShake 0.6s ease-out;
+}
+
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* ============================================================================
+   ACCESIBILIDAD
+   ============================================================================ */
+
+.action-card:focus-within {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.btn:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* ============================================================================
+   DARK MODE
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+    .inbox-control-panel {
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        color: #e2e8f0;
+    }
+
+    .inbox-item-preview {
+        background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        border-color: #4a5568;
+    }
+
+    .inbox-item-preview h4 {
+        color: #e2e8f0;
+    }
+
+    .item-metadata {
+        background: rgba(45, 55, 72, 0.8);
+    }
+
+    .metadata-item {
+        border-bottom-color: #4a5568;
+    }
+
+    .action-card:hover {
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .task-item:hover,
+    .project-item:hover {
+        background-color: #2d3748;
+    }
+
+    .task-item h6,
+    .project-item h6 {
+        color: #e2e8f0;
+    }
+
+    .stat-item {
+        background: rgba(45, 55, 72, 0.8);
+    }
+
+    .consensus-item {
+        background: rgba(45, 55, 72, 0.6);
+    }
+
+    #taskSearch,
+    #projectSearch {
+        background-color: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+
+    #taskSearch:focus,
+    #projectSearch:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================================ */
+
+@media (max-width: 576px) {
+    .action-card .card-body {
+        padding: 1.5rem 1rem;
+    }
+
+    .action-icon {
+        font-size: 2.5rem !important;
+    }
+
+    .action-card .card-title {
+        font-size: 1rem;
+    }
+
+    .action-card .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    .modal-content {
+        border-radius: 12px;
+    }
+}
+
+/* ============================================================================
+   UTILIDADES ESPECÍFICAS
+   ============================================================================ */
+
+.selected-info-panel {
+    background: #e8f5e8;
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.processing-section h5 {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+/* Ocultar elementos cuando no hay resultados */
+[data-empty="true"] {
+    display: none;
+}
+
+/* Spinner para cargas */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: #667eea;
+}
+
+/* ============================================================================
+   HEADER Y NAVEGACIÓN
+   ============================================================================ */
+
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .header-actions .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* ============================================================================
+   TÍTULOS Y ENCABEZADOS
+   ============================================================================ */
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+}

@@ -1,0 +1,95 @@
+/* Estilos generales */
+body {
+    background-color: #f8f9fa;
+    padding-top: 2rem;
+}
+
+.card {
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    color: #343a40;
+    font-weight: 600;
+}
+
+.navbar-brand {
+    font-weight: 700;
+}
+
+.frequency-selector {
+    margin-bottom: 2rem;
+}
+
+.info-badge {
+    font-size: 1rem;
+    margin: 0.5rem;
+}
+
+/* Estilos específicos para date_selection */
+.memento-card {
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 10px;
+}
+
+.form-title {
+    color: #343a40;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.form-icon {
+    font-size: 2.5rem;
+    text-align: center;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.btn-memento {
+    background-color: #495057;
+    color: white;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-memento:hover {
+    background-color: #343a40;
+    transform: translateY(-2px);
+}
+
+.form-control:focus {
+    border-color: #495057;
+    box-shadow: 0 0 0 0.25rem rgba(73, 80, 87, 0.25);
+}
+
+.info-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+/* Estilos para la vista diaria */
+.days-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.day-box {
+    width: 10px;
+    height: 10px;
+    border-radius: 1px;
+    transition: transform 0.2s;
+}
+
+.day-box:hover {
+    transform: scale(1.5);
+    z-index: 10;
+}

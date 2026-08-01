@@ -1,0 +1,446 @@
+/* Sistema de Alertas Inteligente - Estilos Mejorados */
+.alerts-container {
+    position: relative;
+    margin-bottom: 20px;
+    z-index: 1000;
+}
+
+.alerts-container .alert {
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.alerts-container .alert:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.alerts-container .alert .alert-message {
+    margin-top: 5px;
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.alerts-container .alert .btn {
+    font-size: 0.8em;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.alerts-container .alert-success .btn-outline-success {
+    color: #0d4f1c;
+    border-color: #0d4f1c;
+}
+
+.alerts-container .alert-success .btn-outline-success:hover {
+    background-color: #0d4f1c;
+    border-color: #0d4f1c;
+    color: white;
+}
+
+.alerts-container .alert-warning .btn-outline-warning {
+    color: #5a4103;
+    border-color: #5a4103;
+}
+
+.alerts-container .alert-warning .btn-outline-warning:hover {
+    background-color: #5a4103;
+    border-color: #5a4103;
+    color: white;
+}
+
+.alerts-container .alert-danger .btn-outline-danger {
+    color: #6b1a22;
+    border-color: #6b1a22;
+}
+
+.alerts-container .alert-danger .btn-outline-danger:hover {
+    background-color: #6b1a22;
+    border-color: #6b1a22;
+    color: white;
+}
+
+.alerts-container .alert-info .btn-outline-info {
+    color: #0c5460;
+    border-color: #0c5460;
+}
+
+.alerts-container .alert-info .btn-outline-info:hover {
+    background-color: #0c5460;
+    border-color: #0c5460;
+    color: white;
+}
+
+.alerts-container .alert .btn-close {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+    filter: brightness(0.8);
+}
+
+.alerts-container .alert .btn-close:hover {
+    opacity: 1;
+    filter: brightness(1);
+}
+
+/* Estilos para iconos de alertas */
+.alerts-container .alert i.bi {
+    filter: brightness(0.8);
+}
+
+.alerts-container .alert-success i.bi {
+    color: #0d4f1c;
+}
+
+.alerts-container .alert-warning i.bi {
+    color: #5a4103;
+}
+
+.alerts-container .alert-danger i.bi {
+    color: #6b1a22;
+}
+
+.alerts-container .alert-info i.bi {
+    color: #0c5460;
+}
+
+/* Animaciones de entrada */
+.alerts-container .alert {
+    animation: slideInFromTop 0.5s ease-out;
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos específicos por tipo de alerta con colores de texto mejorados */
+.alerts-container .alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-left: 4px solid #28a745;
+    color: #0d4f1c;
+}
+
+.alerts-container .alert-success strong {
+    color: #0a3d14;
+}
+
+.alerts-container .alert-success .alert-message {
+    color: #0d4f1c;
+    opacity: 0.9;
+}
+
+.alerts-container .alert-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-left: 4px solid #ffc107;
+    color: #5a4103;
+}
+
+.alerts-container .alert-warning strong {
+    color: #4a3502;
+}
+
+.alerts-container .alert-warning .alert-message {
+    color: #5a4103;
+    opacity: 0.9;
+}
+
+.alerts-container .alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-left: 4px solid #dc3545;
+    color: #6b1a22;
+}
+
+.alerts-container .alert-danger strong {
+    color: #52141a;
+}
+
+.alerts-container .alert-danger .alert-message {
+    color: #6b1a22;
+    opacity: 0.9;
+}
+
+.alerts-container .alert-info {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    border-left: 4px solid #17a2b8;
+    color: #0c5460;
+}
+
+.alerts-container .alert-info strong {
+    color: #0a4751;
+}
+
+.alerts-container .alert-info .alert-message {
+    color: #0c5460;
+    opacity: 0.9;
+}
+
+/* Estilos para mensajes Django sin tipo específico */
+.alerts-container .alert-secondary {
+    background: linear-gradient(135deg, #e2e3e5 0%, #d6d8db 100%);
+    border-left: 4px solid #6c757d;
+    color: #2d3436;
+}
+
+.alerts-container .alert-secondary strong {
+    color: #1e2529;
+}
+
+.alerts-container .alert-secondary .alert-message {
+    color: #2d3436;
+    opacity: 0.9;
+}
+
+/* Estilos para enlaces dentro de alertas */
+.alerts-container .alert a {
+    color: inherit;
+    text-decoration: underline;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+
+.alerts-container .alert a:hover {
+    opacity: 0.8;
+    text-decoration: none;
+}
+
+/* Estilos para texto en negrita dentro de alertas */
+.alerts-container .alert strong {
+    font-weight: 600;
+}
+
+/* Asegurar que el texto de los mensajes tenga suficiente contraste */
+.alerts-container .alert .alert-message {
+    line-height: 1.4;
+    font-weight: 400;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .alerts-container .alert {
+        margin-bottom: 15px;
+    }
+
+    .alerts-container .alert .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    .alerts-container .alert .btn {
+        margin-top: 10px;
+        align-self: flex-end;
+    }
+}
+
+/* Contenedor de estadísticas mejorado */
+.stats-container .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats-container .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stats-container .progress {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.stats-container .progress-bar {
+    transition: width 0.8s ease;
+}
+
+/* Iconos de estado mejorados */
+.task-status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    margin-right: 10px;
+}
+
+.task-status-icon.todo {
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+.task-status-icon.in-progress {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.task-status-icon.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.task-status-icon.blocked {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Mejoras para el panel de tareas */
+.task-panel-enhanced .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.task-panel-enhanced .quick-actions .btn {
+    transition: all 0.3s ease;
+}
+
+.task-panel-enhanced .quick-actions .btn:hover {
+    transform: scale(1.05);
+}
+
+/* Estilos para el tablero Kanban */
+.kanban-column {
+    min-height: 400px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.kanban-card {
+    background: white;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.kanban-card:hover {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.kanban-card .priority-high {
+    border-left: 4px solid #dc3545;
+}
+
+.kanban-card .priority-medium {
+    border-left: 4px solid #ffc107;
+}
+
+.kanban-card .priority-low {
+    border-left: 4px solid #28a745;
+}
+
+/* Sidebar mejorado */
+.sidebar-enhanced .card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-enhanced .stat-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.sidebar-enhanced .stat-item:last-child {
+    border-bottom: none;
+}
+
+.sidebar-enhanced .stat-value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #495057;
+}
+
+.sidebar-enhanced .stat-label {
+    font-size: 0.85em;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Tema oscuro opcional con mejor contraste */
+@media (prefers-color-scheme: dark) {
+    .alerts-container .alert {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
+
+    .alerts-container .alert-success {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(40, 167, 69, 0.1) 100%);
+        border-left: 4px solid #28a745;
+        color: #0d4f1c;
+    }
+
+    .alerts-container .alert-success strong {
+        color: #0a3d14;
+    }
+
+    .alerts-container .alert-success .alert-message {
+        color: #0d4f1c;
+    }
+
+    .alerts-container .alert-warning {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 193, 7, 0.1) 100%);
+        border-left: 4px solid #ffc107;
+        color: #5a4103;
+    }
+
+    .alerts-container .alert-warning strong {
+        color: #4a3502;
+    }
+
+    .alerts-container .alert-warning .alert-message {
+        color: #5a4103;
+    }
+
+    .alerts-container .alert-danger {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.2) 0%, rgba(220, 53, 69, 0.1) 100%);
+        border-left: 4px solid #dc3545;
+        color: #6b1a22;
+    }
+
+    .alerts-container .alert-danger strong {
+        color: #52141a;
+    }
+
+    .alerts-container .alert-danger .alert-message {
+        color: #6b1a22;
+    }
+
+    .alerts-container .alert-info {
+        background: linear-gradient(135deg, rgba(23, 162, 184, 0.2) 0%, rgba(23, 162, 184, 0.1) 100%);
+        border-left: 4px solid #17a2b8;
+        color: #0c5460;
+    }
+
+    .alerts-container .alert-info strong {
+        color: #0a4751;
+    }
+
+    .alerts-container .alert-info .alert-message {
+        color: #0c5460;
+    }
+
+    .alerts-container .alert .btn-close {
+        filter: brightness(1.2);
+    }
+
+    .kanban-card {
+        background: #2d3748;
+        color: white;
+    }
+}

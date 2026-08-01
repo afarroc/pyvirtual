@@ -1,108 +1,68 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Management360 platform description">
-    <meta name="keywords" content="management, platform, business">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Management360">
     <meta name="author" content="Management360">
 
-    <title>{% block title %}{{ page_title|default:"Management360" }} - Management360{% endblock %}</title>
+    <title>{% block title %}{{ page_title|default:"Management360" }}{% endblock %}</title>
 
     <link rel="icon" href="{% static 'assets/img/favicon.png' %}">
-    <link rel="apple-touch-icon" href="https://cdn.glitch.com/49d34dc6-8fbd-46bb-8221-b99ffd36f1af%2Ftouchicon-180.png?v=1566411949736">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" media="print" onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i">
-    </noscript>
-
-    <!-- M360 ITCSS -->
-    <link rel="stylesheet" href="{% static 'm360/css/_index.css' %}">
 
     {% block extra_head %}{% endblock %}
 </head>
 
-<body {% if user.is_authenticated %}data-user-authenticated="true"{% endif %} class="m360-root sidebar-closed">
+<body>
     {% include 'includes/header.html' %}
-    <div class="m360-page-layout">
-        <div class="m360-sidebar-overlay" data-m360-sidebar-overlay="#sidebar"></div>
+
+    <div>
         {% include 'includes/sidebar.html' %}
-        <main id="main" class="m360-main">
-        <!-- Alerts Section -->
-        {% if messages or alerts %}
-        <div class="m360-alerts m360-mb-3" id="alertsContainer">
-            {% if alerts %}
-                {% for alert in alerts %}
-                <div class="m360-alert m360-alert-{{ alert.type }} m360-alert-dismissible m360-d-flex m360-items-center" role="alert">
-                    <i class="bi {{ alert.icon }} m360-mr-2" style="font-size: var(--m360-text-lg);"></i>
-                    <div class="m360-flex-1">
-                        <strong>{{ alert.title }}</strong>
-                        <div class="m360-alert-message">{{ alert.message }}</div>
+
+        <main>
+            {% if messages or alerts %}
+            <section>
+                {% if alerts %}
+                    {% for alert in alerts %}
+                    <div role="alert">
+                        {% if alert.icon %}
+                        <span aria-hidden="true">{{ alert.icon }}</span>
+                        {% endif %}
+                        <div>
+                            <strong>{{ alert.title }}</strong>
+                            <div>{{ alert.message }}</div>
+                        </div>
+                        {% if alert.action_url %}
+                        <a href="{{ alert.action_url }}">{{ alert.action_text }}</a>
+                        {% endif %}
                     </div>
-                    {% if alert.action_url %}
-                    <a href="{{ alert.action_url }}" class="m360-btn m360-btn-sm m360-btn-outline-{{ alert.type }} m360-ml-2">{{ alert.action_text }}</a>
-                    {% endif %}
-                    <button type="button" class="m360-alert-dismiss" data-m360-dismiss="alert" aria-label="Close">✕</button>
-                </div>
-                {% endfor %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </section>
             {% endif %}
 
-            {% if messages %}
-                {% for message in messages %}
-                <div class="m360-alert m360-alert-{{ message.tags|default:'info' }} m360-alert-dismissible m360-d-flex m360-items-center" role="alert">
-                    {{ message }}
-                    <button type="button" class="m360-alert-dismiss" data-m360-dismiss="alert" aria-label="Close">✕</button>
-                </div>
-                {% endfor %}
-            {% endif %}
-        </div>
-        {% endif %}
+            <section>
+                <form>
+                    {% csrf_token %}
+                </form>
 
-        <!-- Content -->
-        <div class="m360-page">
-            <form id="csrf-form" style="display: none;">
-                {% csrf_token %}
-            </form>
-
-            {% block content %}{% endblock %}
-        </div>
+                {% block content %}{% endblock %}
+            </section>
         </main>
-
-        {% if '/chat/room' not in request.path %}
-            <script src="{% static 'm360/js/widget-rail.js' %}"></script>
-            {% include 'components/_widget_rail.html' %}
-        {% endif %}
     </div>
 
-    {% include 'includes
-    /footer.html' %}
-
-    {% include 'components/_back_to_top.html' %}
-
-    <!-- Core JavaScript -->
-    <script src="{% static 'm360/js/m360-dropdown.js' %}" defer></script>
-    <script src="{% static 'm360/js/m360-sidebar-collapse.js' %}" defer></script>
-    <script src="{% static 'm360/js/m360-sidebar-toggle.js' %}" defer></script>
-    <script src="{% static 'm360/js/m360-tabs.js' %}" defer></script>
-    <script src="{% static 'm360/js/m360-tooltip.js' %}" defer></script>
-    <script src="{% static 'm360/js/m360-popover.js' %}" defer></script>
-    <script src="{% static 'm360/js/m360-alerts.js' %}" defer></script>
-    <script src="{% static 'm360/js/m360-back-to-top.js' %}" defer></script>
-    {% if user.is_authenticated %}
-    <script src="{% static 'assets/js/notifications.js' %}" defer></script>
-    {% endif %}
+    {% include 'includes/footer.html' %}
 
     {% block extra_js %}{% endblock %}
-
-    <!-- Inline Script -->
-    <script nonce="{{ request.csp_nonce }}">
-        // Back to top behavior (migrated to m360-back-to-top.js)
-    </script>
 </body>
 </html>

@@ -1,0 +1,906 @@
+/* static/events/css/task-panel.css */
+
+/* ============================================================
+   VARIABLES Y CONFIGURACIÓN GLOBAL
+   ============================================================ */
+:root {
+    --transition-speed: 0.3s;
+    --card-hover-transform: translateY(-2px);
+    --shadow-hover: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --border-light: 1px solid #f0f0f0;
+}
+
+/* ============================================================
+   COMPACT VIEW - MODO COMPACTO GENERAL
+   ============================================================ */
+.compact-view .card {
+    margin-bottom: 0.5rem;
+}
+
+.compact-view .table td,
+.compact-view .table th {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.compact-view .kanban-card {
+    margin-bottom: 0.25rem;
+}
+
+.compact-view .btn-sm {
+    padding: 0.125rem 0.25rem;
+    font-size: 0.75rem;
+}
+
+/* ============================================================
+   CONTROLES EXTENDIDOS DE TAREAS
+   ============================================================ */
+.task-extended-controls {
+    transition: all var(--transition-speed) ease;
+    border-top: var(--border-light);
+    padding-top: 4px;
+    margin-top: 2px;
+}
+
+.task-extended-controls.show {
+    opacity: 1;
+    max-height: 100px;
+}
+
+.task-extended-controls .form-check {
+    margin-bottom: 0;
+}
+
+.task-extended-controls .form-check-input {
+    width: 16px;
+    height: 16px;
+    margin-top: 0;
+    margin-right: 4px;
+}
+
+.task-extended-controls .form-check-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    cursor: pointer;
+}
+
+.task-extended-controls .dropdown-toggle {
+    padding: 2px 6px;
+    font-size: 0.8rem;
+    border-radius: 3px;
+}
+
+/* ============================================================
+   OPCIONES DE ESTADO DE TAREAS
+   ============================================================ */
+.task-status-option .badge {
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Checkbox de completado */
+.task-complete-checkbox:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.task-complete-checkbox:checked:focus {
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* ============================================================
+   TAREAS BLOQUEADAS
+   ============================================================ */
+.task-row[data-status="Blocked"] {
+    opacity: 0.7;
+    background-color: rgba(220, 53, 69, 0.05) !important;
+}
+
+.task-row[data-status="Blocked"]:hover {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+/* ============================================================
+   TOOLTIPS
+   ============================================================ */
+[title] {
+    cursor: help;
+}
+
+/* ============================================================
+   MEJORAS EN COLUMNA DE ACCIONES
+   ============================================================ */
+.task-row .btn-group {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.task-row .form-check.form-switch {
+    margin-left: 0.5rem;
+}
+
+/* Switch principal */
+.task-status-switch {
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+}
+
+.task-status-switch:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ============================================================
+   ESTADÍSTICAS - CARDS COMPACTAS Y RESPONSIVAS
+   ============================================================ */
+
+.info-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-card:hover {
+    transform: var(--card-hover-transform);
+    box-shadow: var(--shadow-hover) !important;
+}
+
+.info-card .card-icon {
+    transition: all 0.2s ease;
+}
+
+.info-card:hover .card-icon {
+    transform: scale(1.05);
+}
+
+/* Títulos compactos */
+.info-card .small.text-uppercase {
+    font-size: 0.7rem;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+}
+
+.info-card h4 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+}
+
+.info-card .badge {
+    font-size: 0.65rem;
+    font-weight: 500;
+}
+
+/* Breakpoints específicos para las cards */
+
+/* Móvil muy pequeño (menos de 375px) */
+@media (max-width: 374px) {
+    .info-card .card-body {
+        padding: 0.6rem !important;
+    }
+    
+    .info-card .card-icon {
+        width: 28px !important;
+        height: 28px !important;
+    }
+    
+    .info-card .card-icon i {
+        font-size: 0.9rem !important;
+    }
+    
+    .info-card h4 {
+        font-size: 1.1rem;
+    }
+    
+    .info-card .small.text-uppercase {
+        font-size: 0.6rem;
+    }
+    
+    .info-card .badge {
+        font-size: 0.55rem;
+        padding: 0.15rem 0.3rem;
+    }
+    
+    .info-card .text-muted.small {
+        font-size: 0.6rem;
+    }
+}
+
+/* Móvil estándar (375px - 576px) */
+@media (min-width: 375px) and (max-width: 576px) {
+    .info-card .card-body {
+        padding: 0.75rem !important;
+    }
+    
+    .info-card .card-icon {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .info-card h4 {
+        font-size: 1.25rem;
+    }
+    
+    .info-card .small.text-uppercase {
+        font-size: 0.65rem;
+    }
+}
+
+/* Tablets y pantallas medianas (577px - 991px) */
+@media (min-width: 577px) and (max-width: 991px) {
+    .info-card .card-body {
+        padding: 0.9rem !important;
+    }
+    
+    .info-card h4 {
+        font-size: 1.35rem;
+    }
+}
+
+/* Desktop grande */
+@media (min-width: 1400px) {
+    .info-card .card-body {
+        padding: 1rem !important;
+    }
+    
+    .info-card .card-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .info-card .card-icon i {
+        font-size: 1.25rem !important;
+    }
+    
+    .info-card h4 {
+        font-size: 1.6rem;
+    }
+    
+    .info-card .small.text-uppercase {
+        font-size: 0.75rem;
+    }
+}
+
+/* Modo compacto (cuando se activa desde el toggle) */
+.compact-view .info-card .card-body {
+    padding: 0.5rem !important;
+}
+
+.compact-view .info-card .card-icon {
+    width: 24px !important;
+    height: 24px !important;
+}
+
+.compact-view .info-card .card-icon i {
+    font-size: 0.8rem !important;
+}
+
+.compact-view .info-card h4 {
+    font-size: 1rem;
+}
+
+.compact-view .info-card .small.text-uppercase {
+    font-size: 0.55rem;
+}
+
+.compact-view .info-card .badge {
+    font-size: 0.5rem;
+    padding: 0.1rem 0.25rem;
+}
+
+.compact-view .info-card .progress {
+    height: 2px !important;
+}
+
+.compact-view .info-card .text-muted.small {
+    font-size: 0.55rem;
+}
+
+/* Animación para las cards cuando cambia el tamaño */
+.info-card .card-body,
+.info-card .card-icon,
+.info-card h4,
+.info-card .small.text-uppercase,
+.info-card .badge,
+.info-card .progress {
+    transition: all 0.3s ease;
+}
+
+/* ============================================================
+   AJUSTES RESPONSIVOS GENERALES
+   ============================================================ */
+@media (max-width: 768px) {
+    .task-extended-controls .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .task-extended-controls .dropdown {
+        margin-top: 4px;
+        align-self: flex-end;
+    }
+    
+    .table td:nth-child(9), 
+    .table th:nth-child(9) {
+        min-width: 150px;
+    }
+}
+
+/* ============================================================
+   UTILIDADES ADICIONALES
+   ============================================================ */
+
+/* Cursor pointer para elementos clickeables */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Truncado de texto seguro */
+.text-truncate-safe {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+/* Sombras personalizadas */
+.shadow-hover {
+    transition: box-shadow 0.2s ease;
+}
+
+.shadow-hover:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+/* Badges de estado con colores */
+.status-badge-todo {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+.status-badge-progress {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.status-badge-completed {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.status-badge-blocked {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+/* ============================================================
+   MEJORAS DE ACCESIBILIDAD
+   ============================================================ */
+
+/* Focus visible para elementos interactivos */
+.btn:focus-visible,
+.form-check-input:focus-visible,
+.dropdown-toggle:focus-visible {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+/* Reducción de movimiento para usuarios que lo prefieren */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ============================================================
+   QUICK ACTIONS PANEL
+   ============================================================ */
+
+/* Estilos base del panel */
+.quick-actions-panel .card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.quick-actions-panel .card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Botones de acción */
+.quick-actions-panel .btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.quick-actions-panel .btn-success {
+    background: linear-gradient(145deg, #28a745, #218838);
+    border: none;
+    color: white;
+}
+
+.quick-actions-panel .btn-success:hover {
+    background: linear-gradient(145deg, #218838, #1e7e34);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+}
+
+.quick-actions-panel .btn-outline-primary {
+    border-width: 1.5px;
+}
+
+.quick-actions-panel .btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.15);
+}
+
+.quick-actions-panel .btn-outline-info:hover {
+    background-color: #0dcaf0;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(13, 202, 240, 0.15);
+}
+
+.quick-actions-panel .btn-outline-warning:hover {
+    background-color: #ffc107;
+    color: #000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.15);
+}
+
+/* Efecto de clic */
+.quick-actions-panel .btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Breakpoints responsivos */
+
+/* Móvil pequeño (<576px) */
+@media (max-width: 575.98px) {
+    .quick-actions-panel .btn {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .quick-actions-panel .btn i {
+        font-size: 1.1rem !important;
+    }
+    
+    .quick-actions-panel .border-top .small {
+        font-size: 0.7rem;
+    }
+}
+
+/* Tablets (576px - 768px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .quick-actions-panel .btn {
+        padding: 0.5rem 0.35rem;
+        font-size: 0.8rem;
+    }
+    
+    .quick-actions-panel .btn i {
+        font-size: 1rem !important;
+        margin-right: 0.3rem !important;
+    }
+}
+
+/* Modo compacto */
+.compact-view .quick-actions-panel .card-body {
+    padding: 0.75rem !important;
+}
+
+.compact-view .quick-actions-panel .btn {
+    padding: 0.4rem 0.25rem;
+    font-size: 0.75rem;
+}
+
+.compact-view .quick-actions-panel .btn i {
+    font-size: 0.9rem !important;
+}
+
+.compact-view .quick-actions-panel .border-top {
+    margin-top: 0.5rem !important;
+    padding-top: 0.25rem !important;
+}
+
+.compact-view .quick-actions-panel .border-top .small {
+    font-size: 0.65rem;
+}
+
+/* Animaciones */
+.quick-actions-panel .btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-actions-panel .btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+.quick-actions-panel .btn:active::after {
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+}
+
+/* Tooltips personalizados para acciones (opcional) */
+.quick-actions-panel .btn[title] {
+    position: relative;
+}
+
+.quick-actions-panel .btn[title]:hover::before {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 0.7rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+/* ============================================================
+   TASKS DISPLAY AREA - VIEWS OPTIMIZATION
+   ============================================================ */
+
+/* View Selector */
+.view-selector-card {
+    background: white;
+    border-radius: 10px;
+}
+
+.view-selector-card .btn-group .btn {
+    border-color: #e9ecef;
+    color: #6c757d;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.view-selector-card .btn-group .btn:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+}
+
+.view-selector-card .btn-group .btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+/* Table View */
+.table-responsive {
+    border-radius: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Kanban View */
+.kanban-container {
+    margin: 0 -5px;
+}
+
+.kanban-column {
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+}
+
+.kanban-column:hover {
+    transform: translateY(-2px);
+}
+
+.kanban-column .card-header {
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+}
+
+.kanban-column-body {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f1f5f9;
+}
+
+.kanban-column-body::-webkit-scrollbar {
+    width: 5px;
+}
+
+.kanban-column-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.kanban-column-body::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
+}
+
+.kanban-column-body::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.kanban-card {
+    transition: all 0.2s ease;
+}
+
+.kanban-card:hover {
+    transform: translateX(2px);
+}
+
+.kanban-card .card {
+    background: white;
+    border-radius: 8px;
+}
+
+/* Cards View */
+#cardsContainer .card {
+    transition: all 0.2s ease;
+}
+
+#cardsContainer .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Empty States */
+.empty-state {
+    padding: 3rem 1rem;
+}
+
+.empty-state i {
+    opacity: 0.3;
+}
+
+/* Breakpoints Responsivos */
+
+/* Móvil pequeño (<576px) */
+@media (max-width: 575.98px) {
+    .kanban-column {
+        margin-bottom: 1rem;
+    }
+    
+    .kanban-column-body {
+        max-height: 350px !important;
+        min-height: 350px !important;
+    }
+    
+    #cardsContainer .col-12 {
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-group .btn {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* Tablets (576px - 768px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .kanban-column-body {
+        max-height: 400px !important;
+    }
+}
+
+/* Modo compacto */
+.compact-view .kanban-column .card-body {
+    padding: 0.5rem !important;
+}
+
+.compact-view .kanban-card .card-body {
+    padding: 0.5rem !important;
+}
+
+.compact-view .kanban-card h6 {
+    font-size: 0.7rem;
+}
+
+.compact-view .kanban-card .badge {
+    font-size: 0.5rem;
+}
+
+.compact-view .btn-sm {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.65rem;
+}
+
+/* Animaciones */
+.view-container {
+    transition: opacity 0.3s ease;
+}
+
+.kanban-card,
+#cardsContainer .card {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading skeleton (opcional) */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Animaciones suaves para las tarjetas de estadísticas */
+.info-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Animación para las barras de progreso */
+.progress-bar {
+    transition: width 0.3s ease-in-out;
+}
+
+/* Efecto de pulso para cambios significativos */
+@keyframes stats-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.stat-updated {
+    animation: stats-pulse 0.3s ease-in-out;
+}
+
+/* Estilos para columnas dinámicas */
+.kanban-column-wrapper {
+    transition: all 0.3s ease;
+    animation: fadeInColumn 0.3s ease;
+}
+
+@keyframes fadeInColumn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.kanban-column-body.drag-over {
+    background-color: rgba(13, 110, 253, 0.1);
+    border: 2px dashed #0d6efd;
+    border-radius: 8px;
+}
+
+.kanban-column-body .kanban-empty-state {
+    transition: opacity 0.2s ease;
+}
+
+.kanban-card {
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.kanban-card:active {
+    cursor: grabbing;
+}
+
+.kanban-card.dragging {
+    opacity: 0.5;
+    transform: rotate(2deg) scale(0.95);
+}
+
+/* Estilos para los diferentes tipos de columnas */
+.kanban-column[data-status-name="To Do"] .card-header {
+    background-color: #f8f9fa;
+}
+
+.kanban-column[data-status-name="In Progress"] .card-header {
+    background-color: #ffc107;
+}
+
+.kanban-column[data-status-name="Completed"] .card-header {
+    background-color: #28a745;
+}
+
+.kanban-column[data-status-name="Blocked"] .card-header {
+    background-color: #dc3545;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .kanban-column-body {
+        min-height: 300px !important;
+        max-height: 400px !important;
+    }
+}
+
+/* Animación para nuevas tarjetas */
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.kanban-card {
+    animation: cardAppear 0.2s ease;
+}
+
+/* Animación para eliminación de columnas */
+.kanban-column-wrapper {
+    transition: all 0.3s ease;
+    animation: fadeInColumn 0.3s ease;
+}
+
+.kanban-column-wrapper.removing {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+@keyframes fadeInColumn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilo para columnas vacías (antes de eliminarse) */
+.kanban-column-wrapper:empty {
+    display: none;
+}
+
+/* Mejora visual para el empty state */
+.kanban-empty-state {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.kanban-empty-state:hover {
+    opacity: 1;
+}

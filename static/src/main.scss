@@ -1,0 +1,63 @@
+/* ==========================================================================
+   Management360 — ITCSS Architecture
+   Inverted Triangle CSS
+   Orden de importación: especificidad creciente
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. SETTINGS — Variables, tokens, design tokens
+   -------------------------------------------------------------------------- */
+@import 'settings/settings.tokens';
+@import 'settings/settings.manage-courses';
+@import 'settings/settings.kanban';
+
+/* --------------------------------------------------------------------------
+   2. TOOLS — Mixins, funciones, helpers del preprocesador
+   -------------------------------------------------------------------------- */
+/* (sin archivos tools en esta migración; reservado para mixins/funciones) */
+
+/* --------------------------------------------------------------------------
+   3. GENERIC — Resets, normalize, box-sizing
+   -------------------------------------------------------------------------- */
+@import 'generic/generic.base';
+
+/* --------------------------------------------------------------------------
+   4. ELEMENTS — Estilos de elementos HTML sin clases
+   -------------------------------------------------------------------------- */
+/* (sin archivos elements en esta migración; reservado para type selectors) */
+
+/* --------------------------------------------------------------------------
+   5. OBJECTS — Patrones estructurales neutros (OOCSS)
+   -------------------------------------------------------------------------- */
+@import 'objects/objects.layout';
+@import 'objects/objects.inbox-layout';
+@import 'objects/objects.process-layout';
+
+/* --------------------------------------------------------------------------
+   6. COMPONENTS — Componentes de UI específicos
+   -------------------------------------------------------------------------- */
+@import 'components/components.courses-main';
+@import 'components/components.courses-header';
+@import 'components/components.courses-footer';
+@import 'components/components.courses-navbar';
+@import 'components/components.courses-hero';
+@import 'components/components.courses-badge';
+@import 'components/components.courses-category';
+@import 'components/components.course-card';
+@import 'components/components.courses-stats';
+@import 'components/components.alerts';
+@import 'components/components.floating-button';
+@import 'components/components.kanban';
+@import 'components/components.content-manager';
+@import 'components/components.manage-courses-legacy';
+@import 'components/components.cv-profile';
+@import 'components/components.cv-edit';
+@import 'components/components.events';
+@import 'components/components.events-task';
+@import 'components/components.memento';
+@import 'components/components.floating-button-events';
+
+/* --------------------------------------------------------------------------
+   7. TRUMPS — Utilidades, overrides, helpers con !important
+   -------------------------------------------------------------------------- */
+@import 'trumps/trumps.courses-utilities';

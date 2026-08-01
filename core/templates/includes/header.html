@@ -1,26 +1,24 @@
 {% load icon_tags %}
-<header id="m360-header" class="m360-site-header is-fixed">
-    <button type="button" class="m360-sidebar-toggle" data-m360-toggle="sidebar" data-m360-target="#sidebar" aria-expanded="false" aria-label="Toggle navigation">☰</button>
-    <a href="{% url 'home' %}" class="m360-site-header-brand m360-header-brand-text">
-      {% if user.is_authenticated %}
-        {% if user.cv.profile_picture %}
-          <img src="{{ user.cv.profile_picture.url }}" alt="Profile" class="m360-header-avatar">
+<header>
+    <button type="button" aria-expanded="false" aria-label="Alternar navegación">☰</button>
+
+    <a href="{% url 'home' %}">
+        {% if user.is_authenticated %}
+            {% if user.cv.profile_picture %}
+            <img src="{{ user.cv.profile_picture.url }}" alt="Perfil">
+            {% else %}
+            <span aria-hidden="true">{{ user.get_full_name|first }}</span>
+            {% endif %}
         {% else %}
-          <span class="m360-header-avatar" aria-hidden="true">{{ user.get_full_name|first }}</span>
+            <span aria-hidden="true">M360</span>
         {% endif %}
-      {% else %}
-        <span class="m360-header-brand-mark" aria-hidden="true">M360</span>
-      {% endif %}
-      <span>Management360</span>
+        <span>Management360</span>
     </a>
 
-    <form class="m360-site-header-actions m360-header-search-form" method="GET" action="{% url 'search' %}">
-      <div class="m360-header-search">
-        <input type="text" name="query" placeholder="Search" value="{{ request.GET.query }}" class="m360-form-control m360-form-control-sm">
-        <button type="submit" class="m360-btn-icon m360-btn-icon-sm" aria-label="Search">{% icon 'search' %}</button>
-      </div>
+    <form method="GET" action="{% url 'search' %}">
+        <input type="text" name="query" placeholder="Buscar" value="{{ request.GET.query }}">
+        <button type="submit" aria-label="Buscar">{% icon 'search' %}</button>
     </form>
 
-    <button type="button" class="m360-nav-toggle m360-d-inline-flex m360-d-sm-none" data-nav-toggle aria-expanded="false" aria-label="Toggle navigation menu">☰</button>
-
+    <button type="button" aria-expanded="false" aria-label="Alternar menú de navegación">☰</button>
 </header>

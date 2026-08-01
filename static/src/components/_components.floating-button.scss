@@ -1,0 +1,637 @@
+/* ============================================================================
+   INBOX GTD FLOATING BUTTON - GLOBAL ACCESS COMPONENT
+   ============================================================================
+   This CSS file contains all styles for the global inbox GTD floating button
+   that provides quick access to inbox functionality from any page.
+
+   Features:
+   - Floating button with pulse animation
+   - Expandable panel with quick capture form
+   - Real-time statistics display
+   - Responsive design for all screen sizes
+   - Accessibility features (keyboard navigation, ARIA labels)
+   - Smooth animations and transitions
+   - Toast notifications integration
+
+   Dependencies:
+   - Bootstrap 5.x
+   - Bootstrap Icons
+   - Main application CSS
+
+   ============================================================================ */
+
+/* ============================================================================
+    MAIN FLOATING CONTAINER
+    ============================================================================ */
+.inbox-floating-container {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    z-index: 1040;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ============================================================================
+   FLOATING BUTTON
+   ============================================================================ */
+.inbox-floating-button {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 123, 255, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    outline: none;
+    user-select: none;
+}
+
+.inbox-floating-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0, 123, 255, 0.4);
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+}
+
+.inbox-floating-button:active {
+    transform: scale(0.95);
+}
+
+.inbox-floating-button:focus {
+    outline: 3px solid rgba(0, 123, 255, 0.5);
+    outline-offset: 2px;
+}
+
+/* ============================================================================
+   BUTTON CONTENT
+   ============================================================================ */
+.inbox-button-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.inbox-icon-main {
+    font-size: 24px;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
+.inbox-floating-button:hover .inbox-icon-main {
+    transform: rotate(180deg) scale(1.1);
+}
+
+/* ============================================================================
+   BADGE COUNTER
+   ============================================================================ */
+.inbox-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    transition: all 0.3s ease;
+    animation: badgePulse 2s infinite;
+}
+
+.inbox-badge:empty {
+    display: none;
+}
+
+@keyframes badgePulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    }
+}
+
+/* ============================================================================
+   PULSE RING ANIMATION
+   ============================================================================ */
+.inbox-pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba(0, 123, 255, 0.6);
+    border-radius: 50%;
+    animation: pulseRing 2s infinite;
+}
+
+@keyframes pulseRing {
+    0% {
+        width: 100%;
+        height: 100%;
+        opacity: 1;
+    }
+    100% {
+        width: 150%;
+        height: 150%;
+        opacity: 0;
+    }
+}
+
+/* ============================================================================
+    EXPANDED PANEL
+    ============================================================================ */
+.inbox-panel {
+    position: absolute;
+    bottom: 90px;
+    right: 0;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.9);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1041;
+}
+
+.inbox-panel.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.inbox-panel-header {
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.inbox-panel-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inbox-panel-title i {
+    color: #007bff;
+}
+
+.inbox-panel-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.inbox-panel-close:hover {
+    color: #dc3545;
+    background: rgba(220, 53, 69, 0.1);
+}
+
+/* ============================================================================
+   QUICK CAPTURE FORM
+   ============================================================================ */
+.inbox-quick-form {
+    padding: 20px;
+}
+
+.inbox-form-group {
+    margin-bottom: 16px;
+}
+
+.inbox-form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 6px;
+}
+
+.inbox-form-group input,
+.inbox-form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+}
+
+.inbox-form-group input:focus,
+.inbox-form-group textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.inbox-form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+    max-height: 120px;
+}
+
+.inbox-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.inbox-btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+}
+
+.inbox-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.inbox-btn-primary:active {
+    transform: translateY(0);
+}
+
+.inbox-btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.inbox-btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+/* ============================================================================
+   STATISTICS SECTION
+   ============================================================================ */
+.inbox-stats {
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    border-radius: 0 0 16px 16px;
+}
+
+.inbox-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    gap: 12px;
+    text-align: center;
+}
+
+.inbox-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.inbox-stat-number {
+    font-size: 18px;
+    font-weight: 700;
+    color: #007bff;
+    line-height: 1;
+}
+
+.inbox-stat-label {
+    font-size: 11px;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+/* ============================================================================
+    TOAST NOTIFICATIONS
+    ============================================================================ */
+.inbox-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 16px 20px;
+    z-index: 1042;
+    transform: translateX(400px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 350px;
+    border-left: 4px solid #007bff;
+}
+
+.inbox-toast.show {
+    transform: translateX(0);
+}
+
+.inbox-toast.success {
+    border-left-color: #28a745;
+}
+
+.inbox-toast.error {
+    border-left-color: #dc3545;
+}
+
+.inbox-toast.warning {
+    border-left-color: #ffc107;
+}
+
+.inbox-toast-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.inbox-toast-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.inbox-toast-text {
+    flex: 1;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.inbox-toast-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.inbox-toast-message {
+    font-size: 13px;
+    color: #6c757d;
+    margin: 0;
+}
+
+.inbox-toast-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.inbox-toast-close:hover {
+    color: #495057;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================================================
+    RESPONSIVE DESIGN
+    ============================================================================ */
+@media (max-width: 768px) {
+    .inbox-floating-container {
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .inbox-floating-button {
+        width: 55px;
+        height: 55px;
+    }
+
+    .inbox-icon-main {
+        font-size: 20px;
+    }
+
+    .inbox-panel {
+        width: calc(100vw - 30px);
+        max-width: calc(100vw - 30px);
+        right: -10px;
+    }
+
+    .inbox-panel-header {
+        padding: 16px;
+    }
+
+    .inbox-panel-title {
+        font-size: 16px;
+    }
+
+    .inbox-quick-form {
+        padding: 16px;
+    }
+
+    .inbox-stats {
+        padding: 12px 16px;
+    }
+
+    .inbox-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .inbox-form-actions {
+        flex-direction: column;
+    }
+
+    .inbox-toast {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        transform: translateY(-100px);
+    }
+
+    .inbox-toast.show {
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================================
+    SIDEBAR COLLISION AVOIDANCE
+    ============================================================================ */
+@media (min-width: 769px) {
+    /* When sidebar is expanded (has toggle-sidebar class) */
+    body.toggle-sidebar .inbox-floating-container {
+        right: 20px;
+    }
+
+    /* When sidebar is collapsed */
+    body:not(.toggle-sidebar) .inbox-floating-container {
+        right: 20px;
+    }
+}
+
+/* Ensure inbox doesn't interfere with navigation elements */
+.inbox-floating-container {
+    pointer-events: auto;
+}
+
+/* Avoid collision with back-to-top button */
+.back-to-top {
+    bottom: 20px !important;
+    right: 90px !important;
+}
+
+@media (max-width: 480px) {
+    .inbox-panel {
+        width: calc(100vw - 20px);
+        max-width: calc(100vw - 20px);
+        right: -5px;
+    }
+
+    .inbox-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .inbox-stat-number {
+        font-size: 16px;
+    }
+
+    .inbox-stat-label {
+        font-size: 10px;
+    }
+}
+
+/* ============================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .inbox-floating-button,
+    .inbox-panel,
+    .inbox-toast,
+    .inbox-pulse-ring,
+    .inbox-badge {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .inbox-floating-button {
+        border: 2px solid white;
+    }
+
+    .inbox-panel {
+        border: 2px solid #000;
+    }
+
+    .inbox-form-group input,
+    .inbox-form-group textarea {
+        border: 2px solid #000;
+    }
+}
+
+/* Focus visible for keyboard navigation */
+.inbox-floating-button:focus-visible {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+}
+
+.inbox-panel-close:focus-visible,
+.inbox-btn-primary:focus-visible,
+.inbox-btn-secondary:focus-visible,
+.inbox-toast-close:focus-visible {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* ============================================================================
+   PRINT STYLES
+   ============================================================================ */
+@media print {
+    .inbox-floating-container,
+    .inbox-toast {
+        display: none !important;
+    }
+}
+
+/* ============================================================================
+   DARK MODE SUPPORT (if implemented)
+   ============================================================================ */
+@media (prefers-color-scheme: dark) {
+    .inbox-panel {
+        background: #1a1a1a;
+        border-color: #333;
+    }
+
+    .inbox-panel-header {
+        background: linear-gradient(135deg, #2c2c2c 0%, #333 100%);
+        border-color: #444;
+    }
+
+    .inbox-panel-title {
+        color: #e9ecef;
+    }
+
+    .inbox-form-group input,
+    .inbox-form-group textarea {
+        background: #2c2c2c;
+        border-color: #444;
+        color: #e9ecef;
+    }
+
+    .inbox-form-group input:focus,
+    .inbox-form-group textarea:focus {
+        background: #333;
+        border-color: #0d6efd;
+    }
+
+    .inbox-stats {
+        background: #2c2c2c;
+        border-color: #444;
+    }
+
+    .inbox-stat-label {
+        color: #adb5bd;
+    }
+}

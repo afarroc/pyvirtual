@@ -1,0 +1,866 @@
+/* ============================================================================
+   COMPONENTS.CSS - SISTEMA DE COMPONENTES UNIFICADO
+   Eventos, Inbox, Tareas, Proyectos - GTD System
+   ============================================================================ */
+
+/* --------------------------------------
+   1. VARIABLES Y CONFIGURACIÓN GLOBAL
+   -------------------------------------- */
+:root {
+    /* Colores primarios */
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary-color: #667eea;
+    --primary-dark: #5a67d8;
+    
+    /* Colores de estado */
+    --success-color: #48bb78;
+    --warning-color: #ed8936;
+    --danger-color: #f56565;
+    --info-color: #4299e1;
+    
+    /* Colores neutros */
+    --gray-100: #f7fafc;
+    --gray-200: #edf2f7;
+    --gray-300: #e2e8f0;
+    --gray-400: #cbd5e0;
+    --gray-500: #a0aec0;
+    --gray-600: #718096;
+    --gray-700: #4a5568;
+    --gray-800: #2d3748;
+    --gray-900: #1a202c;
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.05);
+    --shadow-xl: 0 20px 25px rgba(0,0,0,0.08);
+    
+    /* Bordes */
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
+    --border-radius-xl: 20px;
+    --border-radius-full: 9999px;
+    
+    /* Espaciado */
+    --spacing-1: 0.25rem;
+    --spacing-2: 0.5rem;
+    --spacing-3: 0.75rem;
+    --spacing-4: 1rem;
+    --spacing-5: 1.25rem;
+    --spacing-6: 1.5rem;
+}
+
+/* --------------------------------------
+   2. TARJETAS BASE (CARD)
+   -------------------------------------- */
+.card,
+.event-card,
+.filter-card,
+.form-card,
+.stats-card,
+.item-card,
+.processed-card,
+.activity-card,
+.quick-actions-card {
+    border: none;
+    border-radius: var(--border-radius-lg);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background: white;
+}
+
+.card:hover,
+.event-card:hover,
+.filter-card:hover,
+.form-card:hover,
+.stats-card:hover,
+.item-card:hover,
+.processed-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* Cabeceras de tarjeta */
+.card-header,
+.event-card .card-header,
+.filter-card .card-header,
+.form-card .card-header,
+.stats-card .card-header,
+.quick-actions-card .card-header {
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0 !important;
+    border: none;
+    padding: var(--spacing-4) var(--spacing-5);
+}
+
+.card-header h5,
+.card-header h6,
+.card-title {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.card-title {
+    color: var(--gray-800);
+    margin-bottom: var(--spacing-4);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.card-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.card-title a:hover {
+    color: var(--primary-color);
+}
+
+.card-body {
+    padding: var(--spacing-5);
+}
+
+/* --------------------------------------
+   3. MENÚ DE FILTRO (3 PUNTOS)
+   -------------------------------------- */
+.filter {
+    position: absolute;
+    top: var(--spacing-4);
+    right: var(--spacing-4);
+    z-index: 10;
+}
+
+.filter .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--border-radius-full);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    transition: all 0.2s;
+}
+
+.filter .icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Dropdowns */
+.dropdown-menu {
+    border: none;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-2) 0;
+    border: 1px solid var(--gray-200);
+}
+
+.dropdown-header {
+    color: var(--gray-600);
+    font-weight: 600;
+    padding: var(--spacing-2) var(--spacing-4);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dropdown-item {
+    padding: var(--spacing-2) var(--spacing-4);
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.dropdown-item:hover {
+    background-color: var(--gray-100);
+    color: var(--primary-color);
+}
+
+.dropdown-item .btn-link {
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+    text-align: left;
+}
+
+/* --------------------------------------
+   4. ICONOS DE TARJETA
+   -------------------------------------- */
+.card-icon,
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-full);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* Variantes de iconos por color */
+.bg-primary-light { background: rgba(102, 126, 234, 0.1); }
+.bg-success-light { background: rgba(72, 187, 120, 0.1); }
+.bg-warning-light { background: rgba(237, 137, 54, 0.1); }
+.bg-danger-light { background: rgba(245, 101, 101, 0.1); }
+.bg-info-light { background: rgba(66, 153, 225, 0.1); }
+
+.text-primary { color: var(--primary-color); }
+.text-success { color: var(--success-color); }
+.text-warning { color: var(--warning-color); }
+.text-danger { color: var(--danger-color); }
+.text-info { color: var(--info-color); }
+
+/* --------------------------------------
+   5. TARJETAS DE ESTADÍSTICAS (STATS)
+   -------------------------------------- */
+.stats-card {
+    padding: 0;
+    transition: all 0.3s;
+}
+
+.stats-card .card-body {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    padding: var(--spacing-4);
+}
+
+.stats-card .stat-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gray-800);
+    margin-bottom: var(--spacing-1);
+}
+
+.stats-card .stat-label {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Bordes de colores para estadísticas */
+.stats-card.border-primary { border-left: 4px solid var(--primary-color); }
+.stats-card.border-success { border-left: 4px solid var(--success-color); }
+.stats-card.border-warning { border-left: 4px solid var(--warning-color); }
+.stats-card.border-danger { border-left: 4px solid var(--danger-color); }
+.stats-card.border-info { border-left: 4px solid var(--info-color); }
+
+/* --------------------------------------
+   6. TARJETAS DE FILTRO Y FORMULARIO
+   -------------------------------------- */
+.filter-card,
+.form-card {
+    border: 1px solid var(--gray-200);
+}
+
+.filter-card .card-body,
+.form-card .card-body {
+    padding: var(--spacing-5);
+}
+
+/* Formularios */
+.form-select,
+.form-control {
+    border-radius: var(--border-radius-md);
+    border: 2px solid var(--gray-200);
+    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.form-select:focus,
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: var(--spacing-2);
+    font-size: 0.875rem;
+}
+
+/* --------------------------------------
+   7. TABLAS (TOP / RECENT SALES)
+   -------------------------------------- */
+.table {
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+.table th {
+    border-top: none;
+    color: var(--gray-600);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: var(--spacing-3) var(--spacing-2);
+    background: var(--gray-100);
+}
+
+.table td {
+    vertical-align: middle;
+    padding: var(--spacing-3) var(--spacing-2);
+    color: var(--gray-700);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.table tbody tr:hover {
+    background-color: var(--gray-100);
+}
+
+.table a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.table a:hover {
+    text-decoration: underline;
+}
+
+/* --------------------------------------
+   8. ACTIVIDAD / TIMELINE
+   -------------------------------------- */
+.activity-card .activity {
+    position: relative;
+    padding-left: var(--spacing-4);
+}
+
+.activity-item {
+    position: relative;
+    padding-bottom: var(--spacing-5);
+    border-left: 2px solid var(--gray-300);
+    padding-left: var(--spacing-5);
+    margin-left: var(--spacing-2);
+}
+
+.activity-item:last-child {
+    border-left-color: transparent;
+    padding-bottom: 0;
+}
+
+.activity-badge {
+    position: absolute;
+    left: -9px;
+    top: 0;
+    font-size: 1rem;
+    background: white;
+    border-radius: 50%;
+}
+
+.activite-label {
+    min-width: 70px;
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-content a {
+    color: var(--gray-800);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.activity-content a:hover {
+    color: var(--primary-color);
+}
+
+/* --------------------------------------
+   9. BADGES Y ETIQUETAS
+   -------------------------------------- */
+.badge {
+    padding: 0.35em 0.65em;
+    font-weight: 600;
+    border-radius: var(--border-radius-full);
+    font-size: 0.75rem;
+    letter-spacing: 0.3px;
+}
+
+.badge.bg-primary { background: var(--primary-color); }
+.badge.bg-success { background: var(--success-color); }
+.badge.bg-warning { background: var(--warning-color); }
+.badge.bg-danger { background: var(--danger-color); }
+.badge.bg-info { background: var(--info-color); }
+
+/* --------------------------------------
+   10. MENSAJES DEL SISTEMA (ALERTAS)
+    -------------------------------------- */
+.messages-container {
+    margin-bottom: var(--spacing-6);
+    position: relative;
+    z-index: 1000;
+}
+
+.alert {
+    border: none;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+    animation: slideDown 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: var(--spacing-3);
+    padding: var(--spacing-4);
+}
+
+.alert:last-child {
+    margin-bottom: 0;
+}
+
+.alert-content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+}
+
+.alert-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.alert-text {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.alert-title {
+    font-weight: 700;
+    margin-bottom: var(--spacing-1);
+    font-size: 1rem;
+}
+
+/* Colores de alerta */
+.alert-success {
+    background-color: #f0fff4;
+    color: #0f5132;
+    border-left: 4px solid var(--success-color);
+}
+.alert-success .alert-icon { color: var(--success-color); }
+
+.alert-danger,
+.alert-error {
+    background-color: #fff5f5;
+    color: #9b2c2c;
+    border-left: 4px solid var(--danger-color);
+}
+.alert-danger .alert-icon,
+.alert-error .alert-icon { color: var(--danger-color); }
+
+.alert-warning {
+    background-color: #fffaf0;
+    color: #c05621;
+    border-left: 4px solid var(--warning-color);
+}
+.alert-warning .alert-icon { color: var(--warning-color); }
+
+.alert-info {
+    background-color: #ebf8ff;
+    color: #2c5282;
+    border-left: 4px solid var(--info-color);
+}
+.alert-info .alert-icon { color: var(--info-color); }
+
+/* Barra de progreso */
+.alert-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.alert-progress .progress-bar {
+    height: 100%;
+    background: currentColor;
+    opacity: 0.3;
+    animation: progressBar 5s linear forwards;
+}
+
+/* --------------------------------------
+   11. ESTADO VACÍO (EMPTY STATE)
+    -------------------------------------- */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-6) var(--spacing-4);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-lg);
+    margin-top: var(--spacing-4);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: var(--gray-400);
+    margin-bottom: var(--spacing-4);
+}
+
+.empty-state-title {
+    color: var(--gray-700);
+    margin-bottom: var(--spacing-2);
+    font-weight: 600;
+}
+
+.empty-state-text {
+    color: var(--gray-600);
+    max-width: 400px;
+    margin: 0 auto var(--spacing-4);
+}
+
+/* --------------------------------------
+   12. ACCIONES RÁPIDAS
+    -------------------------------------- */
+.quick-actions-card .btn {
+    width: 100%;
+    text-align: left;
+    padding: var(--spacing-3) var(--spacing-4);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    justify-content: flex-start;
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.quick-actions-card .btn:hover {
+    transform: translateX(4px);
+}
+
+/* --------------------------------------
+   13. BOTONES PERSONALIZADOS
+    -------------------------------------- */
+.btn {
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem 1.25rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.btn-sm {
+    padding: 0.4rem 1rem;
+    font-size: 0.875rem;
+    border-radius: var(--border-radius-sm);
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46a1 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-success {
+    background: var(--success-color);
+    border: none;
+}
+
+.btn-info {
+    background: var(--info-color);
+    border: none;
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* --------------------------------------
+   14. ANIMACIONES
+    -------------------------------------- */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes progressBar {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* --------------------------------------
+   15. UTILIDADES RESPONSIVE
+    -------------------------------------- */
+@media (max-width: 768px) {
+    .card-body {
+        padding: var(--spacing-4);
+    }
+    
+    .stats-card .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .stats-card .card-body {
+        padding: var(--spacing-3);
+        gap: var(--spacing-3);
+    }
+    
+    .card-icon,
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+    
+    .filter {
+        top: var(--spacing-3);
+        right: var(--spacing-3);
+    }
+    
+    .empty-state-icon {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: var(--spacing-2);
+        font-size: 0.875rem;
+    }
+    
+    .alert-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .alert-icon {
+        margin-bottom: var(--spacing-2);
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* --------------------------------------
+   16. DARK MODE
+    -------------------------------------- */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --gray-100: #1a202c;
+        --gray-200: #2d3748;
+        --gray-300: #4a5568;
+        --gray-400: #718096;
+        --gray-500: #a0aec0;
+        --gray-600: #cbd5e0;
+        --gray-700: #e2e8f0;
+        --gray-800: #edf2f7;
+        --gray-900: #f7fafc;
+    }
+    
+    .card,
+    .event-card,
+    .filter-card,
+    .form-card,
+    .stats-card,
+    .item-card,
+    .processed-card,
+    .activity-card {
+        background: var(--gray-800);
+        color: var(--gray-100);
+    }
+    
+    .card-title {
+        color: white;
+    }
+    
+    .card-text {
+        color: var(--gray-300);
+    }
+    
+    .table {
+        color: var(--gray-200);
+    }
+    
+    .table td {
+        border-color: var(--gray-700);
+        color: var(--gray-300);
+    }
+    
+    .table th {
+        background: var(--gray-700);
+        color: white;
+    }
+    
+    .table tbody tr:hover {
+        background: var(--gray-700);
+    }
+    
+    .dropdown-menu {
+        background: var(--gray-800);
+        border-color: var(--gray-700);
+    }
+    
+    .dropdown-item {
+        color: var(--gray-300);
+    }
+    
+    .dropdown-item:hover {
+        background: var(--gray-700);
+        color: white;
+    }
+    
+    .stats-card .stat-number {
+        color: white;
+    }
+    
+    .stats-card .stat-label {
+        color: var(--gray-400);
+    }
+    
+    .activity-badge {
+        background: var(--gray-800);
+    }
+    
+    .empty-state {
+        background: var(--gray-700);
+    }
+    
+    .empty-state-icon {
+        color: var(--gray-500);
+    }
+    
+    .form-select,
+    .form-control {
+        background: var(--gray-700);
+        border-color: var(--gray-600);
+        color: white;
+    }
+    
+    .form-select option {
+        background: var(--gray-800);
+    }
+}
+
+/* --------------------------------------
+   17. UTILIDADES ADICIONALES
+    -------------------------------------- */
+/* Scroll personalizado */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: var(--border-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
+}
+
+/* Sticky sidebar */
+.sticky-lg-top {
+    position: sticky;
+    top: 1rem;
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+}
+
+.breadcrumb-item a {
+    color: var(--gray-600);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb-item.active {
+    color: var(--gray-800);
+    font-weight: 500;
+}
+
+/* Page header */
+.page-header {
+    margin-bottom: var(--spacing-6);
+}
+
+.page-title {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+}

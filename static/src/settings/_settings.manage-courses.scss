@@ -1,0 +1,492 @@
+/* Variables CSS para temas consistentes */
+:root {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+
+  --shadow-light: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-medium: 0 6px 25px rgba(245, 158, 11, 0.3);
+  --shadow-heavy: 0 20px 40px rgba(0,0,0,0.15);
+
+  --border-radius: 15px;
+  --border-radius-small: 12px;
+  --border-radius-large: 20px;
+
+  --transition-fast: all 0.3s ease;
+  --transition-slow: all 0.5s ease;
+}
+
+/* Indicador de Gestión */
+.management-indicator {
+  background: var(--warning-gradient);
+  border-radius: var(--border-radius);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-medium);
+  position: relative;
+  overflow: hidden;
+}
+
+.management-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="management-pattern" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="30" r="0.5" fill="rgba(255,255,255,0.08)"/></pattern></defs><rect width="100" height="100" fill="url(%23management-pattern)"/></svg>');
+  opacity: 0.4;
+}
+
+.management-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.management-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.management-icon {
+  font-size: 2.5rem;
+  color: white;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.management-text {
+  color: white;
+}
+
+.management-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.management-subtitle {
+  font-size: 1rem;
+  margin: 0.25rem 0 0 0;
+  opacity: 0.9;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.management-metrics {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.metric-item {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-small);
+  text-align: center;
+  min-width: 70px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Tarjetas de Curso Modernas */
+.course-card-modern {
+  background: white;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-light);
+  transition: var(--transition-fast);
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.course-card-modern:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-heavy);
+}
+
+.course-image-container {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.course-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition-fast);
+}
+
+.course-card-modern:hover .course-image {
+  transform: scale(1.05);
+}
+
+.course-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.course-placeholder i {
+  font-size: 3rem;
+  opacity: 0.8;
+}
+
+.course-status-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2d3748;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius-large);
+  font-size: 0.8rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.course-content {
+  padding: 1.5rem;
+}
+
+.course-title-modern {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.course-description-modern {
+  color: #718096;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.course-stats-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.course-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.rating-stars {
+  display: flex;
+  align-items: center;
+  margin-right: 0.5rem;
+}
+
+.rating-stars i {
+  color: #f59e0b;
+  margin-right: 0.125rem;
+}
+
+.rating-score {
+  font-size: 0.9rem;
+  color: #718096;
+}
+
+.course-actions-modern {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.btn-course-action {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: center;
+  transition: var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.btn-edit {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.btn-edit:hover {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.btn-analytics {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.btn-analytics:hover {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.btn-view {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+  border: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+.btn-view:hover {
+  background: rgba(107, 114, 128, 0.2);
+  color: #6b7280;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.btn-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+/* Estado Vacío */
+.empty-state-manage {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+}
+
+.empty-state-manage i {
+  font-size: 4rem;
+  color: #cbd5e0;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state-manage h3 {
+  color: #4a5568;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.empty-state-manage p {
+  color: #718096;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+/* Estadísticas del Dashboard */
+.stats-summary {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-light);
+}
+
+.stats-grid-manage {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #718096;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+}
+
+/* Acciones Rápidas */
+.quick-actions {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-light);
+}
+
+.quick-actions h4 {
+  margin-bottom: 1.5rem;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.quick-action-item {
+  background: var(--info-gradient);
+  border-radius: var(--border-radius-small);
+  padding: 1.5rem;
+  text-align: center;
+  transition: var(--transition-fast);
+  text-decoration: none;
+  color: #2d3748;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.quick-action-item:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-medium);
+  text-decoration: none;
+  color: #2d3748;
+}
+
+.quick-action-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.quick-action-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.quick-action-desc {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .manage-courses-header {
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .manage-courses-header h1 {
+    font-size: 2rem;
+  }
+
+  .course-actions-modern {
+    grid-template-columns: 1fr;
+  }
+
+  .course-stats-modern {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .stats-grid-manage {
+    grid-template-columns: 1fr;
+  }
+
+  .management-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .management-metrics {
+    justify-content: center;
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animaciones sutiles */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Hover effects mejorados */
+.btn-course-action {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-course-action::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-course-action:hover::before {
+  left: 100%;
+}
