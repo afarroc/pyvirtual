@@ -2,32 +2,32 @@
 <!-- =======================================================
      OPTIMIZED MANAGEMENT SECTION
      ======================================================= -->
-<li class="m360-sidebar-nav-item" role="none">
+<li class="m360-sidebar-nav-item">
     <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#management-nav" data-m360-toggle="collapse" data-m360-tooltip="Management">
         {% icon 'card-checklist' %}<span>Management</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
     </button>
-    <ul id="management-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
+    <ul id="management-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
 
         <!-- Main Dashboard -->
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'events:unified_dashboard' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:unified_dashboard' %}">
                 {% icon 'speedometer2' %}<span>Unified Dashboard</span>
             </a>
         </li>
 
         <!-- Core Management -->
-        <li class="m360-sidebar-nav-item" role="none">
+        <li class="m360-sidebar-nav-item">
             <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#core-management-nav" data-m360-toggle="collapse" data-m360-tooltip="Core Management">
                 {% icon 'diagram-3' %}<span>Core Management</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
             </button>
-            <ul id="core-management-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#management-nav" role="menu">
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:management_index' %}" role="menuitem">
+            <ul id="core-management-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#management-nav">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:management_index' %}">
                         {% icon 'circle' %}<span>Management Index</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:panel' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:panel' %}">
                         {% icon 'circle' %}<span>Main Panel</span>
                     </a>
                 </li>
@@ -35,28 +35,28 @@
         </li>
 
         <!-- Productivity Tools -->
-        <li class="m360-sidebar-nav-item" role="none">
+        <li class="m360-sidebar-nav-item">
             <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#productivity-nav" data-m360-toggle="collapse" data-m360-tooltip="Productivity Tools">
                 {% icon 'lightning' %}<span>Productivity Tools</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
             </button>
-            <ul id="productivity-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#management-nav" role="menu">
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:kanban_board' %}" role="menuitem">
+            <ul id="productivity-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#management-nav">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:kanban_board' %}">
                         {% icon 'kanban' %}<span>Kanban Board</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:eisenhower_matrix' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:eisenhower_matrix' %}">
                         {% icon 'grid-3x3' %}<span>Eisenhower Matrix</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:inbox' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:inbox' %}">
                         {% icon 'inbox' %}<span>GTD Inbox</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'bitacora:list' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'bitacora:list' %}">
                         {% icon 'journal-text' %}<span>Bitácora Personal</span>
                     </a>
                 </li>
@@ -64,33 +64,33 @@
         </li>
 
         <!-- Advanced Features -->
-        <li class="m360-sidebar-nav-item" role="none">
+        <li class="m360-sidebar-nav-item">
             <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#advanced-nav" data-m360-toggle="collapse" data-m360-tooltip="Advanced Features">
                 {% icon 'gear' %}<span>Advanced Features</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
             </button>
-            <ul id="advanced-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#management-nav" role="menu">
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_dependencies_list' %}" role="menuitem">
+            <ul id="advanced-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#management-nav">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_dependencies_list' %}">
                         {% icon 'link' %}<span>Task Dependencies</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_templates' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_templates' %}">
                         {% icon 'file-earmark-plus' %}<span>Project Templates</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:reminders_dashboard' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:reminders_dashboard' %}">
                         {% icon 'bell' %}<span>Reminders</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:planning_task' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:planning_task' %}">
                         {% icon 'calendar-week' %}<span>Task Planning</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_schedules' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_schedules' %}">
                         {% icon 'arrow-repeat' %}<span>Task Schedules</span>
                     </a>
                 </li>
@@ -98,28 +98,28 @@
         </li>
 
         <!-- Quick Actions -->
-        <li class="m360-sidebar-nav-item" role="none">
+        <li class="m360-sidebar-nav-item">
             <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#quick-actions-nav" data-m360-toggle="collapse" data-m360-tooltip="Quick Actions">
                 {% icon 'bolt' %}<span>Quick Actions</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
             </button>
-            <ul id="quick-actions-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#management-nav" role="menu">
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:event_create' %}" role="menuitem">
+            <ul id="quick-actions-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#management-nav">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:event_create' %}">
                         {% icon 'plus-circle' %}<span>Create Event</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_create' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_create' %}">
                         {% icon 'plus-circle' %}<span>Create Project</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_create' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_create' %}">
                         {% icon 'plus-circle' %}<span>Create Task</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:create_project_template' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:create_project_template' %}">
                         {% icon 'plus-circle' %}<span>Create Template</span>
                     </a>
                 </li>
@@ -127,23 +127,23 @@
         </li>
 
         <!-- Reports & Analytics -->
-        <li class="m360-sidebar-nav-item" role="none">
+        <li class="m360-sidebar-nav-item">
             <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#reports-nav" data-m360-toggle="collapse" data-m360-tooltip="Reports & Analytics">
                 {% icon 'bar-chart' %}<span>Reports &amp; Analytics</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
             </button>
-            <ul id="reports-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#management-nav" role="menu">
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:event_export' %}" role="menuitem">
+            <ul id="reports-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#management-nav">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:event_export' %}">
                         {% icon 'download' %}<span>Export Events</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_export' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_export' %}">
                         {% icon 'download' %}<span>Export Projects</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_export' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_export' %}">
                         {% icon 'download' %}<span>Export Tasks</span>
                     </a>
                 </li>

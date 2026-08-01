@@ -1,22 +1,22 @@
 {% load icon_tags %}
-<li class="m360-sidebar-nav-item" role="none">
+<li class="m360-sidebar-nav-item">
     <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#rooms-nav" data-m360-toggle="collapse" data-m360-tooltip="Rooms">
         {% icon 'columns-gap' %}<span>Rooms</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
     </button>
-    <ul id="rooms-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'rooms:lobby' %}" role="menuitem">
+    <ul id="rooms-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'rooms:lobby' %}">
                 {% icon 'circle' %}<span>Lobby</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'rooms:room_list' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'rooms:room_list' %}">
                 {% icon 'circle' %}<span>Rooms</span>
             </a>
         </li>
         {% if user.is_authenticated %}
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'rooms:room_create' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'rooms:room_create' %}">
                 {% icon 'circle' %}<span>Create Room</span>
             </a>
         </li>

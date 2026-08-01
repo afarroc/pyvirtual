@@ -29,10 +29,10 @@
 </head>
 
 <body {% if user.is_authenticated %}data-user-authenticated="true"{% endif %} class="m360-root sidebar-closed">
-    {% include 'layouts/header.html' %}
+    {% include 'includes/header.html' %}
     <div class="m360-page-layout">
         <div class="m360-sidebar-overlay" data-m360-sidebar-overlay="#sidebar"></div>
-        {% include 'layouts/sidebar.html' %}
+        {% include 'includes/sidebar.html' %}
         <main id="main" class="m360-main">
         <!-- Alerts Section -->
         {% if messages or alerts %}
@@ -80,7 +80,8 @@
         {% endif %}
     </div>
 
-    {% include 'layouts/footer.html' %}
+    {% include 'includes
+    /footer.html' %}
 
     {% include 'components/_back_to_top.html' %}
 

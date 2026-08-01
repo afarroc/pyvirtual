@@ -1,19 +1,19 @@
 {% load icon_tags %}
-<li class="m360-sidebar-nav-item" role="none">
+<li class="m360-sidebar-nav-item">
     <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#courses-nav" data-m360-toggle="collapse" data-m360-tooltip="Cursos">
         {% icon 'journal-bookmark' %}<span>Cursos</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
     </button>
-    <ul id="courses-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
+    <ul id="courses-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
         <!-- Sección de Aprendizaje -->
         <li class="m360-sidebar-nav-heading" role="separator" aria-hidden="true">Aprendizaje</li>
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'courses:courses_list' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'courses:courses_list' %}">
                 {% icon 'search' %}<span>Explorar Cursos</span>
             </a>
         </li>
         {% if user.is_authenticated %}
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'courses:dashboard' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'courses:dashboard' %}">
                 {% icon 'speedometer2' %}<span>Mi Dashboard</span>
             </a>
         </li>
@@ -21,18 +21,18 @@
         <!-- Sección de Gestión de Contenido (solo tutores) -->
         {% if user.cv %}
         <li class="m360-sidebar-nav-heading" role="separator" aria-hidden="true">Gestión de Contenido</li>
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'courses:manage_courses' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'courses:manage_courses' %}">
                 {% icon 'folder-fill' %}<span>Mis Cursos</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'courses:create_course' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'courses:create_course' %}">
                 {% icon 'plus-circle-fill' %}<span>Crear Curso</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'courses:modules_overview' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'courses:modules_overview' %}">
                 {% icon 'diagram-3-fill' %}<span>Gestionar Módulos</span>
             </a>
         </li>
@@ -41,18 +41,18 @@
         <!-- Sección Administrativa (solo staff) -->
         {% if user.is_staff %}
         <li class="m360-sidebar-nav-heading" role="separator" aria-hidden="true">Administración</li>
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'courses:admin_dashboard' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'courses:admin_dashboard' %}">
                 {% icon 'shield-check' %}<span>Panel Admin</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'courses:admin_users' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'courses:admin_users' %}">
                 {% icon 'people-fill' %}<span>Gestionar Usuarios</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'courses:manage_categories' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'courses:manage_categories' %}">
                 {% icon 'tags-fill' %}<span>Categorías</span>
             </a>
         </li>

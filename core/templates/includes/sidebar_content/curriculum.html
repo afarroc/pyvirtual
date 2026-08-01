@@ -1,0 +1,42 @@
+{% load icon_tags %}
+<li class="m360-sidebar-nav-item">
+    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#cv-nav" data-m360-toggle="collapse" data-m360-tooltip="Currículum">
+        {% icon 'person-circle' %}<span>Currículum</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+    </button>
+    <ul id="cv-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
+
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:cv_detail' %}">
+                {% icon 'circle' %}<span>Mi Perfil</span>
+            </a>
+        </li>
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:cv_edit' %}">
+                {% icon 'circle' %}<span>Editar Perfil</span>
+            </a>
+        </li>
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:docsview' %}">
+                {% icon 'circle' %}<span>Documentos</span>
+            </a>
+        </li>
+        <li class="m360-sidebar-nav-heading" role="separator" aria-hidden="true">Subir Archivos</li>
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:document_upload' %}">
+                {% icon 'circle' %}<span>Documento</span>
+            </a>
+        </li>
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:image_upload' %}">
+                {% icon 'circle' %}<span>Imagen</span>
+            </a>
+        </li>
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'cv:upload_db' %}">
+                {% icon 'circle' %}<span>Base de Datos</span>
+            </a>
+        </li>
+
+
+    </ul>
+</li><!-- End cv Nav -->

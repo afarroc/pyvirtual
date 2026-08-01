@@ -2,43 +2,43 @@
 <!-- =======================================================
      OPTIMIZED PROJECTS SECTION
      ======================================================= -->
-<li class="m360-sidebar-nav-item" role="none">
+<li class="m360-sidebar-nav-item">
     <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#projects-nav" data-m360-toggle="collapse" data-m360-tooltip="Projects">
         {% icon 'calendar3-range' %}<span>Projects</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
     </button>
-    <ul id="projects-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
+    <ul id="projects-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
 
         <!-- Main Views -->
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'events:projects' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:projects' %}">
                 {% icon 'list-ul' %}<span>All Projects</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'events:project_panel' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:project_panel' %}">
                 {% icon 'speedometer2' %}<span>Project Panel</span>
             </a>
         </li>
 
         <!-- Actions -->
         {% if user.is_authenticated %}
-        <li class="m360-sidebar-nav-item" role="none">
+        <li class="m360-sidebar-nav-item">
             <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#project-actions-nav" data-m360-toggle="collapse" data-m360-tooltip="Project Actions">
                 {% icon 'gear' %}<span>Project Actions</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
             </button>
-            <ul id="project-actions-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#projects-nav" role="menu">
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_create' %}" role="menuitem">
+            <ul id="project-actions-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#projects-nav">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_create' %}">
                         {% icon 'plus-circle' %}<span>Create Project</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_edit_no_id' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_edit_no_id' %}">
                         {% icon 'pencil' %}<span>Edit Project</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_activate_no_id' %}" role="menuitem">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'events:project_activate_no_id' %}">
                         {% icon 'play-circle' %}<span>Activate Project</span>
                     </a>
                 </li>
@@ -47,15 +47,15 @@
         {% endif %}
 
         <!-- Templates -->
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'events:project_templates' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:project_templates' %}">
                 {% icon 'file-earmark-plus' %}<span>Project Templates</span>
             </a>
         </li>
 
         <!-- Reports -->
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'events:project_export' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'events:project_export' %}">
                 {% icon 'download' %}<span>Export Projects</span>
             </a>
         </li>

@@ -2,20 +2,20 @@
 <!-- =======================================================
      ANALYST APP — Plataforma de Datos
      ======================================================= -->
-<li class="m360-sidebar-nav-item" role="none">
+<li class="m360-sidebar-nav-item">
     <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#analyst-nav" data-m360-toggle="collapse" data-m360-tooltip="Analyst">
         {% icon 'bar-chart-steps' %}<span>Analyst</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
     </button>
-    <ul id="analyst-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
+    <ul id="analyst-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
 
         <!-- ── Datos ──────────────────────────────────────────── -->
-        <li class="m360-sidebar-nav-item" role="none">
+        <li class="m360-sidebar-nav-item">
             <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#analyst-datos-nav" data-m360-toggle="collapse" data-m360-tooltip="Datos">
                 {% icon 'database-up' %}<span>Datos</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
             </button>
-            <ul id="analyst-datos-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#analyst-nav" role="menu">
-                <li class="m360-sidebar-nav-item" role="none">
-                    <a class="m360-sidebar-nav-link" href="{% url 'analyst:data_upload' %}" role="menuitem">
+            <ul id="analyst-datos-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#analyst-nav">
+                <li class="m360-sidebar-nav-item">
+                    <a class="m360-sidebar-nav-link" href="{% url 'analyst:data_upload' %}">
                         {% icon 'upload' %}<span>Carga de Datos</span>
                     </a>
                 </li>

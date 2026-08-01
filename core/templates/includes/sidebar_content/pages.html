@@ -4,30 +4,29 @@
 
 <li class="m360-sidebar-nav-heading" role="separator" aria-hidden="true">Pages</li>
 {% if user.is_authenticated %}
-<li class="m360-sidebar-nav-item" role="none">
-    <a class="m360-sidebar-nav-link" href="{% url 'cv:cv_detail'  %}" role="menuitem">
+<li class="m360-sidebar-nav-item">
+    <a class="m360-sidebar-nav-link" href="{% url 'cv:cv_detail'  %}">
         {% icon 'person' %}
         <span>Profile</span>
     </a>
 </li><!-- End Profile Page Nav -->
-{% else %}
 {% endif %}
-<li class="m360-sidebar-nav-item" role="none">
-    <a class="m360-sidebar-nav-link" href="{% url 'faq' %}" role="menuitem">
+<li class="m360-sidebar-nav-item">
+    <a class="m360-sidebar-nav-link" href="{% url 'faq' %}">
         {% icon 'question-circle' %}
         <span>F.A.Q</span>
     </a>
 </li><!-- End F.A.Q Page Nav -->
 
-<li class="m360-sidebar-nav-item" role="none">
-    <a class="m360-sidebar-nav-link" href="{% url 'contact' %}" role="menuitem">
+<li class="m360-sidebar-nav-item">
+    <a class="m360-sidebar-nav-link" href="{% url 'contact' %}">
         {% icon 'envelope' %}
         <span>Contact</span>
     </a>
 </li><!-- End Contact Page Nav -->
 
-<li class="m360-sidebar-nav-item" role="none">
-    <a class="m360-sidebar-nav-link" href="{% url 'about' %}" role="menuitem">
+<li class="m360-sidebar-nav-item">
+    <a class="m360-sidebar-nav-link" href="{% url 'about' %}">
         {% icon 'info-circle' %}
         <span>About</span>
     </a>    

@@ -81,7 +81,7 @@ def home_view(request, days=None, days_ago=None):
         'profile_completion': 50,  # Placeholder
     }
     
-    return render(request, 'home/home.html', context)
+    return render(request, 'pages/home.html', context)
 
 
 # Static pages

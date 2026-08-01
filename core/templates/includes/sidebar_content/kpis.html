@@ -1,22 +1,22 @@
 {% load icon_tags %}
-<li class="m360-sidebar-nav-item" role="none">
+<li class="m360-sidebar-nav-item">
     <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#reports-nav" data-m360-toggle="collapse" data-m360-tooltip="Reports">
         {% icon 'file-earmark-spreadsheet' %}<span>Reports</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
     </button>
-    <ul id="reports-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav" role="menu">
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'kpis:home' %}" role="menuitem">
+    <ul id="reports-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'kpis:home' %}">
                 {% icon 'graph-up' %}<span>KPI Home</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'kpis:dashboard' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'kpis:dashboard' %}">
                 {% icon 'bar-chart-line' %}<span>AHT Dashboard</span>
             </a>
         </li>
         {% if user.is_authenticated %}
-        <li class="m360-sidebar-nav-item" role="none">
-            <a class="m360-sidebar-nav-link" href="{% url 'kpis:generate_data' %}" role="menuitem">
+        <li class="m360-sidebar-nav-item">
+            <a class="m360-sidebar-nav-link" href="{% url 'kpis:generate_data' %}">
                 {% icon 'file-pdf' %}<span>Generate Data</span>
             </a>
         </li>
