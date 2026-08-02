@@ -1,67 +1,60 @@
-{% load icon_tags %}
-<!-- =======================================================
-     OPTIMIZED EVENTS SECTION
-     ======================================================= -->
-<li class="m360-sidebar-nav-item">
-    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#events-nav" data-m360-toggle="collapse" data-m360-tooltip="Events">
-        {% icon 'calendar-event' %}<span>Events</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+<li class="sidebar-nav-item has-dropdown">
+    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+        <i class="fas fa-calendar-days"></i><span>Events</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
     </button>
-    <ul id="events-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
-        <!-- Main Views -->
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'events:events' %}">
-                {% icon 'list-ul' %}<span>All Events</span>
+    <ul id="events-nav" class="sidebar-dropdown">
+                <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'events:events' %}">
+                <i class="fas fa-list-ul"></i><span>All Events</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'events:event_panel' %}">
-                {% icon 'speedometer2' %}<span>Event Panel</span>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'events:event_panel' %}">
+                <i class="fas fa-gauge-high"></i><span>Event Panel</span>
             </a>
         </li>
 
-        <!-- Actions -->
-        {% if user.is_authenticated %}
-        <li class="m360-sidebar-nav-item">
-            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#event-actions-nav" data-m360-toggle="collapse" data-m360-tooltip="Event Actions">
-                {% icon 'gear' %}<span>Event Actions</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+                {% if user.is_authenticated %}
+        <li class="sidebar-nav-item has-dropdown">
+            <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                <i class="fas fa-gear"></i><span>Event Actions</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
             </button>
-            <ul id="event-actions-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#events-nav">
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:event_create' %}">
-                        {% icon 'plus-circle' %}<span>Create Event</span>
+            <ul id="event-actions-nav" class="sidebar-dropdown">
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:event_create' %}">
+                        <i class="fas fa-circle-plus"></i><span>Create Event</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:event_panel' %}">
-                        {% icon 'pencil' %}<span>Edit Event</span>
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:event_panel' %}">
+                        <i class="fas fa-pencil"></i><span>Edit Event</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:event_assign_no_id' %}">
-                        {% icon 'person-plus' %}<span>Assign Attendees</span>
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:event_assign_no_id' %}">
+                        <i class="fas fa-user-plus"></i><span>Assign Attendees</span>
                     </a>
                 </li>
             </ul>
         </li>
 
-        <!-- History & Reports -->
-        <li class="m360-sidebar-nav-item">
-            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#event-reports-nav" data-m360-toggle="collapse" data-m360-tooltip="History & Reports">
-                {% icon 'bar-chart' %}<span>History &amp; Reports</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+                <li class="sidebar-nav-item has-dropdown">
+            <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                <i class="fas fa-chart-column"></i><span>History &amp; Reports</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
             </button>
-            <ul id="event-reports-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#events-nav">
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:event_history_no_id' %}">
-                        {% icon 'clock-history' %}<span>Event History</span>
+            <ul id="event-reports-nav" class="sidebar-dropdown">
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:event_history_no_id' %}">
+                        <i class="fas fa-clock-rotate-left"></i><span>Event History</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:event_export' %}">
-                        {% icon 'download' %}<span>Export Events</span>
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:event_export' %}">
+                        <i class="fas fa-download"></i><span>Export Events</span>
                     </a>
                 </li>
             </ul>
         </li>
         {% endif %}
     </ul>
-</li><!-- End Optimized Events Nav -->
+</li>

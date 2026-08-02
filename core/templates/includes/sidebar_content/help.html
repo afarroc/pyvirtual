@@ -1,21 +1,18 @@
-{% load icon_tags %}
-<li class="m360-sidebar-nav-item">
-    <a class="m360-sidebar-nav-link" href="{% url 'help:help_home' %}">
-        {% icon 'question-circle' %}
+<li class="sidebar-nav-item">
+    <a class="sidebar-nav-link" href="{% url 'help:help_home' %}">
+        <i class="fas fa-circle-question"></i>
         <span>Help Center</span>
     </a>
-</li><!-- End Help Center Nav -->
-
-<li class="m360-sidebar-nav-item">
-    <a class="m360-sidebar-nav-link" href="{% url 'help:category_list' %}">
-        {% icon 'tags' %}
+</li>
+<li class="sidebar-nav-item">
+    <a class="sidebar-nav-link" href="{% url 'help:category_list' %}">
+        <i class="fas fa-tags"></i>
         <span>Categories</span>
     </a>
-</li><!-- End Categories Nav -->
-
-<li class="m360-sidebar-nav-item">
-    <a class="m360-sidebar-nav-link" href="{% url 'help:search' %}">
-        {% icon 'search' %}
+</li>
+<li class="sidebar-nav-item">
+    <a class="sidebar-nav-link" href="{% url 'help:search' %}">
+        <i class="fas fa-magnifying-glass"></i>
         <span>Search Help</span>
     </a>
-</li><!-- End Search Help Nav -->
+</li>

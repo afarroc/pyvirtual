@@ -1,33 +1,26 @@
-{% load icon_tags %}
-
-<!-- pages.html -->
-
-<li class="m360-sidebar-nav-heading" role="separator" aria-hidden="true">Pages</li>
+<li class="sidebar-divider" role="separator" aria-hidden="true">Pages</li>
 {% if user.is_authenticated %}
-<li class="m360-sidebar-nav-item">
-    <a class="m360-sidebar-nav-link" href="{% url 'cv:cv_detail'  %}">
-        {% icon 'person' %}
+<li class="sidebar-nav-item">
+    <a class="sidebar-nav-link" href="{% url 'cv:cv_detail'  %}">
+        <i class="fas fa-user"></i>
         <span>Profile</span>
     </a>
-</li><!-- End Profile Page Nav -->
-{% endif %}
-<li class="m360-sidebar-nav-item">
-    <a class="m360-sidebar-nav-link" href="{% url 'faq' %}">
-        {% icon 'question-circle' %}
+</li>{% endif %}
+<li class="sidebar-nav-item">
+    <a class="sidebar-nav-link" href="{% url 'faq' %}">
+        <i class="fas fa-circle-question"></i>
         <span>F.A.Q</span>
     </a>
-</li><!-- End F.A.Q Page Nav -->
-
-<li class="m360-sidebar-nav-item">
-    <a class="m360-sidebar-nav-link" href="{% url 'contact' %}">
-        {% icon 'envelope' %}
+</li>
+<li class="sidebar-nav-item">
+    <a class="sidebar-nav-link" href="{% url 'contact' %}">
+        <i class="fas fa-envelope"></i>
         <span>Contact</span>
     </a>
-</li><!-- End Contact Page Nav -->
-
-<li class="m360-sidebar-nav-item">
-    <a class="m360-sidebar-nav-link" href="{% url 'about' %}">
-        {% icon 'info-circle' %}
+</li>
+<li class="sidebar-nav-item">
+    <a class="sidebar-nav-link" href="{% url 'about' %}">
+        <i class="fas fa-circle-info"></i>
         <span>About</span>
     </a>    
-</li><!-- End About Page Nav -->
+</li>

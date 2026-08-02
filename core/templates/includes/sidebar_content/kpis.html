@@ -1,23 +1,22 @@
-{% load icon_tags %}
-<li class="m360-sidebar-nav-item">
-    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#reports-nav" data-m360-toggle="collapse" data-m360-tooltip="Reports">
-        {% icon 'file-earmark-spreadsheet' %}<span>Reports</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+<li class="sidebar-nav-item has-dropdown">
+    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+        <i class="fas fa-file-lines"></i><span>Reports</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
     </button>
-    <ul id="reports-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'kpis:home' %}">
-                {% icon 'graph-up' %}<span>KPI Home</span>
+    <ul id="reports-nav" class="sidebar-dropdown">
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'kpis:home' %}">
+                <i class="fas fa-graph-up"></i><span>KPI Home</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'kpis:dashboard' %}">
-                {% icon 'bar-chart-line' %}<span>AHT Dashboard</span>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'kpis:dashboard' %}">
+                <i class="fas fa-bar-chart-line"></i><span>AHT Dashboard</span>
             </a>
         </li>
         {% if user.is_authenticated %}
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'kpis:generate_data' %}">
-                {% icon 'file-pdf' %}<span>Generate Data</span>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'kpis:generate_data' %}">
+                <i class="fas fa-file-pdf"></i><span>Generate Data</span>
             </a>
         </li>
         {% endif %}

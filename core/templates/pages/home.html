@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_mock.html' %}
 {% load static %}
 {% load schedule_filters %}
 {% load i18n %}
@@ -159,7 +159,7 @@
   <div id="home-root">
   {# Message Notifications #}
   {% if messages %}
-    {% include 'layouts/includes/alert.html' %}
+    {% include 'includes/alert.html' %}
   {% endif %}
 
   {# Page Header with Navigation #}

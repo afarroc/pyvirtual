@@ -1,24 +1,15 @@
-{% load icon_tags %}
 <header>
-    <button type="button" aria-expanded="false" aria-label="Alternar navegación">☰</button>
+    <button type="button" aria-expanded="false" aria-label="Alternar navegacion">Menu</button>
 
-    <a href="{% url 'home' %}">
-        {% if user.is_authenticated %}
-            {% if user.cv.profile_picture %}
-            <img src="{{ user.cv.profile_picture.url }}" alt="Perfil">
-            {% else %}
-            <span aria-hidden="true">{{ user.get_full_name|first }}</span>
-            {% endif %}
-        {% else %}
-            <span aria-hidden="true">M360</span>
-        {% endif %}
+    <a href="/">
+        <span aria-hidden="true">M360</span>
         <span>Management360</span>
     </a>
 
-    <form method="GET" action="{% url 'search' %}">
-        <input type="text" name="query" placeholder="Buscar" value="{{ request.GET.query }}">
-        <button type="submit" aria-label="Buscar">{% icon 'search' %}</button>
+    <form method="GET" action="/search/">
+        <input type="text" name="query" placeholder="Buscar">
+        <button type="submit" aria-label="Buscar">Buscar</button>
     </form>
 
-    <button type="button" aria-expanded="false" aria-label="Alternar menú de navegación">☰</button>
+    <button type="button" aria-expanded="false" aria-label="Alternar menu de navegacion">Menu</button>
 </header>

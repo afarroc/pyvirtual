@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Sitio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <!-- ============================================
+    HEADER COMPONENT
+    ============================================ -->
+    <header class="header" id="mainHeader">
+        <div class="header-container">
+            <!-- Brand / Logo -->
+            <div class="header-brand">
+                <button type="button" class="header-toggle" id="headerToggle" aria-label="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="/" class="header-logo">
+                    <span class="header-brand-mark" aria-hidden="true">M360</span>
+                    <span>Management360</span>
+                </a>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="header-nav">
+                <ul class="header-nav-list">
+                    <!-- Inicio -->
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <span>Inicio</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/about/" class="nav-link">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Acerca de</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/contact/" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            <span>Contacto</span>
+                        </a>
+                    </li>
+
+                    <!-- Notificaciones -->
+                    <li class="nav-item dropdown">
+                        <button type="button" class="nav-link dropdown-toggle" id="notificationsToggle" aria-expanded="false">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge" id="notificationBadge" style="display:flex;">3</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </button>
+                        <ul class="dropdown-menu notifications" id="notificationsMenu">
+                            <li class="dropdown-header">
+                                <span>Notificaciones</span>
+                                <button id="markAllRead" class="btn-mark-read">Marcar todas</button>
+                            </li>
+                            <li id="notificationsList">
+                                <div class="notification-item">
+                                    <i class="fas fa-user-plus"></i>
+                                    <div class="content">
+                                        <strong>Nuevo usuario</strong>
+                                        <p>Juan Pérez se ha registrado</p>
+                                        <span class="time">Hace 5 minutos</span>
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <i class="fas fa-file-alt"></i>
+                                    <div class="content">
+                                        <strong>Proyecto actualizado</strong>
+                                        <p>El proyecto "Sitio Web" ha sido actualizado</p>
+                                        <span class="time">Hace 1 hora</span>
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <i class="fas fa-comment"></i>
+                                    <div class="content">
+                                        <strong>Nuevo mensaje</strong>
+                                        <p>Maria te ha enviado un mensaje</p>
+                                        <span class="time">Hace 2 horas</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="dropdown-footer">
+                                <a href="/notifications/">Ver todas</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Perfil de usuario -->
+                    <li class="nav-item dropdown">
+                        <button type="button" class="nav-link dropdown-toggle profile-toggle" id="profileToggle" aria-expanded="false">
+                            <span class="profile-avatar placeholder">U</span>
+                            <span class="profile-name">Usuario</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </button>
+                        <ul class="dropdown-menu profile" id="profileMenu">
+                            <li class="dropdown-header">
+                                <h6>Usuario</h6>
+                                <span>Administrador</span>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="/profile/">
+                                    <i class="fas fa-user"></i>
+                                    <span>Mi Perfil</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/settings/">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Configuración</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="/help/">
+                                    <i class="fas fa-question-circle"></i>
+                                    <span>Ayuda</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/about/">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Acerca de</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="/logout/">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Cerrar sesión</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ============================================
+    APP CONTAINER - SIDEBAR + MAIN
+    ============================================ -->
+    <div class="app-container">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <aside class="sidebar" id="mainSidebar" aria-label="Primary sidebar">
+            <a href="#main" class="skip-link">Skip to main content</a>
+
+            <div class="sidebar-header">
+                <span class="sidebar-title"><i class="fas fa-compass"></i> Navigation</span>
+                <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="/" class="sidebar-nav-link">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-divider"><i class="fas fa-cogs"></i> Management</li>
+                
+                <li class="sidebar-nav-item has-dropdown">
+                    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                        <i class="fas fa-folder"></i>
+                        <span>Projects</span>
+                        <span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <ul class="sidebar-dropdown">
+                        <li class="sidebar-nav-item">
+                            <a href="/projects/" class="sidebar-nav-link">
+                                <i class="fas fa-list"></i>
+                                <span>All Projects</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item">
+                            <a href="/projects/panel/" class="sidebar-nav-link">
+                                <i class="fas fa-columns"></i>
+                                <span>Project Panel</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item has-dropdown">
+                            <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                                <i class="fas fa-tasks"></i>
+                                <span>Project Actions</span>
+                                <span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                            </button>
+                            <ul class="sidebar-dropdown">
+                                <li class="sidebar-nav-item">
+                                    <a href="/projects/create/" class="sidebar-nav-link">
+                                        <i class="fas fa-plus-circle"></i>
+                                        <span>Create Project</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-nav-item">
+                                    <a href="/projects/edit/" class="sidebar-nav-link">
+                                        <i class="fas fa-edit"></i>
+                                        <span>Edit Project</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-nav-item has-dropdown">
+                    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                        <i class="fas fa-check-square"></i>
+                        <span>Tasks</span>
+                        <span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <ul class="sidebar-dropdown">
+                        <li class="sidebar-nav-item">
+                            <a href="/tasks/" class="sidebar-nav-link">
+                                <i class="fas fa-clipboard-list"></i>
+                                <span>All Tasks</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item has-dropdown">
+                            <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                                <i class="fas fa-cog"></i>
+                                <span>Task Actions</span>
+                                <span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                            </button>
+                            <ul class="sidebar-dropdown">
+                                <li class="sidebar-nav-item">
+                                    <a href="/tasks/create/" class="sidebar-nav-link">
+                                        <i class="fas fa-plus-circle"></i>
+                                        <span>Create Task</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-divider"><i class="fas fa-graduation-cap"></i> Learning</li>
+                
+                <li class="sidebar-nav-item has-dropdown">
+                    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                        <i class="fas fa-book"></i>
+                        <span>Cursos</span>
+                        <span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <ul class="sidebar-dropdown">
+                        <li class="sidebar-nav-item">
+                            <a href="/courses/" class="sidebar-nav-link">
+                                <i class="fas fa-search"></i>
+                                <span>Explorar Cursos</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item">
+                            <a href="/courses/dashboard/" class="sidebar-nav-link">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Mi Dashboard</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-divider"><i class="fas fa-comments"></i> Communication</li>
+                
+                <li class="sidebar-nav-item has-dropdown">
+                    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Chat</span>
+                        <span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <ul class="sidebar-dropdown">
+                        <li class="sidebar-nav-item">
+                            <a href="/chat/" class="sidebar-nav-link">
+                                <i class="fas fa-users"></i>
+                                <span>General Chat</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-divider"><i class="fas fa-user-cog"></i> Account</li>
+                
+                <li class="sidebar-nav-item has-dropdown">
+                    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Account</span>
+                        <span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <ul class="sidebar-dropdown">
+                        <li class="sidebar-nav-item">
+                            <a href="/account/" class="sidebar-nav-link">
+                                <i class="fas fa-id-card"></i>
+                                <span>My Account</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item">
+                            <a href="/logout/" class="sidebar-nav-link">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Log Out</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-divider"><i class="fas fa-file-alt"></i> Pages</li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="/faq/" class="sidebar-nav-link">
+                        <i class="fas fa-question-circle"></i>
+                        <span>F.A.Q</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/contact/" class="sidebar-nav-link">
+                        <i class="fas fa-envelope"></i>
+                        <span>Contact</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/about/" class="sidebar-nav-link">
+                        <i class="fas fa-info-circle"></i>
+                        <span>About</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main id="main" class="main-content">
+            <h1>Bienvenido</h1>
+            <p>Contenido principal de la página.</p>
+        </main>
+    </div>
+
+    <!-- ============================================
+    FOOTER
+    ============================================ -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-copyright">
+                    <span><i class="fas fa-copyright"></i> 2026 Mi Sitio. Todos los derechos reservados.</span>
+                </div>
+                <div class="footer-links">
+                    <a href="/about/"><i class="fas fa-info-circle"></i> Acerca de</a>
+                    <a href="/contact/"><i class="fas fa-envelope"></i> Contacto</a>
+                    <a href="#"><i class="fas fa-lock"></i> Política de privacidad</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================
+    STYLES - ITCSS Organizado
+    ============================================ -->
+    <style>
+        /* ============================================
+               1. SETTINGS - Variables globales
+               ============================================ */
+        :root {
+            /* Colores */
+            --color-primary: #2563eb;
+            --color-primary-light: #eff6ff;
+            --color-text: #111827;
+            --color-text-secondary: #374151;
+            --color-text-muted: #6b7280;
+            --color-background: #f9fafb;
+            --color-white: #ffffff;
+            --color-border: #e5e7eb;
+            --color-hover: #f3f4f6;
+            --color-danger: #ef4444;
+            
+            /* Dimensiones */
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 64px;
+            --header-height: 64px;
+            
+            /* Transiciones */
+            --transition-speed: 0.3s;
+            --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Tipografía */
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            
+            /* Espaciado */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 0.75rem;
+            --spacing-lg: 1rem;
+            --spacing-xl: 1.5rem;
+            --spacing-2xl: 2rem;
+            
+            /* Header específico */
+            --header-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            --header-radius: 12px;
+            --header-radius-sm: 8px;
+        }
+
+        /* ============================================
+               2. GENERIC - Reset
+               ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-background);
+            color: var(--color-text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* ============================================
+               3. HEADER COMPONENT
+               ============================================ */
+        .header {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-border);
+            padding: 0.5rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            font-family: var(--font-family);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-toggle {
+            display: none;
+            font-size: 1.25rem;
+            color: var(--color-text-secondary);
+            padding: 0.5rem;
+            border-radius: var(--header-radius-sm);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: background var(--transition-speed) var(--transition-ease);
+        }
+        .header-toggle:hover {
+            background: var(--color-hover);
+        }
+
+        .header-logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: color var(--transition-speed) var(--transition-ease);
+        }
+        .header-logo:hover {
+            color: var(--color-primary);
+        }
+
+        .header-brand-mark {
+            background: var(--color-primary);
+            color: #ffffff;
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--header-radius-sm);
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-nav-list {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+            border-radius: var(--header-radius-sm);
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            font-family: inherit;
+            transition: all var(--transition-speed) var(--transition-ease);
+            text-decoration: none;
+        }
+        .nav-link:hover {
+            background: var(--color-hover);
+            color: var(--color-text);
+        }
+        .nav-link i {
+            font-size: 1.1rem;
+        }
+        .nav-link.active {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+
+        .nav-link .chevron {
+            font-size: 0.6rem;
+            transition: transform var(--transition-speed) var(--transition-ease);
+            color: var(--color-text-muted);
+        }
+        .nav-link[aria-expanded="true"] .chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Badge de notificaciones */
+        .badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--color-danger);
+            color: #ffffff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.1rem 0.4rem;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        /* Profile Avatar */
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            display: none;
+        }
+
+        /* Dropdown Menus */
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            min-width: 280px;
+            background: #ffffff;
+            border-radius: var(--header-radius);
+            box-shadow: var(--header-shadow);
+            padding: 0.5rem 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all var(--transition-speed) var(--transition-ease);
+            z-index: 1050;
+            border: 1px solid var(--color-border);
+            list-style: none;
+            margin: 0;
+        }
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu.notifications {
+            min-width: 360px;
+        }
+
+        .dropdown-menu.profile {
+            min-width: 240px;
+        }
+
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 14px;
+            height: 14px;
+            background: #ffffff;
+            border-left: 1px solid var(--color-border);
+            border-top: 1px solid var(--color-border);
+            transform: rotate(45deg);
+            border-radius: 3px 0 0 0;
+        }
+
+        .dropdown-header {
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dropdown-header h6 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin: 0;
+        }
+        .dropdown-header span {
+            color: var(--color-text-muted);
+            font-weight: 400;
+        }
+
+        .btn-mark-read {
+            font-size: 0.75rem;
+            color: var(--color-primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--header-radius-sm);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-speed) var(--transition-ease);
+        }
+        .btn-mark-read:hover {
+            background: var(--color-primary-light);
+        }
+
+        .dropdown-divider {
+            border: none;
+            border-top: 1px solid var(--color-border);
+            margin: 0.25rem 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 1rem;
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+            transition: all var(--transition-speed) var(--transition-ease);
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            text-decoration: none;
+            font-family: inherit;
+        }
+        .dropdown-item:hover {
+            background: var(--color-hover);
+            color: var(--color-text);
+        }
+        .dropdown-item i {
+            width: 1.25rem;
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 1rem;
+        }
+        .dropdown-item:hover i {
+            color: var(--color-primary);
+        }
+
+        .dropdown-footer {
+            padding: 0.6rem 1rem;
+            border-top: 1px solid var(--color-border);
+            text-align: center;
+        }
+        .dropdown-footer a {
+            color: var(--color-primary);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .dropdown-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Notification Items */
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            transition: background var(--transition-speed) var(--transition-ease);
+            cursor: pointer;
+        }
+        .notification-item:hover {
+            background: var(--color-hover);
+        }
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        .notification-item i {
+            margin-top: 2px;
+            color: var(--color-primary);
+            font-size: 1rem;
+            width: 1.25rem;
+            text-align: center;
+        }
+        .notification-item .content {
+            flex: 1;
+        }
+        .notification-item strong {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--color-text);
+        }
+        .notification-item p {
+            margin: 2px 0;
+            font-size: 0.8125rem;
+            color: var(--color-text-secondary);
+        }
+        .notification-item .time {
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--color-text-muted);
+        }
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            opacity: 0.5;
+        }
+        .empty-state p {
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        /* ============================================
+               4. SIDEBAR COMPONENT
+               ============================================ */
+        .app-container {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--color-white);
+            border-right: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            padding: 1rem 0;
+            transition: transform var(--transition-speed) var(--transition-ease), 
+                        width var(--transition-speed) var(--transition-ease);
+            flex-shrink: 0;
+            z-index: 999;
+            height: calc(100vh - var(--header-height));
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 2px;
+        }
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar.collapsed .sidebar-title,
+        .sidebar.collapsed .sidebar-divider,
+        .sidebar.collapsed .sidebar-nav-link span:not(.dropdown-icon) {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-nav-link {
+            justify-content: center;
+            padding: 0.5rem;
+        }
+
+        .sidebar.collapsed .sidebar-dropdown {
+            display: none !important;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            z-index: 100;
+            border-radius: 0.25rem;
+        }
+        .skip-link:focus {
+            top: 1rem;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.25rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .sidebar.collapsed .sidebar-header {
+            padding: 0 0.75rem 1rem;
+            justify-content: center;
+        }
+
+        .sidebar-title {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-toggle {
+            color: var(--color-text-muted);
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+            transition: background 0.2s;
+            font-size: 1.25rem;
+        }
+        .sidebar-toggle:hover {
+            background: var(--color-hover);
+        }
+
+        .sidebar-nav {
+            padding: 0.5rem 0.75rem;
+            flex: 1;
+        }
+
+        .sidebar-nav-item {
+            display: block;
+            margin-bottom: 0.125rem;
+        }
+
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            color: var(--color-text-secondary);
+            border-radius: 0.375rem;
+            transition: background 0.15s, color 0.15s;
+            width: 100%;
+            font-size: 0.875rem;
+            text-align: left;
+            gap: 0.75rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            text-decoration: none;
+        }
+        .sidebar-nav-link i {
+            width: 1.25rem;
+            text-align: center;
+        }
+        .sidebar-nav-link:hover {
+            background: var(--color-hover);
+            color: var(--color-text);
+        }
+        .sidebar-nav-link.active {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+
+        .sidebar-nav-link .dropdown-icon {
+            margin-left: auto;
+            transition: transform var(--transition-speed);
+            font-size: 0.625rem;
+            color: var(--color-text-muted);
+        }
+        .sidebar-nav-link .dropdown-icon.open i {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-dropdown {
+            padding-left: 1.5rem;
+            display: none;
+        }
+        .sidebar-dropdown .sidebar-nav-link {
+            padding-left: 2.5rem;
+            font-size: 0.8125rem;
+        }
+
+        .sidebar-divider {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.75rem 0.75rem 0.5rem;
+            margin-top: 0.5rem;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sidebar-divider:first-of-type {
+            border-top: none;
+            margin-top: 0;
+        }
+
+        /* ============================================
+               5. MAIN CONTENT
+               ============================================ */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            min-height: calc(100vh - var(--header-height) - 80px);
+            transition: margin-left var(--transition-speed) var(--transition-ease);
+        }
+
+        /* ============================================
+               6. FOOTER
+               ============================================ */
+        .footer {
+            background: var(--color-white);
+            border-top: 1px solid var(--color-border);
+            padding: 1.5rem;
+            margin-top: auto;
+        }
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+        }
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .footer-links a {
+            color: var(--color-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.15s;
+        }
+        .footer-links a:hover {
+            color: var(--color-primary);
+        }
+
+        /* ============================================
+               7. RESPONSIVE
+               ============================================ */
+        @media (min-width: 769px) {
+            .profile-name {
+                display: inline;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                height: auto;
+                min-height: var(--header-height);
+                padding: 0.5rem 1rem;
+            }
+
+            .header-container {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .header-toggle {
+                display: block;
+            }
+
+            .header-nav {
+                order: 3;
+                width: 100%;
+                overflow-x: auto;
+                padding: 0.25rem 0;
+            }
+            .header-nav-list {
+                justify-content: center;
+                flex-wrap: nowrap;
+                gap: 0.25rem;
+                min-width: max-content;
+            }
+
+            .nav-link {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8125rem;
+                white-space: nowrap;
+            }
+
+            .profile-name {
+                display: none !important;
+            }
+
+            /* Dropdowns en móvil - desde abajo */
+            .dropdown-menu {
+                position: fixed;
+                bottom: 0 !important;
+                top: auto !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                min-width: unset !important;
+                max-height: 60vh !important;
+                border-radius: var(--header-radius) var(--header-radius) 0 0 !important;
+                transform: translateY(100%) !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+                border: none;
+                padding-bottom: env(safe-area-inset-bottom);
+                transition: transform 0.35s var(--transition-ease);
+            }
+            .dropdown-menu.show {
+                transform: translateY(0) !important;
+            }
+            .dropdown-menu::before {
+                display: none;
+            }
+
+            .dropdown-menu::after {
+                content: '';
+                position: absolute;
+                top: 8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 40px;
+                height: 4px;
+                background: var(--color-border);
+                border-radius: 2px;
+            }
+
+            .dropdown-menu.notifications {
+                min-width: unset;
+            }
+            .dropdown-menu.profile {
+                min-width: unset;
+            }
+
+            /* Sidebar en móvil */
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh !important;
+                transform: translateX(-100%);
+                width: var(--sidebar-width);
+                border-right: 1px solid var(--color-border);
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+                transition: transform var(--transition-speed) var(--transition-ease), 
+                            width var(--transition-speed) var(--transition-ease);
+                z-index: 999;
+                padding-top: var(--header-height);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar.collapsed {
+                width: var(--sidebar-width);
+                transform: translateX(-100%);
+            }
+            .sidebar.collapsed.open {
+                transform: translateX(0);
+            }
+            .sidebar.collapsed .sidebar-title,
+            .sidebar.collapsed .sidebar-divider,
+            .sidebar.collapsed .sidebar-nav-link span:not(.dropdown-icon) {
+                display: block;
+            }
+            .sidebar.collapsed .sidebar-nav-link {
+                justify-content: flex-start;
+                padding: 0.5rem 0.75rem;
+            }
+            .sidebar.collapsed .sidebar-dropdown {
+                display: none !important;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            .footer-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <!-- ============================================
+    JAVASCRIPT - Modular
+    ============================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ==========================================
+            // 1. CONFIGURACIÓN
+            // ==========================================
+            const CONFIG = {
+                breakpoints: {
+                    mobile: 768
+                },
+                selectors: {
+                    header: '#mainHeader',
+                    sidebar: '#mainSidebar',
+                    sidebarToggle: '#sidebarToggle',
+                    headerToggle: '#headerToggle',
+                    overlay: '#sidebarOverlay',
+                    dropdownToggle: '.dropdown-toggle',
+                    navLink: '.sidebar-nav-link[href]'
+                },
+                classes: {
+                    sidebarOpen: 'open',
+                    sidebarCollapsed: 'collapsed',
+                    overlayActive: 'active',
+                    dropdownOpen: 'open',
+                    show: 'show'
+                }
+            };
+
+            // ==========================================
+            // 2. UTILITIES
+            // ==========================================
+            const Utils = {
+                getElement: function(selector) {
+                    const element = document.querySelector(selector);
+                    if (!element) {
+                        console.warn(`Elemento no encontrado: ${selector}`);
+                    }
+                    return element;
+                },
+                getHeight: function(element) {
+                    return element ? element.offsetHeight : 0;
+                },
+                isMobile: function() {
+                    return window.innerWidth <= CONFIG.breakpoints.mobile;
+                },
+                debounce: function(func, wait) {
+                    let timeout;
+                    return function executedFunction(...args) {
+                        const later = () => {
+                            clearTimeout(timeout);
+                            func(...args);
+                        };
+                        clearTimeout(timeout);
+                        timeout = setTimeout(later, wait);
+                    };
+                }
+            };
+
+            // ==========================================
+            // 3. HEADER DROPDOWNS MODULE
+            // ==========================================
+            const HeaderDropdownModule = {
+                init: function() {
+                    const toggles = document.querySelectorAll('.nav-item.dropdown > .dropdown-toggle');
+                    
+                    toggles.forEach(toggle => {
+                        toggle.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            const menu = this.closest('.dropdown').querySelector('.dropdown-menu');
+                            const isOpen = menu.classList.contains(CONFIG.classes.show);
+                            
+                            // Cerrar todos los dropdowns
+                            document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+                                m.classList.remove(CONFIG.classes.show);
+                                const btn = m.closest('.dropdown').querySelector('.dropdown-toggle');
+                                if (btn) btn.setAttribute('aria-expanded', 'false');
+                            });
+                            
+                            if (!isOpen) {
+                                menu.classList.add(CONFIG.classes.show);
+                                this.setAttribute('aria-expanded', 'true');
+                            }
+                        });
+                    });
+
+                    // Cerrar al hacer clic fuera
+                    document.addEventListener('click', function(e) {
+                        if (!e.target.closest('.dropdown')) {
+                            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                                menu.classList.remove(CONFIG.classes.show);
+                                const toggle = menu.closest('.dropdown').querySelector('.dropdown-toggle');
+                                if (toggle) toggle.setAttribute('aria-expanded', 'false');
+                            });
+                        }
+                    });
+
+                    // Cerrar con Escape
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') {
+                            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                                menu.classList.remove(CONFIG.classes.show);
+                                const toggle = menu.closest('.dropdown').querySelector('.dropdown-toggle');
+                                if (toggle) toggle.setAttribute('aria-expanded', 'false');
+                            });
+                        }
+                    });
+                }
+            };
+
+            // ==========================================
+            // 4. HEADER NOTIFICATIONS MODULE
+            // ==========================================
+            const HeaderNotificationsModule = {
+                init: function() {
+                    const badge = document.getElementById('notificationBadge');
+                    const markBtn = document.getElementById('markAllRead');
+                    const list = document.getElementById('notificationsList');
+
+                    if (markBtn) {
+                        markBtn.addEventListener('click', function() {
+                            if (badge) badge.style.display = 'none';
+                            if (list) {
+                                list.innerHTML = `
+                                    <div class="empty-state">
+                                        <i class="fas fa-check-circle"></i>
+                                        <p>Todas las notificaciones leídas</p>
+                                    </div>
+                                `;
+                            }
+                            this.style.display = 'none';
+                        });
+                    }
+                }
+            };
+
+            // ==========================================
+            // 5. SIDEBAR MODULE
+            // ==========================================
+            const SidebarModule = {
+                elements: {},
+
+                init: function() {
+                    this.elements = {
+                        sidebar: Utils.getElement(CONFIG.selectors.sidebar),
+                        header: Utils.getElement(CONFIG.selectors.header),
+                        sidebarToggle: Utils.getElement(CONFIG.selectors.sidebarToggle),
+                        headerToggle: Utils.getElement(CONFIG.selectors.headerToggle),
+                        overlay: Utils.getElement(CONFIG.selectors.overlay)
+                    };
+
+                    if (!this.elements.sidebar) return;
+
+                    this.updateHeight();
+                    this.bindEvents();
+                },
+
+                updateHeight: function() {
+                    const { sidebar, header } = this.elements;
+                    if (!sidebar || !header) return;
+
+                    const headerHeight = Utils.getHeight(header);
+                    document.documentElement.style.setProperty('--header-height', headerHeight + 'px');
+
+                    if (Utils.isMobile()) {
+                        sidebar.style.paddingTop = headerHeight + 'px';
+                    } else {
+                        sidebar.style.height = `calc(100vh - ${headerHeight}px)`;
+                        sidebar.style.top = headerHeight + 'px';
+                        sidebar.style.paddingTop = '1rem';
+                    }
+                },
+
+                toggleDesktop: function() {
+                    if (Utils.isMobile()) return;
+                    
+                    const { sidebar, sidebarToggle } = this.elements;
+                    if (!sidebar) return;
+
+                    sidebar.classList.toggle(CONFIG.classes.sidebarCollapsed);
+                    const isCollapsed = sidebar.classList.contains(CONFIG.classes.sidebarCollapsed);
+                    
+                    if (sidebarToggle) {
+                        const icon = sidebarToggle.querySelector('i');
+                        if (icon) {
+                            icon.className = isCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+                        }
+                        sidebarToggle.setAttribute('aria-label', 
+                            isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
+                        );
+                    }
+                },
+
+                toggleMobile: function() {
+                    if (!Utils.isMobile()) return;
+
+                    const { sidebar, overlay, header } = this.elements;
+                    if (!sidebar) return;
+
+                    sidebar.classList.toggle(CONFIG.classes.sidebarOpen);
+                    overlay.classList.toggle(CONFIG.classes.overlayActive);
+
+                    // Cerrar dropdowns al abrir sidebar
+                    if (sidebar.classList.contains(CONFIG.classes.sidebarOpen)) {
+                        sidebar.style.paddingTop = Utils.getHeight(header) + 'px';
+                        document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                            menu.classList.remove(CONFIG.classes.show);
+                            const toggle = menu.closest('.dropdown').querySelector('.dropdown-toggle');
+                            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+                        });
+                    }
+                },
+
+                closeMobile: function() {
+                    const { sidebar, overlay } = this.elements;
+                    if (sidebar) {
+                        sidebar.classList.remove(CONFIG.classes.sidebarOpen);
+                    }
+                    if (overlay) {
+                        overlay.classList.remove(CONFIG.classes.overlayActive);
+                    }
+                },
+
+                bindEvents: function() {
+                    const { sidebarToggle, headerToggle, overlay } = this.elements;
+
+                    if (sidebarToggle) {
+                        sidebarToggle.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (Utils.isMobile()) {
+                                this.closeMobile();
+                            } else {
+                                this.toggleDesktop();
+                            }
+                        });
+                    }
+
+                    if (headerToggle) {
+                        headerToggle.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (Utils.isMobile()) {
+                                this.toggleMobile();
+                            } else {
+                                this.toggleDesktop();
+                            }
+                        });
+                    }
+
+                    if (overlay) {
+                        overlay.addEventListener('click', () => {
+                            this.closeMobile();
+                        });
+                    }
+
+                    const debouncedResize = Utils.debounce(() => {
+                        this.updateHeight();
+                        if (Utils.isMobile()) {
+                            this.closeMobile();
+                        }
+                    }, 100);
+
+                    window.addEventListener('resize', debouncedResize);
+
+                    const header = this.elements.header;
+                    if (header) {
+                        const observer = new MutationObserver(() => {
+                            this.updateHeight();
+                        });
+                        observer.observe(header, {
+                            childList: true,
+                            subtree: true,
+                            attributes: true,
+                            attributeFilter: ['style', 'class']
+                        });
+                    }
+                }
+            };
+
+            // ==========================================
+            // 6. DROPDOWN MODULE (Sidebar)
+            // ==========================================
+            const DropdownModule = {
+                init: function() {
+                    const toggles = document.querySelectorAll(CONFIG.selectors.dropdownToggle);
+                    toggles.forEach(toggle => {
+                        toggle.addEventListener('click', this.handleToggle.bind(this));
+                    });
+                },
+
+                handleToggle: function(event) {
+                    event.stopPropagation();
+                    
+                    const button = event.currentTarget;
+                    const parent = button.closest('.has-dropdown');
+                    if (!parent) return;
+
+                    const dropdown = parent.querySelector('.sidebar-dropdown');
+                    const icon = button.querySelector('.dropdown-icon');
+
+                    const isOpen = dropdown.style.display === 'block';
+                    
+                    if (isOpen) {
+                        dropdown.style.display = 'none';
+                        button.setAttribute('aria-expanded', 'false');
+                        if (icon) {
+                            icon.classList.remove(CONFIG.classes.dropdownOpen);
+                        }
+                    } else {
+                        dropdown.style.display = 'block';
+                        button.setAttribute('aria-expanded', 'true');
+                        if (icon) {
+                            icon.classList.add(CONFIG.classes.dropdownOpen);
+                        }
+                    }
+                }
+            };
+
+            // ==========================================
+            // 7. NAVIGATION MODULE
+            // ==========================================
+            const NavigationModule = {
+                init: function() {
+                    const currentPath = window.location.pathname;
+                    const links = document.querySelectorAll(CONFIG.selectors.navLink);
+
+                    links.forEach(link => {
+                        if (link.getAttribute('href') === currentPath) {
+                            this.activateLink(link);
+                        }
+                    });
+                },
+
+                activateLink: function(link) {
+                    link.classList.add('active');
+                    
+                    let parent = link.closest('.sidebar-dropdown');
+                    while (parent) {
+                        const parentDropdown = parent.closest('.has-dropdown');
+                        if (parentDropdown) {
+                            const toggle = parentDropdown.querySelector(CONFIG.selectors.dropdownToggle);
+                            const dropdown = parentDropdown.querySelector('.sidebar-dropdown');
+                            const icon = toggle ? toggle.querySelector('.dropdown-icon') : null;
+
+                            if (dropdown) {
+                                dropdown.style.display = 'block';
+                            }
+                            if (toggle) {
+                                toggle.setAttribute('aria-expanded', 'true');
+                            }
+                            if (icon) {
+                                icon.classList.add(CONFIG.classes.dropdownOpen);
+                            }
+                        }
+                        parent = parent.parentElement.closest('.sidebar-dropdown');
+                    }
+                }
+            };
+
+            // ==========================================
+            // 8. HEADER ACTIVE STATE MODULE
+            // ==========================================
+            const HeaderActiveModule = {
+                init: function() {
+                    const currentPath = window.location.pathname;
+                    document.querySelectorAll('.header-nav .nav-link[href]').forEach(link => {
+                        if (link.getAttribute('href') === currentPath) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            };
+
+            // ==========================================
+            // 9. INICIALIZACIÓN
+            // ==========================================
+            document.addEventListener('DOMContentLoaded', function() {
+                HeaderDropdownModule.init();
+                HeaderNotificationsModule.init();
+                SidebarModule.init();
+                DropdownModule.init();
+                NavigationModule.init();
+                HeaderActiveModule.init();
+
+                if (Utils.isMobile()) {
+                    const sidebar = document.querySelector(CONFIG.selectors.sidebar);
+                    const overlay = document.querySelector(CONFIG.selectors.overlay);
+                    if (sidebar) {
+                        sidebar.classList.remove(CONFIG.classes.sidebarOpen);
+                    }
+                    if (overlay) {
+                        overlay.classList.remove(CONFIG.classes.overlayActive);
+                    }
+                }
+            });
+
+        })();
+    </script>
+</body>
+</html>

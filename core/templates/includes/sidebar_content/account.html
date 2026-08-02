@@ -1,23 +1,22 @@
-{% load icon_tags %}
-<li class="m360-sidebar-nav-item">
-    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#accounts-nav" data-m360-toggle="collapse" data-m360-tooltip="Account">
-        {% icon 'person-gear' %}<span>Account</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+<li class="sidebar-nav-item has-dropdown">
+    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+        <i class="fas fa-user-gear"></i><span>Account</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
     </button>
-    <ul id="accounts-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'accounts' %}">
-                {% icon 'circle' %}<span>My Account</span>
+    <ul id="accounts-nav" class="sidebar-dropdown">
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'accounts' %}">
+                <i class="fas fa-circle"></i><span>My Account</span>
             </a>
         </li>
         {% if user.is_authenticated %}
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'password_change' %}">
-                {% icon 'circle' %}<span>Change Password</span>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'password_change' %}">
+                <i class="fas fa-circle"></i><span>Change Password</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'logout' %}">
-                {% icon 'circle' %}<span>Log Out</span>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'logout' %}">
+                <i class="fas fa-circle"></i><span>Log Out</span>
             </a>
         </li>
         {% endif %}

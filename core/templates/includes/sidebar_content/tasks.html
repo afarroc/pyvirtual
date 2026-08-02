@@ -1,120 +1,110 @@
-{% load icon_tags %}
-<!-- =======================================================
-     OPTIMIZED TASKS SECTION
-     ======================================================= -->
-<li class="m360-sidebar-nav-item">
-    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#tasks-nav" data-m360-toggle="collapse" data-m360-tooltip="Tasks">
-        {% icon 'calendar-check' %}<span>Tasks</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+<li class="sidebar-nav-item has-dropdown">
+    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+        <i class="fas fa-calendar-check"></i><span>Tasks</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
     </button>
-    <ul id="tasks-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
+    <ul id="tasks-nav" class="sidebar-dropdown">
 
-        <!-- Main Views -->
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'events:tasks' %}">
-                {% icon 'list-ul' %}<span>All Tasks</span>
+                <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'events:tasks' %}">
+                <i class="fas fa-list-ul"></i><span>All Tasks</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'events:task_panel' %}">
-                {% icon 'speedometer2' %}<span>Task Panel</span>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'events:task_panel' %}">
+                <i class="fas fa-gauge-high"></i><span>Task Panel</span>
             </a>
         </li>
 
-        <!-- Actions -->
-        {% if user.is_authenticated %}
-        <li class="m360-sidebar-nav-item">
-            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#task-actions-nav" data-m360-toggle="collapse" data-m360-tooltip="Task Actions">
-                {% icon 'gear' %}<span>Task Actions</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+                {% if user.is_authenticated %}
+        <li class="sidebar-nav-item has-dropdown">
+            <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                <i class="fas fa-gear"></i><span>Task Actions</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
             </button>
-            <ul id="task-actions-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#tasks-nav">
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_create' %}">
-                        {% icon 'plus-circle' %}<span>Create Task</span>
+            <ul id="task-actions-nav" class="sidebar-dropdown">
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:task_create' %}">
+                        <i class="fas fa-circle-plus"></i><span>Create Task</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_edit_no_id' %}">
-                        {% icon 'pencil' %}<span>Edit Task</span>
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:task_edit_no_id' %}">
+                        <i class="fas fa-pencil"></i><span>Edit Task</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_activate_no_id' %}">
-                        {% icon 'play-circle' %}<span>Activate Task</span>
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:task_activate_no_id' %}">
+                        <i class="fas fa-circle-play"></i><span>Activate Task</span>
                     </a>
                 </li>
             </ul>
         </li>
 
-        <!-- Advanced Task Features -->
-        <li class="m360-sidebar-nav-item">
-            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#task-advanced-nav" data-m360-toggle="collapse" data-m360-tooltip="Advanced Features">
-                {% icon 'diagram-3' %}<span>Advanced Features</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+                <li class="sidebar-nav-item has-dropdown">
+            <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                <i class="fas fa-diagram-project"></i><span>Advanced Features</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
             </button>
-            <ul id="task-advanced-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#tasks-nav">
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_dependencies_list' %}">
-                        {% icon 'link' %}<span>Task Dependencies</span>
+            <ul id="task-advanced-nav" class="sidebar-dropdown">
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:task_dependencies_list' %}">
+                        <i class="fas fa-link"></i><span>Task Dependencies</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_dependencies_list' %}">
-                        {% icon 'list-ul' %}<span>All Dependencies</span>
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:task_dependencies_list' %}">
+                        <i class="fas fa-list-ul"></i><span>All Dependencies</span>
                     </a>
                 </li>
             </ul>
         </li>
 
-        <!-- Scheduling & Calendar -->
-        <li class="m360-sidebar-nav-item">
-            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#task-scheduling-nav" data-m360-toggle="collapse" data-m360-tooltip="Scheduling & Calendar">
-                {% icon 'calendar-week' %}<span>Scheduling &amp; Calendar</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+                <li class="sidebar-nav-item has-dropdown">
+            <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                <i class="fas fa-calendar-week"></i><span>Scheduling &amp; Calendar</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
             </button>
-            <ul id="task-scheduling-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#tasks-nav">
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_schedules' %}">
-                        {% icon 'arrow-repeat' %}<span>Task Schedules</span>
+            <ul id="task-scheduling-nav" class="sidebar-dropdown">
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:task_schedules' %}">
+                        <i class="fas fa-arrows-rotate"></i><span>Task Schedules</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:create_task_schedule' %}">
-                        {% icon 'plus-circle' %}<span>Create Schedule</span>
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:create_task_schedule' %}">
+                        <i class="fas fa-circle-plus"></i><span>Create Schedule</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:planning_task' %}">
-                        {% icon 'calendar-week' %}<span>Task Planning</span>
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:planning_task' %}">
+                        <i class="fas fa-calendar-week"></i><span>Task Planning</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:task_programs_calendar' %}">
-                        {% icon 'calendar-month' %}<span>Task Calendar</span>
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:task_programs_calendar' %}">
+                        <i class="fas fa-calendar-month"></i><span>Task Calendar</span>
                     </a>
                 </li>
             </ul>
         </li>
 
-        <!-- Reports -->
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'events:task_export' %}">
-                {% icon 'download' %}<span>Export Tasks</span>
+                <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'events:task_export' %}">
+                <i class="fas fa-download"></i><span>Export Tasks</span>
             </a>
         </li>
 
-        <!-- Admin Schedules (Superuser only) -->
-        {% if user.is_superuser %}
-        <li class="m360-sidebar-nav-item">
-            <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#schedule-admin-nav" data-m360-toggle="collapse" data-m360-tooltip="Schedule Admin">
-                {% icon 'calendar-event' %}<span>Schedule Admin</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+                {% if user.is_superuser %}
+        <li class="sidebar-nav-item has-dropdown">
+            <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+                <i class="fas fa-calendar-days"></i><span>Schedule Admin</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
             </button>
-            <ul id="schedule-admin-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#tasks-nav">
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:schedule_admin_dashboard' %}">
-                        {% icon 'speedometer2' %}<span>Admin Dashboard</span>
+            <ul id="schedule-admin-nav" class="sidebar-dropdown">
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:schedule_admin_dashboard' %}">
+                        <i class="fas fa-gauge-high"></i><span>Admin Dashboard</span>
                     </a>
                 </li>
-                <li class="m360-sidebar-nav-item">
-                    <a class="m360-sidebar-nav-link" href="{% url 'events:user_schedules_panel' %}">
-                        {% icon 'people' %}<span>User Schedules</span>
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-nav-link" href="{% url 'events:user_schedules_panel' %}">
+                        <i class="fas fa-people"></i><span>User Schedules</span>
                     </a>
                 </li>
             </ul>
@@ -122,4 +112,4 @@
         {% endif %}
         {% endif %}
     </ul>
-</li><!-- End Optimized Tasks Nav -->
+</li>

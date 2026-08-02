@@ -1,17 +1,16 @@
-{% load icon_tags %}
-<li class="m360-sidebar-nav-item">
-    <button type="button" class="m360-sidebar-nav-link" aria-expanded="false" data-m360-target="#chat-nav" data-m360-toggle="collapse" data-m360-tooltip="Chat">
-        {% icon 'chat-dots' %}<span>Chat</span><span class="m360-ml-auto m360-collapse-icon">{% icon 'chevron-down' %}</span>
+<li class="sidebar-nav-item has-dropdown">
+    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+        <i class="fas fa-comment-dots"></i><span>Chat</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
     </button>
-    <ul id="chat-nav" class="m360-sidebar-nav-group m360-collapse" data-m360-parent="#sidebar-nav">
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'chat:room_list' %}">
-                {% icon 'circle' %}<span>General Chat</span>
+    <ul id="chat-nav" class="sidebar-dropdown">
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'chat:room_list' %}">
+                <i class="fas fa-circle"></i><span>General Chat</span>
             </a>
         </li>
-        <li class="m360-sidebar-nav-item">
-            <a class="m360-sidebar-nav-link" href="{% url 'chat:assistant_ui' %}">
-                {% icon 'robot' %}<span>Chat IA</span>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'chat:assistant_ui' %}">
+                <i class="fas fa-robot"></i><span>Chat IA</span>
             </a>
         </li>
     </ul>
