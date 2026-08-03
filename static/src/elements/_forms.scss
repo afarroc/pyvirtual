@@ -1,0 +1,57 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Management360 — ITCSS Moderno (2026)
+   Capa 4: Elements — Formularios base
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius-sm);
+  background: var(--m360-surface);
+  transition: border-color var(--m360-transition), box-shadow var(--m360-transition);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--m360-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+label {
+  display: block;
+  font-size: var(--m360-text-sm);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--m360-text);
+}
+
+fieldset {
+  border: 1px solid var(--m360-border);
+  border-radius: var(--m360-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+legend {
+  font-weight: 600;
+  padding: 0 0.5rem;
+  color: var(--m360-text-secondary);
+}

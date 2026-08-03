@@ -1,0 +1,25 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Management360 — ITCSS Moderno (2026)
+   Capa 4: Elements — Media
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+figure {
+  margin: 0;
+}
+
+figcaption {
+  font-size: var(--m360-text-sm);
+  color: var(--m360-text-muted);
+  text-align: center;
+  margin-top: 0.5rem;
+}

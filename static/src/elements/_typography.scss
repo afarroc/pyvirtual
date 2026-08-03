@@ -1,0 +1,52 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Management360 — ITCSS Moderno (2026)
+   Capa 4: Elements — Tipografía base
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@use 'settings.tokens' as *;
+
+body {
+  font-family: var(--m360-font-family);
+  font-size: var(--m360-text-base);
+  line-height: 1.5;
+  color: var(--m360-text);
+  background: var(--m360-bg);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--m360-text);
+  line-height: 1.2;
+  font-weight: 700;
+  margin-bottom: 0.5em;
+}
+
+h1 { font-size: var(--m360-text-3xl); }
+h2 { font-size: var(--m360-text-2xl); }
+h3 { font-size: var(--m360-text-xl); }
+h4 { font-size: var(--m360-text-lg); }
+h5 { font-size: var(--m360-text-base); font-weight: 600; }
+h6 { font-size: var(--m360-text-sm); font-weight: 600; }
+
+p {
+  margin-bottom: 1em;
+  color: var(--m360-text-secondary);
+}
+
+a {
+  color: var(--m360-primary);
+  transition: color var(--m360-transition);
+}
+
+a:hover {
+  color: var(--m360-primary-dark);
+}
+
+small {
+  font-size: var(--m360-text-sm);
+  color: var(--m360-text-muted);
+}
+
+code, pre {
+  font-family: var(--m360-font-mono);
+  font-size: var(--m360-text-sm);
+}
