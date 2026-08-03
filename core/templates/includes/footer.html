@@ -1,5 +1,62 @@
-<footer>
-    <div>
-        <p>&copy; Management360. Todos los derechos reservados.</p>
+<!-- FOOTER - Dentro del scroll del main -->
+<footer class="footer" id="mainFooter">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="{% url 'home' %}" class="footer-logo">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+          <rect x="2" y="2" width="28" height="28" rx="8" fill="#7c3aed"/>
+          <path d="M10 22L16 10L22 22" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13 18H19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span>Management360</span>
+      </a>
+      <p class="footer-copy">&copy; {% now "Y" %} Management360. All rights reserved.</p>
     </div>
+
+    <div class="footer-links">
+      <div class="footer-col">
+        <span class="footer-col-title">Product</span>
+        <a href="{% url 'home' %}">Features</a>
+        <a href="{% url 'home' %}">Pricing</a>
+        <a href="{% url 'home' %}">Integrations</a>
+        <a href="{% url 'home' %}">Changelog</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">Company</span>
+        <a href="{% url 'about' %}">About</a>
+        <a href="{% url 'home' %}">Blog</a>
+        <a href="{% url 'home' %}">Careers</a>
+        <a href="{% url 'home' %}">Press</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">Support</span>
+        <a href="{% url 'help:help_home' %}">Help Center</a>
+        <a href="{% url 'help:quick_start' %}">Documentation</a>
+        <a href="{% url 'home' %}">API Status</a>
+        <a href="{% url 'contact' %}">Contact</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">Legal</span>
+        <a href="{% url 'home' %}">Privacy Policy</a>
+        <a href="{% url 'home' %}">Terms of Service</a>
+        <a href="{% url 'home' %}">Cookie Policy</a>
+        <a href="{% url 'home' %}">Security</a>
+      </div>
+    </div>
+
+    <div class="footer-social">
+      <span class="footer-col-title">Follow Us</span>
+      <div class="social-links">
+        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      </div>
+      <div class="footer-version">
+        <span>v3.2.1</span>
+        <span class="footer-dot"></span>
+        <span>MIT License</span>
+      </div>
+    </div>
+  </div>
 </footer>

@@ -1,38 +1,45 @@
-<aside>
-    <a href="#">Saltar al contenido principal</a>
+<!-- ==========================================
+SIDEBAR - Scroll independiente
+========================================== -->
+<aside class="sidebar" id="mainSidebar">
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-label">Main</span>
+      <ul>
+        <li class="active"><a href="{% url 'home' %}" data-tooltip="Overview"><i class="fas fa-compass"></i> <span>Overview</span></a></li>
+        <li><a href="{% url 'events:events' %}" data-tooltip="Events"><i class="fas fa-calendar-check"></i> <span>Events</span></a></li>
+        <li><a href="{% url 'events:projects' %}" data-tooltip="Projects"><i class="fas fa-folder-open"></i> <span>Projects</span></a></li>
+        <li><a href="{% url 'events:tasks' %}" data-tooltip="Tasks"><i class="fas fa-list-check"></i> <span>Tasks</span></a></li>
+      </ul>
+    </div>
 
-    <nav>
-        <ul>
-            <li>Inicio</li>
+    <div class="nav-section">
+      <span class="nav-label">Tools</span>
+      <ul>
+        <li><a href="{% url 'analyst:report_list' %}" data-tooltip="Reports"><i class="fas fa-file-invoice"></i> <span>Reports</span></a></li>
+        <li><a href="{% url 'kpis:dashboard' %}" data-tooltip="KPI Dashboard"><i class="fas fa-chart-simple"></i> <span>KPI Dashboard</span></a></li>
+        <li><a href="{% url 'cv:cv_detail' %}" data-tooltip="CV"><i class="fas fa-file-earmark-person"></i> <span>CV</span></a></li>
+        <li><a href="{% url 'generate_password' %}" data-tooltip="Password Generator"><i class="fas fa-key"></i> <span>Password Generator</span></a></li>
+      </ul>
+    </div>
 
-            <li role="separator" aria-hidden="true">Gestion</li>
-            <li>Proyectos</li>
-            <li>Tareas</li>
-            <li>Eventos</li>
-            <li>Administracion</li>
+    <div class="nav-section">
+      <span class="nav-label">Learning</span>
+      <ul>
+        <li><a href="{% url 'courses:courses_list' %}" data-tooltip="Courses"><i class="fas fa-book"></i> <span>Courses</span></a></li>
+        <li><a href="{% url 'courses:standalone_lessons_list' %}" data-tooltip="Lessons"><i class="fas fa-file-earmark-text"></i> <span>Lessons</span></a></li>
+      </ul>
+    </div>
 
-            <li role="separator" aria-hidden="true">Aprendizaje</li>
-            <li>Cursos</li>
-            <li>Curriculum</li>
-
-            <li role="separator" aria-hidden="true">Comunicacion</li>
-            <li>Chat</li>
-            <li>Salas</li>
-
-            <li role="separator" aria-hidden="true">Analitica</li>
-            <li>KPIs</li>
-            <li>Analista</li>
-
-            <li role="separator" aria-hidden="true">Herramientas</li>
-            <li>Herramientas</li>
-
-            <li role="separator" aria-hidden="true">Cuenta</li>
-            <li>Cuenta</li>
-            <li>Configuracion</li>
-
-            <li role="separator" aria-hidden="true">Ayuda</li>
-            <li>Ayuda</li>
-            <li>Paginas</li>
-        </ul>
-    </nav>
+    <div class="nav-bottom">
+      <div class="upgrade-card">
+        <i class="fas fa-rocket"></i>
+        <strong>Upgrade to Pro</strong>
+        <p>Unlock all features</p>
+        <button class="btn-upgrade" id="upgradeBtn">Upgrade</button>
+      </div>
+      <a href="{% url 'help:help_home' %}" class="nav-link-bottom"><i class="fas fa-life-ring"></i> Help Center</a>
+      <a href="{% url 'logout' %}" class="nav-link-bottom"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </nav>
 </aside>

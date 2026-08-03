@@ -1,15 +1,121 @@
-<header>
-    <button type="button" aria-expanded="false" aria-label="Alternar navegacion">Menu</button>
+<!-- ==========================================
+HEADER - Fijo
+========================================== -->
+<header class="header" id="mainHeader">
+  <div class="header-inner">
+    <div class="header-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <a href="{% url 'home' %}" class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="2" y="2" width="28" height="28" rx="8" fill="#7c3aed"/>
+          <path d="M10 22L16 10L22 22" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13 18H19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="logo-text">Management<span class="logo-highlight">360</span></span>
+      </a>
+    </div>
 
-    <a href="/">
-        <span aria-hidden="true">M360</span>
-        <span>Management360</span>
-    </a>
+    <div class="header-center">
+      <div class="search-bar" id="searchBar">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search projects, tasks, members..." id="searchInput">
+        <kbd>&#8984;K</kbd>
+        <button class="search-clear" id="searchClear"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
 
-    <form method="GET" action="/search/">
-        <input type="text" name="query" placeholder="Buscar">
-        <button type="submit" aria-label="Buscar">Buscar</button>
-    </form>
+    <div class="header-right">
+      <div class="dropdown" id="quickActionsDropdown">
+        <button class="icon-btn" id="quickActionsToggle" aria-label="Quick actions">
+          <i class="fas fa-plus-circle"></i>
+        </button>
+        <div class="dropdown-menu quick-actions" id="quickActionsMenu">
+          <div class="dropdown-header">Quick Actions</div>
+          <a href="{% url 'events:event_create' %}" class="dropdown-item"><i class="fas fa-calendar-plus"></i> New Event</a>
+          <a href="{% url 'events:project_create' %}" class="dropdown-item"><i class="fas fa-folder-plus"></i> New Project</a>
+          <a href="{% url 'events:task_create' %}" class="dropdown-item"><i class="fas fa-list-check"></i> New Task</a>
+          <div class="dropdown-divider"></div>
+          <a href="{% url 'home' %}" class="dropdown-item"><i class="fas fa-th-large"></i> Dashboard</a>
+        </div>
+      </div>
 
-    <button type="button" aria-expanded="false" aria-label="Alternar menu de navegacion">Menu</button>
+      <div class="dropdown" id="notificationsDropdown">
+        <button class="icon-btn" id="notificationsToggle" aria-label="Notifications">
+          <i class="fas fa-bell"></i>
+          <span class="badge" id="notifBadge">3</span>
+        </button>
+        <div class="dropdown-menu notifications" id="notificationsMenu">
+          <div class="dropdown-header">
+            <span>Notifications</span>
+            <button class="btn-mark-read" id="markAllRead">Mark all read</button>
+          </div>
+          <div class="notif-list" id="notifList">
+            <div class="notif-item unread">
+              <div class="notif-icon purple"><i class="fas fa-rocket"></i></div>
+              <div class="notif-content">
+                <strong>Welcome to Management360</strong>
+                <p>Your dashboard is ready</p>
+                <span class="notif-time">Just now</span>
+              </div>
+              <button class="notif-dismiss"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
+          <div class="dropdown-footer">
+            <a href="{% url 'home' %}">View all notifications</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="dropdown" id="messagesDropdown">
+        <button class="icon-btn" id="messagesToggle" aria-label="Messages">
+          <i class="fas fa-envelope"></i>
+          <span class="badge">0</span>
+        </button>
+        <div class="dropdown-menu messages" id="messagesMenu">
+          <div class="dropdown-header">
+            <span>Messages</span>
+            <a href="{% url 'chat:room_list' %}" class="link-sm">See all</a>
+          </div>
+          <div class="msg-list">
+            <div class="msg-item">
+              <div class="msg-avatar">SYS</div>
+              <div class="msg-content">
+                <strong>System</strong>
+                <p>No new messages</p>
+                <span class="msg-time">-</span>
+              </div>
+            </div>
+          </div>
+          <div class="dropdown-footer">
+            <a href="{% url 'chat:room_list' %}">Go to messages</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="dropdown" id="profileDropdown">
+        <div class="avatar" id="profileToggle">
+          <span>{{ user.get_initial|default:user.username|slice:":2"|upper }}</span>
+          <div class="avatar-status online"></div>
+        </div>
+        <div class="dropdown-menu profile" id="profileMenu">
+          <div class="profile-header">
+            <div class="profile-avatar-lg">{{ user.get_initial|default:user.username|slice:":2"|upper }}</div>
+            <div class="profile-info">
+              <strong>{{ user.get_full_name|default:user.username }}</strong>
+              <span>{{ user.email|default:'' }}</span>
+              <span class="profile-role">User</span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a href="{% url 'events:events' %}" class="dropdown-item"><i class="fas fa-calendar-check"></i> My Events</a>
+          <a href="{% url 'events:projects' %}" class="dropdown-item"><i class="fas fa-folder-open"></i> My Projects</a>
+          <a href="{% url 'events:tasks' %}" class="dropdown-item"><i class="fas fa-list-check"></i> My Tasks</a>
+          <div class="dropdown-divider"></div>
+          <a href="{% url 'admin:index' %}" class="dropdown-item"><i class="fas fa-cog"></i> Admin</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </header>
