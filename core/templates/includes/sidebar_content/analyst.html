@@ -1,17 +1,25 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-chart-simple"></i><span>Analyst</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+        <i class="fas fa-chart-simple"></i>
+        <span>Analyst</span>
+        <span class="dropdown-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
     </button>
     <ul id="analyst-nav" class="sidebar-dropdown">
-
-                <li class="sidebar-nav-item has-dropdown">
+        <li class="sidebar-nav-item has-dropdown">
             <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-database"></i><span>Datos</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                <i class="fas fa-database"></i>
+                <span>Datos</span>
+                <span class="dropdown-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </span>
             </button>
             <ul id="analyst-datos-nav" class="sidebar-dropdown">
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'analyst:data_upload' %}">
-                        <i class="fas fa-upload"></i><span>Carga de Datos</span>
+                        <i class="fas fa-upload"></i>
+                        <span>Carga de Datos</span>
                     </a>
                 </li>
             </ul>

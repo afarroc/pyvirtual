@@ -1,5 +1,17 @@
-<li class="sidebar-nav-item">
-    <a class="sidebar-nav-link" href="{% url 'simcity:index' %}">
-        <i class="fas fa-building"></i><span>SimCity</span>
-    </a>
+<li class="sidebar-nav-item has-dropdown">
+    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+        <i class="fas fa-building"></i>
+        <span>Tools</span>
+        <span class="dropdown-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
+    </button>
+    <ul id="tools-nav" class="sidebar-dropdown">
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'simcity:index' %}">
+                <i class="fas fa-city"></i>
+                <span>SimCity</span>
+            </a>
+        </li>
+    </ul>
 </li>

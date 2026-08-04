@@ -1,24 +1,41 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-user-gear"></i><span>Account</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+        <i class="fas fa-user-gear"></i>
+        <span>Account</span>
+        <span class="dropdown-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
     </button>
     <ul id="accounts-nav" class="sidebar-dropdown">
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'accounts' %}">
-                <i class="fas fa-circle"></i><span>My Account</span>
+                <i class="fas fa-user"></i>
+                <span>My Profile</span>
             </a>
         </li>
-        {% if user.is_authenticated %}
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'password_change' %}">
-                <i class="fas fa-circle"></i><span>Change Password</span>
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
-            <a class="sidebar-nav-link" href="{% url 'logout' %}">
-                <i class="fas fa-circle"></i><span>Log Out</span>
+            <a class="sidebar-nav-link" href="#">
+                <i class="fas fa-credit-card"></i>
+                <span>Billing</span>
             </a>
         </li>
-        {% endif %}
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'help:help_home' %}">
+                <i class="fas fa-life-ring"></i>
+                <span>Help Center</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link logout" href="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </li>
     </ul>
 </li>

@@ -1,18 +1,29 @@
-<li class="sidebar-nav-item">
-    <a class="sidebar-nav-link" href="{% url 'help:help_home' %}">
+<li class="sidebar-nav-item has-dropdown">
+    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
         <i class="fas fa-circle-question"></i>
-        <span>Help Center</span>
-    </a>
-</li>
-<li class="sidebar-nav-item">
-    <a class="sidebar-nav-link" href="{% url 'help:category_list' %}">
-        <i class="fas fa-tags"></i>
-        <span>Categories</span>
-    </a>
-</li>
-<li class="sidebar-nav-item">
-    <a class="sidebar-nav-link" href="{% url 'help:search' %}">
-        <i class="fas fa-magnifying-glass"></i>
-        <span>Search Help</span>
-    </a>
+        <span>Help</span>
+        <span class="dropdown-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
+    </button>
+    <ul id="help-nav" class="sidebar-dropdown">
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'help:help_home' %}">
+                <i class="fas fa-life-ring"></i>
+                <span>Help Center</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'help:category_list' %}">
+                <i class="fas fa-tags"></i>
+                <span>Categories</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'help:search' %}">
+                <i class="fas fa-magnifying-glass"></i>
+                <span>Search Help</span>
+            </a>
+        </li>
+    </ul>
 </li>

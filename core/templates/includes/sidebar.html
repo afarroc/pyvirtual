@@ -6,10 +6,16 @@ SIDEBAR - Scroll independiente
     <div class="nav-section">
       <span class="nav-label">Main</span>
       <ul>
-        <li class="active"><a href="{% url 'home' %}" data-tooltip="Overview"><i class="fas fa-compass"></i> <span>Overview</span></a></li>
+        {% include 'includes/sidebar_content/dashboard.html' %}
         <li><a href="{% url 'events:events' %}" data-tooltip="Events"><i class="fas fa-calendar-check"></i> <span>Events</span></a></li>
-        <li><a href="{% url 'events:projects' %}" data-tooltip="Projects"><i class="fas fa-folder-open"></i> <span>Projects</span></a></li>
         <li><a href="{% url 'events:tasks' %}" data-tooltip="Tasks"><i class="fas fa-list-check"></i> <span>Tasks</span></a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">Management</span>
+      <ul>
+        {% include 'includes/sidebar_content/management.html' %}
       </ul>
     </div>
 
@@ -21,20 +27,55 @@ SIDEBAR - Scroll independiente
     </div>
 
     <div class="nav-section">
-      <span class="nav-label">Tools</span>
+      <span class="nav-label">Communication</span>
       <ul>
-        <li><a href="{% url 'analyst:report_list' %}" data-tooltip="Reports"><i class="fas fa-file-invoice"></i> <span>Reports</span></a></li>
-        <li><a href="{% url 'kpis:dashboard' %}" data-tooltip="KPI Dashboard"><i class="fas fa-chart-simple"></i> <span>KPI Dashboard</span></a></li>
-        <li><a href="{% url 'cv:cv_detail' %}" data-tooltip="CV"><i class="fas fa-file-earmark-person"></i> <span>CV</span></a></li>
-        <li><a href="{% url 'generate_password' %}" data-tooltip="Password Generator"><i class="fas fa-key"></i> <span>Password Generator</span></a></li>
+        {% include 'includes/sidebar_content/chat.html' %}
+        {% include 'includes/sidebar_content/rooms.html' %}
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">Analytics</span>
+      <ul>
+        {% include 'includes/sidebar_content/kpis.html' %}
+        {% include 'includes/sidebar_content/analyst.html' %}
       </ul>
     </div>
 
     <div class="nav-section">
       <span class="nav-label">Learning</span>
       <ul>
-        <li><a href="{% url 'courses:courses_list' %}" data-tooltip="Courses"><i class="fas fa-book"></i> <span>Courses</span></a></li>
-        <li><a href="{% url 'courses:standalone_lessons_list' %}" data-tooltip="Lessons"><i class="fas fa-file-earmark-text"></i> <span>Lessons</span></a></li>
+        {% include 'includes/sidebar_content/courses.html' %}
+        {% include 'includes/sidebar_content/curriculum.html' %}
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">Tools</span>
+      <ul>
+        {% include 'includes/sidebar_content/tools.html' %}
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">Configuration</span>
+      <ul>
+        {% include 'includes/sidebar_content/configuration.html' %}
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">Account</span>
+      <ul>
+        {% include 'includes/sidebar_content/account.html' %}
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">Help</span>
+      <ul>
+        {% include 'includes/sidebar_content/help.html' %}
+        {% include 'includes/sidebar_content/pages.html' %}
       </ul>
     </div>
 

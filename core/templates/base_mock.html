@@ -7,19 +7,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    {% include 'includes/header_mock.html' %}
+    {% include 'includes/header.html' %}
 
     <div class="app-container">
         <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-        {% include 'includes/sidebar_mock.html' %}
+        {% include 'includes/sidebar.html' %}
 
         <main id="main" class="main-content">
             {% block content %}{% endblock %}
         </main>
     </div>
 
-    {% include 'includes/footer_mock.html' %}
+    {% include 'includes/footer.html' %}
 
     <style>
         :root {

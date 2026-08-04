@@ -1,56 +1,75 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-calendar-days"></i><span>Events</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+        <i class="fas fa-calendar-check"></i>
+        <span>Events</span>
+        <span class="dropdown-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
     </button>
     <ul id="events-nav" class="sidebar-dropdown">
-                <li class="sidebar-nav-item">
+        <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:events' %}">
-                <i class="fas fa-list-ul"></i><span>All Events</span>
+                <i class="fas fa-list-ul"></i>
+                <span>All Events</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:event_panel' %}">
-                <i class="fas fa-gauge-high"></i><span>Event Panel</span>
+                <i class="fas fa-gauge-high"></i>
+                <span>Event Panel</span>
             </a>
         </li>
 
-                {% if user.is_authenticated %}
+        {% if user.is_authenticated %}
         <li class="sidebar-nav-item has-dropdown">
             <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-gear"></i><span>Event Actions</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                <i class="fas fa-gear"></i>
+                <span>Event Actions</span>
+                <span class="dropdown-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </span>
             </button>
             <ul id="event-actions-nav" class="sidebar-dropdown">
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:event_create' %}">
-                        <i class="fas fa-circle-plus"></i><span>Create Event</span>
+                        <i class="fas fa-circle-plus"></i>
+                        <span>Create Event</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:event_panel' %}">
-                        <i class="fas fa-pencil"></i><span>Edit Event</span>
+                        <i class="fas fa-pencil"></i>
+                        <span>Edit Event</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:event_assign_no_id' %}">
-                        <i class="fas fa-user-plus"></i><span>Assign Attendees</span>
+                        <i class="fas fa-user-plus"></i>
+                        <span>Assign Attendees</span>
                     </a>
                 </li>
             </ul>
         </li>
 
-                <li class="sidebar-nav-item has-dropdown">
+        <li class="sidebar-nav-item has-dropdown">
             <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-chart-column"></i><span>History &amp; Reports</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                <i class="fas fa-chart-column"></i>
+                <span>History &amp; Reports</span>
+                <span class="dropdown-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </span>
             </button>
             <ul id="event-reports-nav" class="sidebar-dropdown">
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:event_history_no_id' %}">
-                        <i class="fas fa-clock-rotate-left"></i><span>Event History</span>
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <span>Event History</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:event_export' %}">
-                        <i class="fas fa-download"></i><span>Export Events</span>
+                        <i class="fas fa-download"></i>
+                        <span>Export Events</span>
                     </a>
                 </li>
             </ul>

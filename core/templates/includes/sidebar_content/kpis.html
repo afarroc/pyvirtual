@@ -1,22 +1,29 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-file-lines"></i><span>Reports</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+        <i class="fas fa-file-lines"></i>
+        <span>Reports</span>
+        <span class="dropdown-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
     </button>
     <ul id="reports-nav" class="sidebar-dropdown">
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'kpis:home' %}">
-                <i class="fas fa-graph-up"></i><span>KPI Home</span>
+                <i class="fas fa-graph-up"></i>
+                <span>KPI Home</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'kpis:dashboard' %}">
-                <i class="fas fa-bar-chart-line"></i><span>AHT Dashboard</span>
+                <i class="fas fa-bar-chart-line"></i>
+                <span>AHT Dashboard</span>
             </a>
         </li>
         {% if user.is_authenticated %}
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'kpis:generate_data' %}">
-                <i class="fas fa-file-pdf"></i><span>Generate Data</span>
+                <i class="fas fa-file-pdf"></i>
+                <span>Generate Data</span>
             </a>
         </li>
         {% endif %}

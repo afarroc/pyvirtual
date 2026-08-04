@@ -1,25 +1,28 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-gear"></i><span>Configuration</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+        <i class="fas fa-gear"></i>
+        <span>Configuration</span>
+        <span class="dropdown-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
     </button>
     <ul id="configuration-nav" class="sidebar-dropdown">
-                <li class="sidebar-nav-item">
+        <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:status' %}">
-                <i class="fas fa-circle"></i><span>Status Panel</span>
+                <i class="fas fa-circle"></i>
+                <span>Status Panel</span>
             </a>
         </li>
-
-                <li class="sidebar-nav-item">
+        <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:status_create' %}">
-                <i class="fas fa-circle"></i><span>Status Create</span>
+                <i class="fas fa-circle"></i>
+                <span>Status Create</span>
             </a>
         </li>
-
-                <li class="m360-dropdown-sep" role="separator" aria-hidden="true"></li>
-
-                <li class="sidebar-nav-item">
+        <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:status_edit_no_model' %}">
-                <i class="fas fa-circle"></i><span>Status Edit</span>
+                <i class="fas fa-circle"></i>
+                <span>Status Edit</span>
             </a>
         </li>
     </ul>

@@ -1,26 +1,37 @@
-<li class="sidebar-divider" role="separator" aria-hidden="true">Pages</li>
-{% if user.is_authenticated %}
-<li class="sidebar-nav-item">
-    <a class="sidebar-nav-link" href="{% url 'cv:cv_detail'  %}">
-        <i class="fas fa-user"></i>
-        <span>Profile</span>
-    </a>
-</li>{% endif %}
-<li class="sidebar-nav-item">
-    <a class="sidebar-nav-link" href="{% url 'faq' %}">
-        <i class="fas fa-circle-question"></i>
-        <span>F.A.Q</span>
-    </a>
-</li>
-<li class="sidebar-nav-item">
-    <a class="sidebar-nav-link" href="{% url 'contact' %}">
-        <i class="fas fa-envelope"></i>
-        <span>Contact</span>
-    </a>
-</li>
-<li class="sidebar-nav-item">
-    <a class="sidebar-nav-link" href="{% url 'about' %}">
-        <i class="fas fa-circle-info"></i>
-        <span>About</span>
-    </a>    
+<li class="sidebar-nav-item has-dropdown">
+    <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+        <i class="fas fa-file"></i>
+        <span>Pages</span>
+        <span class="dropdown-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
+    </button>
+    <ul id="pages-nav" class="sidebar-dropdown">
+        {% if user.is_authenticated %}
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'cv:cv_detail' %}">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </li>
+        {% endif %}
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'faq' %}">
+                <i class="fas fa-circle-question"></i>
+                <span>F.A.Q</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'contact' %}">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a class="sidebar-nav-link" href="{% url 'about' %}">
+                <i class="fas fa-circle-info"></i>
+                <span>About</span>
+            </a>
+        </li>
+    </ul>
 </li>

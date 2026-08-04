@@ -1,22 +1,29 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-table-columns"></i><span>Rooms</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+        <i class="fas fa-table-columns"></i>
+        <span>Rooms</span>
+        <span class="dropdown-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
     </button>
     <ul id="rooms-nav" class="sidebar-dropdown">
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'rooms:lobby' %}">
-                <i class="fas fa-circle"></i><span>Lobby</span>
+                <i class="fas fa-circle"></i>
+                <span>Lobby</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'rooms:room_list' %}">
-                <i class="fas fa-circle"></i><span>Rooms</span>
+                <i class="fas fa-circle"></i>
+                <span>Rooms</span>
             </a>
         </li>
         {% if user.is_authenticated %}
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'rooms:room_create' %}">
-                <i class="fas fa-circle"></i><span>Create Room</span>
+                <i class="fas fa-circle"></i>
+                <span>Create Room</span>
             </a>
         </li>
         {% endif %}
