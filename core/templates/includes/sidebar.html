@@ -14,6 +14,13 @@ SIDEBAR - Scroll independiente
     </div>
 
     <div class="nav-section">
+      <span class="nav-label">Projects</span>
+      <ul>
+        {% include 'includes/sidebar_content/projects.html' %}
+      </ul>
+    </div>
+
+    <div class="nav-section">
       <span class="nav-label">Tools</span>
       <ul>
         <li><a href="{% url 'analyst:report_list' %}" data-tooltip="Reports"><i class="fas fa-file-invoice"></i> <span>Reports</span></a></li>

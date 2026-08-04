@@ -195,6 +195,7 @@
           this.initToggle();
           this.initNavigation();
           this.initUpgrade();
+          this.initTooltips();
         },
 
         initToggle: function() {
@@ -235,6 +236,46 @@
                   this.sidebar.classList.remove('open');
                 }
               }
+            });
+          });
+
+          this.initSidebarDropdowns();
+        },
+
+        initSidebarDropdowns: function() {
+          const toggles = Utils.getElements('.sidebar-nav-item.has-dropdown > .sidebar-nav-link.dropdown-toggle');
+          toggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              const li = this.closest('li.sidebar-nav-item');
+              if (!li) return;
+              const isOpen = li.classList.contains('open');
+              const parentUl = li.closest('ul');
+              if (parentUl) {
+                parentUl.querySelectorAll(':scope > .sidebar-nav-item.has-dropdown.open').forEach(openLi => {
+                  if (openLi !== li) openLi.classList.remove('open');
+                });
+              }
+              if (isOpen) {
+                li.classList.remove('open');
+                this.setAttribute('aria-expanded', 'false');
+              } else {
+                li.classList.add('open');
+                this.setAttribute('aria-expanded', 'true');
+              }
+            });
+          });
+        },
+
+        initTooltips: function() {
+          const tooltipLinks = Utils.getElements('[data-tooltip]');
+          tooltipLinks.forEach(link => {
+            link.addEventListener('mouseenter', function() {
+              this.setAttribute('data-tooltip-active', 'true');
+            });
+            link.addEventListener('mouseleave', function() {
+              this.removeAttribute('data-tooltip-active');
             });
           });
         },

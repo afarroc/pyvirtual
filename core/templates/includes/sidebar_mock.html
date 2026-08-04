@@ -17,10 +17,16 @@
         </li>
 
         <li class="sidebar-divider"><i class="fas fa-cogs"></i> Gestión</li>
-        {% include 'includes/sidebar_content/projects.html' %}
         {% include 'includes/sidebar_content/tasks.html' %}
         {% include 'includes/sidebar_content/events.html' %}
         {% include 'includes/sidebar_content/configuration.html' %}
+
+        <div class="nav-section">
+            <span class="nav-label">Projects</span>
+            <ul>
+                {% include 'includes/sidebar_content/projects.html' %}
+            </ul>
+        </div>
 
         <li class="sidebar-divider"><i class="fas fa-graduation-cap"></i> Aprendizaje</li>
         {% include 'includes/sidebar_content/courses.html' %}

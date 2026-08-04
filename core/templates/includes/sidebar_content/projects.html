@@ -1,54 +1,68 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-calendar-week"></i><span>Projects</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+        <i class="fas fa-calendar-week"></i>
+        <span>Projects</span>
+        <span class="dropdown-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
     </button>
-    <ul id="projects-nav" class="sidebar-dropdown">
-
-                <li class="sidebar-nav-item">
+    <ul class="sidebar-dropdown" id="projects-nav">
+        <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:projects' %}">
-                <i class="fas fa-list-ul"></i><span>All Projects</span>
+                <i class="fas fa-list-ul"></i>
+                <span>All Projects</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:project_panel' %}">
-                <i class="fas fa-gauge-high"></i><span>Project Panel</span>
+                <i class="fas fa-gauge-high"></i>
+                <span>Project Panel</span>
             </a>
         </li>
 
-                {% if user.is_authenticated %}
+        <!-- Sub-dropdown anidado: Project Actions -->
+        {% if user.is_authenticated %}
         <li class="sidebar-nav-item has-dropdown">
             <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-gear"></i><span>Project Actions</span><span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
+                <i class="fas fa-gear"></i>
+                <span>Project Actions</span>
+                <span class="dropdown-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </span>
             </button>
-            <ul id="project-actions-nav" class="sidebar-dropdown">
+            <ul class="sidebar-dropdown" id="project-actions-nav">
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:project_create' %}">
-                        <i class="fas fa-circle-plus"></i><span>Create Project</span>
+                        <i class="fas fa-circle-plus"></i>
+                        <span>Create Project</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:project_edit_no_id' %}">
-                        <i class="fas fa-pencil"></i><span>Edit Project</span>
+                        <i class="fas fa-pencil"></i>
+                        <span>Edit Project</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:project_activate_no_id' %}">
-                        <i class="fas fa-circle-play"></i><span>Activate Project</span>
+                        <i class="fas fa-circle-play"></i>
+                        <span>Activate Project</span>
                     </a>
                 </li>
             </ul>
         </li>
         {% endif %}
 
-                <li class="sidebar-nav-item">
+        <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:project_templates' %}">
-                <i class="fas fa-file-circle-plus"></i><span>Project Templates</span>
+                <i class="fas fa-file-circle-plus"></i>
+                <span>Project Templates</span>
             </a>
         </li>
-
-                <li class="sidebar-nav-item">
+        <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:project_export' %}">
-                <i class="fas fa-download"></i><span>Export Projects</span>
+                <i class="fas fa-download"></i>
+                <span>Export Projects</span>
             </a>
         </li>
     </ul>
