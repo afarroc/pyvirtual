@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Count, Q
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin.models import LogEntry
 from django.views.decorators.http import require_GET, require_POST
@@ -10,8 +11,10 @@ from django.utils import timezone
 from django.core.cache import cache
 import logging
 
-from events.models import Event, Project, Task
+from events.models import Event, Project, Task, Status, ProjectStatus, TaskStatus
 from .models import Article
+
+User = get_user_model()
 from .utils import (
     validate_time_parameters,
     get_cached_basic_stats,
@@ -31,7 +34,6 @@ def home_view(request, days=None, days_ago=None):
     """Main dashboard view with optimized queries."""
     # Validate parameters
     days, days_ago, start_date, end_date = validate_time_parameters(days, days_ago)
-    logger.info(f' d, da[ {validate_time_parameters(days, days_ago)}')
 
     # Get cached data
     basic_stats = get_cached_basic_stats(start_date, end_date, days, days_ago)
@@ -39,7 +41,42 @@ def home_view(request, days=None, days_ago=None):
     recent_activities = get_recent_activities()
     recent_items = get_recent_items()
     categories = get_cached_categories()
-    
+
+    # Additional context aligned with home.html
+    recent_events = Event.objects.select_related(
+        'event_status', 'host'
+    ).order_by('-created_at')[:5]
+
+    event_statuses = Status.objects.filter(active=True).order_by('status_name')
+    project_statuses = ProjectStatus.objects.filter(active=True).order_by('status_name')
+
+    active_projects_list = Project.objects.select_related(
+        'project_status', 'host', 'assigned_to'
+    ).order_by('-updated_at')[:4]
+
+    team_members = User.objects.filter(
+        is_active=True
+    ).order_by('-last_login')[:6]
+
+    # Normalize categories for templates expecting `name` and `color`
+    normalized_event_categories = [
+        {
+            'name': cat.get('event_category') or 'Uncategorized',
+            'count': cat.get('count', 0),
+            'color': '#7c3aed',
+        }
+        for cat in categories['event_categories']
+    ]
+
+    normalized_project_categories = [
+        {
+            'name': getattr(cat, 'nombre', str(cat)),
+            'description': getattr(cat, 'descripcion', ''),
+            'color': '#0ea5e9',
+        }
+        for cat in categories['project_categories']
+    ]
+
     # Generate alerts
     alerts = generate_home_alerts(request.user, {
         'total_events': basic_stats['total_events'],
@@ -51,32 +88,39 @@ def home_view(request, days=None, days_ago=None):
         'upcoming_events': recent_items['upcoming_events'].count(),
         'recent_activities': len(recent_activities)
     })
-    
+
     context = {
         'page_title': 'Dashboard',
         'days': days,
         'days_ago': days_ago,
         'start_date': start_date,
         'end_date': end_date,
-        
+
         # Statistics
         **basic_stats,
         **status_counts,
-        
+
         # Recent data
         'recent_activities': recent_activities,
         'upcoming_events': recent_items['upcoming_events'],
         'upcoming_events_count': recent_items['upcoming_events'].count(),
         'recent_projects_list': recent_items['recent_projects_list'],
         'recent_tasks': recent_items['recent_tasks'],
-        
+
+        # Additional home.html context
+        'recent_events': recent_events,
+        'event_statuses': event_statuses,
+        'project_statuses': project_statuses,
+        'active_projects_list': active_projects_list,
+        'team_members': team_members,
+
         # Categories
-        'event_categories': categories['event_categories'],
-        'project_categories': categories['project_categories'],
-        
+        'event_categories': normalized_event_categories,
+        'project_categories': normalized_project_categories,
+
         # Alerts
         'alerts': alerts,
-        
+
         # User data
         'profile_completion': 50,  # Placeholder
     }
