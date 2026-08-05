@@ -1,0 +1,2071 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load schedule_filters %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% load custom_tags %}
+{% load cache %}
+{% load icon_tags %}
+
+{% block extra_head %}
+<style>
+  :root {
+    --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --purple-dark: #5b21b6;
+    --purple-50: #f5f3ff;
+    --blue: #0ea5e9;
+    --blue-light: #e0f2fe;
+    --amber: #f59e0b;
+    --amber-light: #fef3c7;
+    --red: #ef4444;
+    --red-light: #fee2e2;
+    --green: #22c55e;
+    --green-light: #dcfce7;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --shadow: 0 4px 24px rgba(0,0,0,0.04);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.08);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dashboard-wrapper {
+    padding: 1.5rem 0;
+  }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .dashboard-header .subtitle {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  .dashboard-header .header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-toolbar {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-group .group-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-right: 0.25rem;
+  }
+
+  .toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all var(--transition);
+    border: 1px solid transparent;
+    text-decoration: none;
+  }
+
+  .toolbar-btn:hover {
+    background: var(--bg);
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .toolbar-btn i {
+    font-size: 0.9rem;
+  }
+
+  .toolbar-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+  }
+
+  .dashboard-tabs {
+    display: flex;
+    gap: 0.25rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.25rem;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+  }
+
+  .dashboard-tabs .tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all var(--transition);
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: var(--font);
+    white-space: nowrap;
+  }
+
+  .dashboard-tabs .tab-btn:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .dashboard-tabs .tab-btn.active {
+    background: var(--purple);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  }
+
+  .dashboard-tabs .tab-btn i {
+    font-size: 1rem;
+  }
+
+  .tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    transition: all var(--transition);
+  }
+
+  .stat-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+  }
+
+  .stat-card .stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .stat-card .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .stat-card .stat-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .stat-card .stat-icon {
+    float: right;
+    font-size: 1.5rem;
+    color: var(--purple);
+    opacity: 0.6;
+  }
+
+  .stat-card.purple .stat-icon { color: var(--purple); }
+  .stat-card.blue .stat-icon { color: var(--blue); }
+  .stat-card.amber .stat-icon { color: var(--amber); }
+  .stat-card.green .stat-icon { color: var(--green); }
+
+  .quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    transition: all var(--transition);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .quick-action-btn:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+    background: var(--purple-light);
+    transform: translateY(-2px);
+  }
+
+  .quick-action-btn i {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .activity-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition);
+  }
+
+  .activity-item:hover {
+    background: var(--bg);
+  }
+
+  .activity-item .activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .activity-item .activity-icon.green { background: var(--green-light); color: var(--green); }
+  .activity-item .activity-icon.blue { background: var(--blue-light); color: var(--blue); }
+  .activity-item .activity-icon.amber { background: var(--amber-light); color: var(--amber); }
+  .activity-item .activity-icon.purple { background: var(--purple-light); color: var(--purple); }
+
+  .activity-item .activity-content {
+    flex: 1;
+  }
+
+  .activity-item .activity-content strong {
+    display: block;
+    font-size: 0.875rem;
+  }
+
+  .activity-item .activity-content .activity-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .activity-item .activity-content .activity-time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .activity-item .activity-more {
+    color: var(--text-muted);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all var(--transition);
+  }
+
+  .activity-item:hover .activity-more {
+    opacity: 1;
+  }
+
+  .profile-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .profile-card .profile-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--purple-light);
+    color: var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .profile-card .profile-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .profile-card .profile-role {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .profile-card .profile-completion {
+    margin-top: 0.75rem;
+  }
+
+  .profile-card .profile-completion .completion-bar {
+    height: 4px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.25rem;
+  }
+
+  .profile-card .profile-completion .completion-bar .completion-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--purple), #a78bfa);
+    border-radius: 4px;
+    transition: width 0.8s ease;
+  }
+
+  .profile-card .profile-links {
+    display: grid;
+    gap: 0.25rem;
+    margin-top: 0.75rem;
+  }
+
+  .profile-card .profile-links a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    transition: all var(--transition);
+    text-decoration: none;
+  }
+
+  .profile-card .profile-links a:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .profile-card .profile-links a i {
+    width: 1.25rem;
+    text-align: center;
+  }
+
+  .upcoming-events {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .upcoming-events .events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .upcoming-events .events-header h5 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .upcoming-events .events-header .add-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--purple-light);
+    color: var(--purple);
+    transition: all var(--transition);
+    text-decoration: none;
+  }
+
+  .upcoming-events .events-header .add-btn:hover {
+    background: var(--purple);
+    color: #fff;
+  }
+
+  .upcoming-events .event-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition);
+    text-decoration: none;
+    color: var(--text);
+  }
+
+  .upcoming-events .event-item:hover {
+    background: var(--bg);
+  }
+
+  .upcoming-events .event-item .event-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--purple-light);
+    color: var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upcoming-events .event-item .event-info {
+    flex: 1;
+  }
+
+  .upcoming-events .event-item .event-info .event-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .upcoming-events .event-item .event-info .event-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .upcoming-events .view-all {
+    display: block;
+    text-align: center;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    color: var(--purple);
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .upcoming-events .view-all:hover {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+  }
+
+  .upcoming-events .empty-state {
+    text-align: center;
+    padding: 1.5rem 0;
+  }
+
+  .upcoming-events .empty-state i {
+    font-size: 2rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .upcoming-events .empty-state p {
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .upcoming-events .empty-state a {
+    color: var(--purple);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .section-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-card .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .section-card .section-header h5 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .section-card .section-header .header-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .section-card .section-header .header-actions a {
+    font-size: 0.8rem;
+    color: var(--purple);
+    text-decoration: none;
+  }
+
+  .section-card .section-header .header-actions a:hover {
+    text-decoration: underline;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .project-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    transition: all var(--transition);
+  }
+
+  .project-card:hover {
+    border-color: var(--purple);
+    box-shadow: var(--shadow);
+  }
+
+  .project-card .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+  }
+
+  .project-card .project-header h6 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .project-card .project-header .status-badge {
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 100px;
+  }
+
+  .project-card .project-header .status-badge.active {
+    background: var(--green-light);
+    color: var(--green);
+  }
+
+  .project-card .project-header .status-badge.pending {
+    background: var(--amber-light);
+    color: var(--amber);
+  }
+
+  .project-card .project-header .status-badge.completed {
+    background: var(--blue-light);
+    color: var(--blue);
+  }
+
+  .project-card .project-description {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+  }
+
+  .project-card .project-progress {
+    margin-bottom: 0.5rem;
+  }
+
+  .project-card .project-progress .progress-bar {
+    height: 4px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .project-card .project-progress .progress-bar .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--purple), #a78bfa);
+    border-radius: 4px;
+    transition: width 0.8s ease;
+  }
+
+  .project-card .project-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .project-card .project-actions {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .project-card .project-actions a {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    transition: all var(--transition);
+    text-decoration: none;
+  }
+
+  .project-card .project-actions a:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .tool-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: all var(--transition);
+  }
+
+  .tool-card:hover {
+    border-color: var(--purple);
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+  }
+
+  .tool-card .tool-icon {
+    font-size: 1.5rem;
+    color: var(--purple);
+    margin-bottom: 0.5rem;
+  }
+
+  .tool-card h5 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .tool-card p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+
+  .tool-card .tool-actions {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
+
+  .tool-card .tool-actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    transition: all var(--transition);
+    text-decoration: none;
+    border: 1px solid var(--border);
+  }
+
+  .tool-card .tool-actions a:hover {
+    background: var(--purple);
+    color: #fff;
+    border-color: var(--purple);
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  .table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .table-wrap table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .table-wrap table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .table-wrap table tr:hover td {
+    background: var(--bg);
+  }
+
+  .table-wrap table .status-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 100px;
+  }
+
+  .table-wrap table .status-badge.active {
+    background: var(--green-light);
+    color: var(--green);
+  }
+
+  .table-wrap table .status-badge.pending {
+    background: var(--amber-light);
+    color: var(--amber);
+  }
+
+  .table-wrap table .status-badge.completed {
+    background: var(--blue-light);
+    color: var(--blue);
+  }
+
+  .table-wrap table .table-actions {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .table-wrap table .table-actions a {
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    transition: all var(--transition);
+  }
+
+  .table-wrap table .table-actions a:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition);
+  }
+
+  .category-item:hover {
+    background: var(--bg);
+  }
+
+  .category-item .category-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .category-item .category-name .color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .category-item .category-actions {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .category-item .category-actions a {
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    transition: all var(--transition);
+  }
+
+  .category-item .category-actions a:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+  }
+
+  .modal-overlay .modal {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    max-width: 500px;
+    width: 90%;
+    padding: 2rem;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-overlay .modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .modal-overlay .modal .modal-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .modal-overlay .modal .modal-header .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color var(--transition);
+  }
+
+  .modal-overlay .modal .modal-header .close-btn:hover {
+    color: var(--text);
+  }
+
+  .modal-overlay .modal .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .modal-overlay .modal .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .modal-overlay .modal .form-group input,
+  .modal-overlay .modal .form-group textarea,
+  .modal-overlay .modal .form-group select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font);
+    font-size: 0.875rem;
+    transition: border-color var(--transition);
+  }
+
+  .modal-overlay .modal .form-group input:focus,
+  .modal-overlay .modal .form-group textarea:focus,
+  .modal-overlay .modal .form-group select:focus {
+    border-color: var(--purple);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--purple-light);
+  }
+
+  .modal-overlay .modal .form-group input[type="color"] {
+    width: 50px;
+    height: 40px;
+    padding: 0.25rem;
+  }
+
+  .modal-overlay .modal .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .modal-overlay .modal .modal-actions .btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all var(--transition);
+    border: none;
+    cursor: pointer;
+  }
+
+  .modal-overlay .modal .modal-actions .btn-secondary {
+    background: var(--bg);
+    color: var(--text-secondary);
+  }
+
+  .modal-overlay .modal .modal-actions .btn-secondary:hover {
+    background: var(--border);
+  }
+
+  .modal-overlay .modal .modal-actions .btn-primary {
+    background: var(--purple);
+    color: #fff;
+  }
+
+  .modal-overlay .modal .modal-actions .btn-primary:hover {
+    background: var(--purple-dark);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem 0;
+  }
+
+  .empty-state i {
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .empty-state p {
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .empty-state a {
+    color: var(--purple);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .empty-state a:hover {
+    text-decoration: underline;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.25rem;
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all var(--transition);
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background: var(--purple);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: var(--purple-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+  }
+
+  .btn-ghost {
+    background: var(--bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover {
+    background: var(--border);
+  }
+
+  @media (max-width: 1024px) {
+    .two-col {
+      grid-template-columns: 1fr;
+    }
+    .project-grid {
+      grid-template-columns: 1fr;
+    }
+    .tools-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+    .toolbar-group {
+      justify-content: center;
+    }
+    .toolbar-divider {
+      display: none;
+    }
+    .dashboard-tabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+    .dashboard-tabs .tab-btn {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
+    }
+    .stats-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .quick-actions-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    .dashboard-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .quick-actions-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+
+  {% if messages %}
+    {% include 'includes/alert.html' %}
+  {% endif %}
+
+  <div class="dashboard-header">
+    <div>
+      <h1>{{ page_title|default:"Dashboard" }}</h1>
+      <p class="subtitle">Resumen general del panel de control</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" id="dateRangeBtn">
+        <i class="fas fa-calendar-alt"></i> This Month
+      </button>
+      <button class="btn btn-primary" id="refreshBtn">
+        <i class="fas fa-sync"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="dashboard-toolbar">
+    <div class="toolbar-group">
+      <span class="group-label"><i class="fas fa-plus"></i> Crear</span>
+      <a href="{% url 'events:event_create' %}" class="toolbar-btn" title="Nuevo evento">
+        <i class="fas fa-calendar-plus"></i> Evento
+      </a>
+      <a href="{% url 'events:project_create' %}" class="toolbar-btn" title="Nuevo proyecto">
+        <i class="fas fa-folder-plus"></i> Proyecto
+      </a>
+      <a href="{% url 'events:task_create' %}" class="toolbar-btn" title="Nueva tarea">
+        <i class="fas fa-plus-circle"></i> Tarea
+      </a>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <div class="toolbar-group">
+      <span class="group-label"><i class="fas fa-eye"></i> Ir a</span>
+      <a href="{% url 'events:events' %}" class="toolbar-btn">
+        <i class="fas fa-calendar-event"></i> Eventos
+      </a>
+      <a href="{% url 'events:projects' %}" class="toolbar-btn">
+        <i class="fas fa-kanban"></i> Proyectos
+      </a>
+      <a href="{% url 'events:tasks' %}" class="toolbar-btn">
+        <i class="fas fa-list-check"></i> Tareas
+      </a>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <div class="toolbar-group">
+      <span class="group-label"><i class="fas fa-chart-bar"></i> Datos</span>
+      <a href="{% url 'analyst:report_list' %}" class="toolbar-btn">
+        <i class="fas fa-file-invoice"></i> Reportes
+      </a>
+      <a href="{% url 'analyst:cross_list' %}" class="toolbar-btn">
+        <i class="fas fa-shuffle"></i> Cruces
+      </a>
+    </div>
+  </div>
+
+  <div class="dashboard-tabs" id="dashboardTabs">
+    <button class="tab-btn active" data-tab="dashboard">
+      <i class="fas fa-speedometer2"></i> Dashboard
+    </button>
+    <button class="tab-btn" data-tab="events">
+      <i class="fas fa-calendar-event"></i> Events
+    </button>
+    <button class="tab-btn" data-tab="projects">
+      <i class="fas fa-kanban"></i> Projects
+    </button>
+    <button class="tab-btn" data-tab="courses">
+      <i class="fas fa-book"></i> Courses
+    </button>
+    <button class="tab-btn" data-tab="tools">
+      <i class="fas fa-tools"></i> Tools
+    </button>
+  </div>
+
+  <div class="tab-content active" id="tab-dashboard">
+
+    {% cache 300 dashboard_stats user.username days days_ago %}
+    <div class="stats-grid">
+      <div class="stat-card purple">
+        <i class="fas fa-tasks stat-icon"></i>
+        <div class="stat-number">{{ pending_tasks|default:0 }}</div>
+        <div class="stat-label">Pending Tasks</div>
+        <div class="stat-sub">Tasks · Today</div>
+      </div>
+
+      <div class="stat-card blue">
+        <i class="fas fa-calendar-check stat-icon"></i>
+        <div class="stat-number">{{ upcoming_events_count|default:0 }}</div>
+        <div class="stat-label">Upcoming Events</div>
+        <div class="stat-sub">Events · This Week</div>
+      </div>
+
+      <div class="stat-card amber">
+        <i class="fas fa-folder-open stat-icon"></i>
+        <div class="stat-number">{{ active_projects|default:0 }}</div>
+        <div class="stat-label">Active Projects</div>
+        <div class="stat-sub">Projects · Active</div>
+      </div>
+
+      <div class="stat-card green">
+        <i class="fas fa-users stat-icon"></i>
+        <div class="stat-number">{{ team_members|default:0 }}</div>
+        <div class="stat-label">Team Members</div>
+        <div class="stat-sub">Members · Online</div>
+      </div>
+    </div>
+    {% endcache %}
+
+    <div class="two-col">
+      <div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+          </div>
+          <div class="quick-actions-grid">
+            <a href="{% url 'events:event_create' %}" class="quick-action-btn">
+              <i class="fas fa-calendar-plus"></i>
+              <span>Create Event</span>
+            </a>
+            <a href="{% url 'events:task_create' %}" class="quick-action-btn">
+              <i class="fas fa-plus-circle"></i>
+              <span>Add Task</span>
+            </a>
+            <a href="{% url 'events:project_create' %}" class="quick-action-btn">
+              <i class="fas fa-folder-plus"></i>
+              <span>New Project</span>
+            </a>
+            <a href="{% url 'events:events' %}" class="quick-action-btn">
+              <i class="fas fa-grid"></i>
+              <span>View All</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-clock"></i> Recent Activities</h5>
+            <div class="header-actions">
+              <a href="{% url 'events:events' %}">View All</a>
+            </div>
+          </div>
+          <div class="activity-timeline">
+            {% for activity in recent_activities|slice:":5" %}
+              <div class="activity-item">
+                <span class="activity-icon purple">
+                  <i class="fas fa-circle"></i>
+                </span>
+                <div class="activity-content">
+                  <strong>{{ activity.object_repr|default:"Activity" }}</strong>
+                  <p class="activity-text">{{ activity.verb|default:"Updated" }}</p>
+                  <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                </div>
+                <button class="activity-more"><i class="fas fa-ellipsis-v"></i></button>
+              </div>
+            {% empty %}
+              <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No recent activities</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div>
+
+        <div class="profile-card">
+          <div class="profile-avatar">{{ user.get_full_name|default:user.username|make_list|first|upper }}</div>
+          <div class="profile-name">{{ user.get_full_name|default:user.username }}</div>
+          <div class="profile-role">Management360 User</div>
+
+          <div class="profile-completion">
+            <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+              <span>Profile Completion</span>
+              <span>{{ profile_completion|default:0 }}%</span>
+            </div>
+            <div class="completion-bar">
+              <div class="completion-fill" style="width:{{ profile_completion|default:0 }}%;"></div>
+            </div>
+          </div>
+
+          <div class="profile-links">
+            <a href="{% url 'events:events' %}">
+              <i class="fas fa-calendar-event"></i> My Events
+            </a>
+            <a href="{% url 'events:projects' %}">
+              <i class="fas fa-kanban"></i> My Projects
+            </a>
+            <a href="{% url 'events:tasks' %}">
+              <i class="fas fa-list-check"></i> My Tasks
+            </a>
+          </div>
+        </div>
+
+        <div class="upcoming-events">
+          <div class="events-header">
+            <h5><i class="fas fa-calendar-check"></i> Upcoming Events</h5>
+            <a href="{% url 'events:event_create' %}" class="add-btn" title="Add Event">
+              <i class="fas fa-plus"></i>
+            </a>
+          </div>
+
+          {% if upcoming_events %}
+            {% for event in upcoming_events|slice:":3" %}
+              <a href="{% url 'events:event_detail' event.id %}" class="event-item">
+                <div class="event-icon">
+                  <i class="fas fa-calendar-event"></i>
+                </div>
+                <div class="event-info">
+                  <div class="event-title">{{ event.title|truncatechars:25 }}</div>
+                  <div class="event-date">{{ event.start_time|date:"M d, h:i A" }}</div>
+                </div>
+              </a>
+            {% endfor %}
+            <a href="{% url 'events:events' %}" class="view-all">
+              View All Events <i class="fas fa-arrow-right"></i>
+            </a>
+          {% else %}
+            <div class="empty-state">
+              <i class="fas fa-calendar"></i>
+              <p>No upcoming events</p>
+              <a href="{% url 'events:event_create' %}">Create Event</a>
+            </div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-events">
+
+    <div class="two-col">
+      <div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-calendar-alt"></i> Events Calendar</h5>
+            <div class="header-actions">
+              <a href="{% url 'events:event_create' %}"><i class="fas fa-plus"></i> New Event</a>
+              <a href="{% url 'events:event_panel' %}"><i class="fas fa-grid"></i> Panel View</a>
+            </div>
+          </div>
+          <div style="background:var(--bg);border-radius:var(--radius-sm);padding:1rem;text-align:center;min-height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+            <i class="fas fa-calendar-day" style="font-size:2rem;color:var(--text-muted);margin-bottom:0.5rem;"></i>
+            <p style="color:var(--text-muted);font-size:0.875rem;">Calendar view will be displayed here</p>
+            <p style="color:var(--text-muted);font-size:0.75rem;">{{ upcoming_events_count|default:0 }} upcoming events</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-list"></i> Recent Events</h5>
+            <div class="header-actions">
+              <a href="{% url 'events:events' %}">View All</a>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for event in recent_events|slice:":5" %}
+                  <tr>
+                    <td><strong>{{ event.title|truncatechars:30 }}</strong></td>
+                    <td>{{ event.start_time|date:"M d, Y" }}</td>
+                    <td>
+                      <span class="status-badge {% if event.status == 'active' %}active{% elif event.status == 'pending' %}pending{% else %}completed{% endif %}">
+                        {{ event.get_status_display|default:"Active" }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="table-actions">
+                        <a href="{% url 'events:event_detail' event.id %}" title="View"><i class="fas fa-eye"></i></a>
+                        <a href="{% url 'events:event_edit' event.id %}" title="Edit"><i class="fas fa-pencil"></i></a>
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" style="text-align:center;padding:2rem 0;color:var(--text-muted);">
+                      <i class="fas fa-calendar-plus" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;"></i>
+                      No recent events
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div>
+
+        {% cache 900 event_categories %}
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-tags"></i> Event Categories</h5>
+            <div class="header-actions">
+              <a href="#" onclick="openModal('categoryModal')"><i class="fas fa-plus"></i> Add</a>
+            </div>
+          </div>
+          <div class="category-list">
+            {% for category in event_categories %}
+              <div class="category-item">
+                <span class="category-name">
+                  <span class="color-dot" style="background:{{ category.color|default:'#7c3aed' }};"></span>
+                  {{ category.name }}
+                </span>
+                <div class="category-actions">
+                  <a href="#" title="Edit"><i class="fas fa-pencil"></i></a>
+                  <a href="#" title="Delete"><i class="fas fa-trash"></i></a>
+                </div>
+              </div>
+            {% empty %}
+              <div class="empty-state">
+                <i class="fas fa-tags"></i>
+                <p>No categories defined</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endcache %}
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-list-check"></i> Event Status</h5>
+            <div class="header-actions">
+              <a href="{% url 'events:status_create' %}"><i class="fas fa-plus"></i> Add Status</a>
+            </div>
+          </div>
+          <div class="category-list">
+            {% for status in event_statuses %}
+              <div class="category-item">
+                <span class="category-name">
+                  <span class="color-dot" style="background:{{ status.color|default:'#7c3aed' }};"></span>
+                  {{ status.name }}
+                  <span style="font-size:0.7rem;color:var(--text-muted);">{{ status.description|default:"" }}</span>
+                </span>
+                <div class="category-actions">
+                  <a href="{% url 'events:status_edit' status.id %}" title="Edit"><i class="fas fa-pencil"></i></a>
+                </div>
+              </div>
+            {% empty %}
+              <div class="empty-state">
+                <i class="fas fa-list-check"></i>
+                <p>No statuses defined</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-projects">
+
+    <div class="two-col">
+      <div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-folder-open"></i> My Projects</h5>
+            <div class="header-actions">
+              <a href="{% url 'events:project_create' %}"><i class="fas fa-plus"></i> New Project</a>
+            </div>
+          </div>
+          <div class="project-grid">
+            {% for project in active_projects_list|slice:":4" %}
+              <div class="project-card">
+                <div class="project-header">
+                  <h6>{{ project.name|truncatechars:20 }}</h6>
+                  <span class="status-badge {% if project.status == 'active' %}active{% elif project.status == 'pending' %}pending{% else %}completed{% endif %}">
+                    {{ project.get_status_display|default:"Active" }}
+                  </span>
+                </div>
+                <p class="project-description">{{ project.description|truncatechars:50|default:"No description" }}</p>
+                <div class="project-progress">
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width:{{ project.completion_percentage|default:0 }}%;"></div>
+                  </div>
+                </div>
+                <div class="project-meta">
+                  <span>{{ project.completion_percentage|default:0 }}% complete</span>
+                  <span>{{ project.tasks.count|default:0 }} tasks</span>
+                </div>
+                <div class="project-actions">
+                  <a href="{% url 'events:project_detail' project.id %}"><i class="fas fa-eye"></i> View</a>
+                  <a href="{% url 'events:project_edit' project.id %}"><i class="fas fa-pencil"></i> Edit</a>
+                  <a href="{% url 'events:task_create' %}?project={{ project.id }}"><i class="fas fa-plus"></i> Task</a>
+                </div>
+              </div>
+            {% empty %}
+              <div class="empty-state" style="grid-column:1/-1;">
+                <i class="fas fa-folder"></i>
+                <p>No active projects</p>
+                <a href="{% url 'events:project_create' %}">Create Project</a>
+              </div>
+            {% endfor %}
+          </div>
+          <div style="margin-top:1rem;text-align:center;">
+            <a href="{% url 'events:projects' %}" style="color:var(--purple);font-weight:500;text-decoration:none;">
+              View All Projects <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-tasks"></i> Recent Tasks</h5>
+            <div class="header-actions">
+              <a href="{% url 'events:tasks' %}">View All</a>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Project</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for task in recent_tasks|slice:":5" %}
+                  <tr>
+                    <td><strong>{{ task.title|truncatechars:20 }}</strong></td>
+                    <td>
+                      {% if task.project %}
+                        <a href="{% url 'events:project_detail' task.project.id %}" style="color:var(--purple);">
+                          {{ task.project.name|truncatechars:15 }}
+                        </a>
+                      {% else %}
+                        <span style="color:var(--text-muted);">None</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ task.due_date|date:"M d, Y"|default:"-" }}</td>
+                    <td>
+                      <span class="status-badge {% if task.status == 'active' %}active{% elif task.status == 'pending' %}pending{% else %}completed{% endif %}">
+                        {{ task.get_status_display|default:"Active" }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="table-actions">
+                        <a href="{% url 'events:task_edit' task.id %}" title="Edit"><i class="fas fa-pencil"></i></a>
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="5" style="text-align:center;padding:2rem 0;color:var(--text-muted);">
+                      <i class="fas fa-inbox" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;"></i>
+                      No recent tasks
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-list-check"></i> Project Status</h5>
+            <div class="header-actions">
+              <a href="{% url 'events:status_create' %}?model=project"><i class="fas fa-plus"></i> Add Status</a>
+            </div>
+          </div>
+          <div class="category-list">
+            {% for status in project_statuses %}
+              <div class="category-item">
+                <span class="category-name">
+                  <span class="color-dot" style="background:{{ status.color|default:'#7c3aed' }};"></span>
+                  {{ status.name }}
+                  <span style="font-size:0.7rem;color:var(--text-muted);">{{ status.description|default:"" }}</span>
+                </span>
+                <div class="category-actions">
+                  <a href="{% url 'events:status_edit' status.id %}" title="Edit"><i class="fas fa-pencil"></i></a>
+                </div>
+              </div>
+            {% empty %}
+              <div class="empty-state">
+                <i class="fas fa-list-check"></i>
+                <p>No statuses defined</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-tags"></i> Project Categories</h5>
+            <div class="header-actions">
+              <a href="{% url 'events:create_classification' %}"><i class="fas fa-plus"></i> Add Category</a>
+            </div>
+          </div>
+          <div class="category-list">
+            {% for category in project_categories %}
+              <div class="category-item">
+                <span class="category-name">
+                  <span class="color-dot" style="background:{{ category.color|default:'#7c3aed' }};"></span>
+                  {{ category.name }}
+                </span>
+                <div class="category-actions">
+                  <a href="{% url 'events:edit_classification' category.id %}" title="Edit"><i class="fas fa-pencil"></i></a>
+                  <a href="{% url 'events:delete_classification' category.id %}" title="Delete"><i class="fas fa-trash"></i></a>
+                </div>
+              </div>
+            {% empty %}
+              <div class="empty-state">
+                <i class="fas fa-tags"></i>
+                <p>No categories defined</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-courses">
+
+    <div class="two-col">
+      <div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-book"></i> Courses & Learning</h5>
+            <div class="header-actions">
+              <a href="{% url 'courses:courses_list' %}"><i class="fas fa-search"></i> Explore</a>
+              <a href="{% url 'courses:create_course_wizard' %}"><i class="fas fa-plus"></i> Create Course</a>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;text-align:center;">
+              <i class="fas fa-book" style="font-size:1.5rem;color:var(--purple);margin-bottom:0.5rem;"></i>
+              <h6 style="font-size:0.875rem;font-weight:600;">Browse Courses</h6>
+              <small style="color:var(--text-muted);">Explore available courses</small>
+              <div style="margin-top:0.5rem;">
+                <a href="{% url 'courses:courses_list' %}" style="color:var(--purple);font-weight:500;text-decoration:none;font-size:0.8rem;">
+                  <i class="fas fa-search"></i> View All Courses
+                </a>
+              </div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;text-align:center;">
+              <i class="fas fa-file-earmark-text" style="font-size:1.5rem;color:var(--blue);margin-bottom:0.5rem;"></i>
+              <h6 style="font-size:0.875rem;font-weight:600;">Free Lessons</h6>
+              <small style="color:var(--text-muted);">Independent learning content</small>
+              <div style="margin-top:0.5rem;">
+                <a href="{% url 'courses:standalone_lessons_list' %}" style="color:var(--blue);font-weight:500;text-decoration:none;font-size:0.8rem;">
+                  <i class="fas fa-book-open"></i> View Free Content
+                </a>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;text-align:center;">
+            <a href="{% url 'courses:dashboard' %}" style="color:var(--purple);font-weight:500;text-decoration:none;">
+              <i class="fas fa-speedometer2"></i> Go to Courses Dashboard
+            </a>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-graduation-cap"></i> Learning Resources</h5>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;">
+              <i class="fas fa-journal-text" style="color:var(--purple);margin-bottom:0.5rem;"></i>
+              <h6 style="font-size:0.875rem;font-weight:600;">My Courses</h6>
+              <small style="color:var(--text-muted);">Manage your enrolled courses</small>
+              <div style="margin-top:0.5rem;">
+                <a href="{% url 'courses:dashboard' %}" style="color:var(--purple);font-weight:500;text-decoration:none;font-size:0.8rem;">
+                  <i class="fas fa-eye"></i> View Dashboard
+                </a>
+              </div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;">
+              <i class="fas fa-pencil-square" style="color:var(--amber);margin-bottom:0.5rem;"></i>
+              <h6 style="font-size:0.875rem;font-weight:600;">Create Content</h6>
+              <small style="color:var(--text-muted);">Author courses and lessons</small>
+              <div style="margin-top:0.5rem;">
+                <a href="{% url 'courses:manage_courses' %}" style="color:var(--amber);font-weight:500;text-decoration:none;font-size:0.8rem;">
+                  <i class="fas fa-plus-circle"></i> Manage Courses
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-chart-bar"></i> Learning Stats</h5>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;">
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);">
+              <span><i class="fas fa-book" style="color:var(--purple);"></i> Available Courses</span>
+              <span style="color:var(--text-muted);">Browse</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);">
+              <span><i class="fas fa-file-earmark-text" style="color:var(--blue);"></i> Free Lessons</span>
+              <span style="color:var(--text-muted);">Explore</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0.75rem;">
+              <span><i class="fas fa-bar-chart" style="color:var(--amber);"></i> Learning Tools</span>
+              <span style="color:var(--text-muted);">Available</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+            <a href="{% url 'courses:create_standalone_lesson' %}" class="quick-action-btn" style="font-size:0.7rem;">
+              <i class="fas fa-plus-circle"></i> Create Lesson
+            </a>
+            <a href="{% url 'courses:content_manager' %}" class="quick-action-btn" style="font-size:0.7rem;">
+              <i class="fas fa-cubes"></i> Content Manager
+            </a>
+            <a href="{% url 'courses:manage_categories' %}" class="quick-action-btn" style="font-size:0.7rem;">
+              <i class="fas fa-tags"></i> Categories
+            </a>
+            <a href="{% url 'courses:modules_overview' %}" class="quick-action-btn" style="font-size:0.7rem;">
+              <i class="fas fa-diagram-3"></i> Modules
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-tools">
+    {% cache 1800 tools_section user.username %}
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-file-earmark-person"></i></div>
+        <h5>CV Management</h5>
+        <p>Manage your professional curriculum vitae and documents.</p>
+        <div class="tool-actions">
+          <a href="{% url 'cv:cv_detail' %}"><i class="fas fa-eye"></i> View CV</a>
+          <a href="{% url 'cv:cv_edit' %}"><i class="fas fa-pencil"></i> Edit Basic</a>
+          <a href="{% url 'cv:document_upload' %}"><i class="fas fa-upload"></i> Upload Docs</a>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-key"></i></div>
+        <h5>Password Generator</h5>
+        <p>Generate secure passwords for your accounts.</p>
+        <div class="tool-actions">
+          <a href="{% url 'generate_password' %}"><i class="fas fa-key"></i> Generate</a>
+          <a href="{% url 'password_help' %}"><i class="fas fa-question-circle"></i> Help</a>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-clock-history"></i></div>
+        <h5>Memento Mori</h5>
+        <p>Reflect on the passage of time and life's impermanence.</p>
+        <div class="tool-actions">
+          <a href="{% url 'memento_default' %}"><i class="fas fa-eye"></i> View</a>
+          <a href="{% url 'memento_create' %}"><i class="fas fa-gear"></i> Configure</a>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-chat-left-text"></i></div>
+        <h5>Chat Tools</h5>
+        <p>Communicate with your team and AI assistant.</p>
+        <div class="tool-actions">
+          <a href="{% url 'chat:room_list' %}"><i class="fas fa-chat"></i> General Chat</a>
+          <a href="{% url 'chat:assistant_ui' %}"><i class="fas fa-robot"></i> AI Assistant</a>
+          <a href="{% url 'chat:clear_history' %}"><i class="fas fa-trash"></i> Clear Chat</a>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-bar-chart-line"></i></div>
+        <h5>KPI Dashboard</h5>
+        <p>Track your key performance indicators and metrics.</p>
+        <div class="tool-actions">
+          <a href="{% url 'kpis:dashboard' %}"><i class="fas fa-speedometer2"></i> View Dashboard</a>
+          <a href="{% url 'kpis:export_data' %}"><i class="fas fa-download"></i> Export Data</a>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-door-open"></i></div>
+        <h5>Room Management</h5>
+        <p>Manage your virtual rooms and spaces.</p>
+        <div class="tool-actions">
+          <a href="{% url 'chat:room' room_name='general' %}"><i class="fas fa-door-open"></i> Join Room</a>
+          <a href="#"><i class="fas fa-gear"></i> Manage</a>
+        </div>
+      </div>
+    </div>
+    {% endcache %}
+  </div>
+
+  <div class="modal-overlay" id="categoryModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h5>Add New Category</h5>
+        <button class="close-btn" onclick="closeModal('categoryModal')">&times;</button>
+      </div>
+      <form method="post" action="{% url 'events:status_create' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="categoryName">Category Name</label>
+          <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
+        </div>
+        <div class="form-group">
+          <label for="categoryColor">Color</label>
+          <input type="color" id="categoryColor" name="color" value="#7c3aed">
+        </div>
+        <div class="form-group">
+          <label for="categoryDescription">Description</label>
+          <textarea id="categoryDescription" name="description" rows="3" placeholder="Enter category description"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('categoryModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function() {
+    'use strict';
+
+    const TabManager = {
+      init: function() {
+        this.tabs = document.querySelectorAll('.tab-btn');
+        this.contents = document.querySelectorAll('.tab-content');
+        this.initTabs();
+        this.initDateRange();
+        this.initRefresh();
+        this.initModal();
+        this.initTableSort();
+        this.animateStats();
+      },
+
+      initTabs: function() {
+        this.tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            const target = tab.dataset.tab;
+            this.tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            this.contents.forEach(content => {
+              content.classList.remove('active');
+              if (content.id === 'tab-' + target) {
+                content.classList.add('active');
+              }
+            });
+            localStorage.setItem('activeTab', target);
+          });
+        });
+
+        const savedTab = localStorage.getItem('activeTab');
+        if (savedTab) {
+          const tabToActivate = document.querySelector(`.tab-btn[data-tab="${savedTab}"]`);
+          if (tabToActivate) {
+            tabToActivate.click();
+          }
+        }
+      },
+
+      initDateRange: function() {
+        const btn = document.getElementById('dateRangeBtn');
+        if (btn) {
+          const ranges = ['Today', 'This Week', 'This Month', 'This Quarter', 'This Year'];
+          let currentIndex = 2;
+          btn.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % ranges.length;
+            btn.innerHTML = `<i class="fas fa-calendar-alt"></i> ${ranges[currentIndex]}`;
+            btn.style.transition = 'all 0.3s ease';
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => { btn.style.transform = 'scale(1)'; }, 200);
+          });
+        }
+      },
+
+      initRefresh: function() {
+        const btn = document.getElementById('refreshBtn');
+        if (btn) {
+          btn.addEventListener('click', () => {
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin');
+            btn.disabled = true;
+            setTimeout(() => {
+              icon.classList.remove('fa-spin');
+              btn.disabled = false;
+              showNotification('Dashboard refreshed successfully!', 'success');
+            }, 1500);
+          });
+        }
+      },
+
+      initModal: function() {
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+          overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+              overlay.classList.remove('show');
+            }
+          });
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.show').forEach(modal => {
+              modal.classList.remove('show');
+            });
+          }
+        });
+      },
+
+      initTableSort: function() {
+        const tables = document.querySelectorAll('.table-wrap table');
+        tables.forEach(table => {
+          const headers = table.querySelectorAll('th');
+          headers.forEach(header => {
+            header.style.cursor = 'pointer';
+            header.addEventListener('click', () => {
+              const tbody = table.querySelector('tbody');
+              const rows = Array.from(tbody.querySelectorAll('tr'));
+              const index = Array.from(headers).indexOf(header);
+              const isAsc = header.dataset.sort === 'asc';
+              rows.sort((a, b) => {
+                const aVal = a.children[index]?.textContent.trim() || '';
+                const bVal = b.children[index]?.textContent.trim() || '';
+                return isAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+              });
+              rows.forEach(row => tbody.appendChild(row));
+              header.dataset.sort = isAsc ? 'desc' : 'asc';
+              headers.forEach(h => h.dataset.sort = '');
+              header.dataset.sort = isAsc ? 'desc' : 'asc';
+            });
+          });
+        });
+      },
+
+      animateStats: function() {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach(el => {
+          const text = el.textContent;
+          const num = parseInt(text.replace(/,/g, ''));
+          if (!isNaN(num) && num > 0) {
+            let current = 0;
+            const duration = 1000;
+            const step = Math.max(1, Math.floor(num / 60));
+            const interval = duration / (num / step);
+            const timer = setInterval(() => {
+              current += step;
+              if (current >= num) {
+                current = num;
+                clearInterval(timer);
+              }
+              el.textContent = current.toLocaleString();
+            }, interval);
+          }
+        });
+      }
+    };
+
+    function showNotification(message, type) {
+      const types = {
+        success: { icon: 'fa-check-circle', color: '#22c55e' },
+        error: { icon: 'fa-exclamation-circle', color: '#ef4444' },
+        warning: { icon: 'fa-exclamation-triangle', color: '#f59e0b' },
+        info: { icon: 'fa-info-circle', color: '#0ea5e9' }
+      };
+      const config = types[type] || types.info;
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: white;
+        border-left: 4px solid ${config.color};
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.875rem;
+        transform: translateX(120%);
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        max-width: 400px;
+      `;
+      notification.innerHTML = `
+        <i class="fas ${config.icon}" style="color:${config.color};font-size:1.2rem;"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:1.1rem;">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      document.body.appendChild(notification);
+      setTimeout(() => { notification.style.transform = 'translateX(0)'; }, 50);
+      setTimeout(() => {
+        notification.style.transform = 'translateX(120%)';
+        setTimeout(() => notification.remove(), 400);
+      }, 4000);
+    }
+
+    window.openModal = function(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('show');
+    };
+
+    window.closeModal = function(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('show');
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      TabManager.init();
+      setTimeout(() => {
+        showNotification('👋 Welcome back!', 'info');
+      }, 1000);
+    });
+
+  })();
+</script>
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
