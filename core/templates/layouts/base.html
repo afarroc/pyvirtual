@@ -5,27 +5,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Dashboard - Management360{% endblock %}</title>
+  
+  <!-- Preconnect para fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Fuentes -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome (MIT License) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Estilos principales -->
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  
+  <!-- Estilos específicos de la página -->
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+  <!-- HEADER -->
   {% include 'includes/header.html' %}
 
+  <!-- LAYOUT PRINCIPAL -->
   <div class="layout">
+    <!-- SIDEBAR -->
     {% include 'includes/sidebar.html' %}
 
-    <main class="main" id="mainContent">
+    <!-- MAIN CONTENT -->
+    <main class="main" id="mainContent" role="main">
       <div class="main-scroll">
+        <!-- BREADCRUMB OPCIONAL -->
+        {% block breadcrumb %}{% endblock %}
+        
+        <!-- CONTENIDO PRINCIPAL -->
         {% block content %}{% endblock %}
+        
+        <!-- FOOTER -->
         {% include 'includes/footer.html' %}
       </div>
     </main>
   </div>
 
+  <!-- SCRIPTS -->
   <script src="{% static 'js/main.js' %}"></script>
+  
+  <!-- SCRIPTS ESPECÍFICOS -->
   {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,365 +1,367 @@
-<aside class="sidebar" id="mainSidebar">
-      <nav class="sidebar-nav">
+<!-- ==========================================
+   SIDEBAR - Multi-level Navigation
+   ========================================== -->
+<aside class="sidebar" id="mainSidebar" role="navigation" aria-label="Menú principal">
+  <nav class="sidebar-nav">
+    
+    <!-- SECCIÓN 1: MAIN -->
+    <div class="nav-section">
+      <span class="nav-label">Main</span>
+      <ul>
+        <li class="active">
+          <a href="{% url 'home' %}" data-tooltip="Overview">
+            <i class="fas fa-compass" aria-hidden="true"></i>
+            <span>Overview</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'events:events' %}" data-tooltip="Events">
+            <i class="fas fa-calendar-check" aria-hidden="true"></i>
+            <span>Events</span>
+            <span class="nav-badge">8</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'events:projects' %}" data-tooltip="Projects">
+            <i class="fas fa-folder-open" aria-hidden="true"></i>
+            <span>Projects</span>
+            <span class="nav-badge">12</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'events:tasks' %}" data-tooltip="Tasks">
+            <i class="fas fa-list-check" aria-hidden="true"></i>
+            <span>Tasks</span>
+            <span class="nav-badge">24</span>
+          </a>
+        </li>
+      </ul>
+    </div>
 
-        <!-- SECCIÓN 1: MAIN -->
-        <div class="nav-section">
-          <span class="nav-label">Main</span>
-          <ul>
-            <li class="active">
-              <a href="#" data-tooltip="Overview">
-                <i class="fas fa-compass"></i>
-                <span>Overview</span>
+    <!-- SECCIÓN 2: MANAGEMENT -->
+    <div class="nav-section">
+      <span class="nav-label">Management</span>
+      <ul>
+        <!-- Dropdown: Core Management -->
+        <li class="sidebar-nav-item has-dropdown">
+          <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+            <span>Core Management</span>
+            <span class="dropdown-icon">
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </span>
+          </button>
+          <ul class="sidebar-dropdown">
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:unified_dashboard' %}">
+                <i class="fas fa-gauge-high" aria-hidden="true"></i>
+                <span>Unified Dashboard</span>
               </a>
             </li>
-            <li>
-              <a href="#" data-tooltip="Events">
-                <i class="fas fa-calendar-check"></i>
-                <span>Events</span>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:management_index' %}">
+                <i class="fas fa-circle" aria-hidden="true"></i>
+                <span>Management Index</span>
               </a>
             </li>
-            <li>
-              <a href="#" data-tooltip="Projects">
-                <i class="fas fa-folder-open"></i>
-                <span>Projects</span>
-                <span class="nav-badge">12</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" data-tooltip="Tasks">
-                <i class="fas fa-list-check"></i>
-                <span>Tasks</span>
-                <span class="nav-badge">24</span>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:panel' %}">
+                <i class="fas fa-circle" aria-hidden="true"></i>
+                <span>Main Panel</span>
               </a>
             </li>
           </ul>
-        </div>
+        </li>
 
-        <!-- SECCIÓN 2: MANAGEMENT -->
-        <div class="nav-section">
-          <span class="nav-label">Management</span>
-          <ul>
+        <!-- Dropdown: Productivity Tools -->
+        <li class="sidebar-nav-item has-dropdown">
+          <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-bolt" aria-hidden="true"></i>
+            <span>Productivity Tools</span>
+            <span class="dropdown-icon">
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </span>
+          </button>
+          <ul class="sidebar-dropdown">
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:kanban_board' %}">
+                <i class="fas fa-table-cells" aria-hidden="true"></i>
+                <span>Kanban Board</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:eisenhower_matrix' %}">
+                <i class="fas fa-table-cells" aria-hidden="true"></i>
+                <span>Eisenhower Matrix</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:inbox' %}">
+                <i class="fas fa-inbox" aria-hidden="true"></i>
+                <span>GTD Inbox</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'bitacora:list' %}">
+                <i class="fas fa-journal-text" aria-hidden="true"></i>
+                <span>Bitácora Personal</span>
+              </a>
+            </li>
+          </ul>
+        </li>
 
-            <!-- Dropdown: Core Management -->
-            <li class="sidebar-nav-item has-dropdown">
-              <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-clipboard-check"></i>
-                <span>Core Management</span>
-                <span class="dropdown-icon">
-                  <i class="fas fa-chevron-down"></i>
-                </span>
-              </button>
-              <ul class="sidebar-dropdown">
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-gauge-high"></i>
-                    <span>Unified Dashboard</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-circle"></i>
-                    <span>Management Index</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-circle"></i>
-                    <span>Main Panel</span>
-                  </a>
-                </li>
-              </ul>
+        <!-- Dropdown: Advanced Features -->
+        <li class="sidebar-nav-item has-dropdown">
+          <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-gear" aria-hidden="true"></i>
+            <span>Advanced Features</span>
+            <span class="dropdown-icon">
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </span>
+          </button>
+          <ul class="sidebar-dropdown">
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:task_dependencies_list' %}">
+                <i class="fas fa-link" aria-hidden="true"></i>
+                <span>Task Dependencies</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:project_templates' %}">
+                <i class="fas fa-file-circle-plus" aria-hidden="true"></i>
+                <span>Project Templates</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:reminders_dashboard' %}">
+                <i class="fas fa-bell" aria-hidden="true"></i>
+                <span>Reminders</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:planning_task' %}">
+                <i class="fas fa-calendar-week" aria-hidden="true"></i>
+                <span>Task Planning</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:task_schedules' %}">
+                <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
+                <span>Task Schedules</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Dropdown: Quick Actions -->
+        <li class="sidebar-nav-item has-dropdown">
+          <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-bolt" aria-hidden="true"></i>
+            <span>Quick Actions</span>
+            <span class="dropdown-icon">
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </span>
+          </button>
+          <ul class="sidebar-dropdown">
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:event_create' %}">
+                <i class="fas fa-circle-plus" aria-hidden="true"></i>
+                <span>Create Event</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:project_create' %}">
+                <i class="fas fa-circle-plus" aria-hidden="true"></i>
+                <span>Create Project</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:task_create' %}">
+                <i class="fas fa-circle-plus" aria-hidden="true"></i>
+                <span>Create Task</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:create_project_template' %}">
+                <i class="fas fa-circle-plus" aria-hidden="true"></i>
+                <span>Create Template</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Dropdown: Reports & Analytics -->
+        <li class="sidebar-nav-item has-dropdown">
+          <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-chart-column" aria-hidden="true"></i>
+            <span>Reports & Analytics</span>
+            <span class="dropdown-icon">
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </span>
+          </button>
+          <ul class="sidebar-dropdown">
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:event_export' %}">
+                <i class="fas fa-download" aria-hidden="true"></i>
+                <span>Export Events</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:project_export' %}">
+                <i class="fas fa-download" aria-hidden="true"></i>
+                <span>Export Projects</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:task_export' %}">
+                <i class="fas fa-download" aria-hidden="true"></i>
+                <span>Export Tasks</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- SECCIÓN 3: PROJECTS -->
+    <div class="nav-section">
+      <span class="nav-label">Projects</span>
+      <ul>
+        <li class="sidebar-nav-item has-dropdown">
+          <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-calendar-week" aria-hidden="true"></i>
+            <span>Projects</span>
+            <span class="dropdown-icon">
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </span>
+          </button>
+          <ul class="sidebar-dropdown">
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:projects' %}">
+                <i class="fas fa-list-ul" aria-hidden="true"></i>
+                <span>All Projects</span>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:project_panel' %}">
+                <i class="fas fa-gauge-high" aria-hidden="true"></i>
+                <span>Project Panel</span>
+              </a>
             </li>
 
-            <!-- Dropdown: Productivity Tools -->
+            <!-- NIVEL 2: Project Actions (Sub-dropdown anidado) -->
             <li class="sidebar-nav-item has-dropdown">
               <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-bolt"></i>
-                <span>Productivity Tools</span>
+                <i class="fas fa-gear" aria-hidden="true"></i>
+                <span>Project Actions</span>
                 <span class="dropdown-icon">
-                  <i class="fas fa-chevron-down"></i>
+                  <i class="fas fa-chevron-down" aria-hidden="true"></i>
                 </span>
               </button>
               <ul class="sidebar-dropdown">
                 <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-table-cells"></i>
-                    <span>Kanban Board</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-table-cells"></i>
-                    <span>Eisenhower Matrix</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-inbox"></i>
-                    <span>GTD Inbox</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-journal-text"></i>
-                    <span>Bitácora Personal</span>
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Dropdown: Advanced Features -->
-            <li class="sidebar-nav-item has-dropdown">
-              <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-gear"></i>
-                <span>Advanced Features</span>
-                <span class="dropdown-icon">
-                  <i class="fas fa-chevron-down"></i>
-                </span>
-              </button>
-              <ul class="sidebar-dropdown">
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-link"></i>
-                    <span>Task Dependencies</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-file-circle-plus"></i>
-                    <span>Project Templates</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-bell"></i>
-                    <span>Reminders</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-calendar-week"></i>
-                    <span>Task Planning</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-arrows-rotate"></i>
-                    <span>Task Schedules</span>
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            <!-- Dropdown: Quick Actions -->
-            <li class="sidebar-nav-item has-dropdown">
-              <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-bolt"></i>
-                <span>Quick Actions</span>
-                <span class="dropdown-icon">
-                  <i class="fas fa-chevron-down"></i>
-                </span>
-              </button>
-              <ul class="sidebar-dropdown">
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-circle-plus"></i>
-                    <span>Create Event</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-circle-plus"></i>
+                  <a class="sidebar-nav-link" href="{% url 'events:project_create' %}">
+                    <i class="fas fa-circle-plus" aria-hidden="true"></i>
                     <span>Create Project</span>
                   </a>
                 </li>
                 <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-circle-plus"></i>
-                    <span>Create Task</span>
+                  <a class="sidebar-nav-link" href="{% url 'events:project_edit_no_id' %}">
+                    <i class="fas fa-pencil" aria-hidden="true"></i>
+                    <span>Edit Project</span>
                   </a>
                 </li>
                 <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-circle-plus"></i>
-                    <span>Create Template</span>
+                  <a class="sidebar-nav-link" href="{% url 'events:project_activate_no_id' %}">
+                    <i class="fas fa-circle-play" aria-hidden="true"></i>
+                    <span>Activate Project</span>
                   </a>
                 </li>
               </ul>
             </li>
 
-            <!-- Dropdown: Reports & Analytics -->
-            <li class="sidebar-nav-item has-dropdown">
-              <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-chart-column"></i>
-                <span>Reports & Analytics</span>
-                <span class="dropdown-icon">
-                  <i class="fas fa-chevron-down"></i>
-                </span>
-              </button>
-              <ul class="sidebar-dropdown">
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-download"></i>
-                    <span>Export Events</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-download"></i>
-                    <span>Export Projects</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-download"></i>
-                    <span>Export Tasks</span>
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-          </ul>
-        </div>
-
-        <!-- SECCIÓN 3: PROJECTS -->
-        <div class="nav-section">
-          <span class="nav-label">Projects</span>
-          <ul>
-            <li class="sidebar-nav-item has-dropdown">
-              <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-calendar-week"></i>
-                <span>Projects</span>
-                <span class="dropdown-icon">
-                  <i class="fas fa-chevron-down"></i>
-                </span>
-              </button>
-              <ul class="sidebar-dropdown">
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-list-ul"></i>
-                    <span>All Projects</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-gauge-high"></i>
-                    <span>Project Panel</span>
-                  </a>
-                </li>
-
-                <!-- Sub-dropdown anidado: Project Actions (NIVEL 2) -->
-                <li class="sidebar-nav-item has-dropdown">
-                  <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                    <i class="fas fa-gear"></i>
-                    <span>Project Actions</span>
-                    <span class="dropdown-icon">
-                      <i class="fas fa-chevron-down"></i>
-                    </span>
-                  </button>
-                  <ul class="sidebar-dropdown">
-                    <li class="sidebar-nav-item">
-                      <a class="sidebar-nav-link" href="#">
-                        <i class="fas fa-circle-plus"></i>
-                        <span>Create Project</span>
-                      </a>
-                    </li>
-                    <li class="sidebar-nav-item">
-                      <a class="sidebar-nav-link" href="#">
-                        <i class="fas fa-pencil"></i>
-                        <span>Edit Project</span>
-                      </a>
-                    </li>
-                    <li class="sidebar-nav-item">
-                      <a class="sidebar-nav-link" href="#">
-                        <i class="fas fa-circle-play"></i>
-                        <span>Activate Project</span>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-file-circle-plus"></i>
-                    <span>Project Templates</span>
-                  </a>
-                </li>
-                <li class="sidebar-nav-item">
-                  <a class="sidebar-nav-link" href="#">
-                    <i class="fas fa-download"></i>
-                    <span>Export Projects</span>
-                  </a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-
-        <!-- SECCIÓN 4: TOOLS -->
-        <div class="nav-section">
-          <span class="nav-label">Tools</span>
-          <ul>
-            <li>
-              <a href="#" data-tooltip="Reports">
-                <i class="fas fa-file-invoice"></i>
-                <span>Reports</span>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:project_templates' %}">
+                <i class="fas fa-file-circle-plus" aria-hidden="true"></i>
+                <span>Project Templates</span>
               </a>
             </li>
-            <li>
-              <a href="#" data-tooltip="KPI Dashboard">
-                <i class="fas fa-chart-simple"></i>
-                <span>KPI Dashboard</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" data-tooltip="CV">
-                <i class="fas fa-file-earmark-person"></i>
-                <span>CV</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" data-tooltip="Password Generator">
-                <i class="fas fa-key"></i>
-                <span>Password Generator</span>
+            <li class="sidebar-nav-item">
+              <a class="sidebar-nav-link" href="{% url 'events:project_export' %}">
+                <i class="fas fa-download" aria-hidden="true"></i>
+                <span>Export Projects</span>
               </a>
             </li>
           </ul>
-        </div>
+        </li>
+      </ul>
+    </div>
 
-        <!-- SECCIÓN 5: LEARNING -->
-        <div class="nav-section">
-          <span class="nav-label">Learning</span>
-          <ul>
-            <li>
-              <a href="#" data-tooltip="Courses">
-                <i class="fas fa-book"></i>
-                <span>Courses</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" data-tooltip="Lessons">
-                <i class="fas fa-file-earmark-text"></i>
-                <span>Lessons</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <!-- SECCIÓN 6: BOTTOM -->
-        <div class="nav-bottom">
-          <div class="upgrade-card">
-            <i class="fas fa-rocket"></i>
-            <strong>Upgrade to Pro</strong>
-            <p>Unlock all features</p>
-            <button class="btn-upgrade" id="upgradeBtn">Upgrade</button>
-          </div>
-          <a href="#" class="nav-link-bottom">
-            <i class="fas fa-life-ring"></i> Help Center
+    <!-- SECCIÓN 4: TOOLS -->
+    <div class="nav-section">
+      <span class="nav-label">Tools</span>
+      <ul>
+        <li>
+          <a href="{% url 'analyst:report_list' %}" data-tooltip="Reports">
+            <i class="fas fa-file-invoice" aria-hidden="true"></i>
+            <span>Reports</span>
           </a>
-          <a href="#" class="nav-link-bottom">
-            <i class="fas fa-sign-out-alt"></i> Logout
+        </li>
+        <li>
+          <a href="{% url 'kpis:dashboard' %}" data-tooltip="KPI Dashboard">
+            <i class="fas fa-chart-simple" aria-hidden="true"></i>
+            <span>KPI Dashboard</span>
           </a>
-        </div>
+        </li>
+        <li>
+          <a href="{% url 'cv:cv_detail' %}" data-tooltip="CV">
+            <i class="fas fa-file-earmark-person" aria-hidden="true"></i>
+            <span>CV</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'generate_password' %}" data-tooltip="Password Generator">
+            <i class="fas fa-key" aria-hidden="true"></i>
+            <span>Password Generator</span>
+          </a>
+        </li>
+      </ul>
+    </div>
 
-      </nav>
-    </aside>
+    <!-- SECCIÓN 5: LEARNING -->
+    <div class="nav-section">
+      <span class="nav-label">Learning</span>
+      <ul>
+        <li>
+          <a href="{% url 'courses:courses_list' %}" data-tooltip="Courses">
+            <i class="fas fa-book" aria-hidden="true"></i>
+            <span>Courses</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'courses:standalone_lessons_list' %}" data-tooltip="Lessons">
+            <i class="fas fa-file-earmark-text" aria-hidden="true"></i>
+            <span>Lessons</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- SECCIÓN 6: BOTTOM -->
+    <div class="nav-bottom">
+      <div class="upgrade-card">
+        <i class="fas fa-rocket" aria-hidden="true"></i>
+        <strong>Upgrade to Pro</strong>
+        <p>Unlock all features</p>
+        <button class="btn-upgrade" id="upgradeBtn" type="button">Upgrade</button>
+      </div>
+      <a href="{% url 'help:help_home' %}" class="nav-link-bottom">
+        <i class="fas fa-life-ring" aria-hidden="true"></i> Help Center
+      </a>
+      <a href="{% url 'logout' %}" class="nav-link-bottom">
+        <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
+      </a>
+    </div>
+
+  </nav>
+</aside>

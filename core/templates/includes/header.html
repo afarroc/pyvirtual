@@ -1,14 +1,23 @@
 <!-- ==========================================
-HEADER - Fijo
-========================================== -->
-<header class="header" id="mainHeader">
+   HEADER - Dashboard Navigation
+   ========================================== -->
+<header class="header" id="mainHeader" role="banner">
   <div class="header-inner">
+    <!-- LEFT: Logo + Menu Toggle -->
     <div class="header-left">
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-        <i class="fas fa-bars"></i>
+      <button 
+        class="menu-toggle" 
+        id="menuToggle" 
+        aria-label="Toggle menu"
+        aria-expanded="false"
+        type="button"
+      >
+        <i class="fas fa-bars" aria-hidden="true"></i>
+        <span class="sr-only">Abrir menú</span>
       </button>
-      <a href="{% url 'home' %}" class="logo">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      
+      <a href="{% url 'home' %}" class="logo" aria-label="Management360 - Inicio">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
           <rect x="2" y="2" width="28" height="28" rx="8" fill="#7c3aed"/>
           <path d="M10 22L16 10L22 22" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M13 18H19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
@@ -17,49 +26,110 @@ HEADER - Fijo
       </a>
     </div>
 
-    <div class="header-center">
+    <!-- CENTER: Search Bar -->
+    <div class="header-center" role="search">
       <div class="search-bar" id="searchBar">
-        <i class="fas fa-search"></i>
-        <input type="text" placeholder="Search projects, tasks, members..." id="searchInput">
-        <kbd>&#8984;K</kbd>
-        <button class="search-clear" id="searchClear"><i class="fas fa-times"></i></button>
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input 
+          type="text" 
+          placeholder="Search projects, tasks, members..." 
+          id="searchInput"
+          aria-label="Buscar en el sitio"
+          autocomplete="off"
+        >
+        <kbd aria-hidden="true">⌘K</kbd>
+        <button 
+          class="search-clear" 
+          id="searchClear" 
+          aria-label="Limpiar búsqueda"
+          type="button"
+        >
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
       </div>
     </div>
 
+    <!-- RIGHT: Acciones -->
     <div class="header-right">
+      <!-- Quick Actions -->
       <div class="dropdown" id="quickActionsDropdown">
-        <button class="icon-btn" id="quickActionsToggle" aria-label="Quick actions">
-          <i class="fas fa-plus-circle"></i>
+        <button 
+          class="icon-btn" 
+          id="quickActionsToggle" 
+          aria-label="Quick actions"
+          aria-expanded="false"
+          type="button"
+        >
+          <i class="fas fa-plus-circle" aria-hidden="true"></i>
         </button>
-        <div class="dropdown-menu quick-actions" id="quickActionsMenu">
+        <div class="dropdown-menu quick-actions" id="quickActionsMenu" role="menu">
           <div class="dropdown-header">Quick Actions</div>
-          <a href="{% url 'events:event_create' %}" class="dropdown-item"><i class="fas fa-calendar-plus"></i> New Event</a>
-          <a href="{% url 'events:project_create' %}" class="dropdown-item"><i class="fas fa-folder-plus"></i> New Project</a>
-          <a href="{% url 'events:task_create' %}" class="dropdown-item"><i class="fas fa-list-check"></i> New Task</a>
-          <div class="dropdown-divider"></div>
-          <a href="{% url 'home' %}" class="dropdown-item"><i class="fas fa-th-large"></i> Dashboard</a>
+          <a href="{% url 'events:event_create' %}" class="dropdown-item" role="menuitem">
+            <i class="fas fa-calendar-plus" aria-hidden="true"></i> New Event
+          </a>
+          <a href="{% url 'events:project_create' %}" class="dropdown-item" role="menuitem">
+            <i class="fas fa-folder-plus" aria-hidden="true"></i> New Project
+          </a>
+          <a href="{% url 'events:task_create' %}" class="dropdown-item" role="menuitem">
+            <i class="fas fa-list-check" aria-hidden="true"></i> New Task
+          </a>
+          <div class="dropdown-divider" role="separator"></div>
+          <a href="{% url 'home' %}" class="dropdown-item" role="menuitem">
+            <i class="fas fa-th-large" aria-hidden="true"></i> Dashboard
+          </a>
         </div>
       </div>
 
+      <!-- Notifications -->
       <div class="dropdown" id="notificationsDropdown">
-        <button class="icon-btn" id="notificationsToggle" aria-label="Notifications">
-          <i class="fas fa-bell"></i>
+        <button 
+          class="icon-btn" 
+          id="notificationsToggle" 
+          aria-label="Notifications"
+          aria-expanded="false"
+          type="button"
+        >
+          <i class="fas fa-bell" aria-hidden="true"></i>
           <span class="badge" id="notifBadge">3</span>
         </button>
-        <div class="dropdown-menu notifications" id="notificationsMenu">
+        <div class="dropdown-menu notifications" id="notificationsMenu" role="menu">
           <div class="dropdown-header">
             <span>Notifications</span>
-            <button class="btn-mark-read" id="markAllRead">Mark all read</button>
+            <button class="btn-mark-read" id="markAllRead" type="button">Mark all read</button>
           </div>
           <div class="notif-list" id="notifList">
             <div class="notif-item unread">
-              <div class="notif-icon purple"><i class="fas fa-rocket"></i></div>
+              <div class="notif-icon purple" aria-hidden="true"><i class="fas fa-rocket"></i></div>
               <div class="notif-content">
                 <strong>Welcome to Management360</strong>
                 <p>Your dashboard is ready</p>
                 <span class="notif-time">Just now</span>
               </div>
-              <button class="notif-dismiss"><i class="fas fa-times"></i></button>
+              <button class="notif-dismiss" aria-label="Dismiss notification" type="button">
+                <i class="fas fa-times" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon blue" aria-hidden="true"><i class="fas fa-user-plus"></i></div>
+              <div class="notif-content">
+                <strong>New team member</strong>
+                <p>Sarah joined your project</p>
+                <span class="notif-time">2 hours ago</span>
+              </div>
+              <button class="notif-dismiss" aria-label="Dismiss notification" type="button">
+                <i class="fas fa-times" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon amber" aria-hidden="true"><i class="fas fa-clock"></i></div>
+              <div class="notif-content">
+                <strong>Deadline approaching</strong>
+                <p>Project "Website Redesign" due in 2 days</p>
+                <span class="notif-time">5 hours ago</span>
+              </div>
+              <button class="notif-dismiss" aria-label="Dismiss notification" type="button">
+                <i class="fas fa-times" aria-hidden="true"></i>
+              </button>
             </div>
           </div>
           <div class="dropdown-footer">
@@ -68,23 +138,39 @@ HEADER - Fijo
         </div>
       </div>
 
+      <!-- Messages -->
       <div class="dropdown" id="messagesDropdown">
-        <button class="icon-btn" id="messagesToggle" aria-label="Messages">
-          <i class="fas fa-envelope"></i>
-          <span class="badge">0</span>
+        <button 
+          class="icon-btn" 
+          id="messagesToggle" 
+          aria-label="Messages"
+          aria-expanded="false"
+          type="button"
+        >
+          <i class="fas fa-envelope" aria-hidden="true"></i>
+          <span class="badge">2</span>
         </button>
-        <div class="dropdown-menu messages" id="messagesMenu">
+        <div class="dropdown-menu messages" id="messagesMenu" role="menu">
           <div class="dropdown-header">
             <span>Messages</span>
             <a href="{% url 'chat:room_list' %}" class="link-sm">See all</a>
           </div>
           <div class="msg-list">
             <div class="msg-item">
-              <div class="msg-avatar">SYS</div>
+              <div class="msg-avatar" aria-hidden="true">JD</div>
               <div class="msg-content">
-                <strong>System</strong>
-                <p>No new messages</p>
-                <span class="msg-time">-</span>
+                <strong>John Doe</strong>
+                <p>Hey, can we schedule a meeting?</p>
+                <span class="msg-time">10 min ago</span>
+              </div>
+              <div class="msg-unread" aria-hidden="true"></div>
+            </div>
+            <div class="msg-item">
+              <div class="msg-avatar" aria-hidden="true">AS</div>
+              <div class="msg-content">
+                <strong>Alice Smith</strong>
+                <p>I've reviewed the proposal</p>
+                <span class="msg-time">1 hour ago</span>
               </div>
             </div>
           </div>
@@ -94,26 +180,43 @@ HEADER - Fijo
         </div>
       </div>
 
+      <!-- Profile -->
       <div class="dropdown" id="profileDropdown">
-        <div class="avatar" id="profileToggle">
+        <div class="avatar" id="profileToggle" role="button" aria-expanded="false" tabindex="0">
           <span>{{ user.get_initial|default:user.username|slice:":2"|upper }}</span>
-          <div class="avatar-status online"></div>
+          <div class="avatar-status online" aria-label="Usuario conectado"></div>
         </div>
-        <div class="dropdown-menu profile" id="profileMenu">
+        <div class="dropdown-menu profile" id="profileMenu" role="menu">
           <div class="profile-header">
-            <div class="profile-avatar-lg">{{ user.get_initial|default:user.username|slice:":2"|upper }}</div>
+            <div class="profile-avatar-lg" aria-hidden="true">
+              {{ user.get_initial|default:user.username|slice:":2"|upper }}
+            </div>
             <div class="profile-info">
               <strong>{{ user.get_full_name|default:user.username }}</strong>
               <span>{{ user.email|default:'' }}</span>
-              <span class="profile-role">User</span>
+              <span class="profile-role">Administrator</span>
             </div>
           </div>
-          <div class="dropdown-divider"></div>
-          <a href="{% url 'events:events' %}" class="dropdown-item"><i class="fas fa-calendar-check"></i> My Events</a>
-          <a href="{% url 'events:projects' %}" class="dropdown-item"><i class="fas fa-folder-open"></i> My Projects</a>
-          <a href="{% url 'events:tasks' %}" class="dropdown-item"><i class="fas fa-list-check"></i> My Tasks</a>
-          <div class="dropdown-divider"></div>
-          <a href="{% url 'admin:index' %}" class="dropdown-item"><i class="fas fa-cog"></i> Admin</a>
+          <div class="dropdown-divider" role="separator"></div>
+          <a href="{% url 'events:events' %}" class="dropdown-item" role="menuitem">
+            <i class="fas fa-calendar-check" aria-hidden="true"></i> My Events
+          </a>
+          <a href="{% url 'events:projects' %}" class="dropdown-item" role="menuitem">
+            <i class="fas fa-folder-open" aria-hidden="true"></i> My Projects
+          </a>
+          <a href="{% url 'events:tasks' %}" class="dropdown-item" role="menuitem">
+            <i class="fas fa-list-check" aria-hidden="true"></i> My Tasks
+          </a>
+          <a href="#" class="dropdown-item" role="menuitem">
+            <i class="fas fa-user-cog" aria-hidden="true"></i> Profile Settings
+          </a>
+          <div class="dropdown-divider" role="separator"></div>
+          <a href="{% url 'admin:index' %}" class="dropdown-item" role="menuitem">
+            <i class="fas fa-cog" aria-hidden="true"></i> Admin
+          </a>
+          <a href="{% url 'logout' %}" class="dropdown-item logout" role="menuitem">
+            <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
+          </a>
         </div>
       </div>
     </div>

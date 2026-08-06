@@ -1,9 +1,12 @@
-<!-- FOOTER - Dentro del scroll del main -->
-<footer class="footer" id="mainFooter">
+<!-- ==========================================
+   FOOTER - Dashboard Footer
+   ========================================== -->
+<footer class="footer" id="mainFooter" role="contentinfo">
   <div class="footer-inner">
+    <!-- Brand -->
     <div class="footer-brand">
-      <a href="{% url 'home' %}" class="footer-logo">
-        <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+      <a href="{% url 'home' %}" class="footer-logo" aria-label="Management360 - Inicio">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
           <rect x="2" y="2" width="28" height="28" rx="8" fill="#7c3aed"/>
           <path d="M10 22L16 10L22 22" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M13 18H19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
@@ -13,6 +16,7 @@
       <p class="footer-copy">&copy; {% now "Y" %} Management360. All rights reserved.</p>
     </div>
 
+    <!-- Links -->
     <div class="footer-links">
       <div class="footer-col">
         <span class="footer-col-title">Product</span>
@@ -44,17 +48,18 @@
       </div>
     </div>
 
+    <!-- Social -->
     <div class="footer-social">
       <span class="footer-col-title">Follow Us</span>
       <div class="social-links">
-        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
-        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+        <a href="#" aria-label="GitHub"><i class="fab fa-github" aria-hidden="true"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
       </div>
       <div class="footer-version">
         <span>v3.2.1</span>
-        <span class="footer-dot"></span>
+        <span class="footer-dot" aria-hidden="true"></span>
         <span>MIT License</span>
       </div>
     </div>

@@ -9,7 +9,7 @@
 {% load icon_tags %}
 
 {% block extra_head %}
-
+<!-- No inline styles -->
 {% endblock %}
 
 {% block content %}
@@ -20,6 +20,7 @@
     {% include 'includes/alert.html' %}
   {% endif %}
 
+  <!-- Dashboard Header -->
   <div class="dashboard-header">
     <div>
       <h1>{{ page_title|default:"Dashboard" }}</h1>
@@ -27,101 +28,104 @@
     </div>
     <div class="header-actions">
       <button class="btn btn-ghost" id="dateRangeBtn">
-        <i class="fas fa-calendar-alt"></i> This Month
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i> This Month
       </button>
       <button class="btn btn-primary" id="refreshBtn">
-        <i class="fas fa-sync"></i> Refresh
+        <i class="fas fa-sync" aria-hidden="true"></i> Refresh
       </button>
     </div>
   </div>
 
+  <!-- Dashboard Toolbar -->
   <div class="dashboard-toolbar">
     <div class="toolbar-group">
-      <span class="group-label"><i class="fas fa-plus"></i> Crear</span>
+      <span class="group-label"><i class="fas fa-plus" aria-hidden="true"></i> Crear</span>
       <a href="{% url 'events:event_create' %}" class="toolbar-btn" title="Nuevo evento">
-        <i class="fas fa-calendar-plus"></i> Evento
+        <i class="fas fa-calendar-plus" aria-hidden="true"></i> Evento
       </a>
       <a href="{% url 'events:project_create' %}" class="toolbar-btn" title="Nuevo proyecto">
-        <i class="fas fa-folder-plus"></i> Proyecto
+        <i class="fas fa-folder-plus" aria-hidden="true"></i> Proyecto
       </a>
       <a href="{% url 'events:task_create' %}" class="toolbar-btn" title="Nueva tarea">
-        <i class="fas fa-plus-circle"></i> Tarea
+        <i class="fas fa-plus-circle" aria-hidden="true"></i> Tarea
       </a>
     </div>
 
-    <div class="toolbar-divider"></div>
+    <div class="toolbar-divider" role="separator"></div>
 
     <div class="toolbar-group">
-      <span class="group-label"><i class="fas fa-eye"></i> Ir a</span>
+      <span class="group-label"><i class="fas fa-eye" aria-hidden="true"></i> Ir a</span>
       <a href="{% url 'events:events' %}" class="toolbar-btn">
-        <i class="fas fa-calendar-event"></i> Eventos
+        <i class="fas fa-calendar-event" aria-hidden="true"></i> Eventos
       </a>
       <a href="{% url 'events:projects' %}" class="toolbar-btn">
-        <i class="fas fa-kanban"></i> Proyectos
+        <i class="fas fa-kanban" aria-hidden="true"></i> Proyectos
       </a>
       <a href="{% url 'events:tasks' %}" class="toolbar-btn">
-        <i class="fas fa-list-check"></i> Tareas
+        <i class="fas fa-list-check" aria-hidden="true"></i> Tareas
       </a>
     </div>
 
-    <div class="toolbar-divider"></div>
+    <div class="toolbar-divider" role="separator"></div>
 
     <div class="toolbar-group">
-      <span class="group-label"><i class="fas fa-chart-bar"></i> Datos</span>
+      <span class="group-label"><i class="fas fa-chart-bar" aria-hidden="true"></i> Datos</span>
       <a href="{% url 'analyst:report_list' %}" class="toolbar-btn">
-        <i class="fas fa-file-invoice"></i> Reportes
+        <i class="fas fa-file-invoice" aria-hidden="true"></i> Reportes
       </a>
       <a href="{% url 'analyst:cross_list' %}" class="toolbar-btn">
-        <i class="fas fa-shuffle"></i> Cruces
+        <i class="fas fa-shuffle" aria-hidden="true"></i> Cruces
       </a>
     </div>
   </div>
 
-  <div class="dashboard-tabs" id="dashboardTabs">
-    <button class="tab-btn active" data-tab="dashboard">
-      <i class="fas fa-speedometer2"></i> Dashboard
+  <!-- Dashboard Tabs -->
+  <div class="dashboard-tabs" id="dashboardTabs" role="tablist">
+    <button class="tab-btn active" data-tab="dashboard" role="tab" aria-selected="true" aria-controls="tab-dashboard">
+      <i class="fas fa-speedometer2" aria-hidden="true"></i> Dashboard
     </button>
-    <button class="tab-btn" data-tab="events">
-      <i class="fas fa-calendar-event"></i> Events
+    <button class="tab-btn" data-tab="events" role="tab" aria-selected="false" aria-controls="tab-events">
+      <i class="fas fa-calendar-event" aria-hidden="true"></i> Events
     </button>
-    <button class="tab-btn" data-tab="projects">
-      <i class="fas fa-kanban"></i> Projects
+    <button class="tab-btn" data-tab="projects" role="tab" aria-selected="false" aria-controls="tab-projects">
+      <i class="fas fa-kanban" aria-hidden="true"></i> Projects
     </button>
-    <button class="tab-btn" data-tab="courses">
-      <i class="fas fa-book"></i> Courses
+    <button class="tab-btn" data-tab="courses" role="tab" aria-selected="false" aria-controls="tab-courses">
+      <i class="fas fa-book" aria-hidden="true"></i> Courses
     </button>
-    <button class="tab-btn" data-tab="tools">
-      <i class="fas fa-tools"></i> Tools
+    <button class="tab-btn" data-tab="tools" role="tab" aria-selected="false" aria-controls="tab-tools">
+      <i class="fas fa-tools" aria-hidden="true"></i> Tools
     </button>
   </div>
 
-  <div class="tab-content active" id="tab-dashboard">
+  <!-- TAB: Dashboard -->
+  <div class="tab-content active" id="tab-dashboard" role="tabpanel">
 
     {% cache 300 dashboard_stats user.username days days_ago %}
     <div class="stats-grid">
       <div class="stat-card purple">
-        <i class="fas fa-tasks stat-icon"></i>
+        <i class="fas fa-tasks stat-icon" aria-hidden="true"></i>
         <div class="stat-number">{{ pending_tasks|default:0 }}</div>
         <div class="stat-label">Pending Tasks</div>
         <div class="stat-sub">Tasks · Today</div>
       </div>
 
       <div class="stat-card blue">
-        <i class="fas fa-calendar-check stat-icon"></i>
+        <i class="fas fa-calendar-check stat-icon" aria-hidden="true"></i>
         <div class="stat-number">{{ upcoming_events_count|default:0 }}</div>
         <div class="stat-label">Upcoming Events</div>
         <div class="stat-sub">Events · This Week</div>
       </div>
 
       <div class="stat-card amber">
-        <i class="fas fa-folder-open stat-icon"></i>
+        <i class="fas fa-folder-open stat-icon" aria-hidden="true"></i>
         <div class="stat-number">{{ active_projects|default:0 }}</div>
         <div class="stat-label">Active Projects</div>
         <div class="stat-sub">Projects · Active</div>
       </div>
 
       <div class="stat-card green">
-        <i class="fas fa-users stat-icon"></i>
+        <i class="fas fa-users stat-icon" aria-hidden="true"></i>
         <div class="stat-number">{{ team_members|length|default:0 }}</div>
         <div class="stat-label">Team Members</div>
         <div class="stat-sub">Members · Online</div>
@@ -130,55 +134,60 @@
     {% endcache %}
 
     <div class="two-col">
+      <!-- Left Column -->
       <div>
 
+        <!-- Quick Actions -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+            <h5><i class="fas fa-bolt" aria-hidden="true"></i> Quick Actions</h5>
           </div>
           <div class="quick-actions-grid">
             <a href="{% url 'events:event_create' %}" class="quick-action-btn">
-              <i class="fas fa-calendar-plus"></i>
+              <i class="fas fa-calendar-plus" aria-hidden="true"></i>
               <span>Create Event</span>
             </a>
             <a href="{% url 'events:task_create' %}" class="quick-action-btn">
-              <i class="fas fa-plus-circle"></i>
+              <i class="fas fa-plus-circle" aria-hidden="true"></i>
               <span>Add Task</span>
             </a>
             <a href="{% url 'events:project_create' %}" class="quick-action-btn">
-              <i class="fas fa-folder-plus"></i>
+              <i class="fas fa-folder-plus" aria-hidden="true"></i>
               <span>New Project</span>
             </a>
             <a href="{% url 'events:events' %}" class="quick-action-btn">
-              <i class="fas fa-grid"></i>
+              <i class="fas fa-grid" aria-hidden="true"></i>
               <span>View All</span>
             </a>
           </div>
         </div>
 
+        <!-- Recent Activities -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-clock"></i> Recent Activities</h5>
+            <h5><i class="fas fa-clock" aria-hidden="true"></i> Recent Activities</h5>
             <div class="header-actions">
               <a href="{% url 'events:events' %}">View All</a>
             </div>
           </div>
           <div class="activity-timeline">
-             {% for activity in recent_activities|slice:":5" %}
-               <div class="activity-item">
-                 <span class="activity-icon purple">
-                   <i class="fas fa-circle"></i>
-                 </span>
-                 <div class="activity-content">
-                   <strong>{{ activity.object_repr|default:"Activity" }}</strong>
-                   <p class="activity-text">{{ activity.action|default:"Updated" }}</p>
-                   <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
-                 </div>
-                 <button class="activity-more"><i class="fas fa-ellipsis-v"></i></button>
-               </div>
+            {% for activity in recent_activities|slice:":5" %}
+              <div class="activity-item">
+                <span class="activity-icon purple" aria-hidden="true">
+                  <i class="fas fa-circle"></i>
+                </span>
+                <div class="activity-content">
+                  <strong>{{ activity.object_repr|default:"Activity" }}</strong>
+                  <p class="activity-text">{{ activity.action|default:"Updated" }}</p>
+                  <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                </div>
+                <button class="activity-more" aria-label="More options">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+              </div>
             {% empty %}
               <div class="empty-state">
-                <i class="fas fa-inbox"></i>
+                <i class="fas fa-inbox" aria-hidden="true"></i>
                 <p>No recent activities</p>
               </div>
             {% endfor %}
@@ -186,15 +195,17 @@
         </div>
       </div>
 
+      <!-- Right Column -->
       <div>
 
+        <!-- Profile Card -->
         <div class="profile-card">
           <div class="profile-avatar">{{ user.get_full_name|default:user.username|make_list|first|upper }}</div>
           <div class="profile-name">{{ user.get_full_name|default:user.username }}</div>
           <div class="profile-role">Management360 User</div>
 
           <div class="profile-completion">
-            <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+            <div class="flex justify-between text-sm">
               <span>Profile Completion</span>
               <span>{{ profile_completion|default:0 }}%</span>
             </div>
@@ -205,43 +216,44 @@
 
           <div class="profile-links">
             <a href="{% url 'events:events' %}">
-              <i class="fas fa-calendar-event"></i> My Events
+              <i class="fas fa-calendar-event" aria-hidden="true"></i> My Events
             </a>
             <a href="{% url 'events:projects' %}">
-              <i class="fas fa-kanban"></i> My Projects
+              <i class="fas fa-kanban" aria-hidden="true"></i> My Projects
             </a>
             <a href="{% url 'events:tasks' %}">
-              <i class="fas fa-list-check"></i> My Tasks
+              <i class="fas fa-list-check" aria-hidden="true"></i> My Tasks
             </a>
           </div>
         </div>
 
+        <!-- Upcoming Events -->
         <div class="upcoming-events">
           <div class="events-header">
-            <h5><i class="fas fa-calendar-check"></i> Upcoming Events</h5>
-            <a href="{% url 'events:event_create' %}" class="add-btn" title="Add Event">
-              <i class="fas fa-plus"></i>
+            <h5><i class="fas fa-calendar-check" aria-hidden="true"></i> Upcoming Events</h5>
+            <a href="{% url 'events:event_create' %}" class="add-btn" title="Add Event" aria-label="Add Event">
+              <i class="fas fa-plus" aria-hidden="true"></i>
             </a>
           </div>
 
           {% if upcoming_events %}
             {% for event in upcoming_events|slice:":3" %}
-               <a href="{% url 'events:event_detail' event.id %}" class="event-item">
-                 <div class="event-icon">
-                   <i class="fas fa-calendar-event"></i>
-                 </div>
-                 <div class="event-info">
-                   <div class="event-title">{{ event.title|truncatechars:25 }}</div>
-                   <div class="event-date">{{ event.created_at|date:"M d, h:i A" }}</div>
-                 </div>
-               </a>
+              <a href="{% url 'events:event_detail' event.id %}" class="event-item">
+                <div class="event-icon" aria-hidden="true">
+                  <i class="fas fa-calendar-event"></i>
+                </div>
+                <div class="event-info">
+                  <div class="event-title">{{ event.title|truncatechars:25 }}</div>
+                  <div class="event-date">{{ event.created_at|date:"M d, h:i A" }}</div>
+                </div>
+              </a>
             {% endfor %}
             <a href="{% url 'events:events' %}" class="view-all">
-              View All Events <i class="fas fa-arrow-right"></i>
+              View All Events <i class="fas fa-arrow-right" aria-hidden="true"></i>
             </a>
           {% else %}
             <div class="empty-state">
-              <i class="fas fa-calendar"></i>
+              <i class="fas fa-calendar" aria-hidden="true"></i>
               <p>No upcoming events</p>
               <a href="{% url 'events:event_create' %}">Create Event</a>
             </div>
@@ -252,29 +264,33 @@
     </div>
   </div>
 
-  <div class="tab-content" id="tab-events">
+  <!-- TAB: Events -->
+  <div class="tab-content" id="tab-events" role="tabpanel">
 
     <div class="two-col">
+      <!-- Left Column -->
       <div>
 
+        <!-- Events Calendar -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-calendar-alt"></i> Events Calendar</h5>
+            <h5><i class="fas fa-calendar-alt" aria-hidden="true"></i> Events Calendar</h5>
             <div class="header-actions">
-              <a href="{% url 'events:event_create' %}"><i class="fas fa-plus"></i> New Event</a>
-              <a href="{% url 'events:event_panel' %}"><i class="fas fa-grid"></i> Panel View</a>
+              <a href="{% url 'events:event_create' %}"><i class="fas fa-plus" aria-hidden="true"></i> New Event</a>
+              <a href="{% url 'events:event_panel' %}"><i class="fas fa-grid" aria-hidden="true"></i> Panel View</a>
             </div>
           </div>
-          <div style="background:var(--bg);border-radius:var(--radius-sm);padding:1rem;text-align:center;min-height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-            <i class="fas fa-calendar-day" style="font-size:2rem;color:var(--text-muted);margin-bottom:0.5rem;"></i>
-            <p style="color:var(--text-muted);font-size:0.875rem;">Calendar view will be displayed here</p>
-            <p style="color:var(--text-muted);font-size:0.75rem;">{{ upcoming_events_count|default:0 }} upcoming events</p>
+          <div class="calendar-placeholder">
+            <i class="fas fa-calendar-day" aria-hidden="true"></i>
+            <p>Calendar view will be displayed here</p>
+            <p class="text-muted text-sm">{{ upcoming_events_count|default:0 }} upcoming events</p>
           </div>
         </div>
 
+        <!-- Recent Events -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-list"></i> Recent Events</h5>
+            <h5><i class="fas fa-list" aria-hidden="true"></i> Recent Events</h5>
             <div class="header-actions">
               <a href="{% url 'events:events' %}">View All</a>
             </div>
@@ -290,26 +306,30 @@
                 </tr>
               </thead>
               <tbody>
-                 {% for event in recent_events|slice:":5" %}
-                   <tr>
-                     <td><strong>{{ event.title|truncatechars:30 }}</strong></td>
-                     <td>{{ event.created_at|date:"M d, Y" }}</td>
-                     <td>
-                       <span class="status-badge {% if event.event_status.status_name == 'In Progress' %}active{% elif event.event_status.status_name == 'Created' %}pending{% else %}completed{% endif %}">
-                         {{ event.event_status.status_name|default:"Active" }}
-                       </span>
-                     </td>
-                     <td>
-                       <div class="table-actions">
-                         <a href="{% url 'events:event_detail' event.id %}" title="View"><i class="fas fa-eye"></i></a>
-                         <a href="{% url 'events:event_edit' event.id %}" title="Edit"><i class="fas fa-pencil"></i></a>
-                       </div>
-                     </td>
-                   </tr>
+                {% for event in recent_events|slice:":5" %}
+                  <tr>
+                    <td><strong>{{ event.title|truncatechars:30 }}</strong></td>
+                    <td>{{ event.created_at|date:"M d, Y" }}</td>
+                    <td>
+                      <span class="status-badge {% if event.event_status.status_name == 'In Progress' %}active{% elif event.event_status.status_name == 'Created' %}pending{% else %}completed{% endif %}">
+                        {{ event.event_status.status_name|default:"Active" }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="table-actions">
+                        <a href="{% url 'events:event_detail' event.id %}" title="View" aria-label="View event">
+                          <i class="fas fa-eye" aria-hidden="true"></i>
+                        </a>
+                        <a href="{% url 'events:event_edit' event.id %}" title="Edit" aria-label="Edit event">
+                          <i class="fas fa-pencil" aria-hidden="true"></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
                 {% empty %}
                   <tr>
-                    <td colspan="4" style="text-align:center;padding:2rem 0;color:var(--text-muted);">
-                      <i class="fas fa-calendar-plus" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;"></i>
+                    <td colspan="4" class="empty-state-cell">
+                      <i class="fas fa-calendar-plus" aria-hidden="true"></i>
                       No recent events
                     </td>
                   </tr>
@@ -320,31 +340,33 @@
         </div>
       </div>
 
+      <!-- Right Column -->
       <div>
 
         {% cache 900 event_categories %}
+        <!-- Event Categories -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-tags"></i> Event Categories</h5>
+            <h5><i class="fas fa-tags" aria-hidden="true"></i> Event Categories</h5>
             <div class="header-actions">
-              <a href="#" onclick="openModal('categoryModal')"><i class="fas fa-plus"></i> Add</a>
+              <a href="#" onclick="openModal('categoryModal')"><i class="fas fa-plus" aria-hidden="true"></i> Add</a>
             </div>
           </div>
           <div class="category-list">
             {% for category in event_categories %}
               <div class="category-item">
                 <span class="category-name">
-                  <span class="color-dot" style="background:{{ category.color|default:'#7c3aed' }};"></span>
+                  <span class="color-dot" style="background:{{ category.color|default:'#7c3aed' }};" aria-hidden="true"></span>
                   {{ category.name }}
                 </span>
                 <div class="category-actions">
-                  <a href="#" title="Edit"><i class="fas fa-pencil"></i></a>
-                  <a href="#" title="Delete"><i class="fas fa-trash"></i></a>
+                  <a href="#" title="Edit" aria-label="Edit category"><i class="fas fa-pencil" aria-hidden="true"></i></a>
+                  <a href="#" title="Delete" aria-label="Delete category"><i class="fas fa-trash" aria-hidden="true"></i></a>
                 </div>
               </div>
             {% empty %}
               <div class="empty-state">
-                <i class="fas fa-tags"></i>
+                <i class="fas fa-tags" aria-hidden="true"></i>
                 <p>No categories defined</p>
               </div>
             {% endfor %}
@@ -352,28 +374,31 @@
         </div>
         {% endcache %}
 
+        <!-- Event Status -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-list-check"></i> Event Status</h5>
+            <h5><i class="fas fa-list-check" aria-hidden="true"></i> Event Status</h5>
             <div class="header-actions">
-              <a href="{% url 'events:status_create' %}"><i class="fas fa-plus"></i> Add Status</a>
+              <a href="{% url 'events:status_create' %}"><i class="fas fa-plus" aria-hidden="true"></i> Add Status</a>
             </div>
           </div>
           <div class="category-list">
-             {% for status in event_statuses %}
-               <div class="category-item">
-                 <span class="category-name">
-                   <span class="color-dot" style="background:{{ status.color|default:'#7c3aed' }};"></span>
-                   {{ status.status_name }}
-                   <span style="font-size:0.7rem;color:var(--text-muted);">{{ status.icon|default:"" }}</span>
-                 </span>
-                 <div class="category-actions">
-                    <a href="{% url 'events:status_edit_with_id' 1 status.id %}" title="Edit"><i class="fas fa-pencil"></i></a>
-                 </div>
-               </div>
+            {% for status in event_statuses %}
+              <div class="category-item">
+                <span class="category-name">
+                  <span class="color-dot" style="background:{{ status.color|default:'#7c3aed' }};" aria-hidden="true"></span>
+                  {{ status.status_name }}
+                  <span class="text-muted text-xs">{{ status.icon|default:"" }}</span>
+                </span>
+                <div class="category-actions">
+                  <a href="{% url 'events:status_edit_with_id' 1 status.id %}" title="Edit" aria-label="Edit status">
+                    <i class="fas fa-pencil" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
             {% empty %}
               <div class="empty-state">
-                <i class="fas fa-list-check"></i>
+                <i class="fas fa-list-check" aria-hidden="true"></i>
                 <p>No statuses defined</p>
               </div>
             {% endfor %}
@@ -384,61 +409,65 @@
     </div>
   </div>
 
-  <div class="tab-content" id="tab-projects">
+  <!-- TAB: Projects -->
+  <div class="tab-content" id="tab-projects" role="tabpanel">
 
     <div class="two-col">
+      <!-- Left Column -->
       <div>
 
+        <!-- My Projects -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-folder-open"></i> My Projects</h5>
+            <h5><i class="fas fa-folder-open" aria-hidden="true"></i> My Projects</h5>
             <div class="header-actions">
-              <a href="{% url 'events:project_create' %}"><i class="fas fa-plus"></i> New Project</a>
+              <a href="{% url 'events:project_create' %}"><i class="fas fa-plus" aria-hidden="true"></i> New Project</a>
             </div>
           </div>
-           <div class="project-grid">
-             {% for project in active_projects_list|slice:":4" %}
-               <div class="project-card">
-                 <div class="project-header">
-                   <h6>{{ project.title|truncatechars:20 }}</h6>
-                   <span class="status-badge {% if project.project_status.status_name == 'Completed' %}completed{% elif project.project_status.status_name == 'In Progress' %}active{% else %}pending{% endif %}">
-                     {{ project.project_status.status_name|default:"Unknown" }}
-                   </span>
-                 </div>
-                 <p class="project-description">{{ project.description|truncatechars:50|default:"No description" }}</p>
-                 <div class="project-progress">
-                   <div class="progress-bar">
-                     <div class="progress-fill" style="width:{% if project.done %}100{% else %}0{% endif %}%;"></div>
-                   </div>
-                 </div>
-                 <div class="project-meta">
-                   <span>{% if project.done %}100{% else %}0{% endif %}% complete</span>
-                   <span>{{ project.updated_at|date:"M d, Y" }}</span>
-                 </div>
+          <div class="project-grid">
+            {% for project in active_projects_list|slice:":4" %}
+              <div class="project-card">
+                <div class="project-header">
+                  <h6>{{ project.title|truncatechars:20 }}</h6>
+                  <span class="status-badge {% if project.project_status.status_name == 'Completed' %}completed{% elif project.project_status.status_name == 'In Progress' %}active{% else %}pending{% endif %}">
+                    {{ project.project_status.status_name|default:"Unknown" }}
+                  </span>
+                </div>
+                <p class="project-description">{{ project.description|truncatechars:50|default:"No description" }}</p>
+                <div class="project-progress">
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width:{% if project.done %}100{% else %}0{% endif %}%;"></div>
+                  </div>
+                </div>
+                <div class="project-meta">
+                  <span>{% if project.done %}100{% else %}0{% endif %}% complete</span>
+                  <span>{{ project.updated_at|date:"M d, Y" }}</span>
+                </div>
                 <div class="project-actions">
-                  <a href="{% url 'events:project_detail' project.id %}"><i class="fas fa-eye"></i> View</a>
-                  <a href="{% url 'events:project_edit' project.id %}"><i class="fas fa-pencil"></i> Edit</a>
-                  <a href="{% url 'events:task_create' %}?project={{ project.id }}"><i class="fas fa-plus"></i> Task</a>
+                  <a href="{% url 'events:project_detail' project.id %}"><i class="fas fa-eye" aria-hidden="true"></i> View</a>
+                  <a href="{% url 'events:project_edit' project.id %}"><i class="fas fa-pencil" aria-hidden="true"></i> Edit</a>
+                  <a href="{% url 'events:task_create' %}?project={{ project.id }}"><i class="fas fa-plus" aria-hidden="true"></i> Task</a>
                 </div>
               </div>
             {% empty %}
-              <div class="empty-state" style="grid-column:1/-1;">
-                <i class="fas fa-folder"></i>
+              <div class="empty-state full-width">
+                <i class="fas fa-folder" aria-hidden="true"></i>
                 <p>No active projects</p>
                 <a href="{% url 'events:project_create' %}">Create Project</a>
               </div>
             {% endfor %}
           </div>
-          <div style="margin-top:1rem;text-align:center;">
-            <a href="{% url 'events:projects' %}" style="color:var(--purple);font-weight:500;text-decoration:none;">
-              View All Projects <i class="fas fa-arrow-right"></i>
+          <div class="view-all-container">
+            <a href="{% url 'events:projects' %}" class="view-all-link">
+              View All Projects <i class="fas fa-arrow-right" aria-hidden="true"></i>
             </a>
           </div>
         </div>
 
+        <!-- Recent Tasks -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-tasks"></i> Recent Tasks</h5>
+            <h5><i class="fas fa-tasks" aria-hidden="true"></i> Recent Tasks</h5>
             <div class="header-actions">
               <a href="{% url 'events:tasks' %}">View All</a>
             </div>
@@ -460,29 +489,31 @@
                     <td><strong>{{ task.title|truncatechars:20 }}</strong></td>
                     <td>
                       {% if task.project %}
-                        <a href="{% url 'events:project_detail' task.project.id %}" style="color:var(--purple);">
-                           {{ task.project.title|truncatechars:15 }}
+                        <a href="{% url 'events:project_detail' task.project.id %}" class="project-link">
+                          {{ task.project.title|truncatechars:15 }}
                         </a>
                       {% else %}
-                        <span style="color:var(--text-muted);">None</span>
+                        <span class="text-muted">None</span>
                       {% endif %}
                     </td>
-                     <td>{{ task.created_at|date:"M d, Y"|default:"-" }}</td>
-                     <td>
-                       <span class="status-badge {% if task.task_status.status_name == 'In Progress' %}active{% elif task.task_status.status_name == 'To Do' %}pending{% else %}completed{% endif %}">
-                         {{ task.task_status.status_name|default:"Unknown" }}
-                       </span>
-                     </td>
+                    <td>{{ task.created_at|date:"M d, Y"|default:"-" }}</td>
+                    <td>
+                      <span class="status-badge {% if task.task_status.status_name == 'In Progress' %}active{% elif task.task_status.status_name == 'To Do' %}pending{% else %}completed{% endif %}">
+                        {{ task.task_status.status_name|default:"Unknown" }}
+                      </span>
+                    </td>
                     <td>
                       <div class="table-actions">
-                        <a href="{% url 'events:task_edit' task.id %}" title="Edit"><i class="fas fa-pencil"></i></a>
+                        <a href="{% url 'events:task_edit' task.id %}" title="Edit" aria-label="Edit task">
+                          <i class="fas fa-pencil" aria-hidden="true"></i>
+                        </a>
                       </div>
                     </td>
                   </tr>
                 {% empty %}
                   <tr>
-                    <td colspan="5" style="text-align:center;padding:2rem 0;color:var(--text-muted);">
-                      <i class="fas fa-inbox" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;"></i>
+                    <td colspan="5" class="empty-state-cell">
+                      <i class="fas fa-inbox" aria-hidden="true"></i>
                       No recent tasks
                     </td>
                   </tr>
@@ -493,58 +524,67 @@
         </div>
       </div>
 
+      <!-- Right Column -->
       <div>
 
+        <!-- Project Status -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-list-check"></i> Project Status</h5>
+            <h5><i class="fas fa-list-check" aria-hidden="true"></i> Project Status</h5>
             <div class="header-actions">
-              <a href="{% url 'events:status_create' %}?model=project"><i class="fas fa-plus"></i> Add Status</a>
+              <a href="{% url 'events:status_create' %}?model=project"><i class="fas fa-plus" aria-hidden="true"></i> Add Status</a>
             </div>
           </div>
           <div class="category-list">
-             {% for status in project_statuses %}
-               <div class="category-item">
-                 <span class="category-name">
-                   <span class="color-dot" style="background:{{ status.color|default:'#7c3aed' }};"></span>
-                   {{ status.status_name }}
-                   <span style="font-size:0.7rem;color:var(--text-muted);">{{ status.icon|default:"" }}</span>
-                 </span>
-                 <div class="category-actions">
-                    <a href="{% url 'events:status_edit_with_id' 2 status.id %}" title="Edit"><i class="fas fa-pencil"></i></a>
-                 </div>
-               </div>
+            {% for status in project_statuses %}
+              <div class="category-item">
+                <span class="category-name">
+                  <span class="color-dot" style="background:{{ status.color|default:'#7c3aed' }};" aria-hidden="true"></span>
+                  {{ status.status_name }}
+                  <span class="text-muted text-xs">{{ status.icon|default:"" }}</span>
+                </span>
+                <div class="category-actions">
+                  <a href="{% url 'events:status_edit_with_id' 2 status.id %}" title="Edit" aria-label="Edit status">
+                    <i class="fas fa-pencil" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
             {% empty %}
               <div class="empty-state">
-                <i class="fas fa-list-check"></i>
+                <i class="fas fa-list-check" aria-hidden="true"></i>
                 <p>No statuses defined</p>
               </div>
             {% endfor %}
           </div>
         </div>
 
+        <!-- Project Categories -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-tags"></i> Project Categories</h5>
+            <h5><i class="fas fa-tags" aria-hidden="true"></i> Project Categories</h5>
             <div class="header-actions">
-              <a href="{% url 'events:create_classification' %}"><i class="fas fa-plus"></i> Add Category</a>
+              <a href="{% url 'events:create_classification' %}"><i class="fas fa-plus" aria-hidden="true"></i> Add Category</a>
             </div>
           </div>
-           <div class="category-list">
-             {% for category in project_categories %}
-               <div class="category-item">
-                 <span class="category-name">
-                   <span class="color-dot" style="background:{{ category.color|default:'#0ea5e9' }};"></span>
-                   {{ category.name }}
-                 </span>
+          <div class="category-list">
+            {% for category in project_categories %}
+              <div class="category-item">
+                <span class="category-name">
+                  <span class="color-dot" style="background:{{ category.color|default:'#0ea5e9' }};" aria-hidden="true"></span>
+                  {{ category.name }}
+                </span>
                 <div class="category-actions">
-                  <a href="{% url 'events:edit_classification' category.id %}" title="Edit"><i class="fas fa-pencil"></i></a>
-                  <a href="{% url 'events:delete_classification' category.id %}" title="Delete"><i class="fas fa-trash"></i></a>
+                  <a href="{% url 'events:edit_classification' category.id %}" title="Edit" aria-label="Edit category">
+                    <i class="fas fa-pencil" aria-hidden="true"></i>
+                  </a>
+                  <a href="{% url 'events:delete_classification' category.id %}" title="Delete" aria-label="Delete category">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                  </a>
                 </div>
               </div>
             {% empty %}
               <div class="empty-state">
-                <i class="fas fa-tags"></i>
+                <i class="fas fa-tags" aria-hidden="true"></i>
                 <p>No categories defined</p>
               </div>
             {% endfor %}
@@ -555,115 +595,114 @@
     </div>
   </div>
 
-  <div class="tab-content" id="tab-courses">
+  <!-- TAB: Courses -->
+  <div class="tab-content" id="tab-courses" role="tabpanel">
 
     <div class="two-col">
+      <!-- Left Column -->
       <div>
 
+        <!-- Courses & Learning -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-book"></i> Courses & Learning</h5>
+            <h5><i class="fas fa-book" aria-hidden="true"></i> Courses & Learning</h5>
             <div class="header-actions">
-              <a href="{% url 'courses:courses_list' %}"><i class="fas fa-search"></i> Explore</a>
-              <a href="{% url 'courses:create_course_wizard' %}"><i class="fas fa-plus"></i> Create Course</a>
+              <a href="{% url 'courses:courses_list' %}"><i class="fas fa-search" aria-hidden="true"></i> Explore</a>
+              <a href="{% url 'courses:create_course_wizard' %}"><i class="fas fa-plus" aria-hidden="true"></i> Create Course</a>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;text-align:center;">
-              <i class="fas fa-book" style="font-size:1.5rem;color:var(--purple);margin-bottom:0.5rem;"></i>
-              <h6 style="font-size:0.875rem;font-weight:600;">Browse Courses</h6>
-              <small style="color:var(--text-muted);">Explore available courses</small>
-              <div style="margin-top:0.5rem;">
-                <a href="{% url 'courses:courses_list' %}" style="color:var(--purple);font-weight:500;text-decoration:none;font-size:0.8rem;">
-                  <i class="fas fa-search"></i> View All Courses
-                </a>
+          <div class="learning-grid">
+            <div class="learning-card">
+              <i class="fas fa-book" aria-hidden="true"></i>
+              <h6>Browse Courses</h6>
+              <small class="text-muted">Explore available courses</small>
+              <div class="learning-action">
+                <a href="{% url 'courses:courses_list' %}"><i class="fas fa-search" aria-hidden="true"></i> View All Courses</a>
               </div>
             </div>
-            <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;text-align:center;">
-              <i class="fas fa-file-earmark-text" style="font-size:1.5rem;color:var(--blue);margin-bottom:0.5rem;"></i>
-              <h6 style="font-size:0.875rem;font-weight:600;">Free Lessons</h6>
-              <small style="color:var(--text-muted);">Independent learning content</small>
-              <div style="margin-top:0.5rem;">
-                <a href="{% url 'courses:standalone_lessons_list' %}" style="color:var(--blue);font-weight:500;text-decoration:none;font-size:0.8rem;">
-                  <i class="fas fa-book-open"></i> View Free Content
-                </a>
+            <div class="learning-card">
+              <i class="fas fa-file-earmark-text" aria-hidden="true"></i>
+              <h6>Free Lessons</h6>
+              <small class="text-muted">Independent learning content</small>
+              <div class="learning-action">
+                <a href="{% url 'courses:standalone_lessons_list' %}"><i class="fas fa-book-open" aria-hidden="true"></i> View Free Content</a>
               </div>
             </div>
           </div>
-          <div style="margin-top:1rem;text-align:center;">
-            <a href="{% url 'courses:dashboard' %}" style="color:var(--purple);font-weight:500;text-decoration:none;">
-              <i class="fas fa-speedometer2"></i> Go to Courses Dashboard
+          <div class="view-all-container">
+            <a href="{% url 'courses:dashboard' %}" class="view-all-link">
+              <i class="fas fa-speedometer2" aria-hidden="true"></i> Go to Courses Dashboard
             </a>
           </div>
         </div>
 
+        <!-- Learning Resources -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-graduation-cap"></i> Learning Resources</h5>
+            <h5><i class="fas fa-graduation-cap" aria-hidden="true"></i> Learning Resources</h5>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;">
-              <i class="fas fa-journal-text" style="color:var(--purple);margin-bottom:0.5rem;"></i>
-              <h6 style="font-size:0.875rem;font-weight:600;">My Courses</h6>
-              <small style="color:var(--text-muted);">Manage your enrolled courses</small>
-              <div style="margin-top:0.5rem;">
-                <a href="{% url 'courses:dashboard' %}" style="color:var(--purple);font-weight:500;text-decoration:none;font-size:0.8rem;">
-                  <i class="fas fa-eye"></i> View Dashboard
-                </a>
+          <div class="learning-grid">
+            <div class="learning-card">
+              <i class="fas fa-journal-text" aria-hidden="true"></i>
+              <h6>My Courses</h6>
+              <small class="text-muted">Manage your enrolled courses</small>
+              <div class="learning-action">
+                <a href="{% url 'courses:dashboard' %}"><i class="fas fa-eye" aria-hidden="true"></i> View Dashboard</a>
               </div>
             </div>
-            <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;">
-              <i class="fas fa-pencil-square" style="color:var(--amber);margin-bottom:0.5rem;"></i>
-              <h6 style="font-size:0.875rem;font-weight:600;">Create Content</h6>
-              <small style="color:var(--text-muted);">Author courses and lessons</small>
-              <div style="margin-top:0.5rem;">
-                <a href="{% url 'courses:manage_courses' %}" style="color:var(--amber);font-weight:500;text-decoration:none;font-size:0.8rem;">
-                  <i class="fas fa-plus-circle"></i> Manage Courses
-                </a>
+            <div class="learning-card">
+              <i class="fas fa-pencil-square" aria-hidden="true"></i>
+              <h6>Create Content</h6>
+              <small class="text-muted">Author courses and lessons</small>
+              <div class="learning-action">
+                <a href="{% url 'courses:manage_courses' %}"><i class="fas fa-plus-circle" aria-hidden="true"></i> Manage Courses</a>
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- Right Column -->
       <div>
 
+        <!-- Learning Stats -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-chart-bar"></i> Learning Stats</h5>
+            <h5><i class="fas fa-chart-bar" aria-hidden="true"></i> Learning Stats</h5>
           </div>
-          <div style="display:flex;flex-direction:column;gap:0.5rem;">
-            <div style="display:flex;justify-content:space-between;padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);">
-              <span><i class="fas fa-book" style="color:var(--purple);"></i> Available Courses</span>
-              <span style="color:var(--text-muted);">Browse</span>
+          <div class="stat-list">
+            <div class="stat-row">
+              <span><i class="fas fa-book" aria-hidden="true"></i> Available Courses</span>
+              <span class="text-muted">Browse</span>
             </div>
-            <div style="display:flex;justify-content:space-between;padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);">
-              <span><i class="fas fa-file-earmark-text" style="color:var(--blue);"></i> Free Lessons</span>
-              <span style="color:var(--text-muted);">Explore</span>
+            <div class="stat-row">
+              <span><i class="fas fa-file-earmark-text" aria-hidden="true"></i> Free Lessons</span>
+              <span class="text-muted">Explore</span>
             </div>
-            <div style="display:flex;justify-content:space-between;padding:0.5rem 0.75rem;">
-              <span><i class="fas fa-bar-chart" style="color:var(--amber);"></i> Learning Tools</span>
-              <span style="color:var(--text-muted);">Available</span>
+            <div class="stat-row">
+              <span><i class="fas fa-bar-chart" aria-hidden="true"></i> Learning Tools</span>
+              <span class="text-muted">Available</span>
             </div>
           </div>
         </div>
 
+        <!-- Quick Actions -->
         <div class="section-card">
           <div class="section-header">
-            <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+            <h5><i class="fas fa-bolt" aria-hidden="true"></i> Quick Actions</h5>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-            <a href="{% url 'courses:create_standalone_lesson' %}" class="quick-action-btn" style="font-size:0.7rem;">
-              <i class="fas fa-plus-circle"></i> Create Lesson
+          <div class="quick-actions-grid">
+            <a href="{% url 'courses:create_standalone_lesson' %}" class="quick-action-btn">
+              <i class="fas fa-plus-circle" aria-hidden="true"></i> Create Lesson
             </a>
-            <a href="{% url 'courses:content_manager' %}" class="quick-action-btn" style="font-size:0.7rem;">
-              <i class="fas fa-cubes"></i> Content Manager
+            <a href="{% url 'courses:content_manager' %}" class="quick-action-btn">
+              <i class="fas fa-cubes" aria-hidden="true"></i> Content Manager
             </a>
-            <a href="{% url 'courses:manage_categories' %}" class="quick-action-btn" style="font-size:0.7rem;">
-              <i class="fas fa-tags"></i> Categories
+            <a href="{% url 'courses:manage_categories' %}" class="quick-action-btn">
+              <i class="fas fa-tags" aria-hidden="true"></i> Categories
             </a>
-            <a href="{% url 'courses:modules_overview' %}" class="quick-action-btn" style="font-size:0.7rem;">
-              <i class="fas fa-diagram-3"></i> Modules
+            <a href="{% url 'courses:modules_overview' %}" class="quick-action-btn">
+              <i class="fas fa-diagram-3" aria-hidden="true"></i> Modules
             </a>
           </div>
         </div>
@@ -672,79 +711,81 @@
     </div>
   </div>
 
-  <div class="tab-content" id="tab-tools">
+  <!-- TAB: Tools -->
+  <div class="tab-content" id="tab-tools" role="tabpanel">
     {% cache 1800 tools_section user.username %}
     <div class="tools-grid">
       <div class="tool-card">
-        <div class="tool-icon"><i class="fas fa-file-earmark-person"></i></div>
+        <div class="tool-icon"><i class="fas fa-file-earmark-person" aria-hidden="true"></i></div>
         <h5>CV Management</h5>
         <p>Manage your professional curriculum vitae and documents.</p>
         <div class="tool-actions">
-          <a href="{% url 'cv:cv_detail' %}"><i class="fas fa-eye"></i> View CV</a>
-          <a href="{% url 'cv:cv_edit' %}"><i class="fas fa-pencil"></i> Edit Basic</a>
-          <a href="{% url 'cv:document_upload' %}"><i class="fas fa-upload"></i> Upload Docs</a>
+          <a href="{% url 'cv:cv_detail' %}"><i class="fas fa-eye" aria-hidden="true"></i> View CV</a>
+          <a href="{% url 'cv:cv_edit' %}"><i class="fas fa-pencil" aria-hidden="true"></i> Edit Basic</a>
+          <a href="{% url 'cv:document_upload' %}"><i class="fas fa-upload" aria-hidden="true"></i> Upload Docs</a>
         </div>
       </div>
 
       <div class="tool-card">
-        <div class="tool-icon"><i class="fas fa-key"></i></div>
+        <div class="tool-icon"><i class="fas fa-key" aria-hidden="true"></i></div>
         <h5>Password Generator</h5>
         <p>Generate secure passwords for your accounts.</p>
         <div class="tool-actions">
-          <a href="{% url 'generate_password' %}"><i class="fas fa-key"></i> Generate</a>
-          <a href="{% url 'password_help' %}"><i class="fas fa-question-circle"></i> Help</a>
+          <a href="{% url 'generate_password' %}"><i class="fas fa-key" aria-hidden="true"></i> Generate</a>
+          <a href="{% url 'password_help' %}"><i class="fas fa-question-circle" aria-hidden="true"></i> Help</a>
         </div>
       </div>
 
       <div class="tool-card">
-        <div class="tool-icon"><i class="fas fa-clock-history"></i></div>
+        <div class="tool-icon"><i class="fas fa-clock-history" aria-hidden="true"></i></div>
         <h5>Memento Mori</h5>
         <p>Reflect on the passage of time and life's impermanence.</p>
         <div class="tool-actions">
-          <a href="{% url 'memento_default' %}"><i class="fas fa-eye"></i> View</a>
-          <a href="{% url 'memento_create' %}"><i class="fas fa-gear"></i> Configure</a>
+          <a href="{% url 'memento_default' %}"><i class="fas fa-eye" aria-hidden="true"></i> View</a>
+          <a href="{% url 'memento_create' %}"><i class="fas fa-gear" aria-hidden="true"></i> Configure</a>
         </div>
       </div>
 
       <div class="tool-card">
-        <div class="tool-icon"><i class="fas fa-chat-left-text"></i></div>
+        <div class="tool-icon"><i class="fas fa-chat-left-text" aria-hidden="true"></i></div>
         <h5>Chat Tools</h5>
         <p>Communicate with your team and AI assistant.</p>
         <div class="tool-actions">
-          <a href="{% url 'chat:room_list' %}"><i class="fas fa-chat"></i> General Chat</a>
-          <a href="{% url 'chat:assistant_ui' %}"><i class="fas fa-robot"></i> AI Assistant</a>
-          <a href="{% url 'chat:clear_history' %}"><i class="fas fa-trash"></i> Clear Chat</a>
+          <a href="{% url 'chat:room_list' %}"><i class="fas fa-chat" aria-hidden="true"></i> General Chat</a>
+          <a href="{% url 'chat:assistant_ui' %}"><i class="fas fa-robot" aria-hidden="true"></i> AI Assistant</a>
+          <a href="{% url 'chat:clear_history' %}"><i class="fas fa-trash" aria-hidden="true"></i> Clear Chat</a>
         </div>
       </div>
 
       <div class="tool-card">
-        <div class="tool-icon"><i class="fas fa-bar-chart-line"></i></div>
+        <div class="tool-icon"><i class="fas fa-bar-chart-line" aria-hidden="true"></i></div>
         <h5>KPI Dashboard</h5>
         <p>Track your key performance indicators and metrics.</p>
         <div class="tool-actions">
-          <a href="{% url 'kpis:dashboard' %}"><i class="fas fa-speedometer2"></i> View Dashboard</a>
-          <a href="{% url 'kpis:export_data' %}"><i class="fas fa-download"></i> Export Data</a>
+          <a href="{% url 'kpis:dashboard' %}"><i class="fas fa-speedometer2" aria-hidden="true"></i> View Dashboard</a>
+          <a href="{% url 'kpis:export_data' %}"><i class="fas fa-download" aria-hidden="true"></i> Export Data</a>
         </div>
       </div>
 
       <div class="tool-card">
-        <div class="tool-icon"><i class="fas fa-door-open"></i></div>
+        <div class="tool-icon"><i class="fas fa-door-open" aria-hidden="true"></i></div>
         <h5>Room Management</h5>
         <p>Manage your virtual rooms and spaces.</p>
         <div class="tool-actions">
-          <a href="{% url 'chat:room' room_name='general' %}"><i class="fas fa-door-open"></i> Join Room</a>
-          <a href="#"><i class="fas fa-gear"></i> Manage</a>
+          <a href="{% url 'chat:room' room_name='general' %}"><i class="fas fa-door-open" aria-hidden="true"></i> Join Room</a>
+          <a href="#"><i class="fas fa-gear" aria-hidden="true"></i> Manage</a>
         </div>
       </div>
     </div>
     {% endcache %}
   </div>
 
+  <!-- Category Modal -->
   <div class="modal-overlay" id="categoryModal">
     <div class="modal">
       <div class="modal-header">
         <h5>Add New Category</h5>
-        <button class="close-btn" onclick="closeModal('categoryModal')">&times;</button>
+        <button class="close-btn" onclick="closeModal('categoryModal')" aria-label="Close modal">&times;</button>
       </div>
       <form method="post" action="{% url 'events:status_create' %}">
         {% csrf_token %}
@@ -773,8 +814,9 @@
 {% endblock %}
 
 {% block extra_js %}
-
+<!-- No inline scripts -->
 {% endblock %}
 
 {% block extra_css %}
+<!-- No inline styles -->
 {% endblock %}
