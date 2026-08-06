@@ -1,21 +1,21 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-calendar-week"></i>
+        <i class="fas fa-calendar-week" aria-hidden="true"></i>
         <span>Projects</span>
         <span class="dropdown-icon">
-            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </span>
     </button>
     <ul class="sidebar-dropdown" id="projects-nav">
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:projects' %}">
-                <i class="fas fa-list-ul"></i>
+                <i class="fas fa-list-ul" aria-hidden="true"></i>
                 <span>All Projects</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:project_panel' %}">
-                <i class="fas fa-gauge-high"></i>
+                <i class="fas fa-gauge-high" aria-hidden="true"></i>
                 <span>Project Panel</span>
             </a>
         </li>
@@ -24,28 +24,28 @@
         {% if user.is_authenticated %}
         <li class="sidebar-nav-item has-dropdown">
             <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-gear"></i>
+                <i class="fas fa-gear" aria-hidden="true"></i>
                 <span>Project Actions</span>
                 <span class="dropdown-icon">
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
                 </span>
             </button>
             <ul class="sidebar-dropdown" id="project-actions-nav">
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:project_create' %}">
-                        <i class="fas fa-circle-plus"></i>
+                        <i class="fas fa-circle-plus" aria-hidden="true"></i>
                         <span>Create Project</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:project_edit_no_id' %}">
-                        <i class="fas fa-pencil"></i>
+                        <i class="fas fa-pencil" aria-hidden="true"></i>
                         <span>Edit Project</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:project_activate_no_id' %}">
-                        <i class="fas fa-circle-play"></i>
+                        <i class="fas fa-circle-play" aria-hidden="true"></i>
                         <span>Activate Project</span>
                     </a>
                 </li>
@@ -55,13 +55,13 @@
 
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:project_templates' %}">
-                <i class="fas fa-file-circle-plus"></i>
+                <i class="fas fa-file-circle-plus" aria-hidden="true"></i>
                 <span>Project Templates</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:project_export' %}">
-                <i class="fas fa-download"></i>
+                <i class="fas fa-download" aria-hidden="true"></i>
                 <span>Export Projects</span>
             </a>
         </li>

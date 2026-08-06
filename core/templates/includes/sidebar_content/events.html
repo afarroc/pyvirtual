@@ -1,21 +1,21 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-calendar-check"></i>
+        <i class="fas fa-calendar-check" aria-hidden="true"></i>
         <span>Events</span>
         <span class="dropdown-icon">
-            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </span>
     </button>
     <ul id="events-nav" class="sidebar-dropdown">
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:events' %}">
-                <i class="fas fa-list-ul"></i>
+                <i class="fas fa-list-ul" aria-hidden="true"></i>
                 <span>All Events</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:event_panel' %}">
-                <i class="fas fa-gauge-high"></i>
+                <i class="fas fa-gauge-high" aria-hidden="true"></i>
                 <span>Event Panel</span>
             </a>
         </li>
@@ -23,28 +23,28 @@
         {% if user.is_authenticated %}
         <li class="sidebar-nav-item has-dropdown">
             <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-gear"></i>
+                <i class="fas fa-gear" aria-hidden="true"></i>
                 <span>Event Actions</span>
                 <span class="dropdown-icon">
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
                 </span>
             </button>
             <ul id="event-actions-nav" class="sidebar-dropdown">
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:event_create' %}">
-                        <i class="fas fa-circle-plus"></i>
+                        <i class="fas fa-circle-plus" aria-hidden="true"></i>
                         <span>Create Event</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:event_panel' %}">
-                        <i class="fas fa-pencil"></i>
+                        <i class="fas fa-pencil" aria-hidden="true"></i>
                         <span>Edit Event</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:event_assign_no_id' %}">
-                        <i class="fas fa-user-plus"></i>
+                        <i class="fas fa-user-plus" aria-hidden="true"></i>
                         <span>Assign Attendees</span>
                     </a>
                 </li>
@@ -53,22 +53,22 @@
 
         <li class="sidebar-nav-item has-dropdown">
             <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-chart-column"></i>
+                <i class="fas fa-chart-column" aria-hidden="true"></i>
                 <span>History &amp; Reports</span>
                 <span class="dropdown-icon">
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
                 </span>
             </button>
             <ul id="event-reports-nav" class="sidebar-dropdown">
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:event_history_no_id' %}">
-                        <i class="fas fa-clock-rotate-left"></i>
+                        <i class="fas fa-clock-rotate-left" aria-hidden="true"></i>
                         <span>Event History</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:event_export' %}">
-                        <i class="fas fa-download"></i>
+                        <i class="fas fa-download" aria-hidden="true"></i>
                         <span>Export Events</span>
                     </a>
                 </li>

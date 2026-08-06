@@ -1,22 +1,22 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-book"></i>
+        <i class="fas fa-book" aria-hidden="true"></i>
         <span>Courses</span>
         <span class="dropdown-icon">
-            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </span>
     </button>
     <ul id="courses-nav" class="sidebar-dropdown">
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'courses:courses_list' %}">
-                <i class="fas fa-magnifying-glass"></i>
+                <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
                 <span>Explorar Cursos</span>
             </a>
         </li>
         {% if user.is_authenticated %}
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'courses:dashboard' %}">
-                <i class="fas fa-gauge-high"></i>
+                <i class="fas fa-gauge-high" aria-hidden="true"></i>
                 <span>Mi Dashboard</span>
             </a>
         </li>
@@ -24,19 +24,19 @@
         {% if user.cv %}
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'courses:manage_courses' %}">
-                <i class="fas fa-folder"></i>
+                <i class="fas fa-folder" aria-hidden="true"></i>
                 <span>Mis Cursos</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'courses:create_course' %}">
-                <i class="fas fa-circle-plus"></i>
+                <i class="fas fa-circle-plus" aria-hidden="true"></i>
                 <span>Crear Curso</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'courses:modules_overview' %}">
-                <i class="fas fa-diagram-project"></i>
+                <i class="fas fa-diagram-project" aria-hidden="true"></i>
                 <span>Gestionar Módulos</span>
             </a>
         </li>
@@ -45,19 +45,19 @@
         {% if user.is_staff %}
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'courses:admin_dashboard' %}">
-                <i class="fas fa-shield-halved"></i>
+                <i class="fas fa-shield-halved" aria-hidden="true"></i>
                 <span>Panel Admin</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'courses:admin_users' %}">
-                <i class="fas fa-users"></i>
+                <i class="fas fa-users" aria-hidden="true"></i>
                 <span>Gestionar Usuarios</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'courses:manage_categories' %}">
-                <i class="fas fa-tags"></i>
+                <i class="fas fa-tags" aria-hidden="true"></i>
                 <span>Categorías</span>
             </a>
         </li>

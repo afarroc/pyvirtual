@@ -1,304 +1,306 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
-{% block title %}{{ title }}{% endblock %}
+
+{% block title %}{{ title|default:"GTD Inbox" }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'events/css/inbox.css' %}">
+<!-- No inline styles, usar main.css -->
 {% endblock %}
 
 {% block content %}
-<div class="events-container">
-    <div class="events-row events-mb-4 events-align-center">
-        <div class="events-col-12 events-col-md-6 events-mb-2 events-mb-md-0">
-            <h2 class="events-h4 events-h-md-2 events-mb-1">
-                <i class="bi bi-inbox-fill events-text-primary" style="margin-right: var(--m360-space-2);"></i>{{ title }}
-            </h2>
-            <p class="events-text-muted events-mb-0" style="font-size: var(--m360-text-sm);">Sistema GTD - Getting Things Done</p>
+
+<div class="dashboard-wrapper">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <span class="page-breadcrumb">Management / GTD</span>
+      <h1>
+        <i class="fas fa-inbox" aria-hidden="true" style="color:var(--purple);"></i>
+        {{ title|default:"GTD Inbox" }}
+      </h1>
+      <p class="text-muted">Sistema GTD - Getting Things Done</p>
+    </div>
+    <div class="page-actions">
+      <button type="button" class="btn btn-primary" onclick="openModal('quickAddModal')">
+        <i class="fas fa-plus-circle" aria-hidden="true"></i> Capturar Idea
+      </button>
+      <a href="{% url 'events:unified_dashboard' %}" class="btn btn-ghost">
+        <i class="fas fa-speedometer2" aria-hidden="true"></i> Dashboard
+      </a>
+      <a href="{% url 'events:inbox_admin_dashboard' %}" class="btn btn-ghost">
+        <i class="fas fa-shield-check" aria-hidden="true"></i> Admin
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card amber">
+      <i class="fas fa-clock stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ gtd_stats.total|default:0 }}</div>
+      <div class="stat-label">Pendientes</div>
+      <div class="stat-sub">Items por procesar</div>
+    </div>
+    <div class="stat-card green">
+      <i class="fas fa-check-circle stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ gtd_stats.accionables|default:0 }}</div>
+      <div class="stat-label">Accionables</div>
+      <div class="stat-sub">Items con acción definida</div>
+    </div>
+    <div class="stat-card blue">
+      <i class="fas fa-ban stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ gtd_stats.no_accionables|default:0 }}</div>
+      <div class="stat-label">No Accionables</div>
+      <div class="stat-sub">Items sin acción</div>
+    </div>
+    <div class="stat-card purple">
+      <i class="fas fa-check-double stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ total_processed|default:0 }}</div>
+      <div class="stat-label">Procesados</div>
+      <div class="stat-sub">Items completados</div>
+    </div>
+  </div>
+
+  <!-- Two Column Layout -->
+  <div class="two-col">
+    <!-- Left Column -->
+    <div>
+
+      <!-- Pending Items -->
+      {% if pendientes %}
+      <div class="section-card" style="border-left: 4px solid var(--amber);">
+        <div class="section-header" style="background: var(--amber-light); padding: 0.75rem 1.25rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin: -1.5rem -1.5rem 1rem -1.5rem; padding: 0.75rem 1.5rem;">
+          <h5 style="margin:0;">
+            <i class="fas fa-question-circle" aria-hidden="true" style="color:var(--amber);"></i>
+            Pendientes de Categorizar ({{ gtd_stats.pendientes|default:0 }})
+          </h5>
         </div>
-        <div class="events-col-12 events-col-md-6">
-            <div class="events-d-flex events-flex-wrap events-gap-2 events-justify-start events-justify-md-end">
-                <button type="button" class="m360-btn m360-btn-primary" data-m360-toggle="modal" data-m360-target="#quickAddModal">
-                    <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Capturar Idea
-                </button>
-                <a href="{% url 'events:unified_dashboard' %}" class="m360-btn m360-btn-outline-secondary">
-                    <i class="bi bi-speedometer2" style="margin-right: var(--m360-space-1);"></i>Dashboard
-                </a>
-                <a href="{% url 'events:inbox_admin_dashboard' %}" class="m360-btn m360-btn-outline-info">
-                    <i class="bi bi-shield-check" style="margin-right: var(--m360-space-1);"></i>Admin
-                </a>
+        <div class="project-grid">
+          {% for item in pendientes %}
+            <div class="project-card">
+              {% include 'events/includes/inbox_item_card.html' with item=item type='pendiente' %}
             </div>
+          {% endfor %}
         </div>
+      </div>
+      {% endif %}
+
+      <!-- Actionable Items -->
+      {% if accionables %}
+      <div class="section-card" style="border-left: 4px solid var(--green);">
+        <div class="section-header" style="background: var(--green-light); padding: 0.75rem 1.25rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin: -1.5rem -1.5rem 1rem -1.5rem; padding: 0.75rem 1.5rem;">
+          <h5 style="margin:0;">
+            <i class="fas fa-check-circle" aria-hidden="true" style="color:var(--green);"></i>
+            Items Accionables ({{ gtd_stats.accionables|default:0 }})
+          </h5>
+        </div>
+        <div class="project-grid">
+          {% for item in accionables %}
+            <div class="project-card">
+              {% include 'events/includes/inbox_item_card.html' with item=item type='accionable' %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Non-Actionable Items -->
+      {% if no_accionables %}
+      <div class="section-card" style="border-left: 4px solid var(--blue);">
+        <div class="section-header" style="background: var(--blue-light); padding: 0.75rem 1.25rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin: -1.5rem -1.5rem 1rem -1.5rem; padding: 0.75rem 1.5rem;">
+          <h5 style="margin:0;">
+            <i class="fas fa-times-circle" aria-hidden="true" style="color:var(--blue);"></i>
+            Items No Accionables ({{ gtd_stats.no_accionables|default:0 }})
+          </h5>
+        </div>
+        <div class="project-grid">
+          {% for item in no_accionables %}
+            <div class="project-card">
+              {% include 'events/includes/inbox_item_card.html' with item=item type='no_accionable' %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Processed Items -->
+      {% if processed_items %}
+      <div class="section-card" style="border-left: 4px solid var(--purple);">
+        <div class="section-header" style="background: var(--purple-light); padding: 0.75rem 1.25rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin: -1.5rem -1.5rem 1rem -1.5rem; padding: 0.75rem 1.5rem;">
+          <h5 style="margin:0;">
+            <i class="fas fa-check-double" aria-hidden="true" style="color:var(--purple);"></i>
+            Items Procesados ({{ total_processed|default:0 }})
+          </h5>
+        </div>
+        <div class="project-grid">
+          {% for item in processed_items|slice:":8" %}
+            <div class="project-card">
+              {% include 'events/includes/processed_item_card.html' with item=item %}
+            </div>
+          {% endfor %}
+        </div>
+        {% if processed_items|length > 8 %}
+        <div style="text-align:center;margin-top:1rem;">
+          <span class="text-muted text-sm">Y {{ processed_items|length|add:"-8" }} más...</span>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Empty State -->
+      {% if not pendientes and not accionables and not no_accionables and not processed_items %}
+      <div class="empty-state" style="padding:3rem 0;">
+        <i class="fas fa-inbox" aria-hidden="true"></i>
+        <h3 class="text-muted">Tu bandeja de entrada está vacía</h3>
+        <p class="text-muted">¡Excelente! Has procesado todos tus items pendientes.</p>
+        <button type="button" class="btn btn-primary" onclick="openModal('quickAddModal')">
+          <i class="fas fa-plus-circle" aria-hidden="true"></i> Agregar tu primera idea
+        </button>
+      </div>
+      {% endif %}
     </div>
 
-    <div class="events-row events-gap-3 events-mb-4">
-        <div class="events-col-6 events-col-md-3">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-warning); background: rgba(255,193,7,0.05);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-warning);">Pendientes</div>
-                    <div class="events-h3 events-mb-0">{{ gtd_stats.total }}</div>
-                </div>
-            </div>
+    <!-- Right Column -->
+    <div>
+
+      <!-- Quick Filters -->
+      <div class="section-card">
+        <div class="section-header" style="background: var(--gray-800); color:#fff; margin:-1.5rem -1.5rem 1rem -1.5rem; padding:0.75rem 1.5rem; border-radius:var(--radius) var(--radius) 0 0;">
+          <h5 style="margin:0;color:#fff;">
+            <i class="fas fa-filter" aria-hidden="true"></i> Filtros Rápidos
+          </h5>
         </div>
-        <div class="events-col-6 events-col-md-3">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-success); background: rgba(25,135,84,0.05);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-success);">Accionables</div>
-                    <div class="events-h3 events-mb-0">{{ gtd_stats.accionables }}</div>
-                </div>
-            </div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <button type="button" class="btn btn-ghost" id="filterPendientes" style="width:100%;justify-content:center;">
+            <i class="fas fa-question-circle" aria-hidden="true" style="color:var(--amber);"></i> Solo Pendientes
+          </button>
+          <button type="button" class="btn btn-ghost" id="filterAccionables" style="width:100%;justify-content:center;">
+            <i class="fas fa-check-circle" aria-hidden="true" style="color:var(--green);"></i> Solo Accionables
+          </button>
+          <button type="button" class="btn btn-ghost" id="filterNoAccionables" style="width:100%;justify-content:center;">
+            <i class="fas fa-times-circle" aria-hidden="true" style="color:var(--blue);"></i> Solo No Accionables
+          </button>
+          <button type="button" class="btn btn-ghost" id="filterProcesados" style="width:100%;justify-content:center;">
+            <i class="fas fa-check-double" aria-hidden="true" style="color:var(--purple);"></i> Solo Procesados
+          </button>
+          <button type="button" class="btn btn-primary" id="clearFilters" style="width:100%;justify-content:center;margin-top:0.5rem;">
+            <i class="fas fa-eraser" aria-hidden="true"></i> Limpiar Filtros
+          </button>
         </div>
-        <div class="events-col-6 events-col-md-3">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-info); background: rgba(13,202,240,0.05);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-info);">No Accionables</div>
-                    <div class="events-h3 events-mb-0">{{ gtd_stats.no_accionables }}</div>
-                </div>
-            </div>
+      </div>
+
+      <!-- GTD Summary -->
+      <div class="section-card">
+        <div class="section-header" style="background: var(--blue); color:#fff; margin:-1.5rem -1.5rem 1rem -1.5rem; padding:0.75rem 1.5rem; border-radius:var(--radius) var(--radius) 0 0;">
+          <h5 style="margin:0;color:#fff;">
+            <i class="fas fa-chart-bar" aria-hidden="true"></i> Resumen GTD
+          </h5>
         </div>
-        <div class="events-col-6 events-col-md-3">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-secondary); background: rgba(108,117,125,0.05);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-secondary);">Procesados</div>
-                    <div class="events-h3 events-mb-0">{{ total_processed }}</div>
-                </div>
+        <div style="font-size:0.875rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--gray-200);">
+            <span class="text-muted">Tasa de procesamiento:</span>
+            <span style="font-weight:700;">{{ processing_rate|default:"0" }}%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--gray-200);">
+            <span class="text-muted">Items por día:</span>
+            <span style="font-weight:700;">{{ items_per_day|default:"0" }}</span>
+          </div>
+          <div style="margin-top:0.75rem;">
+            <div class="progress" style="max-width:100%;height:8px;">
+              <div class="progress-fill" style="width:{{ processing_rate|default:0 }}%;background:var(--green);"></div>
             </div>
+          </div>
+          <div style="margin-top:1rem;">
+            <a href="{% url 'events:inbox_admin_dashboard' %}" class="btn btn-primary" style="width:100%;justify-content:center;">
+              <i class="fas fa-shield-check" aria-hidden="true"></i> Panel Admin
+            </a>
+          </div>
         </div>
+      </div>
+
+      <!-- AI Assistant -->
+      <div class="section-card" id="ai-assistant-panel">
+        <div class="section-header" style="background: var(--purple); color:#fff; margin:-1.5rem -1.5rem 1rem -1.5rem; padding:0.75rem 1.5rem; border-radius:var(--radius) var(--radius) 0 0;">
+          <h5 style="margin:0;color:#fff;">
+            <i class="fas fa-robot" aria-hidden="true"></i> Asistente GTD
+          </h5>
+          <button type="button" class="btn btn-sm" id="ai-refresh-btn" onclick="aiLoadSummary()" style="background:rgba(255,255,255,0.2);color:#fff;">
+            <i class="fas fa-sync" id="ai-refresh-icon" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div style="padding:0.25rem 0;">
+          <!-- Analysis Zone -->
+          <div id="ai-analysis-zone" style="margin-bottom:0.75rem;">
+            <div id="ai-placeholder" style="text-align:center;padding:0.5rem;">
+              <i class="fas fa-lightbulb" aria-hidden="true" style="color:var(--amber);"></i>
+              <a href="#" onclick="aiLoadSummary(); return false;" style="color:var(--purple);text-decoration:none;">
+                Analizar mi GTD ahora
+              </a>
+            </div>
+            <div id="ai-analysis-content" style="display:none;">
+              <div id="ai-analysis-text" style="white-space:pre-wrap;max-height:180px;overflow-y:auto;font-size:0.875rem;padding:0.5rem;background:var(--gray-50);border-radius:var(--radius-sm);"></div>
+              <div style="text-align:right;margin-top:0.25rem;">
+                <span id="ai-source-badge" class="status status-completed" style="font-size:0.65rem;"></span>
+              </div>
+            </div>
+            <div id="ai-loading" style="text-align:center;padding:0.5rem;display:none;">
+              <div style="display:inline-block;width:2rem;height:2rem;border:2px solid var(--gray-200);border-top-color:var(--purple);border-radius:50%;animation:spin 1s linear infinite;"></div>
+              <span style="margin-left:0.5rem;color:var(--gray-400);font-size:0.875rem;">Analizando…</span>
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--gray-200);margin:0.75rem 0;">
+
+          <!-- Chat History -->
+          <div id="ai-chat-history" style="max-height:200px;overflow-y:auto;font-size:0.875rem;margin-bottom:0.75rem;"></div>
+
+          <!-- Chat Input -->
+          <div style="display:flex;gap:0.5rem;">
+            <input type="text" id="ai-chat-input" class="form-control" style="flex:1;padding:0.5rem 0.75rem;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font);font-size:0.875rem;" placeholder="Pregúntame algo…" maxlength="300" onkeydown="if(event.key==='Enter'){aiSendMessage();return false;}">
+            <button class="btn btn-primary" type="button" id="ai-send-btn" onclick="aiSendMessage()">
+              <i class="fas fa-paper-plane" aria-hidden="true"></i>
+            </button>
+          </div>
+          <small class="text-muted" style="font-size:0.65rem;margin-top:0.25rem;display:block;">Powered by Ollama · datos en tiempo real</small>
+        </div>
+      </div>
+
     </div>
-
-    <div class="events-row">
-        <div class="events-col-lg-9">
-            {% if pendientes %}
-            <div class="m360-card events-mb-4" style="border-left: 4px solid var(--m360-warning);">
-                <div class="m360-card-header" style="background: var(--m360-warning); color: var(--m360-text-dark); border: none;">
-                    <h5 class="events-mb-0"><i class="bi bi-question-circle" style="margin-right: var(--m360-space-1);"></i>Pendientes de Categorizar ({{ gtd_stats.pendientes }})</h5>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-3">
-                        {% for item in pendientes %}
-                        <div class="events-col-md-6 events-col-xl-4">
-                            {% include 'events/includes/inbox_item_card.html' with item=item type='pendiente' %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if accionables %}
-            <div class="m360-card events-mb-4" style="border-left: 4px solid var(--m360-success);">
-                <div class="m360-card-header" style="background: var(--m360-success); color: #fff; border: none;">
-                    <h5 class="events-mb-0"><i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Items Accionables ({{ gtd_stats.accionables }})</h5>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-3">
-                        {% for item in accionables %}
-                        <div class="events-col-md-6 events-col-xl-4">
-                            {% include 'events/includes/inbox_item_card.html' with item=item type='accionable' %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if no_accionables %}
-            <div class="m360-card events-mb-4" style="border-left: 4px solid var(--m360-info);">
-                <div class="m360-card-header" style="background: var(--m360-info); color: #fff; border: none;">
-                    <h5 class="events-mb-0"><i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>Items No Accionables ({{ gtd_stats.no_accionables }})</h5>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-3">
-                        {% for item in no_accionables %}
-                        <div class="events-col-md-6 events-col-xl-4">
-                            {% include 'events/includes/inbox_item_card.html' with item=item type='no_accionable' %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-
-        <div class="events-col-lg-3">
-            <div class="m360-card events-mb-4">
-                <div class="m360-card-header" style="background: var(--m360-text); color: #fff; border: none;">
-                    <h6 class="events-mb-0"><i class="bi bi-funnel" style="margin-right: var(--m360-space-1);"></i>Filtros Rápidos</h6>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-d-flex events-flex-col events-gap-2">
-                        <button type="button" class="m360-btn m360-btn-outline-warning events-w-100" id="filterPendientes">
-                            <i class="bi bi-question-circle" style="margin-right: var(--m360-space-1);"></i>Solo Pendientes
-                        </button>
-                        <button type="button" class="m360-btn m360-btn-outline-success events-w-100" id="filterAccionables">
-                            <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Solo Accionables
-                        </button>
-                        <button type="button" class="m360-btn m360-btn-outline-info events-w-100" id="filterNoAccionables">
-                            <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>Solo No Accionables
-                        </button>
-                        <button type="button" class="m360-btn m360-btn-outline-secondary events-w-100" id="filterProcesados">
-                            <i class="bi bi-check2-all" style="margin-right: var(--m360-space-1);"></i>Solo Procesados
-                        </button>
-                        <button type="button" class="m360-btn m360-btn-outline-primary events-w-100 events-mt-2" id="clearFilters">
-                            <i class="bi bi-eraser" style="margin-right: var(--m360-space-1);"></i>Limpiar Filtros
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="m360-card">
-                <div class="m360-card-header" style="background: var(--m360-info); color: #fff; border: none;">
-                    <h6 class="events-mb-0"><i class="bi bi-bar-chart" style="margin-right: var(--m360-space-1);"></i>Resumen GTD</h6>
-                </div>
-                <div class="m360-card-body">
-                    <div style="font-size: var(--m360-text-sm);">
-                        <div class="events-d-flex events-justify-between events-mb-2">
-                            <span class="events-text-muted">Tasa de procesamiento:</span>
-                            <span style="font-weight: var(--m360-font-weight-bold);">{{ processing_rate|default:"0" }}%</span>
-                        </div>
-                        <div class="events-d-flex events-justify-between events-mb-2">
-                            <span class="events-text-muted">Items por día:</span>
-                            <span style="font-weight: var(--m360-font-weight-bold);">{{ items_per_day|default:"0" }}</span>
-                        </div>
-                        <div class="events-progress events-mb-3" style="height: 8px;">
-                            <div class="events-progress-bar" style="width: {{ processing_rate|default:0 }}%; background: var(--m360-success);"></div>
-                        </div>
-                        <div class="events-d-grid">
-                            <a href="{% url 'events:inbox_admin_dashboard' %}" class="m360-btn m360-btn-outline-primary events-w-100">
-                                <i class="bi bi-shield-check" style="margin-right: var(--m360-space-1);"></i>Panel Admin
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="m360-card events-mt-3" id="ai-assistant-panel">
-                <div class="m360-card-header events-d-flex events-justify-between events-align-center" style="background: var(--m360-primary); color: #fff; border: none;">
-                    <h6 class="events-mb-0">
-                        <i class="bi bi-robot" style="margin-right: var(--m360-space-1);"></i>Asistente GTD
-                    </h6>
-                    <button type="button"
-                            class="m360-btn m360-btn-sm m360-btn-outline-light"
-                            id="ai-refresh-btn"
-                            title="Analizar estado actual"
-                            onclick="aiLoadSummary()">
-                        <i class="bi bi-arrow-clockwise" id="ai-refresh-icon"></i>
-                    </button>
-                </div>
-                <div class="m360-card-body" style="padding: var(--m360-space-2);">
-                    <div id="ai-analysis-zone" class="events-mb-2">
-                        <div class="events-text-center events-py-2" id="ai-placeholder">
-                            <i class="bi bi-lightbulb" style="margin-right: var(--m360-space-1);"></i>
-                            <a href="#" style="text-decoration: none;" onclick="aiLoadSummary(); return false;">Analizar mi GTD ahora</a>
-                        </div>
-                        <div id="ai-analysis-content" style="display: none;">
-                            <div id="ai-analysis-text" style="white-space: pre-wrap; max-height: 180px; overflow-y: auto;"></div>
-                            <div class="events-text-end events-mt-1">
-                                <span id="ai-source-badge" class="m360-badge m360-badge-secondary" style="font-size: 0.65rem;"></span>
-                            </div>
-                        </div>
-                        <div id="ai-loading" class="events-text-center events-py-2" style="display: none;">
-                            <div class="events-spinner-border" style="color: var(--m360-primary); border: 2px solid var(--m360-border); border-top-color: var(--m360-primary); border-radius: 50%; width: 2rem; height: 2rem; animation: spin 1s linear infinite; display: inline-block;"></div>
-                            <span class="events-ml-2 events-text-muted" style="font-size: var(--m360-text-sm);">Analizando…</span>
-                        </div>
-                    </div>
-
-                    <hr style="border: none; border-top: 1px solid var(--m360-border); margin: var(--m360-space-2) 0;">
-
-                    <div id="ai-chat-history"
-                         style="max-height: 200px; overflow-y: auto; font-size: var(--m360-text-sm);"
-                         class="events-mb-2">
-                    </div>
-
-                    <div class="events-input-group">
-                        <input type="text"
-                               id="ai-chat-input"
-                               class="m360-form-control"
-                               placeholder="Pregúntame algo…"
-                               maxlength="300"
-                               onkeydown="if(event.key==='Enter'){aiSendMessage();return false;}">
-                        <button class="m360-btn m360-btn-primary" type="button" id="ai-send-btn" onclick="aiSendMessage()">
-                            <i class="bi bi-send"></i>
-                        </button>
-                    </div>
-                    <small class="events-text-muted" style="font-size: 0.65rem; margin-top: 3px;">Powered by Ollama · datos en tiempo real</small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% if processed_items %}
-    <div class="events-row events-mt-4">
-        <div class="events-col-12">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-success);">
-                <div class="m360-card-header" style="background: var(--m360-success); color: #fff; border: none;">
-                    <h5 class="events-mb-0"><i class="bi bi-check2-all" style="margin-right: var(--m360-space-1);"></i>Items Procesados ({{ total_processed }})</h5>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-3">
-                        {% for item in processed_items|slice:":8" %}
-                        <div class="events-col-md-6 events-col-lg-4 events-col-xl-3">
-                            {% include 'events/includes/processed_item_card.html' with item=item %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% if processed_items|length > 8 %}
-                    <div class="events-text-center events-mt-3">
-                        <small class="events-text-muted">Y {{ processed_items|length|add:"-8" }} más...</small>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if not pendientes and not accionables and not no_accionables and not processed_items %}
-    <div class="events-row">
-        <div class="events-col-12">
-            <div class="m360-card">
-                <div class="m360-card-body events-text-center" style="padding: var(--m360-space-6) var(--m360-space-4);">
-                    <i class="bi bi-inbox" style="font-size: var(--m360-icon-2xl); color: var(--m360-text-muted);"></i>
-                    <h4 class="events-text-muted events-mt-3">Tu bandeja de entrada está vacía</h4>
-                    <p class="events-text-muted">¡Excelente! Has procesado todos tus items pendientes.</p>
-                    <button type="button" class="m360-btn m360-btn-primary" data-m360-toggle="modal" data-m360-target="#quickAddModal">
-                        <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Agregar tu primera idea
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+  </div>
 </div>
 
-<div class="m360-modal" id="quickAddModal" tabindex="-1" aria-hidden="true">
-    <div class="m360-modal-dialog">
-        <div class="m360-modal-content">
-            <div class="m360-modal-header">
-                <h5 class="m360-modal-title"><i class="bi bi-lightning" style="margin-right: var(--m360-space-1);"></i>Captura Rápida</h5>
-                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
-            </div>
-            <form id="quickAddForm" method="post">
-                {% csrf_token %}
-                <div class="m360-modal-body">
-                    <div class="events-mb-3">
-                        <label for="quickTitle" class="m360-form-label">Título *</label>
-                        <input type="text" class="m360-form-control" id="quickTitle" name="title" placeholder="¿Qué necesitas hacer?" required>
-                    </div>
-                    <div class="events-mb-3">
-                        <label for="quickDescription" class="m360-form-label">Descripción</label>
-                        <textarea class="m360-form-control" id="quickDescription" name="description" rows="3" placeholder="Detalles adicionales (opcional)"></textarea>
-                    </div>
-                </div>
-                <div class="m360-modal-footer">
-                    <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Cancelar</button>
-                    <button type="submit" class="m360-btn m360-btn-primary">
-                        <i class="bi bi-check2" style="margin-right: var(--m360-space-1);"></i>Agregar al Inbox
-                    </button>
-                </div>
-            </form>
-        </div>
+<!-- Quick Add Modal -->
+<div class="modal-overlay" id="quickAddModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h5><i class="fas fa-lightning" aria-hidden="true" style="color:var(--amber);"></i> Captura Rápida</h5>
+      <button type="button" class="close-btn" onclick="closeModal('quickAddModal')" aria-label="Close">&times;</button>
     </div>
+    <form id="quickAddForm" method="post" action="{% url 'events:inbox_add' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="quickTitle">Título *</label>
+        <input type="text" class="form-control" id="quickTitle" name="title" placeholder="¿Qué necesitas hacer?" required>
+      </div>
+      <div class="form-group">
+        <label for="quickDescription">Descripción</label>
+        <textarea class="form-control" id="quickDescription" name="description" rows="3" placeholder="Detalles adicionales (opcional)"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('quickAddModal')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-check" aria-hidden="true"></i> Agregar al Inbox
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -310,28 +312,28 @@ function csrf() {
     return document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
 }
 
+function _escapeHtml(text) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function _appendChat(role, text) {
     const zone = document.getElementById('ai-chat-history');
     const isUser = role === 'user';
     const div = document.createElement('div');
-    div.className = `events-d-flex ${isUser ? 'events-justify-end' : 'events-justify-start'} events-mb-2`;
+    div.style.cssText = `display:flex;${isUser ? 'justify-content:flex-end' : 'justify-content:flex-start'};margin-bottom:0.5rem;`;
     div.innerHTML = `
-        <div class="events-px-2 events-py-1 events-rounded events-small ${isUser ? 'm360-bg-primary' : 'm360-bg-light'}" style="max-width:90%;white-space:pre-wrap;">
+        <div style="padding:0.25rem 0.75rem;border-radius:8px;max-width:90%;white-space:pre-wrap;font-size:0.875rem;${isUser ? 'background:var(--purple);color:#fff;' : 'background:var(--gray-100);color:var(--gray-900);'}">
             ${_escapeHtml(text)}
         </div>`;
     zone.appendChild(div);
     zone.scrollTop = zone.scrollHeight;
 }
 
-function _escapeHtml(text) {
-    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
 function _setLoading(on) {
     document.getElementById('ai-loading').style.display = on ? 'block' : 'none';
     document.getElementById('ai-placeholder').style.display = on ? 'none' : 'block';
     const icon = document.getElementById('ai-refresh-icon');
-    icon.className = on ? 'bi bi-arrow-clockwise spin' : 'bi bi-arrow-clockwise';
+    icon.className = on ? 'fas fa-sync fa-spin' : 'fas fa-sync';
     document.getElementById('ai-refresh-btn').disabled = on;
 }
 
@@ -347,7 +349,7 @@ async function aiLoadSummary() {
             document.getElementById('ai-analysis-text').textContent = data.analysis;
             const badge = document.getElementById('ai-source-badge');
             badge.textContent = data.source === 'ollama' ? 'Ollama' : 'Análisis estático';
-            badge.className = `m360-badge ${data.source === 'ollama' ? 'm360-badge-success' : 'm360-badge-secondary'}`;
+            badge.className = `status ${data.source === 'ollama' ? 'status-active' : 'status-completed'}`;
             document.getElementById('ai-analysis-content').style.display = 'block';
             document.getElementById('ai-placeholder').style.display = 'none';
         } else {
@@ -376,9 +378,9 @@ async function aiSendMessage() {
     const zone = document.getElementById('ai-chat-history');
     const typing = document.createElement('div');
     typing.id = typingId;
-    typing.className = 'events-d-flex events-justify-start events-mb-2';
-    typing.innerHTML = `<div class="events-px-2 events-py-1 events-rounded events-small m360-bg-light" style="max-width:90%;white-space:pre-wrap;">
-        <span class="events-spinner-border" style="width:.75rem;height:.75rem;border:2px solid var(--m360-border);border-top-color:var(--m360-primary);border-radius:50%;animation:spin 1s linear infinite;display:inline-block;"></span>
+    typing.style.cssText = 'display:flex;justify-content:flex-start;margin-bottom:0.5rem;';
+    typing.innerHTML = `<div style="padding:0.25rem 0.75rem;border-radius:8px;max-width:90%;background:var(--gray-100);color:var(--gray-600);font-size:0.875rem;">
+        <span style="display:inline-block;width:0.75rem;height:0.75rem;border:2px solid var(--gray-200);border-top-color:var(--purple);border-radius:50%;animation:spin 1s linear infinite;"></span>
         Pensando…</div>`;
     zone.appendChild(typing);
     zone.scrollTop = zone.scrollHeight;
@@ -410,12 +412,49 @@ async function aiSendMessage() {
         input.focus();
     }
 }
-</script>
 
-<style>
-@keyframes spin { to { transform: rotate(360deg); } }
-.spin { display: inline-block; animation: spin 1s linear infinite; }
-</style>
+// Filter buttons functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const filters = {
+        pendientes: document.getElementById('filterPendientes'),
+        accionables: document.getElementById('filterAccionables'),
+        noAccionables: document.getElementById('filterNoAccionables'),
+        procesados: document.getElementById('filterProcesados'),
+        clear: document.getElementById('clearFilters')
+    };
+
+    function applyFilter(type) {
+        const sections = document.querySelectorAll('.section-card');
+        sections.forEach(section => {
+            const title = section.querySelector('.section-header h5')?.textContent || '';
+            if (type === 'all') {
+                section.style.display = 'block';
+            } else if (type === 'pendientes' && title.includes('Pendientes')) {
+                section.style.display = 'block';
+            } else if (type === 'accionables' && title.includes('Accionables')) {
+                section.style.display = 'block';
+            } else if (type === 'noAccionables' && title.includes('No Accionables')) {
+                section.style.display = 'block';
+            } else if (type === 'procesados' && title.includes('Procesados')) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        });
+    }
+
+    if (filters.pendientes) filters.pendientes.addEventListener('click', () => applyFilter('pendientes'));
+    if (filters.accionables) filters.accionables.addEventListener('click', () => applyFilter('accionables'));
+    if (filters.noAccionables) filters.noAccionables.addEventListener('click', () => applyFilter('noAccionables'));
+    if (filters.procesados) filters.procesados.addEventListener('click', () => applyFilter('procesados'));
+    if (filters.clear) filters.clear.addEventListener('click', () => applyFilter('all'));
+});
+
+// Load summary on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(aiLoadSummary, 500);
+});
+</script>
 
 <script src="{% static 'events/js/inbox.js' %}"></script>
 {% endblock %}

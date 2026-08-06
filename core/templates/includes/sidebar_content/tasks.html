@@ -1,21 +1,21 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-list-check"></i>
+        <i class="fas fa-list-check" aria-hidden="true"></i>
         <span>Tasks</span>
         <span class="dropdown-icon">
-            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </span>
     </button>
     <ul id="tasks-nav" class="sidebar-dropdown">
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:tasks' %}">
-                <i class="fas fa-list-ul"></i>
+                <i class="fas fa-list-ul" aria-hidden="true"></i>
                 <span>All Tasks</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:task_panel' %}">
-                <i class="fas fa-gauge-high"></i>
+                <i class="fas fa-gauge-high" aria-hidden="true"></i>
                 <span>Task Panel</span>
             </a>
         </li>
@@ -23,28 +23,28 @@
         {% if user.is_authenticated %}
         <li class="sidebar-nav-item has-dropdown">
             <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-                <i class="fas fa-gear"></i>
+                <i class="fas fa-gear" aria-hidden="true"></i>
                 <span>Task Actions</span>
                 <span class="dropdown-icon">
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
                 </span>
             </button>
             <ul id="task-actions-nav" class="sidebar-dropdown">
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:task_create' %}">
-                        <i class="fas fa-circle-plus"></i>
+                        <i class="fas fa-circle-plus" aria-hidden="true"></i>
                         <span>Create Task</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:task_edit_no_id' %}">
-                        <i class="fas fa-pencil"></i>
+                        <i class="fas fa-pencil" aria-hidden="true"></i>
                         <span>Edit Task</span>
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
                     <a class="sidebar-nav-link" href="{% url 'events:task_activate_no_id' %}">
-                        <i class="fas fa-circle-play"></i>
+                        <i class="fas fa-circle-play" aria-hidden="true"></i>
                         <span>Activate Task</span>
                     </a>
                 </li>
@@ -54,7 +54,7 @@
 
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'events:task_export' %}">
-                <i class="fas fa-download"></i>
+                <i class="fas fa-download" aria-hidden="true"></i>
                 <span>Export Tasks</span>
             </a>
         </li>

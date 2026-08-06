@@ -1,35 +1,35 @@
 <li class="sidebar-nav-item has-dropdown">
     <button type="button" class="sidebar-nav-link dropdown-toggle" aria-expanded="false">
-        <i class="fas fa-file"></i>
+        <i class="fas fa-file" aria-hidden="true"></i>
         <span>Pages</span>
         <span class="dropdown-icon">
-            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </span>
     </button>
     <ul id="pages-nav" class="sidebar-dropdown">
         {% if user.is_authenticated %}
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'cv:cv_detail' %}">
-                <i class="fas fa-user"></i>
+                <i class="fas fa-user" aria-hidden="true"></i>
                 <span>Profile</span>
             </a>
         </li>
         {% endif %}
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'faq' %}">
-                <i class="fas fa-circle-question"></i>
+                <i class="fas fa-circle-question" aria-hidden="true"></i>
                 <span>F.A.Q</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'contact' %}">
-                <i class="fas fa-envelope"></i>
+                <i class="fas fa-envelope" aria-hidden="true"></i>
                 <span>Contact</span>
             </a>
         </li>
         <li class="sidebar-nav-item">
             <a class="sidebar-nav-link" href="{% url 'about' %}">
-                <i class="fas fa-circle-info"></i>
+                <i class="fas fa-circle-info" aria-hidden="true"></i>
                 <span>About</span>
             </a>
         </li>
