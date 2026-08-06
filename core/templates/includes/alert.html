@@ -1,13 +1,23 @@
-<!-- Sistema de Alertas Inteligente - Compatible con sistema centralizado -->
+<!-- ==========================================
+   ALERTAS - Sistema de notificaciones del dashboard
+   ========================================== -->
 {% if messages %}
-<div class="m360-alerts" id="legacyAlertsContainer">
+<div class="alerts-container" id="alertsContainer" role="alert">
     {% for message in messages %}
-    <div class="m360-alert m360-alert-{{ message.tags|default:'info' }} m360-alert-dismissible m360-d-flex m360-items-center" role="alert">
-        <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% elif message.tags == 'error' or message.tags == 'danger' %}bi-exclamation-triangle-fill{% elif message.tags == 'warning' %}bi-exclamation-circle-fill{% else %}bi-info-circle-fill{% endif %}" style="font-size: var(--m360-text-lg);"></i>
-        <div class="m360-flex-1">
-            <div class="m360-alert-message">{{ message }}</div>
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible" role="alert">
+        <div class="alert-content">
+            <i class="fas 
+                {% if message.tags == 'success' %}fa-check-circle
+                {% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-triangle
+                {% elif message.tags == 'warning' %}fa-exclamation-circle
+                {% else %}fa-info-circle{% endif %}" 
+                aria-hidden="true">
+            </i>
+            <span class="alert-message">{{ message }}</span>
         </div>
-        <button type="button" class="m360-alert-dismiss" data-m360-dismiss="alert" aria-label="Close">✕</button>
+        <button type="button" class="alert-dismiss" data-dismiss="alert" aria-label="Close">
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
     </div>
     {% endfor %}
 </div>

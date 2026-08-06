@@ -658,4 +658,58 @@
     DashboardModule.init();
   });
 
+  // ==========================================
+  // ALERTS MODULE
+  // ==========================================
+  const AlertsModule = {
+    init: function() {
+      this.initDismiss();
+      this.initAutoDismiss();
+    },
+
+    initDismiss: function() {
+      const dismissBtns = document.querySelectorAll('.alert-dismiss');
+      dismissBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const alert = this.closest('.alert');
+          if (alert) {
+            alert.classList.add('dismissing');
+            setTimeout(() => {
+              alert.remove();
+              AlertsModule.checkEmpty();
+            }, 300);
+          }
+        });
+      });
+    },
+
+    initAutoDismiss: function() {
+      // Auto-dismiss success messages after 5 seconds
+      const successAlerts = document.querySelectorAll('.alert-success');
+      successAlerts.forEach(alert => {
+        setTimeout(() => {
+          if (alert.parentNode) {
+            alert.classList.add('dismissing');
+            setTimeout(() => {
+              alert.remove();
+              AlertsModule.checkEmpty();
+            }, 300);
+          }
+        }, 5000);
+      });
+    },
+
+    checkEmpty: function() {
+      const container = document.getElementById('alertsContainer');
+      if (container && container.children.length === 0) {
+        container.style.display = 'none';
+      }
+    }
+  };
+
+  // Inicializar en DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', function() {
+    AlertsModule.init();
+  });
+
 })();
