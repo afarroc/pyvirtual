@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import redirect, render, get_object_or_404
 
-from ..models import Project, Task, TagCategory, InboxItem
+from ..models import Project, Task, TagCategory, InboxItem, TaskStatus
 from ..management.task_manager import TaskManager
 from ..management.project_manager import ProjectManager
 from ..management.event_manager import EventManager
@@ -37,7 +37,10 @@ def kanban_board_unified(request):
     events_data, _ = event_manager.get_all_events()
 
     # Organizar tareas por estado para el kanban principal
-    kanban_columns = {
+    statuses = TaskStatus.objects.all()
+    status_map = {status.status_name: status for status in statuses}
+    kanban_columns = {}
+    for status_name, column_data in {
         'To Do': {
             'title': 'Por Hacer',
             'color': '#6c757d',
@@ -58,7 +61,11 @@ def kanban_board_unified(request):
             'color': '#fd7e14',
             'tasks': []
         }
-    }
+    }.items():
+        status_obj = status_map.get(status_name)
+        column_data['status_id'] = status_obj.id if status_obj else None
+        column_data['status_name'] = status_name
+        kanban_columns[status_name] = column_data
 
     # Categorizar las tareas
     for task_data in tasks_data:
@@ -119,6 +126,13 @@ def kanban_board_unified(request):
     completed_count = sum(1 for task_data in tasks_data if task_data['task'].task_status.status_name == 'Completed')
     pending_count = sum(1 for task_data in tasks_data if task_data['task'].task_status.status_name == 'To Do')
 
+    # Estadísticas de tareas para el template
+    task_stats = {
+        'completed': completed_count,
+        'in_progress': in_progress_count,
+        'pending': pending_count,
+    }
+
     # Estadísticas de proyectos
     total_projects = len(projects_data)
     active_projects = [p for p in projects_data if p['project'].project_status.status_name == 'In Progress']
@@ -133,7 +147,7 @@ def kanban_board_unified(request):
     # Obtener proyectos para el modal de creación rápida (de la primera vista)
     projects = Project.objects.filter(
         Q(host=request.user) | Q(attendees=request.user)
-    ).distinct().order_by('title')
+    ).distinct().order_by('-updated_at')
 
     context = {
         'title': title,
@@ -146,6 +160,7 @@ def kanban_board_unified(request):
         'in_progress_count': in_progress_count,
         'completed_count': completed_count,
         'pending_count': pending_count,
+        'task_stats': task_stats,
         'total_projects': total_projects,
         'active_projects': active_projects,
         'total_events': total_events,
@@ -154,7 +169,7 @@ def kanban_board_unified(request):
         # Datos adicionales de ambas vistas
         'inbox_items': inbox_items,
         'projects': projects,  # Para el modal de creación rápida
-        'recent_projects': projects,  # Para la sección de proyectos recientes
+        'recent_projects': projects[:5],  # Para la sección de proyectos recientes
         'recent_activities': [],  # Podría implementarse más tarde
     }
 

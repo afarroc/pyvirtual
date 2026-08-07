@@ -73,10 +73,11 @@ class SetupView(View):
         except Exception as e:
             all_users = []
 
-        # Check if statuses exist
+        # Ensure initial statuses exist
         try:
-            if Status.objects.exists() and ProjectStatus.objects.exists() and TaskStatus.objects.exists():
-                completed_steps.append('3')
+            if not (Status.objects.exists() and ProjectStatus.objects.exists() and TaskStatus.objects.exists()):
+                create_initial_statuses()
+            completed_steps.append('3')
         except Exception as e:
             # Tables might not exist yet, skip this check
             pass

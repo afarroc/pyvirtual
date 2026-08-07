@@ -5,489 +5,172 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block extra_head %}
-<style>
-/* Kanban Board Modern - Migrated to ITCSS M360 */
-.kanban-container {
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    padding: 1rem 0;
-    min-height: 70vh;
-}
-
-.kanban-column {
-    flex: 1;
-    min-width: 300px;
-    background: var(--m360-gray-50);
-    border-radius: var(--m360-radius);
-    padding: 1rem;
-    border: 2px solid var(--m360-border);
-}
-
-.kanban-column-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid;
-}
-
-.kanban-column-title {
-    font-weight: 600;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.task-count {
-    background: rgba(0,0,0,0.1);
-    padding: 0.2rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.kanban-task-card {
-    background: #fff;
-    border: 1px solid var(--m360-border);
-    border-radius: var(--m360-radius);
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.kanban-task-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.task-title {
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    color: var(--m360-text);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.task-title.important {
-    color: var(--m360-danger);
-}
-
-.task-meta {
-    font-size: var(--m360-text-sm);
-    color: var(--m360-text-muted);
-    margin-bottom: 0.5rem;
-}
-
-.task-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
-}
-
-.task-tag {
-    font-size: 0.7rem;
-    padding: 0.2rem 0.4rem;
-    border-radius: 12px;
-    background: var(--m360-gray-50);
-    color: var(--m360-text);
-    border: 1px solid var(--m360-border);
-}
-
-.task-priority {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-    padding: 0.2rem 0.4rem;
-    border-radius: 12px;
-    font-weight: 500;
-}
-
-.task-actions {
-    margin-top: 0.75rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--m360-border);
-    display: flex;
-    gap: 0.5rem;
-    justify-content: space-between;
-}
-
-.btn-task-action {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
-    border-radius: var(--m360-radius);
-}
-
-.task-project {
-    font-size: var(--m360-text-sm);
-    color: var(--m360-text-muted);
-    margin-top: 0.25rem;
-}
-
-.task-project a {
-    color: var(--m360-primary);
-    text-decoration: none;
-}
-
-.task-project a:hover {
-    text-decoration: underline;
-}
-
-.kanban-filters {
-    background: #fff;
-    border: 1px solid var(--m360-border);
-    border-radius: var(--m360-radius);
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.filter-section {
-    margin-bottom: 1rem;
-}
-
-.filter-section:last-child {
-    margin-bottom: 0;
-}
-
-.filter-title {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--m360-text);
-}
-
-.filter-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.filter-tag {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    background: var(--m360-gray-50);
-    border: 1px solid var(--m360-border);
-    border-radius: var(--m360-radius);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: var(--m360-text-sm);
-}
-
-.filter-tag:hover {
-    background: var(--m360-gray-50);
-}
-
-.filter-tag.active {
-    background: var(--m360-primary);
-    color: #fff;
-    border-color: var(--m360-primary);
-}
-
-.filter-tag-icon {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-.kanban-legend {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.5rem;
-    background: var(--m360-gray-50);
-    border-radius: var(--m360-radius);
-    font-size: var(--m360-text-sm);
-    color: var(--m360-text-muted);
-    margin-top: 1rem;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.legend-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .kanban-container { flex-direction: column; }
-    .kanban-column { min-width: 100%; }
-    .filter-tags { flex-direction: column; }
-    .filter-tag { justify-content: center; }
-}
-
-/* Loading animation */
-.kanban-loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px;
-    color: var(--m360-text-muted);
-}
-
-.loading-spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--m360-gray-50);
-    border-top: 2px solid var(--m360-primary);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-right: 0.5rem;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Drag and drop styles */
-.kanban-task-card.dragging {
-    opacity: 0.5;
-    transform: rotate(5deg);
-}
-
-.kanban-column.drag-over {
-    border-color: var(--m360-primary);
-    background: rgba(0, 123, 255, 0.1);
-}
-
-/* Empty state */
-.kanban-empty {
-    text-align: center;
-    padding: 2rem;
-    color: var(--m360-text-muted);
-}
-
-.kanban-empty-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
-
-.kanban-empty-text {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-}
-
-.kanban-empty-subtext {
-    font-size: 0.9rem;
-    opacity: 0.7;
-}
-</style>
+<!-- No inline styles - todo en main.css -->
 {% endblock %}
 
 {% block content %}
-<div class="events-container">
-    <div class="events-row events-mb-4">
-        <div class="events-col-12">
-            <div class="events-d-flex events-justify-between events-align-center events-flex-wrap events-gap-3">
-                <div>
-                    <h1 class="events-h3 events-mb-1">
-                        <i class="bi bi-kanban events-text-primary" style="margin-right: var(--m360-space-2);"></i>
-                        {{ title }}
-                    </h1>
-                    {% if project %}
-                        <p class="events-text-muted events-mb-0">
-                            <i class="bi bi-folder" style="margin-right: var(--m360-space-1);"></i>
-                            Proyecto: <a href="{% url 'events:projects_with_id' project.id %}" class="events-text-primary" style="text-decoration: none;">{{ project.title }}</a>
-                        </p>
-                    {% endif %}
-                </div>
-                <div class="m360-btn-group">
-                    <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-toggle="modal" data-m360-target="#filterModal">
-                        <i class="bi bi-funnel" style="margin-right: var(--m360-space-1);"></i>Filtros
-                    </button>
-                    <a href="{% url 'events:unified_dashboard' %}" class="m360-btn m360-btn-outline-primary">
-                        <i class="bi bi-speedometer2" style="margin-right: var(--m360-space-1);"></i>Dashboard
-                    </a>
-                </div>
-            </div>
-        </div>
+
+<div class="dashboard-wrapper">
+
+  <!-- Page Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1>
+        <i class="fas fa-kanban" aria-hidden="true"></i>
+        {{ title }}
+      </h1>
+      {% if project %}
+        <p class="subtitle">
+          <i class="fas fa-folder" aria-hidden="true"></i>
+          Proyecto: <a href="{% url 'events:projects_with_id' project.id %}" class="project-link">{{ project.title }}</a>
+        </p>
+      {% else %}
+        <p class="subtitle">Panel kanban para gestión de tareas</p>
+      {% endif %}
     </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-ghost" data-modal="filterModal">
+        <i class="fas fa-filter" aria-hidden="true"></i> Filtros
+      </button>
+      <a href="{% url 'events:unified_dashboard' %}" class="btn btn-ghost">
+        <i class="fas fa-speedometer2" aria-hidden="true"></i> Dashboard
+      </a>
+    </div>
+  </div>
 
-    <div class="kanban-container" id="kanbanBoard">
-        {% for status_name, column in kanban_columns.items %}
-        <div class="kanban-column" data-status="{{ status_name }}">
-            <div class="kanban-column-header" data-column-color="{{ column.color }}">
-                <div class="kanban-column-title">
-                    <i class="bi bi-circle-fill column-icon"></i>
-                    {{ column.title }}
-                </div>
-                <span class="task-count">{{ column.tasks|length }}</span>
+  <!-- Kanban Board -->
+  <div class="kanban-board" id="kanbanBoard">
+    {% for status_name, column in kanban_columns.items %}
+    <div class="kanban-column" data-status="{{ status_name }}">
+      <div class="kanban-column-header" style="border-color:{{ column.color|default:'var(--gray-300)' }};">
+        <div class="kanban-column-title">
+          <i class="fas fa-circle" style="color:{{ column.color|default:'var(--gray-300)' }};" aria-hidden="true"></i>
+          {{ column.title }}
+        </div>
+        <span class="kanban-task-count">{{ column.tasks|length }}</span>
+      </div>
+
+      <div class="kanban-column-tasks" data-status="{{ status_name }}">
+        {% for task_data in column.tasks %}
+        <div class="kanban-task-card" data-task-id="{{ task_data.task.id }}" draggable="true">
+          <div class="kanban-task-title {% if task_data.task.important %}important{% endif %}">
+            {% if task_data.task.important %}
+              <i class="fas fa-star text-amber" aria-hidden="true"></i>
+            {% endif %}
+            <span>{{ task_data.task.title|truncatechars:50 }}</span>
+          </div>
+
+          {% if task_data.task.description %}
+          <div class="kanban-task-description">
+            {{ task_data.task.description|truncatechars:80 }}
+          </div>
+          {% endif %}
+
+          {% if task_data.task.tags.all %}
+          <div class="kanban-task-tags">
+            {% for tag in task_data.task.tags.all|slice:":3" %}
+            <span class="kanban-task-tag" style="{% if tag.color %}background-color:{{ tag.color }}20;color:{{ tag.color }};border-color:{{ tag.color }}40;{% endif %}">
+              {{ tag.name }}
+            </span>
+            {% endfor %}
+            {% if task_data.task.tags.all|length > 3 %}
+            <span class="kanban-task-tag">+{{ task_data.task.tags.all|length|add:"-3" }}</span>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          {% if task_data.task.project %}
+          <div class="kanban-task-project">
+            <i class="fas fa-folder" aria-hidden="true"></i>
+            <a href="{% url 'events:projects_with_id' task_data.task.project.id %}">{{ task_data.task.project.title|truncatechars:30 }}</a>
+          </div>
+          {% endif %}
+
+          <div class="kanban-task-actions">
+            <div class="kanban-task-buttons">
+              <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="btn btn-sm btn-ghost" title="Ver">
+                <i class="fas fa-eye" aria-hidden="true"></i>
+              </a>
+              <a href="{% url 'events:task_edit' task_data.task.id %}" class="btn btn-sm btn-ghost" title="Editar">
+                <i class="fas fa-pencil" aria-hidden="true"></i>
+              </a>
             </div>
-
-            <div class="kanban-column-tasks" data-status="{{ status_name }}">
-                {% for task_data in column.tasks %}
-                <div class="kanban-task-card" data-task-id="{{ task_data.task.id }}" draggable="true">
-                    <div class="task-title {% if task_data.task.important %}important{% endif %}">
-                        {% if task_data.task.important %}
-                            <i class="bi bi-star-fill events-text-warning"></i>
-                        {% endif %}
-                        <span>{{ task_data.task.title|truncatechars:50 }}</span>
-                    </div>
-
-                    {% if task_data.task.description %}
-                    <div class="task-meta">
-                        {{ task_data.task.description|truncatechars:80 }}
-                    </div>
-                    {% endif %}
-
-                    {% if task_data.task.tags.all %}
-                    <div class="task-tags">
-                        {% for tag in task_data.task.tags.all|slice:":3" %}
-                        <span class="task-tag" data-tag-color="{{ tag.color }}">{{ tag.name }}</span>
-                        {% endfor %}
-                        {% if task_data.task.tags.all|length > 3 %}
-                        <span class="task-tag">+{{ task_data.task.tags.all|length|add:"-3" }}</span>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-
-                    {% if task_data.task.project %}
-                    <div class="task-project">
-                        <i class="bi bi-folder" style="margin-right: var(--m360-space-1);"></i>
-                        <a href="{% url 'events:projects_with_id' task_data.task.project.id %}">{{ task_data.task.project.title|truncatechars:30 }}</a>
-                    </div>
-                    {% endif %}
-
-                    <div class="task-actions">
-                        <div class="events-d-flex events-gap-1">
-                            <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="m360-btn m360-btn-sm m360-btn-outline-primary btn-task-action">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            <a href="{% url 'events:task_edit' task_data.task.id %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary btn-task-action">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                        </div>
-                        <small class="events-text-muted">{{ task_data.task.updated_at|date:"d/m/Y" }}</small>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="kanban-empty">
-                    <div class="kanban-empty-icon"><i class="bi bi-clipboard-x"></i></div>
-                    <div class="kanban-empty-text">No hay tareas</div>
-                    <div class="kanban-empty-subtext">Las tareas aparecerán aquí cuando tengan este estado</div>
-                </div>
-                {% endfor %}
-            </div>
+            <small class="text-muted text-sm">{{ task_data.task.updated_at|date:"d/m/Y" }}</small>
+          </div>
+        </div>
+        {% empty %}
+        <div class="kanban-empty">
+          <div class="kanban-empty-icon">
+            <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+          </div>
+          <div class="kanban-empty-text">No hay tareas</div>
+          <div class="kanban-empty-subtext">Las tareas aparecerán aquí cuando tengan este estado</div>
         </div>
         {% endfor %}
+      </div>
     </div>
+    {% endfor %}
+  </div>
 
-    <div class="kanban-legend">
-        <div class="legend-item">
-            <div class="legend-color" style="background: var(--m360-danger);"></div>
-            <span>Alta Prioridad</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background: var(--m360-warning);"></div>
-            <span>Media Prioridad</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background: var(--m360-info);"></div>
-            <span>Baja Prioridad</span>
-        </div>
+  <!-- Legend -->
+  <div class="kanban-legend">
+    <div class="kanban-legend-item">
+      <span class="kanban-legend-color" style="background:var(--red);"></span>
+      <span>Alta Prioridad</span>
     </div>
+    <div class="kanban-legend-item">
+      <span class="kanban-legend-color" style="background:var(--amber);"></span>
+      <span>Media Prioridad</span>
+    </div>
+    <div class="kanban-legend-item">
+      <span class="kanban-legend-color" style="background:var(--blue);"></span>
+      <span>Baja Prioridad</span>
+    </div>
+  </div>
+
 </div>
 
-<div class="m360-modal" id="filterModal" tabindex="-1" aria-hidden="true">
-    <div class="m360-modal-dialog">
-        <div class="m360-modal-content">
-            <div class="m360-modal-header">
-                <h5 class="m360-modal-title">
-                    <i class="bi bi-funnel" style="margin-right: var(--m360-space-1);"></i>Filtros Kanban
-                </h5>
-                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
-            </div>
-            <div class="m360-modal-body">
-                {% for category in tag_categories %}
-                <div class="events-mb-3">
-                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-text-muted);">
-                        <i class="bi bi-tag" style="margin-right: var(--m360-space-1);"></i>{{ category.name }}
-                    </div>
-                    <div class="filter-tags">
-                        {% for tag in category.tag_set.all %}
-                        <div class="filter-tag" data-tag-id="{{ tag.id }}" data-category="{{ category.name }}" data-tag-color="{{ tag.color }}">
-                            <div class="filter-tag-icon"></div>
-                            {{ tag.name }}
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="m360-modal-footer">
-                <button type="button" class="m360-btn m360-btn-outline-secondary" onclick="clearAllFilters()">
-                    <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>Limpiar Filtros
-                </button>
-                <button type="button" class="m360-btn m360-btn-primary" data-m360-close>
-                    <i class="bi bi-check" style="margin-right: var(--m360-space-1);"></i>Aplicar
-                </button>
-            </div>
-        </div>
+<!-- Filter Modal -->
+<div class="modal-overlay" id="filterModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h5>
+        <i class="fas fa-filter" aria-hidden="true"></i> Filtros Kanban
+      </h5>
+      <button class="close-btn" onclick="closeModal('filterModal')" aria-label="Close">&times;</button>
     </div>
+    <div class="modal-body">
+      {% for category in tag_categories %}
+      <div class="form-group">
+        <label class="form-label">{{ category.name }}</label>
+        <div class="kanban-filter-tags">
+          {% for tag in category.tag_set.all %}
+          <button class="btn btn-sm btn-outline-secondary kanban-filter-tag" data-tag-id="{{ tag.id }}" data-tag-color="{{ tag.color|default:'#7c3aed' }}">
+            <span class="kanban-filter-dot" style="background:{{ tag.color|default:'#7c3aed' }};"></span>
+            {{ tag.name }}
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="clearKanbanFilters()">
+        <i class="fas fa-times-circle" aria-hidden="true"></i> Limpiar Filtros
+      </button>
+      <button type="button" class="btn btn-primary" onclick="closeModal('filterModal')">
+        <i class="fas fa-check" aria-hidden="true"></i> Aplicar
+      </button>
+    </div>
+  </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    initializeDragAndDrop();
-    initializeFilters();
-    initializeTaskCards();
-});
+<!-- No inline scripts - todo en main.js -->
+{% endblock %}
 
-function initializeDragAndDrop() {
-    const taskCards = document.querySelectorAll('.kanban-task-card[draggable="true"]');
-    const columns = document.querySelectorAll('.kanban-column');
-    taskCards.forEach(card => { card.addEventListener('dragstart', handleDragStart); card.addEventListener('dragend', handleDragEnd); });
-    columns.forEach(column => { column.addEventListener('dragover', handleDragOver); column.addEventListener('drop', handleDrop); });
-}
-
-function handleDragStart(e) { e.dataTransfer.setData('text/plain', e.target.dataset.taskId); e.target.classList.add('dragging'); }
-function handleDragEnd(e) { e.target.classList.remove('dragging'); document.querySelectorAll('.kanban-column').forEach(col => col.classList.remove('drag-over')); }
-function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
-function handleDrop(e) { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); const taskId = e.dataTransfer.getData('text/plain'); const newStatus = e.currentTarget.dataset.status; if (taskId && newStatus) moveTaskToColumn(taskId, newStatus); }
-
-function moveTaskToColumn(taskId, newStatus) {
-    const card = document.querySelector(`[data-task-id="${taskId}"]`); if (!card) return;
-    const originalContent = card.innerHTML;
-    card.innerHTML = '<div class="events-d-flex events-align-center events-justify-center events-p-3"><div class="loading-spinner"></div> Moviendo...</div>';
-    fetch(`/events/tasks/change-status-ajax/`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value }, body: `task_id=${taskId}&new_status_name=${newStatus}` })
-    .then(response => response.json()).then(data => {
-        if (data.success) { const newColumn = document.querySelector(`[data-status="${newStatus}"] .kanban-column-tasks`); if (newColumn) { newColumn.appendChild(card); updateTaskCounts(); } }
-        else { card.innerHTML = originalContent; }
-    }).catch(error => { card.innerHTML = originalContent; console.error('Error:', error); });
-}
-
-function updateTaskCounts() { document.querySelectorAll('.kanban-column').forEach(column => { const count = column.querySelectorAll('.kanban-task-card').length; const countElement = column.querySelector('.task-count'); if (countElement) countElement.textContent = count; }); }
-function initializeFilters() { const filterTags = document.querySelectorAll('.filter-tag'); filterTags.forEach(tag => { tag.addEventListener('click', function() { this.classList.toggle('active'); applyFilters(); }); }); }
-function applyFilters() { const activeFilters = Array.from(document.querySelectorAll('.filter-tag.active')).map(tag => tag.dataset.tagId); const taskCards = document.querySelectorAll('.kanban-task-card'); taskCards.forEach(card => { const taskTags = Array.from(card.querySelectorAll('.task-tag')).map(tag => tag.textContent.trim()); const shouldShow = activeFilters.length === 0 || activeFilters.some(filterId => taskTags.includes(filterId)); card.style.display = shouldShow ? 'block' : 'none'; }); updateTaskCounts(); }
-function clearAllFilters() { document.querySelectorAll('.filter-tag.active').forEach(tag => { tag.classList.remove('active'); }); applyFilters(); }
-function initializeTaskCards() { const taskCards = document.querySelectorAll('.kanban-task-card'); taskCards.forEach(card => { card.addEventListener('click', function(e) { if (e.target.closest('.task-actions')) return; const taskId = this.dataset.taskId; if (taskId) window.location.href = `/events/tasks/${taskId}/`; }); }); }
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') clearAllFilters();
-    if (e.key === 'f' && !e.ctrlKey && !e.altKey) { e.preventDefault(); document.querySelector('[data-m360-target="#filterModal"]')?.click(); }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.kanban-column-header').forEach(header => { const color = header.dataset.columnColor; if (color) { header.style.borderColor = color; const icon = header.querySelector('.column-icon'); if (icon) icon.style.color = color; } });
-    document.querySelectorAll('.task-tag').forEach(tag => { const color = tag.dataset.tagColor; if (color) { tag.style.backgroundColor = color + '20'; tag.style.color = color; } });
-});
-</script>
+{% block extra_css %}
+<!-- No inline styles - todo en main.css -->
 {% endblock %}

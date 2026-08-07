@@ -95,6 +95,7 @@ def create_initial_statuses():
         'Task': [
             {'status_name': 'To Do', 'color': '#bdc3c7', 'icon': 'bi-list-task'},
             {'status_name': 'In Progress', 'color': '#f39c12', 'icon': 'bi-arrow-repeat'},
+            {'status_name': 'In Review', 'color': '#fd7e14', 'icon': 'bi-eye'},
             {'status_name': 'Blocked', 'color': '#e74c3c', 'icon': 'bi-exclamation-triangle'},
             {'status_name': 'Completed', 'color': '#2ecc71', 'icon': 'bi-check-circle'},
             {'status_name': 'Verified', 'color': '#27ae60', 'icon': 'bi-shield-check'},

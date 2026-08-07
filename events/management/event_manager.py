@@ -82,10 +82,11 @@ class EventManager:
     def get_all_events(self):
         events = []
         active_events = []
+        active_status_id = self.active_status.id if self.active_status else None
         for event in self.user_events:
             event_data = self.get_event_data(event)
             events.append(event_data)
-            if event.event_status_id == self.active_status.id:
+            if active_status_id and event.event_status_id == active_status_id:
                 active_events.append(event_data)
         
         return events, active_events

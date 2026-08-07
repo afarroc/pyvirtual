@@ -31,6 +31,13 @@ class AssignAttendeesForm(forms.Form):
     )
 
 class CreateNewTask(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['assigned_to'].required = False
+        self.fields['event'].required = False
+        self.fields['project'].required = False
+        self.fields['ticket_price'].required = False
+
     class Meta:
         model = Task
         fields = ['title', 'description', 'important', 'project', 'task_status', 'event', 'assigned_to','ticket_price']

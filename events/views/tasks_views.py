@@ -706,6 +706,7 @@ def task_create(request, project_id=None):
         if form.is_valid():
             task = form.save(commit=False)
             task.host = request.user
+            task.assigned_to = form.cleaned_data.get('assigned_to') or request.user
             task.event = form.cleaned_data['event']
 
             if not task.event:
@@ -722,20 +723,35 @@ def task_create(request, project_id=None):
                         task.save()
                         form.save_m2m()
                         messages.success(request, 'Tarea creada exitosamente!')
+                        
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'success': True, 'message': 'Tarea creada exitosamente!', 'task_id': task.id})
                         return redirect('events:task_panel')
                     
                 except IntegrityError as e:
-                    messages.error(request, f'Hubo un problema al guardar la tarea o crear el evento: {e}')
+                    error_msg = f'Hubo un problema al guardar la tarea o crear el evento: {e}'
+                    messages.error(request, error_msg)
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'success': False, 'error': error_msg}, status=400)
             else:
                 try:
                     with transaction.atomic():
                         task.save()
                         form.save_m2m()
                         messages.success(request, 'Tarea creada exitosamente!')
+                        
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'success': True, 'message': 'Tarea creada exitosamente!', 'task_id': task.id})
                         return redirect('events:task_panel')
                 except IntegrityError:
-                    messages.error(request, 'Hubo un problema al guardar la Tarea.')
+                    error_msg = 'Hubo un problema al guardar la Tarea.'
+                    messages.error(request, error_msg)
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'success': False, 'error': error_msg}, status=400)
 
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST':
+        return JsonResponse({'success': False, 'error': 'Error de validación del formulario'}, status=400)
+    
     return render(request, 'tasks/task_create.html', {
         'form': form,
         'title': title,
@@ -993,7 +1009,11 @@ def task_change_status_ajax(request):
             logger.debug("task_change_status_ajax: Permisos validados correctamente")
 
             logger.debug(f"task_change_status_ajax: Buscando estado '{new_status_name}'")
-            new_status = get_object_or_404(TaskStatus, status_name=new_status_name)
+            try:
+                new_status = TaskStatus.objects.get(status_name=new_status_name)
+            except TaskStatus.DoesNotExist:
+                logger.error(f"task_change_status_ajax: Estado '{new_status_name}' no existe")
+                return JsonResponse({'success': False, 'error': f"TaskStatus '{new_status_name}' does not exist"}, status=400)
             logger.debug(f"task_change_status_ajax: Nuevo estado encontrado - ID: {new_status.id}, Nombre: '{new_status.status_name}'")
 
             old_status = task.task_status

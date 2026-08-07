@@ -4,929 +4,501 @@
 
 {% block title %}{{ title }} - Dashboard GTD Unificado{% endblock %}
 
+{% block extra_head %}
+<!-- No inline styles - todo en main.css -->
+{% endblock %}
+
 {% block content %}
-<!-- Kanban Enhanced Container -->
-<div class="kanban-enhanced">
-    <div class="events-container-fluid">
-        <!-- Header Section -->
-        <div class="kanban-header">
-            <div class="events-row events-align-center">
-                <div class="events-col-lg-6">
-                    <h1 class="kanban-title">
-                        <i class="bi bi-kanban-fill events-text-primary events-me-2"></i>
-                        {{ title }}
-                    </h1>
-                    {% if project %}
-                        <p class="kanban-subtitle">
-                            <i class="bi bi-folder events-me-2"></i>
-                            Proyecto: <strong>{{ project.title }}</strong>
-                        </p>
-                    {% else %}
-                        <p class="kanban-subtitle">
-                            <i class="bi bi-grid-3x3-gap events-me-2"></i>
-                            Panel kanban mejorado para gestión de tareas
-                        </p>
-                    {% endif %}
-                </div>
-                <div class="events-col-lg-6 events-text-end">
-                    <div class="events-d-flex events-flex-wrap events-justify-end events-gap-2">
-                        <button class="m360-btn m360-btn-primary" data-m360-open="#createTaskModal">
-                            <i class="bi bi-plus-circle events-me-1"></i>
-                            Nueva Tarea
-                        </button>
-                        <button class="m360-btn m360-btn-outline-secondary" data-m360-open="#filterModal">
-                            <i class="bi bi-funnel events-me-1"></i>
-                            Filtros
-                        </button>
-                        <a href="{% url 'events:unified_dashboard' %}" class="m360-btn m360-btn-outline-info">
-                            <i class="bi bi-speedometer2 events-me-1"></i>
-                            Dashboard
-                        </a>
-                    </div>
-                </div>
-            </div>
+
+<div class="dashboard-wrapper kanban-enhanced-wrapper">
+
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1>
+        <i class="fas fa-kanban" aria-hidden="true"></i>
+        {{ title }}
+      </h1>
+      {% if project %}
+        <p class="subtitle">
+          <i class="fas fa-folder" aria-hidden="true"></i>
+          Proyecto: <strong>{{ project.title }}</strong>
+        </p>
+      {% else %}
+        <p class="subtitle">Panel kanban mejorado para gestión de tareas</p>
+      {% endif %}
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-primary" data-modal="createTaskModal">
+        <i class="fas fa-plus-circle" aria-hidden="true"></i> Nueva Tarea
+      </button>
+      <button type="button" class="btn btn-ghost" data-modal="filterModal">
+        <i class="fas fa-filter" aria-hidden="true"></i> Filtros
+      </button>
+      <a href="{% url 'events:unified_dashboard' %}" class="btn btn-ghost">
+        <i class="fas fa-speedometer2" aria-hidden="true"></i> Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="kanban-enhanced-toolbar">
+    <div class="kanban-enhanced-toolbar-group">
+      <label class="kanban-enhanced-toolbar-label">Vista:</label>
+      <select class="form-control form-control-sm" id="viewModeEnhanced">
+        <option value="normal">Normal</option>
+        <option value="compact">Compacta</option>
+        <option value="detailed">Detallada</option>
+      </select>
+    </div>
+
+    <div class="kanban-enhanced-toolbar-group">
+      <label class="kanban-enhanced-toolbar-label">Ordenar por:</label>
+      <select class="form-control form-control-sm" id="sortByEnhanced">
+        <option value="updated_at">Fecha actualización</option>
+        <option value="created_at">Fecha creación</option>
+        <option value="title">Título</option>
+        <option value="priority">Prioridad</option>
+      </select>
+    </div>
+
+    <div class="kanban-enhanced-toolbar-group">
+      <label class="kanban-enhanced-toolbar-label">Acciones:</label>
+      <button type="button" class="btn btn-success btn-sm" onclick="refreshKanbanEnhanced()">
+        <i class="fas fa-sync" aria-hidden="true"></i> Actualizar
+      </button>
+      <button type="button" class="btn btn-info btn-sm" onclick="exportKanbanEnhanced()">
+        <i class="fas fa-download" aria-hidden="true"></i> Exportar
+      </button>
+    </div>
+
+    <div class="kanban-enhanced-toolbar-group">
+      <label class="kanban-enhanced-toolbar-label">Tema:</label>
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="themeToggleEnhanced" onclick="toggleThemeEnhanced()">
+        <i class="fas fa-moon" id="themeIconEnhanced" aria-hidden="true"></i> Cambiar Tema
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics -->
+  <div class="kanban-enhanced-stats">
+    <div class="kanban-enhanced-stat-card">
+      <div class="kanban-enhanced-stat-icon">
+        <i class="fas fa-list" aria-hidden="true"></i>
+      </div>
+      <div class="kanban-enhanced-stat-content">
+        <h3 class="kanban-enhanced-stat-number">{{ total_tasks|default:0 }}</h3>
+        <p class="kanban-enhanced-stat-label">Total Tareas</p>
+      </div>
+    </div>
+    <div class="kanban-enhanced-stat-card primary">
+      <div class="kanban-enhanced-stat-icon">
+        <i class="fas fa-play-circle" aria-hidden="true"></i>
+      </div>
+      <div class="kanban-enhanced-stat-content">
+        <h3 class="kanban-enhanced-stat-number">{{ in_progress_count|default:0 }}</h3>
+        <p class="kanban-enhanced-stat-label">En Progreso</p>
+      </div>
+    </div>
+    <div class="kanban-enhanced-stat-card success">
+      <div class="kanban-enhanced-stat-icon">
+        <i class="fas fa-check-circle" aria-hidden="true"></i>
+      </div>
+      <div class="kanban-enhanced-stat-content">
+        <h3 class="kanban-enhanced-stat-number">{{ completed_count|default:0 }}</h3>
+        <p class="kanban-enhanced-stat-label">Completadas</p>
+      </div>
+    </div>
+    <div class="kanban-enhanced-stat-card warning">
+      <div class="kanban-enhanced-stat-icon">
+        <i class="fas fa-clock" aria-hidden="true"></i>
+      </div>
+      <div class="kanban-enhanced-stat-content">
+        <h3 class="kanban-enhanced-stat-number">{{ pending_count|default:0 }}</h3>
+        <p class="kanban-enhanced-stat-label">Pendientes</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Board -->
+  <div class="kanban-enhanced-board" id="kanbanBoardEnhanced">
+    {% for status_name, column in kanban_columns.items %}
+    <div class="kanban-enhanced-column" data-status="{{ status_name }}">
+      <div class="kanban-enhanced-column-header">
+        <div class="kanban-enhanced-column-info">
+          <div class="kanban-enhanced-column-icon">
+            <i class="fas fa-circle" style="color:{{ column.color|default:'var(--gray-300)' }};" aria-hidden="true"></i>
+          </div>
+          <h4 class="kanban-enhanced-column-title">{{ column.title }}</h4>
         </div>
+        <div class="kanban-enhanced-column-count">{{ column.tasks|length }}</div>
+      </div>
 
-        <!-- Toolbar Section -->
-        <div class="kanban-toolbar">
-            <div class="events-row events-gap-3">
-                <div class="events-col-md-3">
-                    <label class="m360-form-label fw-bold">Vista:</label>
-                    <select class="m360-form-select" id="viewMode">
-                        <option value="normal">Normal</option>
-                        <option value="compact">Compacta</option>
-                        <option value="detailed">Detallada</option>
-                    </select>
-                </div>
-                <div class="events-col-md-3">
-                    <label class="m360-form-label fw-bold">Ordenar por:</label>
-                    <select class="m360-form-select" id="sortBy">
-                        <option value="updated_at">Fecha actualización</option>
-                        <option value="created_at">Fecha creación</option>
-                        <option value="title">Título</option>
-                        <option value="priority">Prioridad</option>
-                    </select>
-                </div>
-                <div class="events-col-md-3">
-                    <label class="m360-form-label fw-bold">Acciones:</label>
-                    <div class="events-d-flex events-gap-2">
-                        <button class="m360-btn m360-btn-success m360-btn-sm" onclick="refreshKanban()">
-                            <i class="bi bi-arrow-clockwise events-me-1"></i>
-                            Actualizar
-                        </button>
-                        <button class="m360-btn m360-btn-info m360-btn-sm" onclick="exportKanban()">
-                            <i class="bi bi-download events-me-1"></i>
-                            Exportar
-                        </button>
-                    </div>
-                </div>
-                <div class="events-col-md-3">
-                    <label class="m360-form-label fw-bold">Tema:</label>
-                    <button class="m360-btn m360-btn-outline-dark events-w-100" onclick="toggleTheme()">
-                        <i class="bi bi-moon-fill events-me-1" id="themeIcon"></i>
-                        Cambiar Tema
-                    </button>
-                </div>
+      <div class="kanban-enhanced-column-tasks" data-status="{{ status_name }}">
+        {% for task_data in column.tasks %}
+        <div class="kanban-enhanced-card {% if task_data.task.important %}important{% endif %}"
+             data-task-id="{{ task_data.task.id }}"
+             draggable="true">
+          <div class="kanban-enhanced-card-header">
+            <div class="kanban-enhanced-card-title">
+              {% if task_data.task.important %}
+                <i class="fas fa-star text-amber" aria-hidden="true"></i>
+              {% endif %}
+              <span>{{ task_data.task.title|truncatechars:50 }}</span>
             </div>
-        </div>
+            {% if task_data.task.important %}
+              <div class="kanban-enhanced-priority-badge">Alta</div>
+            {% endif %}
+          </div>
 
-        <!-- Statistics Cards -->
-        <div class="kanban-stats">
-            <div class="events-row events-gap-3">
-                <div class="events-col-md-3">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="bi bi-list-task"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 class="stat-number">{{ total_tasks|default:0 }}</h3>
-                            <p class="stat-label">Total Tareas</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="events-col-md-3">
-                    <div class="stat-card stat-primary">
-                        <div class="stat-icon">
-                            <i class="bi bi-play-circle"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 class="stat-number">{{ in_progress_count|default:0 }}</h3>
-                            <p class="stat-label">En Progreso</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="events-col-md-3">
-                    <div class="stat-card stat-success">
-                        <div class="stat-icon">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 class="stat-number">{{ completed_count|default:0 }}</h3>
-                            <p class="stat-label">Completadas</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="events-col-md-3">
-                    <div class="stat-card stat-warning">
-                        <div class="stat-icon">
-                            <i class="bi bi-clock"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 class="stat-number">{{ pending_count|default:0 }}</h3>
-                            <p class="stat-label">Pendientes</p>
-                        </div>
-                    </div>
-                </div>
+          {% if task_data.task.description %}
+          <div class="kanban-enhanced-card-description">
+            {{ task_data.task.description|truncatechars:100 }}
+          </div>
+          {% endif %}
+
+          <div class="kanban-enhanced-card-tags">
+            {% if task_data.task.tags.all %}
+              {% for tag in task_data.task.tags.all|slice:":3" %}
+              <span class="kanban-enhanced-card-tag" style="background:{{ tag.color }}20;color:{{ tag.color }};border-color:{{ tag.color }}40;">
+                {{ tag.name }}
+              </span>
+              {% endfor %}
+              {% if task_data.task.tags.all|length > 3 %}
+              <span class="kanban-enhanced-card-tag">+{{ task_data.task.tags.all|length|add:"-3" }}</span>
+              {% endif %}
+            {% endif %}
+          </div>
+
+          <div class="kanban-enhanced-card-meta">
+            {% if task_data.task.project %}
+            <div class="kanban-enhanced-meta-item">
+              <i class="fas fa-folder" aria-hidden="true"></i>
+              {{ task_data.task.project.title|truncatechars:20 }}
             </div>
+            {% endif %}
+            {% if task_data.task.assigned_to %}
+            <div class="kanban-enhanced-meta-item">
+              <i class="fas fa-user" aria-hidden="true"></i>
+              {{ task_data.task.assigned_to.username|truncatechars:15 }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="kanban-enhanced-card-footer">
+            <div class="kanban-enhanced-card-date">
+              <i class="fas fa-clock" aria-hidden="true"></i>
+              {{ task_data.task.updated_at|date:"d/m/Y H:i" }}
+            </div>
+            <div class="kanban-enhanced-card-actions">
+              <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="btn btn-sm btn-ghost" title="Ver">
+                <i class="fas fa-eye" aria-hidden="true"></i>
+              </a>
+              <a href="{% url 'events:task_edit' task_data.task.id %}" class="btn btn-sm btn-ghost" title="Editar">
+                <i class="fas fa-pencil" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
         </div>
+        {% empty %}
+        <div class="kanban-enhanced-empty">
+          <div class="kanban-enhanced-empty-icon">
+            <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+          </div>
+          <div class="kanban-enhanced-empty-text">Sin tareas</div>
+          <div class="kanban-enhanced-empty-subtext">Las tareas aparecerán aquí</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 
-        <!-- Main Kanban Board -->
-        <div class="kanban-board" id="kanbanBoard">
-            {% for status_name, column in kanban_columns.items %}
-            <div class="kanban-column column-{{ status_name|slugify }}" data-status="{{ status_name }}">
-                <div class="column-header">
-                    <div class="column-info">
-                        <div class="column-icon">
-                            <i class="bi bi-circle-fill"></i>
-                        </div>
-                        <h4 class="column-title">{{ column.title }}</h4>
-                    </div>
-                    <div class="column-count">{{ column.tasks|length }}</div>
-                </div>
-
-                <div class="column-tasks" data-status="{{ status_name }}">
-                    {% for task_data in column.tasks %}
-                    <div class="kanban-card {% if task_data.task.important %}important{% endif %}"
-                         data-task-id="{{ task_data.task.id }}"
-                         draggable="true">
-                        <div class="card-header">
-                            <div class="card-title">
-                                {% if task_data.task.important %}
-                                    <i class="bi bi-star-fill events-text-warning events-me-2"></i>
-                                {% endif %}
-                                <span>{{ task_data.task.title|truncatechars:50 }}</span>
-                            </div>
-                            {% if task_data.task.important %}
-                                <div class="priority-badge">Alta</div>
-                            {% endif %}
-                        </div>
-
-                        {% if task_data.task.description %}
-                        <div class="card-description">
-                            {{ task_data.task.description|truncatechars:100 }}
-                        </div>
-                        {% endif %}
-
-                        <div class="card-tags">
-                            {% if task_data.task.tags.all %}
-                                {% for tag in task_data.task.tags.all|slice:":3" %}
-                                <span class="tag tag-{{ tag.color|slugify }}">
-                                    {{ tag.name }}
-                                </span>
-                                {% endfor %}
-                                {% if task_data.task.tags.all|length > 3 %}
-                                <span class="tag">+{{ task_data.task.tags.all|length|add:"-3" }}</span>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-
-                        <div class="card-meta">
-                            {% if task_data.task.project %}
-                            <div class="meta-item">
-                                <i class="bi bi-folder events-me-1"></i>
-                                {{ task_data.task.project.title|truncatechars:20 }}
-                            </div>
-                            {% endif %}
-                            {% if task_data.task.assigned_to %}
-                            <div class="meta-item">
-                                <i class="bi bi-person events-me-1"></i>
-                                {{ task_data.task.assigned_to.username|truncatechars:15 }}
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="card-footer">
-                            <div class="card-date">
-                                <i class="bi bi-clock events-me-1"></i>
-                                {{ task_data.task.updated_at|date:"d/m/Y H:i" }}
-                            </div>
-                            <div class="card-actions">
-                                <a href="{% url 'events:tasks_with_id' task_data.task.id %}"
-                                   class="btn-icon" title="Ver">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a href="{% url 'events:task_edit' task_data.task.id %}"
-                                   class="btn-icon" title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="empty-column">
-                        <div class="empty-icon">
-                            <i class="bi bi-clipboard-x"></i>
-                        </div>
-                        <div class="empty-text">Sin tareas</div>
-                        <div class="empty-subtext">Las tareas aparecerán aquí</div>
-                    </div>
-                    {% endfor %}
-                </div>
+  <!-- Additional Sections -->
+  <div class="kanban-enhanced-sections">
+    <div class="row">
+      <!-- Recent Projects -->
+      <div class="col">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <i class="fas fa-folder" aria-hidden="true"></i>
+            </div>
+            <h3 class="section-title">Proyectos Recientes</h3>
+          </div>
+          <div class="section-content">
+            {% for project in recent_projects|slice:":5" %}
+            <div class="section-item">
+              <div class="section-item-icon">
+                <i class="fas fa-circle" aria-hidden="true"></i>
+              </div>
+              <div class="section-item-content">
+                <strong>{{ project.title }}</strong>
+                <br>
+                <small class="text-muted">{{ project.updated_at|date:"d/m/Y" }}</small>
+              </div>
+              <a href="{% url 'events:projects_with_id' project.id %}" class="section-item-action">Ver</a>
+            </div>
+            {% empty %}
+            <div class="section-item">
+              <div class="section-item-content text-muted">No hay proyectos recientes</div>
             </div>
             {% endfor %}
+          </div>
         </div>
+      </div>
 
-        <!-- Additional Sections -->
-        <div class="kanban-sections">
-            <div class="events-row events-gap-4">
-                <!-- Recent Projects -->
-                <div class="events-col-lg-6">
-                    <div class="section-card">
-                        <div class="section-header">
-                            <div class="section-icon">
-                                <i class="bi bi-folder"></i>
-                            </div>
-                            <h3 class="section-title">Proyectos Recientes</h3>
-                        </div>
-                        <div class="section-content">
-                            {% for project in recent_projects|slice:":5" %}
-                            <div class="section-item">
-                                <div class="item-icon">
-                                    <i class="bi bi-circle-fill"></i>
-                                </div>
-                                <div class="item-content">
-                                    <strong>{{ project.title }}</strong>
-                                    <br>
-                                    <small class="events-text-muted">{{ project.updated_at|date:"d/m/Y" }}</small>
-                                </div>
-                                <a href="{% url 'events:projects_with_id' project.id %}" class="item-action">
-                                    Ver
-                                </a>
-                            </div>
-                            {% empty %}
-                            <div class="section-item">
-                                <div class="item-content events-text-muted">
-                                    No hay proyectos recientes
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active Events -->
-                <div class="events-col-lg-6">
-                    <div class="section-card">
-                        <div class="section-header">
-                            <div class="section-icon">
-                                <i class="bi bi-calendar-event"></i>
-                            </div>
-                            <h3 class="section-title">Eventos Activos</h3>
-                        </div>
-                        <div class="section-content">
-                            {% for event in active_events|slice:":5" %}
-                            <div class="section-item">
-                                <div class="item-icon">
-                                    <i class="bi bi-circle-fill"></i>
-                                </div>
-                                <div class="item-content">
-                                    <strong>{{ event.event.title }}</strong>
-                                    <br>
-                                    <small class="events-text-muted">{{ event.event.updated_at|date:"d/m/Y" }}</small>
-                                </div>
-                                <a href="{% url 'events:event_detail' event.event.id %}" class="item-action">
-                                    Ver
-                                </a>
-                            </div>
-                            {% empty %}
-                            <div class="section-item">
-                                <div class="item-content events-text-muted">
-                                    No hay eventos activos
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
+      <!-- Active Events -->
+      <div class="col">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <i class="fas fa-calendar-event" aria-hidden="true"></i>
             </div>
-
-            <!-- NUEVA SECCIÓN: Herramientas GTD Avanzadas -->
-            <div class="events-row events-gap-4 events-mt-4">
-                <div class="events-col-12">
-                    <div class="section-card gtd-tools-section">
-                        <div class="section-header">
-                            <div class="section-icon">
-                                <i class="bi bi-lightbulb"></i>
-                            </div>
-                            <h3 class="section-title">🧠 Herramientas GTD Avanzadas</h3>
-                            <div class="section-subtitle">
-                                Sistema completo de productividad personal
-                            </div>
-                        </div>
-                        <div class="section-content">
-                            <div class="events-row events-gap-3">
-                                <!-- Inbox GTD -->
-                                <div class="events-col-md-3">
-                                    <div class="gtd-tool-card" data-url="{% url 'events:inbox' %}" onclick="navigateToGTDTool(this)">
-                                        <div class="tool-icon">
-                                            <i class="bi bi-inbox-fill"></i>
-                                        </div>
-                                        <div class="tool-content">
-                                            <h5>Inbox GTD</h5>
-                                            <p class="tool-description">Captura rápida de tareas</p>
-                                            <div class="tool-stats">
-                                                <span class="m360-badge m360-badge-primary">{{ inbox_items|length }} pendientes</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Matriz Eisenhower -->
-                                <div class="events-col-md-3">
-                                    <div class="gtd-tool-card" data-url="{% url 'events:eisenhower_matrix' %}" onclick="navigateToGTDTool(this)">
-                                        <div class="tool-icon">
-                                            <i class="bi bi-grid-3x3-gap"></i>
-                                        </div>
-                                        <div class="tool-content">
-                                            <h5>Matriz Eisenhower</h5>
-                                            <p class="tool-description">Priorización inteligente</p>
-                                            <div class="tool-stats">
-                                                <span class="m360-badge m360-badge-warning">4 cuadrantes</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Weekly Review -->
-                                <div class="events-col-md-3">
-                                    <div class="gtd-tool-card" onclick="showWeeklyReview()">
-                                        <div class="tool-icon">
-                                            <i class="bi bi-calendar-week"></i>
-                                        </div>
-                                        <div class="tool-content">
-                                            <h5>Weekly Review</h5>
-                                            <p class="tool-description">Revisión semanal</p>
-                                            <div class="tool-stats">
-                                                <span class="m360-badge m360-badge-success">Próximo: {{ "now"|date:"l" }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Plantillas -->
-                                <div class="events-col-md-3">
-                                    <div class="gtd-tool-card" data-url="{% url 'events:project_templates' %}" onclick="navigateToGTDTool(this)">
-                                        <div class="tool-icon">
-                                            <i class="bi bi-file-earmark-plus"></i>
-                                        </div>
-                                        <div class="tool-content">
-                                            <h5>Plantillas</h5>
-                                            <p class="tool-description">Proyectos recurrentes</p>
-                                            <div class="tool-stats">
-                                                <span class="m360-badge m360-badge-info">Reutilizables</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Métricas GTD -->
-                            <div class="events-row events-gap-3 events-mt-3">
-                                <div class="events-col-md-6">
-                                    <div class="gtd-metrics-card">
-                                        <h6 class="metrics-title">
-                                            <i class="bi bi-bar-chart-line events-me-2"></i>
-                                            Productividad Hoy
-                                        </h6>
-                                        <div class="metrics-grid">
-                                            <div class="metric-item">
-                                                <span class="metric-value">{{ task_stats.completed }}</span>
-                                                <span class="metric-label">Completadas</span>
-                                            </div>
-                                            <div class="metric-item">
-                                                <span class="metric-value">{{ task_stats.in_progress }}</span>
-                                                <span class="metric-label">En Progreso</span>
-                                            </div>
-                                            <div class="metric-item">
-                                                <span class="metric-value">{{ task_stats.pending }}</span>
-                                                <span class="metric-label">Pendientes</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="events-col-md-6">
-                                    <div class="gtd-metrics-card">
-                                        <h6 class="metrics-title">
-                                            <i class="bi bi-bullseye events-me-2"></i>
-                                            Próximos Objetivos
-                                        </h6>
-                                        <div class="objectives-list">
-                                            <div class="objective-item">
-                                                <i class="bi bi-check-circle events-text-success events-me-2"></i>
-                                                Completar revisión semanal
-                                            </div>
-                                            <div class="objective-item">
-                                                <i class="bi bi-circle events-text-warning events-me-2"></i>
-                                                Procesar inbox items
-                                            </div>
-                                            <div class="objective-item">
-                                                <i class="bi bi-circle events-text-muted events-me-2"></i>
-                                                Planificar próxima semana
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <h3 class="section-title">Eventos Activos</h3>
+          </div>
+          <div class="section-content">
+            {% for event in active_events|slice:":5" %}
+            <div class="section-item">
+              <div class="section-item-icon">
+                <i class="fas fa-circle" aria-hidden="true"></i>
+              </div>
+              <div class="section-item-content">
+                <strong>{{ event.event.title }}</strong>
+                <br>
+                <small class="text-muted">{{ event.event.updated_at|date:"d/m/Y" }}</small>
+              </div>
+              <a href="{% url 'events:event_detail' event.event.id %}" class="section-item-action">Ver</a>
             </div>
+            {% empty %}
+            <div class="section-item">
+              <div class="section-item-content text-muted">No hay eventos activos</div>
+            </div>
+            {% endfor %}
+          </div>
         </div>
+      </div>
     </div>
+
+    <!-- GTD Tools Section -->
+    <div class="section-card gtd-tools-section">
+      <div class="section-header">
+        <div class="section-icon">
+          <i class="fas fa-lightbulb" aria-hidden="true"></i>
+        </div>
+        <h3 class="section-title">Herramientas GTD Avanzadas</h3>
+        <span class="section-subtitle">Sistema completo de productividad personal</span>
+      </div>
+      <div class="section-content">
+        <div class="gtd-tools-grid">
+          <!-- Inbox GTD -->
+          <div class="gtd-tool-card" data-url="{% url 'events:inbox' %}" onclick="navigateToGTDTool(this)">
+            <div class="gtd-tool-icon">
+              <i class="fas fa-inbox" aria-hidden="true"></i>
+            </div>
+            <div class="gtd-tool-content">
+              <h5>Inbox GTD</h5>
+              <p class="gtd-tool-description">Captura rápida de tareas</p>
+              <div class="gtd-tool-stats">
+                <span class="badge badge-active">{{ inbox_items|length }} pendientes</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Eisenhower Matrix -->
+          <div class="gtd-tool-card" data-url="{% url 'events:eisenhower_matrix' %}" onclick="navigateToGTDTool(this)">
+            <div class="gtd-tool-icon">
+              <i class="fas fa-th" aria-hidden="true"></i>
+            </div>
+            <div class="gtd-tool-content">
+              <h5>Matriz Eisenhower</h5>
+              <p class="gtd-tool-description">Priorización inteligente</p>
+              <div class="gtd-tool-stats">
+                <span class="badge badge-warning">4 cuadrantes</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Review -->
+          <div class="gtd-tool-card" onclick="showWeeklyReview()">
+            <div class="gtd-tool-icon">
+              <i class="fas fa-calendar-week" aria-hidden="true"></i>
+            </div>
+            <div class="gtd-tool-content">
+              <h5>Weekly Review</h5>
+              <p class="gtd-tool-description">Revisión semanal</p>
+              <div class="gtd-tool-stats">
+                <span class="badge badge-success">Próximo: {{ "now"|date:"l" }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Templates -->
+          <div class="gtd-tool-card" data-url="{% url 'events:project_templates' %}" onclick="navigateToGTDTool(this)">
+            <div class="gtd-tool-icon">
+              <i class="fas fa-file-plus" aria-hidden="true"></i>
+            </div>
+            <div class="gtd-tool-content">
+              <h5>Plantillas</h5>
+              <p class="gtd-tool-description">Proyectos recurrentes</p>
+              <div class="gtd-tool-stats">
+                <span class="badge badge-info">Reutilizables</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GTD Metrics -->
+        <div class="gtd-metrics-row">
+          <div class="gtd-metrics-card">
+            <h6 class="gtd-metrics-title">
+              <i class="fas fa-chart-line" aria-hidden="true"></i>
+              Productividad Hoy
+            </h6>
+            <div class="gtd-metrics-grid">
+              <div class="gtd-metric-item">
+                <span class="gtd-metric-value">{{ task_stats.completed }}</span>
+                <span class="gtd-metric-label">Completadas</span>
+              </div>
+              <div class="gtd-metric-item">
+                <span class="gtd-metric-value">{{ task_stats.in_progress }}</span>
+                <span class="gtd-metric-label">En Progreso</span>
+              </div>
+              <div class="gtd-metric-item">
+                <span class="gtd-metric-value">{{ task_stats.pending }}</span>
+                <span class="gtd-metric-label">Pendientes</span>
+              </div>
+            </div>
+          </div>
+          <div class="gtd-metrics-card">
+            <h6 class="gtd-metrics-title">
+              <i class="fas fa-bullseye" aria-hidden="true"></i>
+              Próximos Objetivos
+            </h6>
+            <div class="gtd-objectives-list">
+              <div class="gtd-objective-item success">
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                Completar revisión semanal
+              </div>
+              <div class="gtd-objective-item warning">
+                <i class="fas fa-circle" aria-hidden="true"></i>
+                Procesar inbox items
+              </div>
+              <div class="gtd-objective-item muted">
+                <i class="fas fa-circle" aria-hidden="true"></i>
+                Planificar próxima semana
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button class="kanban-enhanced-fab" data-modal="createTaskModal" title="Crear nueva tarea">
+    <i class="fas fa-plus" aria-hidden="true"></i>
+  </button>
+
 </div>
 
-<!-- Floating Action Button -->
-<button class="kanban-fab" data-m360-open="#createTaskModal" title="Crear nueva tarea">
-    <i class="bi bi-plus"></i>
-</button>
-
 <!-- Create Task Modal -->
-<div class="m360-modal" id="createTaskModal" tabindex="-1">
-    <div class="m360-modal-dialog">
-        <div class="m360-modal-content">
-            <div class="m360-modal-header">
-                <h5 class="m360-modal-title">
-                    <i class="bi bi-plus-circle events-me-2"></i>
-                    Crear Nueva Tarea
-                </h5>
-                <button type="button" class="m360-close-modal" data-m360-close></button>
-            </div>
-            <div class="m360-modal-body">
-                <form id="quickCreateTaskForm">
-                    {% csrf_token %}
-                    <div class="events-mb-3">
-                        <label class="m360-form-label">Título *</label>
-                        <input type="text" class="m360-form-control" name="title" required>
-                    </div>
-                    <div class="events-mb-3">
-                        <label class="m360-form-label">Descripción</label>
-                        <textarea class="m360-form-control" name="description" rows="3"></textarea>
-                    </div>
-                    <div class="events-row">
-                        <div class="events-col-md-6">
-                            <div class="events-mb-3">
-                                <label class="m360-form-label">Proyecto</label>
-                                <select class="m360-form-select" name="project">
-                                    <option value="">Sin proyecto</option>
-                                    {% for project in projects %}
-                                    <option value="{{ project.id }}">{{ project.title }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="events-col-md-6">
-                            <div class="events-mb-3">
-                                <label class="m360-form-label">Estado inicial</label>
-                                <select class="m360-form-select" name="task_status">
-                                    {% for status_name, column in kanban_columns.items %}
-                                    <option value="{{ status_name }}">{{ column.title }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="events-mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="important" id="importantCheck">
-                            <label class="form-check-label" for="importantCheck">
-                                Marcar como importante
-                            </label>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="m360-modal-footer">
-                <button type="button" class="m360-btn m360-btn-secondary" data-m360-close>Cancelar</button>
-                <button type="button" class="m360-btn m360-btn-primary" onclick="createQuickTask()">Crear Tarea</button>
-            </div>
-        </div>
+<div class="modal-overlay" id="createTaskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h5>
+        <i class="fas fa-plus-circle" aria-hidden="true"></i> Crear Nueva Tarea
+      </h5>
+      <button class="close-btn" onclick="closeModal('createTaskModal')" aria-label="Close">&times;</button>
     </div>
+    <div class="modal-body">
+      <form id="quickCreateTaskFormEnhanced" action="{% url 'events:task_create' %}" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Título *</label>
+          <input type="text" class="form-control" name="title" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-control" name="description" rows="3"></textarea>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label class="form-label">Proyecto</label>
+              <select class="form-control" name="project">
+                <option value="">Sin proyecto</option>
+                {% for project in projects %}
+                <option value="{{ project.id }}">{{ project.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label class="form-label">Estado inicial</label>
+              <select class="form-control" name="task_status">
+                {% for status_name, column in kanban_columns.items %}
+                <option value="{{ column.status_id }}">{{ column.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="important" id="importantCheckEnhanced">
+          <label class="form-check-label" for="importantCheckEnhanced">Marcar como importante</label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal('createTaskModal')">Cancelar</button>
+      <button type="button" class="btn btn-primary" onclick="createQuickTaskEnhanced()">Crear Tarea</button>
+    </div>
+  </div>
 </div>
 
 <!-- Filter Modal -->
-<div class="m360-modal" id="filterModal" tabindex="-1">
-    <div class="m360-modal-dialog">
-        <div class="m360-modal-content">
-            <div class="m360-modal-header">
-                <h5 class="m360-modal-title">
-                    <i class="bi bi-funnel events-me-2"></i>
-                    Filtros
-                </h5>
-                <button type="button" class="m360-close-modal" data-m360-close></button>
-            </div>
-            <div class="m360-modal-body">
-                {% for category in tag_categories %}
-                <div class="events-mb-3">
-                    <label class="m360-form-label fw-bold">{{ category.name }}</label>
-                    <div class="events-d-flex events-flex-wrap events-gap-2">
-                        {% for tag in category.tag_set.all %}
-                        <button class="m360-btn m360-btn-sm m360-btn-outline-secondary filter-tag" data-tag-id="{{ tag.id }}">
-                            {{ tag.name }}
-                        </button>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="m360-modal-footer">
-                <button type="button" class="m360-btn m360-btn-secondary" onclick="clearAllFilters()">
-                    <i class="bi bi-x-circle events-me-1"></i>
-                    Limpiar Todo
-                </button>
-                <button type="button" class="m360-btn m360-btn-primary" data-m360-close>
-                    <i class="bi bi-check events-me-1"></i>
-                    Aplicar
-                </button>
-            </div>
-        </div>
+<div class="modal-overlay" id="filterModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h5>
+        <i class="fas fa-filter" aria-hidden="true"></i> Filtros
+      </h5>
+      <button class="close-btn" onclick="closeModal('filterModal')" aria-label="Close">&times;</button>
     </div>
+    <div class="modal-body">
+      {% for category in tag_categories %}
+      <div class="form-group">
+        <label class="form-label">{{ category.name }}</label>
+        <div class="kanban-enhanced-filter-tags">
+          {% for tag in category.tag_set.all %}
+          <button class="btn btn-sm btn-outline-secondary kanban-enhanced-filter-tag" data-tag-id="{{ tag.id }}">
+            <span class="kanban-enhanced-filter-dot" style="background:{{ tag.color|default:'#7c3aed' }};"></span>
+            {{ tag.name }}
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="clearAllFiltersEnhanced()">
+        <i class="fas fa-times-circle" aria-hidden="true"></i> Limpiar Todo
+      </button>
+      <button type="button" class="btn btn-primary" onclick="closeModal('filterModal')">
+        <i class="fas fa-check" aria-hidden="true"></i> Aplicar
+      </button>
+    </div>
+  </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    initializeKanbanEnhanced();
-    initializeDragAndDrop();
-    initializeFilters();
-    initializeTaskInteractions();
-    initializeKeyboardShortcuts();
-    setupTheme();
-});
+<!-- No inline scripts - todo en main.js -->
+{% endblock %}
 
-let kanbanData = {
-    tasks: [],
-    filters: {
-        tags: [],
-        status: [],
-        projects: [],
-        users: []
-    },
-    viewMode: 'normal',
-    sortBy: 'updated_at',
-    theme: localStorage.getItem('kanbanTheme') || 'light'
-};
-
-function initializeKanbanEnhanced() {
-    setupViewMode();
-    setupSorting();
-    applyDynamicStyles();
-}
-
-function setupViewMode() {
-    const viewModeSelect = document.getElementById('viewMode');
-    if (viewModeSelect) {
-        viewModeSelect.addEventListener('change', function() {
-            const board = document.getElementById('kanbanBoard');
-            board.className = 'kanban-board ' + this.value + '-view';
-            showToast('Vista cambiada a ' + this.value, 'info');
-        });
-    }
-}
-
-function setupSorting() {
-    const sortBySelect = document.getElementById('sortBy');
-    if (sortBySelect) {
-        sortBySelect.addEventListener('change', function() {
-            applySorting();
-        });
-    }
-}
-
-function applySorting() {
-    const columns = document.querySelectorAll('.kanban-column');
-    columns.forEach(function(column) {
-        const tasks = Array.from(column.querySelectorAll('.kanban-card'));
-        tasks.sort(function(a, b) {
-            const taskA = kanbanData.tasks.find(function(t) { return t.task.id == a.dataset.taskId; });
-            const taskB = kanbanData.tasks.find(function(t) { return t.task.id == b.dataset.taskId; });
-            if (!taskA || !taskB) return 0;
-            let valueA, valueB;
-            switch(kanbanData.sortBy) {
-                case 'title':
-                    valueA = taskA.task.title.toLowerCase();
-                    valueB = taskB.task.title.toLowerCase();
-                    break;
-                case 'created_at':
-                    valueA = new Date(taskA.task.created_at);
-                    valueB = new Date(taskB.task.created_at);
-                    break;
-                case 'priority':
-                    valueA = taskA.task.important ? 0 : 1;
-                    valueB = taskB.task.important ? 0 : 1;
-                    break;
-                default:
-                    valueA = new Date(taskA.task.updated_at);
-                    valueB = new Date(taskB.task.updated_at);
-            }
-            if (valueA < valueB) return -1;
-            if (valueA > valueB) return 1;
-            return 0;
-        });
-        const tasksContainer = column.querySelector('.column-tasks');
-        tasks.forEach(function(task) { tasksContainer.appendChild(task); });
-    });
-    showToast('Ordenado por ' + getSortLabel(kanbanData.sortBy), 'info');
-}
-
-function getSortLabel(sortBy) {
-    const labels = {
-        'updated_at': 'fecha de actualización',
-        'created_at': 'fecha de creación',
-        'title': 'título',
-        'priority': 'prioridad'
-    };
-    return labels[sortBy] || sortBy;
-}
-
-function initializeDragAndDrop() {
-    const taskCards = document.querySelectorAll('.kanban-card[draggable="true"]');
-    const columns = document.querySelectorAll('.kanban-column');
-    taskCards.forEach(function(card) {
-        card.addEventListener('dragstart', handleDragStart);
-        card.addEventListener('dragend', handleDragEnd);
-    });
-    columns.forEach(function(column) {
-        column.addEventListener('dragover', handleDragOver);
-        column.addEventListener('drop', handleDrop);
-        column.addEventListener('dragleave', handleDragLeave);
-    });
-}
-
-function initializeFilters() {
-    const filterTags = document.querySelectorAll('.filter-tag');
-    filterTags.forEach(function(tag) {
-        tag.addEventListener('click', function() {
-            this.classList.toggle('active');
-            applyFilters();
-        });
-    });
-}
-
-function applyFilters() {
-    const activeFilters = Array.from(document.querySelectorAll('.filter-tag.active')).map(function(tag) { return tag.dataset.tagId; });
-    const taskCards = document.querySelectorAll('.kanban-card');
-    taskCards.forEach(function(card) {
-        const taskTags = Array.from(card.querySelectorAll('.tag')).map(function(tag) { return tag.textContent.trim(); });
-        const shouldShow = activeFilters.length === 0 ||
-            activeFilters.some(function(filterId) { return taskTags.includes(filterId); });
-        card.style.display = shouldShow ? 'block' : 'none';
-    });
-    updateColumnCounts();
-    showToast('Mostrando ' + document.querySelectorAll('.kanban-card[style*="block"]').length + ' tareas', 'info');
-}
-
-function clearAllFilters() {
-    document.querySelectorAll('.filter-tag.active').forEach(function(tag) {
-        tag.classList.remove('active');
-    });
-    applyFilters();
-}
-
-function initializeTaskInteractions() {
-    const taskCards = document.querySelectorAll('.kanban-card');
-    taskCards.forEach(function(card) {
-        card.addEventListener('click', function(e) {
-            if (e.target.closest('.card-actions') || e.target.closest('.btn-icon')) {
-                return;
-            }
-            const taskId = this.dataset.taskId;
-            if (taskId) {
-                window.location.href = '/events/tasks/' + taskId + '/';
-            }
-        });
-    });
-}
-
-function initializeKeyboardShortcuts() {
-    document.addEventListener('keydown', function(e) {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-            return;
-        }
-        switch(e.key) {
-            case 'f':
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    document.querySelector('[data-m360-open="#createTaskModal"]')?.click();
-                }
-                break;
-            case '+':
-                e.preventDefault();
-                document.querySelector('.kanban-fab')?.click();
-                break;
-            case 'Escape':
-                clearAllFilters();
-                break;
-            case 'r':
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    refreshKanban();
-                }
-                break;
-            case 't':
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    toggleTheme();
-                }
-                break;
-        }
-    });
-}
-
-function setupTheme() {
-    const themeIcon = document.getElementById('themeIcon');
-    if (kanbanData.theme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        themeIcon.className = 'bi bi-sun-fill';
-    } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        themeIcon.className = 'bi bi-moon-fill';
-    }
-}
-
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    kanbanData.theme = newTheme;
-    localStorage.setItem('kanbanTheme', newTheme);
-    const themeIcon = document.getElementById('themeIcon');
-    themeIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-    showToast('Tema cambiado a ' + (newTheme === 'dark' ? 'oscuro' : 'claro'), 'info');
-}
-
-function showToast(message, type) {
-    type = type || 'info';
-    const toast = document.createElement('div');
-    toast.className = 'kanban-toast';
-    toast.setAttribute('role', 'alert');
-    const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle';
-    const bgColor = type === 'success' ? 'var(--kanban-success)' : type === 'error' ? 'var(--kanban-danger)' : 'var(--kanban-info)';
-    toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:1060;min-width:300px;padding:12px 16px;background:' + bgColor + ';color:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;animation:kanban-slideInRight 0.3s ease;';
-    toast.innerHTML = '<i class="bi bi-' + iconClass + '"></i><span>' + message + '</span>';
-    document.body.appendChild(toast);
-    setTimeout(function() {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(100%)';
-        toast.style.transition = 'all 0.3s ease';
-        setTimeout(function() { if (toast.parentNode) document.body.removeChild(toast); }, 300);
-    }, 3000);
-}
-
-function applyDynamicStyles() {
-    document.querySelectorAll('.tag').forEach(function(tag) {
-        const colorClass = Array.from(tag.classList).find(function(c) { return c.startsWith('tag-') && c !== 'tag'; });
-        if (colorClass && colorClass.replace('tag-', '') && window.getComputedStyle) {
-            tag.style.color = 'inherit';
-            tag.style.backgroundColor = 'var(--m360-gray-100)';
-        }
-    });
-}
-
-function createQuickTask() {
-    const form = document.getElementById('quickCreateTaskForm');
-    const formData = new FormData(form);
-    if (!formData.get('title')) {
-        showToast('El título es obligatorio', 'error');
-        return;
-    }
-    showToast('Funcionalidad de creación rápida próximamente', 'info');
-}
-
-function refreshKanban() {
-    showToast('Actualizando...', 'info');
-    setTimeout(function() {
-        window.location.reload();
-    }, 1000);
-}
-
-function exportKanban() {
-    showToast('Exportación próximamente', 'info');
-}
-
-function navigateToGTDTool(element) {
-    const url = element.getAttribute('data-url');
-    if (url) {
-        window.location.href = url;
-    }
-}
-
-function showWeeklyReview() {
-    showToast('Weekly Review - Próximamente', 'info');
-}
-
-function handleDragStart(e) {
-    e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
-    e.target.classList.add('dragging');
-    document.body.classList.add('dragging-active');
-}
-
-function handleDragEnd(e) {
-    e.target.classList.remove('dragging');
-    document.querySelectorAll('.kanban-column').forEach(function(col) {
-        col.classList.remove('drag-over');
-    });
-    document.body.classList.remove('dragging-active');
-}
-
-function handleDragOver(e) {
-    e.preventDefault();
-    e.currentTarget.classList.add('drag-over');
-}
-
-function handleDragLeave(e) {
-    e.currentTarget.classList.remove('drag-over');
-}
-
-function handleDrop(e) {
-    e.preventDefault();
-    e.currentTarget.classList.remove('drag-over');
-    const taskId = e.dataTransfer.getData('text/plain');
-    const newStatus = e.currentTarget.dataset.status;
-    if (taskId && newStatus) {
-        moveTaskToColumn(taskId, newStatus);
-    }
-}
-
-function moveTaskToColumn(taskId, newStatus) {
-    const card = document.querySelector('[data-task-id="' + taskId + '"]');
-    if (!card) return;
-    const originalContent = card.innerHTML;
-    card.innerHTML = '<div class="events-d-flex events-align-center events-justify-center events-p-3"><div class="loading-spinner events-me-2"></div><span>Moviendo tarea...</span></div>';
-    fetch('/events/tasks/change-status-ajax/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        },
-        body: 'task_id=' + taskId + '&new_status_name=' + newStatus
-    })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
-        if (data.success) {
-            const newColumn = document.querySelector('[data-status="' + newStatus + '"] .column-tasks');
-            if (newColumn) {
-                const emptyState = newColumn.querySelector('.empty-column');
-                if (emptyState) { emptyState.remove(); }
-                newColumn.appendChild(card);
-                updateColumnCounts();
-                setTimeout(function() {
-                    card.innerHTML = originalContent;
-                    card.style.animation = 'none';
-                    setTimeout(function() { card.style.animation = ''; }, 10);
-                    showToast('Tarea movida exitosamente', 'success');
-                }, 300);
-            }
-        } else {
-            card.innerHTML = originalContent;
-            showToast(data.error || 'Error al mover la tarea', 'error');
-        }
-    })
-    .catch(function(error) {
-        card.innerHTML = originalContent;
-        showToast('Error de conexión', 'error');
-        console.error('Error:', error);
-    });
-}
-
-function updateColumnCounts() {
-    document.querySelectorAll('.kanban-column').forEach(function(column) {
-        const count = column.querySelectorAll('.kanban-card').length;
-        const countElement = column.querySelector('.column-count');
-        if (countElement) {
-            countElement.textContent = count;
-        }
-    });
-}
-
-function updateGTDMetrics() {
-    fetch('/events/inbox_stats_api/')
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (data.success) {
-                const inboxBadge = document.querySelector('.gtd-tool-card[data-url*="inbox"] .badge');
-                if (inboxBadge) {
-                    inboxBadge.textContent = data.stats.unprocessed + ' pendientes';
-                }
-            }
-        })
-        .catch(function(error) {
-            console.log('Error actualizando métricas GTD:', error);
-        });
-}
-
-setInterval(updateGTDMetrics, 30000);
-
-console.log('🎯 Kanban Enhanced completamente cargado');
-</script>
+{% block extra_css %}
+<!-- No inline styles - todo en main.css -->
 {% endblock %}

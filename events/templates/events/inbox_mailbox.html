@@ -31,7 +31,9 @@
   </div>
 
   <!-- Mailbox Layout -->
-  <div class="mailbox-layout">
+  <div class="mailbox-layout"
+       data-current-id="{{ inbox_item.id|default:0 }}"
+       data-item-ids="[{% for item in inbox_items %}{{ item.id }}{% if not forloop.last %},{% endif %}{% endfor %}]">
 
     <!-- Sidebar - Lista de items -->
     <div class="mailbox-sidebar">
@@ -247,23 +249,6 @@
 
 {% block extra_js %}
 <!-- No inline scripts - todo en main.js -->
-<!-- Los datos se pasan mediante data attributes -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Configurar datos para el módulo Mailbox
-  const mailboxData = {
-    currentId: {{ inbox_item.id|default:0 }},
-    itemIds: [{% for item in inbox_items %}{{ item.id }}{% if not forloop.last %},{% endif %}{% endfor %}]
-  };
-  
-  // Guardar datos en el DOM para acceso global
-  const container = document.querySelector('.mailbox-layout');
-  if (container) {
-    container.dataset.currentId = mailboxData.currentId;
-    container.dataset.itemIds = JSON.stringify(mailboxData.itemIds);
-  }
-});
-</script>
 {% endblock %}
 
 {% block extra_css %}
