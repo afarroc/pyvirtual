@@ -12,16 +12,35 @@
       </ul>
     </div>
 
+    <!-- SECCIÓN 2: EVENTS -->
+    <div class="nav-section">
+      <span class="nav-label">Calendar</span>
+      <ul>
+        {% include 'includes/sidebar_content/events.html' %}
+      </ul>
+    </div>
 
+    <!-- SECCIÓN 3: PROJECTS -->
+    <div class="nav-section">
+      <span class="nav-label">Projects</span>
+      <ul>
+        {% include 'includes/sidebar_content/projects.html' %}
+      </ul>
+    </div>
+
+    <!-- SECCIÓN 4: TASKS -->
+    <div class="nav-section">
+      <span class="nav-label">Tasks</span>
+      <ul>
+        {% include 'includes/sidebar_content/tasks.html' %}
+      </ul>
+    </div>
 
     <!-- SECCIÓN 5: MANAGEMENT -->
     <div class="nav-section">
       <span class="nav-label">Management</span>
       <ul>
         {% include 'includes/sidebar_content/management.html' %}
-        {% include 'includes/sidebar_content/events.html' %}
-        {% include 'includes/sidebar_content/projects.html' %}
-        {% include 'includes/sidebar_content/tasks.html' %}
       </ul>
     </div>
 

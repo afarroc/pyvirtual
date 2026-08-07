@@ -3,288 +3,301 @@
 
 {% block title %}Dashboard Unificado de Productividad{% endblock %}
 
-{% block content %}
-<div class="events-container">
-    <div class="events-row">
-        <div class="events-col-12">
-            <div class="events-d-flex events-justify-between events-align-center events-mb-4">
-                <h1 class="events-h3 events-mb-0">
-                    <i class="bi bi-speedometer2" style="margin-right: var(--m360-space-2);"></i>
-                    Dashboard Unificado de Productividad
-                </h1>
-                <div class="m360-btn-group">
-                    <a href="{% url 'events:kanban_board' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
-                        <i class="bi bi-kanban" style="margin-right: var(--m360-space-1);"></i>Kanban
-                    </a>
-                    <a href="{% url 'events:eisenhower_matrix' %}" class="m360-btn m360-btn-sm m360-btn-outline-warning">
-                        <i class="bi bi-grid-3x3" style="margin-right: var(--m360-space-1);"></i>Eisenhower
-                    </a>
-                    <a href="{% url 'events:inbox' %}" class="m360-btn m360-btn-sm m360-btn-outline-info">
-                        <i class="bi bi-inbox" style="margin-right: var(--m360-space-1);"></i>GTD Inbox
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="events-row events-gap-3 events-mb-4">
-        <div class="events-col-md-4">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-primary);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-d-flex events-align-center events-justify-center events-mb-2">
-                        <i class="bi bi-check-circle events-text-primary" style="font-size: var(--m360-icon-xl); margin-right: var(--m360-space-2);"></i>
-                        <div>
-                            <h3 class="events-mb-0">{{ task_stats.completed }}</h3>
-                            <small class="events-text-muted">Tareas Completadas</small>
-                        </div>
-                    </div>
-                    <div class="events-progress" style="height: 6px;">
-                        <div class="events-progress-bar" style="width: {% if task_stats.total > 0 %}{{ task_stats.completed|floatformat:0 }}%{% else %}0%{% endif %}; background: var(--m360-primary);"></div>
-                    </div>
-                    <small class="events-text-muted">de {{ task_stats.total }} totales</small>
-                </div>
-            </div>
-        </div>
-
-        <div class="events-col-md-4">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-success);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-d-flex events-align-center events-justify-center events-mb-2">
-                        <i class="bi bi-folder events-text-success" style="font-size: var(--m360-icon-xl); margin-right: var(--m360-space-2);"></i>
-                        <div>
-                            <h3 class="events-mb-0">{{ project_stats.completed }}</h3>
-                            <small class="events-text-muted">Proyectos Completados</small>
-                        </div>
-                    </div>
-                    <div class="events-progress" style="height: 6px;">
-                        <div class="events-progress-bar" style="width: {% if project_stats.total > 0 %}{{ project_stats.completed|floatformat:0 }}%{% else %}0%{% endif %}; background: var(--m360-success);"></div>
-                    </div>
-                    <small class="events-text-muted">de {{ project_stats.total }} totales</small>
-                </div>
-            </div>
-        </div>
-
-        <div class="events-col-md-4">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-info);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-d-flex events-align-center events-justify-center events-mb-2">
-                        <i class="bi bi-calendar-event events-text-info" style="font-size: var(--m360-icon-xl); margin-right: var(--m360-space-2);"></i>
-                        <div>
-                            <h3 class="events-mb-0">{{ event_stats.completed }}</h3>
-                            <small class="events-text-muted">Eventos Completados</small>
-                        </div>
-                    </div>
-                    <div class="events-progress" style="height: 6px;">
-                        <div class="events-progress-bar" style="width: {% if event_stats.total > 0 %}{{ event_stats.completed|floatformat:0 }}%{% else %}0%{% endif %}; background: var(--m360-info);"></div>
-                    </div>
-                    <small class="events-text-muted">de {{ event_stats.total }} totales</small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="events-row events-gap-4">
-        <div class="events-col-lg-8">
-            <div class="m360-card">
-                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
-                    <h5 class="events-card-title events-mb-0">
-                        <i class="bi bi-activity" style="margin-right: var(--m360-space-2);"></i>
-                        Actividad Reciente
-                    </h5>
-                    <small class="events-text-muted">Últimos 7 días</small>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-4">
-                        <div class="events-col-md-4">
-                            <h6 class="events-text-primary">
-                                <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Tareas
-                            </h6>
-                            {% for task in recent_tasks %}
-                            <div class="events-d-flex events-align-center events-mb-2">
-                                <small class="m360-badge m360-badge-light" style="margin-right: var(--m360-space-2);">{{ task.task_status.status_name }}</small>
-                                <small class="events-text-muted">{{ task.title|truncatechars:30 }}</small>
-                            </div>
-                            {% empty %}
-                            <p class="events-text-muted" style="font-size: var(--m360-text-sm);">No hay tareas recientes</p>
-                            {% endfor %}
-                        </div>
-                        <div class="events-col-md-4">
-                            <h6 class="events-text-success">
-                                <i class="bi bi-folder" style="margin-right: var(--m360-space-1);"></i>Proyectos
-                            </h6>
-                            {% for project in recent_projects %}
-                            <div class="events-d-flex events-align-center events-mb-2">
-                                <small class="m360-badge m360-badge-light" style="margin-right: var(--m360-space-2);">{{ project.project_status.status_name }}</small>
-                                <small class="events-text-muted">{{ project.title|truncatechars:30 }}</small>
-                            </div>
-                            {% empty %}
-                            <p class="events-text-muted" style="font-size: var(--m360-text-sm);">No hay proyectos recientes</p>
-                            {% endfor %}
-                        </div>
-                        <div class="events-col-md-4">
-                            <h6 class="events-text-info">
-                                <i class="bi bi-calendar-event" style="margin-right: var(--m360-space-1);"></i>Eventos
-                            </h6>
-                            {% for event in recent_events %}
-                            <div class="events-d-flex events-align-center events-mb-2">
-                                <small class="m360-badge m360-badge-light" style="margin-right: var(--m360-space-2);">{{ event.event_status.status_name }}</small>
-                                <small class="events-text-muted">{{ event.title|truncatechars:30 }}</small>
-                            </div>
-                            {% empty %}
-                            <p class="events-text-muted" style="font-size: var(--m360-text-sm);">No hay eventos recientes</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="events-col-lg-4">
-            <div class="m360-card events-mb-4">
-                <div class="m360-card-header">
-                    <h5 class="events-card-title events-mb-0">
-                        <i class="bi bi-lightning-charge" style="margin-right: var(--m360-space-2);"></i>
-                        Acceso Rápido
-                    </h5>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-d-grid events-gap-2">
-                        {% for tool, config in quick_access.items %}
-                        <a href="{% url config.url %}" class="m360-btn m360-btn-outline-{{ config.color }}">
-                            <i class="bi {{ config.icon }}" style="margin-right: var(--m360-space-1);"></i>
-                            {{ config.title }}
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="m360-card">
-                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
-                    <h6 class="events-card-title events-mb-0">
-                        <i class="bi bi-inbox" style="margin-right: var(--m360-space-1);"></i>
-                        GTD Inbox
-                    </h6>
-                    <a href="{% url 'events:inbox' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
-                        <i class="bi bi-plus"></i>
-                    </a>
-                </div>
-                <div class="m360-card-body" style="padding: 0;">
-                    {% for item in inbox_items %}
-                    <div style="padding: var(--m360-space-3); border-bottom: 1px solid var(--m360-border);">
-                        <div class="events-d-flex events-justify-between events-align-start events-gap-2">
-                            <div class="events-flex-grow">
-                                <h6 class="events-mb-1">{{ item.title|truncatechars:40 }}</h6>
-                                <small class="events-text-muted">{{ item.created_at|date:"d/m/Y H:i" }}</small>
-                            </div>
-                            <a href="{% url 'events:process_inbox_item' item.id %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
-                                <i class="bi bi-gear"></i>
-                            </a>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="events-text-center events-text-muted" style="padding: var(--m360-space-3);">
-                        <i class="bi bi-inbox" style="font-size: var(--m360-icon-xl); display: block; margin-bottom: var(--m360-space-2);"></i>
-                        <small>No hay items en el inbox</small>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="events-row events-mt-4">
-        <div class="events-col-12">
-            <div class="m360-card">
-                <div class="m360-card-header">
-                    <h5 class="events-card-title events-mb-0">
-                        <i class="bi bi-star" style="margin-right: var(--m360-space-2);"></i>
-                        Tareas Prioritarias
-                    </h5>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-3">
-                        {% for task in priority_tasks %}
-                        <div class="events-col-md-6 events-col-lg-4">
-                            <div class="m360-card events-h-100" style="border-left: 4px solid var(--m360-warning);">
-                                <div class="m360-card-body">
-                                    <div class="events-d-flex events-justify-between events-align-start events-mb-2">
-                                        <h6 class="events-mb-0">{{ task.title|truncatechars:50 }}</h6>
-                                        {% if task.important %}
-                                        <i class="bi bi-star-fill events-text-warning"></i>
-                                        {% endif %}
-                                    </div>
-                                    <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);">{{ task.description|truncatechars:100|default:"Sin descripción" }}</p>
-                                    <div class="events-d-flex events-justify-between events-align-center">
-                                        <small class="m360-badge m360-badge-{% if task.task_status.status_name == 'To Do' %}secondary{% elif task.task_status.status_name == 'In Progress' %}primary{% else %}success{% endif %}">
-                                            {{ task.task_status.status_name }}
-                                        </small>
-                                        <a href="{% url 'events:tasks_with_id' task.id %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
-                                            Ver
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="events-col-12 events-text-center events-text-muted" style="padding: var(--m360-space-4) 0;">
-                            <i class="bi bi-check-circle" style="font-size: var(--m360-icon-xl); display: block; margin-bottom: var(--m360-space-2);"></i>
-                            <p>No hay tareas prioritarias pendientes</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="events-row events-mt-4">
-        <div class="events-col-12">
-            <div class="m360-card">
-                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
-                    <h5 class="events-card-title events-mb-0">
-                        <i class="bi bi-folder-symlink" style="margin-right: var(--m360-space-2);"></i>
-                        Proyectos Activos
-                    </h5>
-                    <a href="{% url 'events:projects' %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
-                        Ver Todos
-                    </a>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-3">
-                        {% for project in active_projects %}
-                        <div class="events-col-md-6 events-col-lg-4">
-                            <div class="m360-card events-h-100">
-                                <div class="m360-card-body">
-                                    <div class="events-d-flex events-justify-between events-align-start events-mb-2">
-                                        <h6 class="events-mb-0">{{ project.title|truncatechars:50 }}</h6>
-                                        <small class="m360-badge m360-badge-{% if project.project_status.status_name == 'Created' %}secondary{% elif project.project_status.status_name == 'In Progress' %}primary{% else %}success{% endif %}">
-                                            {{ project.project_status.status_name }}
-                                        </small>
-                                    </div>
-                                    <p class="events-text-muted events-mb-2" style="font-size: var(--m360-text-sm);">{{ project.description|truncatechars:100|default:"Sin descripción" }}</p>
-                                    <div class="events-d-flex events-justify-between events-align-center">
-                                        <small class="events-text-muted">
-                                            <i class="bi bi-calendar" style="margin-right: var(--m360-space-1);"></i>
-                                            {{ project.updated_at|date:"d/m/Y" }}
-                                        </small>
-                                        <a href="{% url 'events:projects_with_id' project.id %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
-                                            Ver
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="events-col-12 events-text-center events-text-muted" style="padding: var(--m360-space-4) 0;">
-                            <i class="bi bi-folder" style="font-size: var(--m360-icon-xl); display: block; margin-bottom: var(--m360-space-2);"></i>
-                            <p>No hay proyectos activos</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% block extra_head %}
+<!-- No inline styles - todo en main.css -->
 {% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+
+  <!-- Page Header -->
+  <div class="dashboard-header">
+    <div>
+      <span class="page-breadcrumb">Productivity / Dashboard</span>
+      <h1>
+        <i class="fas fa-speedometer2" aria-hidden="true"></i>
+        Dashboard Unificado de Productividad
+      </h1>
+      <p class="text-muted">Visión global de tu productividad</p>
+    </div>
+    <div class="header-actions">
+      <a href="{% url 'events:kanban_board' %}" class="btn btn-ghost">
+        <i class="fas fa-columns" aria-hidden="true"></i> Kanban
+      </a>
+      <a href="{% url 'events:eisenhower_matrix' %}" class="btn btn-ghost">
+        <i class="fas fa-th" aria-hidden="true"></i> Eisenhower
+      </a>
+      <a href="{% url 'events:inbox' %}" class="btn btn-primary">
+        <i class="fas fa-inbox" aria-hidden="true"></i> GTD Inbox
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid unified-stats">
+    <!-- Tasks -->
+    <div class="stat-card purple stat-with-progress">
+      <div class="stat-header">
+        <i class="fas fa-check-circle stat-icon" aria-hidden="true"></i>
+        <div class="stat-info">
+          <div class="stat-number">{{ task_stats.completed|default:0 }}</div>
+          <div class="stat-label">Tareas Completadas</div>
+          <div class="stat-sub">de {{ task_stats.total|default:0 }} totales</div>
+        </div>
+      </div>
+      <div class="stat-progress">
+        <div class="progress">
+          <div class="progress-fill progress-purple" style="width:{% if task_stats.total > 0 %}{{ task_stats.completed|floatformat:0 }}%{% else %}0%{% endif %};"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="stat-card green stat-with-progress">
+      <div class="stat-header">
+        <i class="fas fa-folder-open stat-icon" aria-hidden="true"></i>
+        <div class="stat-info">
+          <div class="stat-number">{{ project_stats.completed|default:0 }}</div>
+          <div class="stat-label">Proyectos Completados</div>
+          <div class="stat-sub">de {{ project_stats.total|default:0 }} totales</div>
+        </div>
+      </div>
+      <div class="stat-progress">
+        <div class="progress">
+          <div class="progress-fill progress-green" style="width:{% if project_stats.total > 0 %}{{ project_stats.completed|floatformat:0 }}%{% else %}0%{% endif %};"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events -->
+    <div class="stat-card blue stat-with-progress">
+      <div class="stat-header">
+        <i class="fas fa-calendar-check stat-icon" aria-hidden="true"></i>
+        <div class="stat-info">
+          <div class="stat-number">{{ event_stats.completed|default:0 }}</div>
+          <div class="stat-label">Eventos Completados</div>
+          <div class="stat-sub">de {{ event_stats.total|default:0 }} totales</div>
+        </div>
+      </div>
+      <div class="stat-progress">
+        <div class="progress">
+          <div class="progress-fill progress-blue" style="width:{% if event_stats.total > 0 %}{{ event_stats.completed|floatformat:0 }}%{% else %}0%{% endif %};"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall -->
+    <div class="stat-card amber stat-with-progress">
+      <div class="stat-header">
+        <i class="fas fa-chart-line stat-icon" aria-hidden="true"></i>
+        <div class="stat-info">
+          <div class="stat-number">{{ overall_completion|default:0 }}%</div>
+          <div class="stat-label">Productividad General</div>
+          <div class="stat-sub">{{ total_items|default:0 }} items totales</div>
+        </div>
+      </div>
+      <div class="stat-progress">
+        <div class="progress">
+          <div class="progress-fill progress-amber" style="width:{{ overall_completion|default:0 }}%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two Column Layout -->
+  <div class="two-col">
+    <!-- Left Column -->
+    <div class="col">
+
+      <!-- Recent Activity -->
+      <div class="section-card">
+        <div class="section-header">
+          <h5><i class="fas fa-activity" aria-hidden="true"></i> Actividad Reciente</h5>
+          <span class="text-muted text-sm">Últimos 7 días</span>
+        </div>
+        <div class="unified-recent-grid">
+          <!-- Tasks -->
+          <div class="unified-recent-col">
+            <h6 class="unified-recent-title purple">
+              <i class="fas fa-check-circle" aria-hidden="true"></i> Tareas
+            </h6>
+            {% for task in recent_tasks|slice:":5" %}
+            <div class="unified-recent-item">
+              <span class="status status-{% if task.task_status.status_name == 'In Progress' %}active{% elif task.task_status.status_name == 'To Do' %}pending{% else %}completed{% endif %} unified-status-sm">
+                {{ task.task_status.status_name|default:"Unknown" }}
+              </span>
+              <span class="text-muted text-sm">{{ task.title|truncatechars:25 }}</span>
+            </div>
+            {% empty %}
+            <p class="text-muted text-sm">No hay tareas recientes</p>
+            {% endfor %}
+          </div>
+
+          <!-- Projects -->
+          <div class="unified-recent-col">
+            <h6 class="unified-recent-title green">
+              <i class="fas fa-folder-open" aria-hidden="true"></i> Proyectos
+            </h6>
+            {% for project in recent_projects|slice:":5" %}
+            <div class="unified-recent-item">
+              <span class="status status-{% if project.project_status.status_name == 'In Progress' %}active{% elif project.project_status.status_name == 'Created' %}pending{% else %}completed{% endif %} unified-status-sm">
+                {{ project.project_status.status_name|default:"Unknown" }}
+              </span>
+              <span class="text-muted text-sm">{{ project.title|truncatechars:25 }}</span>
+            </div>
+            {% empty %}
+            <p class="text-muted text-sm">No hay proyectos recientes</p>
+            {% endfor %}
+          </div>
+
+          <!-- Events -->
+          <div class="unified-recent-col">
+            <h6 class="unified-recent-title blue">
+              <i class="fas fa-calendar-check" aria-hidden="true"></i> Eventos
+            </h6>
+            {% for event in recent_events|slice:":5" %}
+            <div class="unified-recent-item">
+              <span class="status status-{% if event.event_status.status_name == 'In Progress' %}active{% elif event.event_status.status_name == 'Created' %}pending{% else %}completed{% endif %} unified-status-sm">
+                {{ event.event_status.status_name|default:"Unknown" }}
+              </span>
+              <span class="text-muted text-sm">{{ event.title|truncatechars:25 }}</span>
+            </div>
+            {% empty %}
+            <p class="text-muted text-sm">No hay eventos recientes</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Priority Tasks -->
+      <div class="section-card">
+        <div class="section-header">
+          <h5><i class="fas fa-star" aria-hidden="true"></i> Tareas Prioritarias</h5>
+        </div>
+        <div class="project-grid priority-grid">
+          {% for task in priority_tasks|slice:":6" %}
+          <div class="project-card priority-card">
+            <div class="project-header">
+              <h6>{{ task.title|truncatechars:30 }}</h6>
+              {% if task.important %}
+              <i class="fas fa-star text-amber" aria-hidden="true"></i>
+              {% endif %}
+            </div>
+            <p class="project-description">{{ task.description|truncatechars:60|default:"Sin descripción" }}</p>
+            <div class="project-meta">
+              <span class="status status-{% if task.task_status.status_name == 'In Progress' %}active{% elif task.task_status.status_name == 'To Do' %}pending{% else %}completed{% endif %}">
+                {{ task.task_status.status_name|default:"Unknown" }}
+              </span>
+              <a href="{% url 'events:tasks_with_id' task.id %}" class="btn btn-sm btn-ghost">Ver</a>
+            </div>
+          </div>
+          {% empty %}
+          <div class="empty-state full-width">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <p>No hay tareas prioritarias pendientes</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column -->
+    <div class="col">
+
+      <!-- Quick Access -->
+      <div class="section-card">
+        <div class="section-header">
+          <h5><i class="fas fa-bolt" aria-hidden="true"></i> Acceso Rápido</h5>
+        </div>
+        <div class="unified-quick-access">
+          {% for tool, config in quick_access.items %}
+          <a href="{% url config.url %}" class="btn btn-ghost unified-quick-btn">
+            <i class="fas {{ config.icon }}" aria-hidden="true"></i>
+            {{ config.title }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- GTD Inbox -->
+      <div class="section-card">
+        <div class="section-header">
+          <h5><i class="fas fa-inbox" aria-hidden="true"></i> GTD Inbox</h5>
+          <a href="{% url 'events:inbox' %}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+          </a>
+        </div>
+        <div class="unified-inbox-list">
+          {% for item in inbox_items|slice:":5" %}
+          <div class="unified-inbox-item">
+            <div class="unified-inbox-content">
+              <h6 class="unified-inbox-title">{{ item.title|truncatechars:35 }}</h6>
+              <small class="text-muted">{{ item.created_at|date:"d/m/Y H:i" }}</small>
+            </div>
+            <a href="{% url 'events:process_inbox_item' item.id %}" class="btn btn-sm btn-ghost">
+              <i class="fas fa-gear" aria-hidden="true"></i>
+            </a>
+          </div>
+          {% empty %}
+          <div class="empty-state unified-empty-small">
+            <i class="fas fa-inbox" aria-hidden="true"></i>
+            <p>No hay items en el inbox</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Active Projects -->
+      <div class="section-card">
+        <div class="section-header">
+          <h5><i class="fas fa-folder-open" aria-hidden="true"></i> Proyectos Activos</h5>
+          <a href="{% url 'events:projects' %}" class="btn btn-sm btn-ghost">Ver Todos</a>
+        </div>
+        <div class="unified-project-list">
+          {% for project in active_projects|slice:":5" %}
+          <div class="unified-project-item">
+            <div class="unified-project-content">
+              <h6 class="unified-project-title">{{ project.title|truncatechars:30 }}</h6>
+              <div class="unified-project-meta">
+                <span class="status status-{% if project.project_status.status_name == 'In Progress' %}active{% elif project.project_status.status_name == 'Created' %}pending{% else %}completed{% endif %} unified-status-sm">
+                  {{ project.project_status.status_name|default:"Unknown" }}
+                </span>
+                <small class="text-muted">
+                  <i class="fas fa-calendar" aria-hidden="true"></i>
+                  {{ project.updated_at|date:"d/m/Y" }}
+                </small>
+              </div>
+            </div>
+            <a href="{% url 'events:projects_with_id' project.id %}" class="btn btn-sm btn-ghost">Ver</a>
+          </div>
+          {% empty %}
+          <div class="empty-state unified-empty-small">
+            <i class="fas fa-folder" aria-hidden="true"></i>
+            <p>No hay proyectos activos</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Optional: Auto-refresh stats every 60 seconds
+  document.addEventListener('DOMContentLoaded', function() {
+    // You can add auto-refresh logic here if needed
+    console.log('Unified Dashboard loaded');
+  });
+</script>{% endblock %}
+
+{% block extra_css %}
+<!-- No inline styles - todo en main.css -->
+{% endblock %}
+

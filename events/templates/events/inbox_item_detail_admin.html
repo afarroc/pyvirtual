@@ -3,179 +3,263 @@
 
 {% block title %}Inbox Item Details - {{ item.title }}{% endblock %}
 
+{% block extra_head %}
+<!-- No inline styles - todo en main.css -->
+{% endblock %}
+
 {% block content %}
-<div class="events-container">
-    <div class="events-page-header">
-        <h1 class="events-page-title">Inbox Item Details</h1>
-        <nav aria-label="breadcrumb">
-            <ol class="events-breadcrumb">
-                <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Home</a></li>
-                <li style="color: var(--m360-text-muted);">/</li>
-                <li><a href="{% url 'events:root' %}"><i class="bi bi-speedometer2"></i> Root Dashboard</a></li>
-                <li style="color: var(--m360-text-muted);">/</li>
-                <li style="color: var(--m360-text);">Item #{{ item.id }}</li>
-            </ol>
-        </nav>
+
+<div class="dashboard-wrapper">
+
+  <!-- Page Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1>
+        <i class="fas fa-file-alt" aria-hidden="true"></i>
+        Inbox Item Details
+      </h1>
+      <p class="subtitle">Item #{{ item.id }} - {{ item.title }}</p>
     </div>
-
-    {% if messages %}
-    <div class="m360-alert m360-alert-info events-mb-4" role="alert">
-        {% for message in messages %}
-        <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-        {% endfor %}
+    <div class="header-actions">
+      {% if not item.is_processed %}
+      <button type="button" class="btn btn-success" onclick="markAsProcessed()">
+        <i class="fas fa-check-circle" aria-hidden="true"></i> Marcar Procesado
+      </button>
+      {% endif %}
+      <button type="button" class="btn btn-warning" onclick="editItem()">
+        <i class="fas fa-pencil" aria-hidden="true"></i> Editar
+      </button>
+      <button type="button" class="btn btn-danger" onclick="deleteItem()">
+        <i class="fas fa-trash" aria-hidden="true"></i> Eliminar
+      </button>
     </div>
-    {% endif %}
+  </div>
 
-    <div class="events-row events-mb-4">
-        <div class="events-col-12">
-            <div class="m360-card" style="border: 2px solid var(--m360-primary);">
-                <div class="m360-card-header events-d-flex events-justify-between events-align-center" style="background: var(--m360-primary); color: #fff; border: none;">
-                    <h5 class="events-mb-0">
-                        <i class="bi bi-inbox-fill" style="margin-right: var(--m360-space-2);"></i>Item #{{ item.id }} - {{ item.title }}
-                    </h5>
-                    <div class="m360-btn-group">
-                        {% if not item.is_processed %}
-                        <button type="button" class="m360-btn m360-btn-sm m360-btn-success" onclick="markAsProcessed()">
-                            <i class="bi bi-check-circle"></i> Marcar Procesado
-                        </button>
-                        {% endif %}
-                        <button type="button" class="m360-btn m360-btn-sm m360-btn-warning" onclick="editItem()">
-                            <i class="bi bi-pencil"></i> Editar
-                        </button>
-                        <button type="button" class="m360-btn m360-btn-sm m360-btn-danger" onclick="deleteItem()">
-                            <i class="bi bi-trash"></i> Eliminar
-                        </button>
-                    </div>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-4">
-                        <div class="events-col-lg-8">
-                            <h6 class="events-text-primary events-mb-3">
-                                <i class="bi bi-info-circle" style="margin-right: var(--m360-space-2);"></i>Información del Item
-                            </h6>
-                            <div class="events-row events-mb-3">
-                                <div class="events-col-sm-3"><strong>ID:</strong></div>
-                                <div class="events-col-sm-9"><code class="events-text-muted">#{{ item.id }}</code></div>
-                            </div>
-                            <div class="events-row events-mb-3">
-                                <div class="events-col-sm-3"><strong>Título:</strong></div>
-                                <div class="events-col-sm-9"><h5 class="events-mb-0">{{ item.title }}</h5></div>
-                            </div>
-                            {% if item.description %}
-                            <div class="events-row events-mb-3">
-                                <div class="events-col-sm-3"><strong>Descripción:</strong></div>
-                                <div class="events-col-sm-9"><p class="events-mb-0">{{ item.description }}</p></div>
-                            </div>
-                            {% endif %}
-                            <div class="events-row events-mb-3">
-                                <div class="events-col-sm-3"><strong>Creado por:</strong></div>
-                                <div class="events-col-sm-9">{{ item.created_by.username }}{% if item.created_by.first_name or item.created_by.last_name %} ({{ item.created_by.first_name }} {{ item.created_by.last_name }}){% endif %}</div>
-                            </div>
-                            <div class="events-row events-mb-3">
-                                <div class="events-col-sm-3"><strong>Fecha de creación:</strong></div>
-                                <div class="events-col-sm-9">{{ item.created_at|date:"d/m/Y H:i:s" }}</div>
-                            </div>
-                            {% if item.updated_at %}
-                            <div class="events-row events-mb-3">
-                                <div class="events-col-sm-3"><strong>Última actualización:</strong></div>
-                                <div class="events-col-sm-9">{{ item.updated_at|date:"d/m/Y H:i:s" }}</div>
-                            </div>
-                            {% endif %}
-                        </div>
+  <!-- Breadcrumb -->
+  <nav class="admin-breadcrumb" aria-label="Breadcrumb">
+    <ol class="admin-breadcrumb-list">
+      <li class="admin-breadcrumb-item">
+        <a href="{% url 'home' %}"><i class="fas fa-home" aria-hidden="true"></i> Home</a>
+      </li>
+      <li class="admin-breadcrumb-item">
+        <a href="{% url 'events:root' %}"><i class="fas fa-speedometer2" aria-hidden="true"></i> Root Dashboard</a>
+      </li>
+      <li class="admin-breadcrumb-item active">Item #{{ item.id }}</li>
+    </ol>
+  </nav>
 
-                        <div class="events-col-lg-4">
-                            <h6 class="events-text-primary events-mb-3">
-                                <i class="bi bi-tags" style="margin-right: var(--m360-space-2);"></i>Estado y Clasificación
-                            </h6>
-                            <div class="events-mb-3">
-                                <strong>Estado:</strong>
-                                <div class="events-mt-1">
-                                    {% if item.is_processed %}
-                                        <span class="m360-badge m360-badge-success">
-                                            <i class="bi bi-check-circle-fill"></i> Procesado
-                                        </span>
-                                        {% if item.processed_at %}
-                                        <br><small class="events-text-muted">Procesado: {{ item.processed_at|date:"d/m/Y H:i" }}</small>
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="m360-badge m360-badge-warning">
-                                            <i class="bi bi-clock"></i> Pendiente
-                                        </span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="events-mb-3">
-                                <strong>Prioridad:</strong>
-                                <div class="events-mt-1">
-                                    {% if item.priority == 'alta' %}
-                                        <span class="m360-badge m360-badge-danger"><i class="bi bi-exclamation-triangle-fill"></i> Alta</span>
-                                    {% elif item.priority == 'media' %}
-                                        <span class="m360-badge m360-badge-warning"><i class="bi bi-dash-circle"></i> Media</span>
-                                    {% else %}
-                                        <span class="m360-badge m360-badge-secondary"><i class="bi bi-arrow-down-circle"></i> Baja</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="events-mb-3">
-                                <strong>Categoría GTD:</strong>
-                                <div class="events-mt-1">
-                                    {% if item.gtd_category == 'accionable' %}
-                                        <span class="m360-badge m360-badge-success"><i class="bi bi-check-circle"></i> Accionable</span>
-                                    {% elif item.gtd_category == 'no_accionable' %}
-                                        <span class="m360-badge m360-badge-secondary"><i class="bi bi-x-circle"></i> No Accionable</span>
-                                    {% else %}
-                                        <span class="m360-badge m360-badge-warning"><i class="bi bi-question-circle"></i> Pendiente</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% if item.action_type %}
-                            <div class="events-mb-3">
-                                <strong>Tipo de Acción:</strong>
-                                <div class="events-mt-1">
-                                    <span class="m360-badge m360-badge-info">{{ item.get_action_type_display }}</span>
-                                </div>
-                            </div>
-                            {% endif %}
-                            {% if item.assigned_to %}
-                            <div class="events-mb-3">
-                                <strong>Asignado a:</strong>
-                                <div class="events-mt-1">
-                                    <span class="m360-badge m360-badge-primary">
-                                        <i class="bi bi-person"></i> {{ item.assigned_to.username }}
-                                    </span>
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- Messages -->
+  {% if messages %}
+  <div class="alerts-container" id="alertsContainer">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible" role="alert">
+      <div class="alert-content">
+        <i class="fas 
+          {% if message.tags == 'success' %}fa-check-circle
+          {% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-triangle
+          {% elif message.tags == 'warning' %}fa-exclamation-circle
+          {% else %}fa-info-circle{% endif %}" 
+          aria-hidden="true">
+        </i>
+        <span class="alert-message">{{ message }}</span>
+      </div>
+      <button type="button" class="alert-dismiss" data-dismiss="alert" aria-label="Close">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Main Content -->
+  <div class="section-card item-detail-card">
+    <div class="item-detail-grid">
+      <!-- Left Column - Información -->
+      <div class="item-detail-info">
+        <h6 class="item-detail-section-title">
+          <i class="fas fa-info-circle" aria-hidden="true"></i>
+          Información del Item
+        </h6>
+
+        <div class="item-detail-row">
+          <div class="item-detail-label">ID:</div>
+          <div class="item-detail-value"><code>#{{ item.id }}</code></div>
         </div>
+
+        <div class="item-detail-row">
+          <div class="item-detail-label">Título:</div>
+          <div class="item-detail-value"><h5 class="item-detail-title">{{ item.title }}</h5></div>
+        </div>
+
+        {% if item.description %}
+        <div class="item-detail-row">
+          <div class="item-detail-label">Descripción:</div>
+          <div class="item-detail-value">{{ item.description }}</div>
+        </div>
+        {% endif %}
+
+        <div class="item-detail-row">
+          <div class="item-detail-label">Creado por:</div>
+          <div class="item-detail-value">
+            {{ item.created_by.username }}
+            {% if item.created_by.first_name or item.created_by.last_name %}
+            ({{ item.created_by.first_name }} {{ item.created_by.last_name }})
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="item-detail-row">
+          <div class="item-detail-label">Fecha de creación:</div>
+          <div class="item-detail-value">{{ item.created_at|date:"d/m/Y H:i:s" }}</div>
+        </div>
+
+        {% if item.updated_at %}
+        <div class="item-detail-row">
+          <div class="item-detail-label">Última actualización:</div>
+          <div class="item-detail-value">{{ item.updated_at|date:"d/m/Y H:i:s" }}</div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Right Column - Estado y Clasificación -->
+      <div class="item-detail-status">
+        <h6 class="item-detail-section-title">
+          <i class="fas fa-tags" aria-hidden="true"></i>
+          Estado y Clasificación
+        </h6>
+
+        <div class="item-detail-status-item">
+          <div class="item-detail-label">Estado:</div>
+          <div class="item-detail-value">
+            {% if item.is_processed %}
+              <span class="admin-badge admin-badge-success">
+                <i class="fas fa-check-circle" aria-hidden="true"></i> Procesado
+              </span>
+              {% if item.processed_at %}
+              <br><small class="text-muted">Procesado: {{ item.processed_at|date:"d/m/Y H:i" }}</small>
+              {% endif %}
+            {% else %}
+              <span class="admin-badge admin-badge-warning">
+                <i class="fas fa-clock" aria-hidden="true"></i> Pendiente
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="item-detail-status-item">
+          <div class="item-detail-label">Prioridad:</div>
+          <div class="item-detail-value">
+            {% if item.priority == 'alta' %}
+              <span class="admin-badge admin-badge-danger">
+                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Alta
+              </span>
+            {% elif item.priority == 'media' %}
+              <span class="admin-badge admin-badge-warning">
+                <i class="fas fa-minus-circle" aria-hidden="true"></i> Media
+              </span>
+            {% else %}
+              <span class="admin-badge admin-badge-secondary">
+                <i class="fas fa-arrow-down-circle" aria-hidden="true"></i> Baja
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="item-detail-status-item">
+          <div class="item-detail-label">Categoría GTD:</div>
+          <div class="item-detail-value">
+            {% if item.gtd_category == 'accionable' %}
+              <span class="admin-badge admin-badge-success">
+                <i class="fas fa-check-circle" aria-hidden="true"></i> Accionable
+              </span>
+            {% elif item.gtd_category == 'no_accionable' %}
+              <span class="admin-badge admin-badge-secondary">
+                <i class="fas fa-times-circle" aria-hidden="true"></i> No Accionable
+              </span>
+            {% else %}
+              <span class="admin-badge admin-badge-warning">
+                <i class="fas fa-question-circle" aria-hidden="true"></i> Pendiente
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if item.action_type %}
+        <div class="item-detail-status-item">
+          <div class="item-detail-label">Tipo de Acción:</div>
+          <div class="item-detail-value">
+            <span class="admin-badge admin-badge-info">{{ item.get_action_type_display }}</span>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if item.assigned_to %}
+        <div class="item-detail-status-item">
+          <div class="item-detail-label">Asignado a:</div>
+          <div class="item-detail-value">
+            <span class="admin-badge admin-badge-primary">
+              <i class="fas fa-user" aria-hidden="true"></i> {{ item.assigned_to.username }}
+            </span>
+          </div>
+        </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
+
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
+<!-- No inline scripts - todo en main.js -->
 <script>
+// Datos para el módulo de detalle
+document.addEventListener('DOMContentLoaded', function() {
+  const itemId = {{ item.id }};
+  const container = document.querySelector('.item-detail-card');
+  if (container) {
+    container.dataset.itemId = itemId;
+  }
+});
+
+// Funciones globales para acciones
 function markAsProcessed() {
+  if (confirm('¿Marcar este item como procesado?')) {
     const form = document.createElement('form');
     form.method = 'POST';
-    form.innerHTML = `<input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]').value}"><input type="hidden" name="action" value="reference">`;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    form.innerHTML = `
+      <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken ? csrfToken.value : ''}">
+      <input type="hidden" name="action" value="reference">
+    `;
     document.body.appendChild(form);
     form.action = window.location.href;
     form.submit();
+  }
 }
 
-function editItem() { window.location.href = `/events/inbox/process/${item.id}/`; }
+function editItem() {
+  window.location.href = `/events/inbox/process/${item.id}/`;
+}
+
 function deleteItem() {
-    if (confirm('¿Estás seguro de eliminar este item? Esta acción no se puede deshacer.')) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.innerHTML = `<input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]').value}"><input type="hidden" name="action" value="delete">`;
-        document.body.appendChild(form);
-        form.action = window.location.href;
-        form.submit();
-    }
+  if (confirm('¿Estás seguro de eliminar este item? Esta acción no se puede deshacer.')) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    form.innerHTML = `
+      <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken ? csrfToken.value : ''}">
+      <input type="hidden" name="action" value="delete">
+    `;
+    document.body.appendChild(form);
+    form.action = window.location.href;
+    form.submit();
+  }
 }
 </script>
+{% endblock %}
+
+{% block extra_css %}
+<!-- No inline styles - todo en main.css -->
 {% endblock %}

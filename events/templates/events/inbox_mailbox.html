@@ -4,335 +4,268 @@
 {% block title %}Bandeja de Entrada GTD{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'events/css/mailbox.css' %}">
+<!-- No inline styles - todo en main.css -->
 {% endblock %}
 
 {% block content %}
-<div class="events-container">
-    <div class="events-row events-mb-4">
-        <div class="events-col-12">
-            <div class="events-d-flex events-justify-between events-align-center">
-                <div>
-                    <h1 class="events-h2 events-mb-1">
-                        <i class="bi bi-envelope-fill events-text-primary" style="margin-right: var(--m360-space-3);"></i>
-                        Bandeja de Entrada GTD
-                    </h1>
-                    <p class="events-text-muted events-mb-0">{{ total_items }} items • {{ unprocessed_count }} pendientes</p>
-                </div>
-                <div class="events-d-flex events-gap-2">
-                    <button type="button" class="m360-btn m360-btn-outline-secondary" onclick="refreshMailbox()">
-                        <i class="bi bi-arrow-clockwise" style="margin-right: var(--m360-space-1);"></i>
-                        Actualizar
-                    </button>
-                    <a href="{% url 'events:inbox' %}" class="m360-btn m360-btn-outline-primary">
-                        <i class="bi bi-list" style="margin-right: var(--m360-space-1);"></i>
-                        Inbox Principal
-                    </a>
-                </div>
+
+<div class="dashboard-wrapper">
+
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1>
+        <i class="fas fa-envelope" aria-hidden="true"></i>
+        Bandeja de Entrada GTD
+      </h1>
+      <p class="subtitle">{{ total_items }} items • {{ unprocessed_count }} pendientes</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-ghost" onclick="window.location.reload()">
+        <i class="fas fa-sync" aria-hidden="true"></i> Actualizar
+      </button>
+      <a href="{% url 'events:inbox' %}" class="btn btn-primary">
+        <i class="fas fa-list" aria-hidden="true"></i> Inbox Principal
+      </a>
+    </div>
+  </div>
+
+  <!-- Mailbox Layout -->
+  <div class="mailbox-layout">
+
+    <!-- Sidebar - Lista de items -->
+    <div class="mailbox-sidebar">
+      <div class="section-card">
+        <div class="mailbox-sidebar-header">
+          <div class="mailbox-sidebar-title">
+            <h6>
+              <i class="fas fa-list-ul" aria-hidden="true"></i>
+              Items del Inbox
+            </h6>
+            <span class="mailbox-badge mailbox-badge-primary">{{ inbox_items|length }}</span>
+          </div>
+          <div class="mailbox-sidebar-filters">
+            <input type="text" class="form-control mailbox-search" id="itemSearch" placeholder="Buscar items...">
+            <div class="mailbox-filter-buttons">
+              <button type="button" class="btn btn-sm btn-outline-secondary mailbox-filter-btn active" data-filter="all" onclick="filterByStatus('all')">Todos</button>
+              <button type="button" class="btn btn-sm btn-outline-warning mailbox-filter-btn" data-filter="pending" onclick="filterByStatus('pending')">Pendientes</button>
+              <button type="button" class="btn btn-sm btn-outline-success mailbox-filter-btn" data-filter="processed" onclick="filterByStatus('processed')">Procesados</button>
             </div>
+          </div>
         </div>
+
+        <div class="mailbox-item-list" id="itemList">
+          {% for item in inbox_items %}
+          <div class="mailbox-item {% if item.is_processed %}processed{% else %}pending{% endif %} {% if inbox_item and inbox_item.id == item.id %}active{% endif %}"
+               data-item-id="{{ item.id }}"
+               onclick="selectItem({{ item.id }})">
+            <div class="mailbox-item-header">
+              <div class="mailbox-item-info">
+                <h6 class="mailbox-item-title">{{ item.title|truncatechars:40 }}</h6>
+                <small class="text-muted">{{ item.created_at|date:"d/m H:i" }}</small>
+              </div>
+              {% if item.description %}
+              <p class="mailbox-item-preview">{{ item.description|truncatechars:60 }}</p>
+              {% endif %}
+            </div>
+            <div class="mailbox-item-meta">
+              <div class="mailbox-item-meta-left">
+                <small class="text-muted">
+                  {% if item.assigned_to and item.assigned_to != request.user %}
+                    <i class="fas fa-user" aria-hidden="true"></i> Asignado
+                  {% else %}
+                    <i class="fas fa-user" aria-hidden="true"></i> Mío
+                  {% endif %}
+                </small>
+              </div>
+              <div class="mailbox-item-badges">
+                {% if not item.is_processed %}
+                  <span class="mailbox-badge mailbox-badge-warning">Pendiente</span>
+                {% else %}
+                  <span class="mailbox-badge mailbox-badge-success">Procesado</span>
+                {% endif %}
+                {% if item.priority == 'alta' %}
+                  <span class="mailbox-badge mailbox-badge-danger">Alta</span>
+                {% elif item.priority == 'baja' %}
+                  <span class="mailbox-badge mailbox-badge-info">Baja</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="mailbox-empty">
+            <i class="fas fa-inbox" aria-hidden="true"></i>
+            <p class="text-muted">No hay items en el inbox</p>
+            <a href="{% url 'events:inbox' %}" class="btn btn-primary">
+              <i class="fas fa-plus-circle" aria-hidden="true"></i> Agregar Item
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
 
-    <div class="events-row events-gap-4 mailbox-layout">
-        <div class="events-col-md-4 events-col-lg-3 mailbox-sidebar">
-            <div class="m360-card events-h-100">
-                <div class="m360-card-header" style="background: var(--m360-gray-50); border-bottom: 1px solid var(--m360-border);">
-                    <div class="events-d-flex events-justify-between events-align-center">
-                        <h6 class="events-mb-0">
-                            <i class="bi bi-list-ul" style="margin-right: var(--m360-space-2);"></i>
-                            Items del Inbox
-                        </h6>
-                        <span class="m360-badge m360-badge-primary">{{ inbox_items|length }}</span>
-                    </div>
-                    <div class="events-mt-3">
-                        <input type="text" class="m360-form-control events-mb-2" id="itemSearch" placeholder="Buscar items..." onkeyup="filterItems(this.value)">
-                        <div class="m360-btn-group events-w-100">
-                            <input type="radio" class="m360-btn-check" name="filterStatus" id="filterAll" autocomplete="off" checked onclick="filterByStatus('all')">
-                            <label class="m360-btn m360-btn-sm m360-btn-outline-secondary" for="filterAll">Todos</label>
-
-                            <input type="radio" class="m360-btn-check" name="filterStatus" id="filterPending" autocomplete="off" onclick="filterByStatus('pending')">
-                            <label class="m360-btn m360-btn-sm m360-btn-outline-warning" for="filterPending">Pendientes</label>
-
-                            <input type="radio" class="m360-btn-check" name="filterStatus" id="filterProcessed" autocomplete="off" onclick="filterByStatus('processed')">
-                            <label class="m360-btn m360-btn-sm m360-btn-outline-success" for="filterProcessed">Procesados</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="m360-card-body" style="padding: 0; overflow-y: auto; max-height: calc(100vh - 250px);" id="itemList">
-                    {% for item in inbox_items %}
-                    <div class="mailbox-item {% if item.is_processed %}processed{% else %}pending{% endif %} {% if inbox_item and inbox_item.id == item.id %}active{% endif %}"
-                         data-item-id="{{ item.id }}"
-                         onclick="selectItem({{ item.id }})">
-                        <div class="mailbox-item-header">
-                            <div class="events-d-flex events-justify-between events-align-start">
-                                <h6 class="mailbox-item-title events-mb-1">{{ item.title|truncatechars:40 }}</h6>
-                                <small class="events-text-muted">{{ item.created_at|date:"d/m H:i" }}</small>
-                            </div>
-                            {% if item.description %}
-                            <p class="mailbox-item-preview events-mb-1">{{ item.description|truncatechars:60 }}</p>
-                            {% endif %}
-                        </div>
-                        <div class="mailbox-item-meta">
-                            <div class="events-d-flex events-justify-between events-align-center">
-                                <small class="events-text-muted">
-                                    {% if item.assigned_to and item.assigned_to != request.user %}
-                                        <i class="bi bi-person" style="margin-right: var(--m360-space-1);"></i>Asignado
-                                    {% else %}
-                                        <i class="bi bi-person" style="margin-right: var(--m360-space-1);"></i>Mío
-                                    {% endif %}
-                                </small>
-                                <div class="mailbox-item-badges">
-                                    {% if not item.is_processed %}
-                                        <span class="m360-badge m360-badge-warning">Pendiente</span>
-                                    {% else %}
-                                        <span class="m360-badge m360-badge-success">Procesado</span>
-                                    {% endif %}
-                                    {% if item.priority == 'alta' %}
-                                        <span class="m360-badge m360-badge-danger">Alta</span>
-                                    {% elif item.priority == 'baja' %}
-                                        <span class="m360-badge m360-badge-info">Baja</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="events-text-center events-py-5">
-                        <i class="bi bi-inbox" style="font-size: 3rem; color: var(--m360-text-muted);"></i>
-                        <p class="events-text-muted events-mt-2">No hay items en el inbox</p>
-                        <a href="{% url 'events:inbox' %}" class="m360-btn m360-btn-primary">
-                            <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>
-                            Agregar Item
-                        </a>
-                    </div>
-                    {% endfor %}
-                </div>
+    <!-- Main - Detalle del item seleccionado -->
+    <div class="mailbox-main">
+      {% if inbox_item %}
+        <div class="section-card mailbox-detail">
+          <div class="mailbox-detail-header">
+            <div class="mailbox-detail-nav">
+              <button type="button" class="btn btn-sm btn-ghost" onclick="navigateItem('prev')" id="prevBtn" {% if not has_prev %}disabled{% endif %}>
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+              </button>
+              <h5 class="mailbox-detail-title">{{ inbox_item.title }}</h5>
+              <button type="button" class="btn btn-sm btn-ghost" onclick="navigateItem('next')" id="nextBtn" {% if not has_next %}disabled{% endif %}>
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+              </button>
             </div>
-        </div>
+            <div class="mailbox-detail-actions">
+              <button type="button" class="btn btn-sm btn-success" onclick="quickAction('process')" title="Marcar como procesado">
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-warning" onclick="quickAction('archive')" title="Archivar">
+                <i class="fas fa-archive" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-danger" onclick="quickAction('delete')" title="Eliminar">
+                <i class="fas fa-trash" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
 
-        <div class="events-col-md-8 events-col-lg-9 mailbox-main">
-            {% if inbox_item %}
-                <div class="m360-card events-h-100">
-                    <div class="m360-card-header" style="background: #fff; border-bottom: 1px solid var(--m360-border);">
-                        <div class="events-d-flex events-justify-between events-align-center">
-                            <div class="events-d-flex events-align-center">
-                                <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-secondary" onclick="navigateItem('prev')" id="prevBtn" disabled>
-                                    <i class="bi bi-chevron-left"></i>
-                                </button>
-                                <h5 class="events-mb-0">{{ inbox_item.title }}</h5>
-                                <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-secondary" onclick="navigateItem('next')" id="nextBtn" disabled>
-                                    <i class="bi bi-chevron-right"></i>
-                                </button>
-                            </div>
-                            <div class="m360-btn-group">
-                                <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-success" onclick="quickAction('process')" title="Marcar como procesado">
-                                    <i class="bi bi-check-circle"></i>
-                                </button>
-                                <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-warning" onclick="quickAction('archive')" title="Archivar">
-                                    <i class="bi bi-archive"></i>
-                                </button>
-                                <button type="button" class="m360-btn m360-btn-sm m360-btn-outline-danger" onclick="quickAction('delete')" title="Eliminar">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="m360-card-body">
-                        <div class="item-metadata events-mb-4 events-p-3" style="border: 1px solid var(--m360-border); border-radius: var(--m360-radius); background: var(--m360-gray-50);">
-                            <div class="events-row events-gap-4">
-                                <div class="events-col-md-6">
-                                    <small class="events-text-muted" style="display: block;">Creado por</small>
-                                    <strong>{{ inbox_item.created_by.get_full_name|default:inbox_item.created_by.username }}</strong>
-                                </div>
-                                <div class="events-col-md-6">
-                                    <small class="events-text-muted" style="display: block;">Fecha de creación</small>
-                                    <strong>{{ inbox_item.created_at|date:"d/m/Y H:i" }}</strong>
-                                </div>
-                                <div class="events-col-md-6">
-                                    <small class="events-text-muted" style="display: block;">Estado</small>
-                                    <span class="m360-badge {% if inbox_item.is_processed %}m360-badge-success{% else %}m360-badge-warning{% endif %}">
-                                        {% if inbox_item.is_processed %}Procesado{% else %}Pendiente{% endif %}
-                                    </span>
-                                </div>
-                                <div class="events-col-md-6">
-                                    <small class="events-text-muted" style="display: block;">Prioridad</small>
-                                    <span class="m360-badge {% if inbox_item.priority == 'alta' %}m360-badge-danger{% elif inbox_item.priority == 'baja' %}m360-badge-info{% else %}m360-badge-secondary{% endif %}">
-                                        {{ inbox_item.get_priority_display }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item-content">
-                            {% if inbox_item.description %}
-                                <h6 class="events-text-muted events-mb-2">Descripción</h6>
-                                <p class="events-mb-4">{{ inbox_item.description }}</p>
-                            {% endif %}
-
-                            {% if inbox_item.context %}
-                                <h6 class="events-text-muted events-mb-2">Contexto Adicional</h6>
-                                <div class="m360-bg-light events-p-3 events-rounded" style="border: 1px solid var(--m360-border);">
-                                    <pre class="events-mb-0" style="white-space: pre-wrap;">{{ inbox_item.context }}</pre>
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="processing-actions events-mt-4">
-                            <h6 class="events-mb-3">
-                                <i class="bi bi-diagram-3" style="margin-right: var(--m360-space-2);"></i>
-                                ¿Qué hacer con este item?
-                            </h6>
-
-                            <form method="post" id="processForm">
-                                {% csrf_token %}
-                                <input type="hidden" name="item_id" value="{{ inbox_item.id }}">
-
-                                <div class="events-row events-gap-3">
-                                    <div class="events-col-md-6">
-                                        <div class="m360-card" style="border-left: 4px solid var(--m360-success);">
-                                            <div class="m360-card-body events-text-center">
-                                                <div class="events-mb-3" style="font-size: var(--m360-icon-xl); color: var(--m360-success);"><i class="bi bi-check-circle-fill"></i></div>
-                                                <h6 class="events-card-title events-mb-2">Es accionable</h6>
-                                                <div class="events-d-grid events-gap-2 events-mt-3">
-                                                    <button type="submit" name="action" value="convert_to_task" class="m360-btn m360-btn-success">
-                                                        <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Crear Tarea
-                                                    </button>
-                                                    <button type="submit" name="action" value="convert_to_project" class="m360-btn m360-btn-primary">
-                                                        <i class="bi bi-folder-plus" style="margin-right: var(--m360-space-1);"></i>Crear Proyecto
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="events-col-md-6">
-                                        <div class="m360-card" style="border-left: 4px solid var(--m360-warning);">
-                                            <div class="m360-card-body events-text-center">
-                                                <div class="events-mb-3" style="font-size: var(--m360-icon-xl); color: var(--m360-warning);"><i class="bi bi-x-circle-fill"></i></div>
-                                                <h6 class="events-card-title events-mb-2">No es accionable</h6>
-                                                <div class="events-d-grid events-gap-2 events-mt-3">
-                                                    <button type="submit" name="action" value="reference" class="m360-btn m360-btn-secondary">
-                                                        <i class="bi bi-archive" style="margin-right: var(--m360-space-1);"></i>Referencia
-                                                    </button>
-                                                    <button type="submit" name="action" value="someday" class="m360-btn m360-btn-info">
-                                                        <i class="bi bi-lightbulb" style="margin-right: var(--m360-space-1);"></i>Algún día
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="events-row events-mt-3">
-                                    <div class="events-col-12">
-                                        <div class="events-d-flex events-justify-center events-gap-2">
-                                            <button type="submit" name="action" value="postpone" class="m360-btn m360-btn-outline-secondary">
-                                                <i class="bi bi-pause-circle" style="margin-right: var(--m360-space-1);"></i>Posponer
-                                            </button>
-                                            <button type="submit" name="action" value="delete" class="m360-btn m360-btn-outline-danger" onclick="return confirm('¿Eliminar este item?')">
-                                                <i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i>Eliminar
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+          <div class="mailbox-detail-body">
+            <!-- Metadatos -->
+            <div class="mailbox-metadata">
+              <div class="metadata-grid">
+                <div class="metadata-item">
+                  <small class="text-muted">Creado por</small>
+                  <strong>{{ inbox_item.created_by.get_full_name|default:inbox_item.created_by.username }}</strong>
                 </div>
-            {% else %}
-                <div class="m360-card events-h-100">
-                    <div class="m360-card-body events-d-flex events-align-items-center events-justify-center events-text-center" style="min-height: 400px;">
-                        <div>
-                            <i class="bi bi-envelope-open" style="font-size: 4rem; color: var(--m360-text-muted);"></i>
-                            <h5 class="events-text-muted events-mt-3">Selecciona un item</h5>
-                            <p class="events-text-muted">Haz clic en un item de la lista para ver los detalles y procesarlo</p>
-                        </div>
-                    </div>
+                <div class="metadata-item">
+                  <small class="text-muted">Fecha de creación</small>
+                  <strong>{{ inbox_item.created_at|date:"d/m/Y H:i" }}</strong>
                 </div>
-            {% endif %}
+                <div class="metadata-item">
+                  <small class="text-muted">Estado</small>
+                  <span class="mailbox-badge {% if inbox_item.is_processed %}mailbox-badge-success{% else %}mailbox-badge-warning{% endif %}">
+                    {% if inbox_item.is_processed %}Procesado{% else %}Pendiente{% endif %}
+                  </span>
+                </div>
+                <div class="metadata-item">
+                  <small class="text-muted">Prioridad</small>
+                  <span class="mailbox-badge {% if inbox_item.priority == 'alta' %}mailbox-badge-danger{% elif inbox_item.priority == 'baja' %}mailbox-badge-info{% else %}mailbox-badge-secondary{% endif %}">
+                    {{ inbox_item.get_priority_display }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contenido -->
+            <div class="mailbox-content">
+              {% if inbox_item.description %}
+                <h6 class="text-muted">Descripción</h6>
+                <p>{{ inbox_item.description }}</p>
+              {% endif %}
+
+              {% if inbox_item.context %}
+                <h6 class="text-muted">Contexto Adicional</h6>
+                <div class="mailbox-context">
+                  <pre>{{ inbox_item.context }}</pre>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Acciones de procesamiento -->
+            <div class="mailbox-processing">
+              <h6>
+                <i class="fas fa-diagram-3" aria-hidden="true"></i>
+                ¿Qué hacer con este item?
+              </h6>
+
+              <form method="post" id="processForm">
+                {% csrf_token %}
+                <input type="hidden" name="item_id" value="{{ inbox_item.id }}">
+
+                <div class="processing-grid">
+                  <div class="processing-card processing-card-success">
+                    <div class="processing-card-icon">
+                      <i class="fas fa-check-circle" aria-hidden="true"></i>
+                    </div>
+                    <h6>Es accionable</h6>
+                    <div class="processing-actions-grid">
+                      <button type="submit" name="action" value="convert_to_task" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus-circle" aria-hidden="true"></i> Crear Tarea
+                      </button>
+                      <button type="submit" name="action" value="convert_to_project" class="btn btn-sm btn-primary">
+                        <i class="fas fa-folder-plus" aria-hidden="true"></i> Crear Proyecto
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="processing-card processing-card-warning">
+                    <div class="processing-card-icon">
+                      <i class="fas fa-times-circle" aria-hidden="true"></i>
+                    </div>
+                    <h6>No es accionable</h6>
+                    <div class="processing-actions-grid">
+                      <button type="submit" name="action" value="reference" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-archive" aria-hidden="true"></i> Referencia
+                      </button>
+                      <button type="submit" name="action" value="someday" class="btn btn-sm btn-info">
+                        <i class="fas fa-lightbulb" aria-hidden="true"></i> Algún día
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="processing-bottom-actions">
+                  <button type="submit" name="action" value="postpone" class="btn btn-secondary">
+                    <i class="fas fa-pause-circle" aria-hidden="true"></i> Posponer
+                  </button>
+                  <button type="submit" name="action" value="delete" class="btn btn-danger" onclick="return confirm('¿Eliminar este item?')">
+                    <i class="fas fa-trash" aria-hidden="true"></i> Eliminar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
+      {% else %}
+        <div class="section-card mailbox-empty-detail">
+          <div class="mailbox-empty-detail-content">
+            <i class="fas fa-envelope-open" aria-hidden="true"></i>
+            <h5 class="text-muted">Selecciona un item</h5>
+            <p class="text-muted">Haz clic en un item de la lista para ver los detalles y procesarlo</p>
+          </div>
+        </div>
+      {% endif %}
     </div>
+
+  </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
-<style>
-.mailbox-layout { min-height: calc(100vh - 200px); }
-.mailbox-sidebar .m360-card { border: none; border-radius: var(--m360-radius); }
-.mailbox-item-list { max-height: calc(100vh - 250px); overflow-y: auto; }
-
-.mailbox-item { padding: 1rem; border-bottom: 1px solid var(--m360-border); cursor: pointer; transition: all 0.2s ease; background: #fff; }
-.mailbox-item:hover { background: var(--m360-gray-50); transform: translateX(2px); }
-.mailbox-item.active { background: #e3f2fd; border-left: 4px solid #2196f3; }
-.mailbox-item.pending { border-left: 3px solid #ffc107; }
-.mailbox-item.processed { border-left: 3px solid #28a745; }
-.mailbox-item-title { font-weight: 600; color: #2d3748; margin-bottom: 0.25rem; }
-.mailbox-item-preview { color: #718096; font-size: 0.875rem; margin-bottom: 0.5rem; }
-.mailbox-item-meta { font-size: 0.75rem; }
-
-.processing-actions .m360-card { transition: all 0.3s ease; }
-.processing-actions .m360-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-</style>
-
+<!-- No inline scripts - todo en main.js -->
+<!-- Los datos se pasan mediante data attributes -->
 <script>
-let currentItemId = {{ inbox_item.id|default:0 }};
-let itemIds = [{% for item in inbox_items %}{{ item.id }}{% if not forloop.last %},{% endif %}{% endfor %}];
-
-function selectItem(itemId) {
-    if (itemId === currentItemId) return;
-    document.querySelectorAll('.mailbox-item').forEach(item => item.classList.remove('active'));
-    document.querySelector(`[data-item-id="${itemId}"]`)?.classList.add('active');
-    window.location.href = `/events/inbox/process/${itemId}/`;
-}
-
-function filterItems(searchTerm) {
-    const items = document.querySelectorAll('.mailbox-item');
-    items.forEach(item => {
-        const title = item.querySelector('.mailbox-item-title').textContent.toLowerCase();
-        const preview = item.querySelector('.mailbox-item-preview')?.textContent.toLowerCase() || '';
-        const visible = title.includes(searchTerm.toLowerCase()) || preview.includes(searchTerm.toLowerCase());
-        item.style.display = visible ? 'block' : 'none';
-    });
-}
-
-function filterByStatus(status) {
-    const items = document.querySelectorAll('.mailbox-item');
-    items.forEach(item => {
-        let visible = true;
-        if (status === 'pending') visible = item.classList.contains('pending');
-        else if (status === 'processed') visible = item.classList.contains('processed');
-        item.style.display = visible ? 'block' : 'none';
-    });
-}
-
-function navigateItem(direction) {
-    if (!currentItemId || !itemIds.length) return;
-    const currentIndex = itemIds.indexOf(currentItemId);
-    let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-    if (newIndex >= 0 && newIndex < itemIds.length) selectItem(itemIds[newIndex]);
-}
-
-function quickAction(action) {
-    if (!currentItemId) return;
-    const actions = { process: { confirm: '¿Marcar este item como procesado?', value: 'reference' }, archive: { confirm: '¿Archivar este item?', value: 'reference' }, delete: { confirm: '¿Eliminar permanentemente este item?', value: 'delete' } };
-    if (confirm(actions[action].confirm)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.innerHTML = `<input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]').value}"><input type="hidden" name="action" value="${actions[action].value}">`;
-        document.body.appendChild(form);
-        form.action = window.location.href;
-        form.submit();
-    }
-}
-
-function refreshMailbox() { window.location.reload(); }
-
 document.addEventListener('DOMContentLoaded', function() {
-    if (currentItemId && itemIds.length) {
-        const currentIndex = itemIds.indexOf(currentItemId);
-        document.getElementById('prevBtn').disabled = currentIndex <= 0;
-        document.getElementById('nextBtn').disabled = currentIndex >= itemIds.length - 1;
-    }
+  // Configurar datos para el módulo Mailbox
+  const mailboxData = {
+    currentId: {{ inbox_item.id|default:0 }},
+    itemIds: [{% for item in inbox_items %}{{ item.id }}{% if not forloop.last %},{% endif %}{% endfor %}]
+  };
+  
+  // Guardar datos en el DOM para acceso global
+  const container = document.querySelector('.mailbox-layout');
+  if (container) {
+    container.dataset.currentId = mailboxData.currentId;
+    container.dataset.itemIds = JSON.stringify(mailboxData.itemIds);
+  }
 });
 </script>
+{% endblock %}
+
+{% block extra_css %}
+<!-- No inline styles - todo en main.css -->
 {% endblock %}

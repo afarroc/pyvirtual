@@ -3,55 +3,83 @@
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block content %}
-<div class="events-container">
-    <div class="events-row">
-        <div class="events-col-12">
-            <div class="m360-card">
-                <div class="m360-card-header events-d-flex events-justify-between events-align-center">
-                    <h5 class="events-card-title events-mb-0">
-                        <i class="bi bi-calendar-week" style="margin-right: var(--m360-space-2);"></i>{{ title }}
-                    </h5>
-                </div>
+{% block extra_head %}
+<!-- No inline styles - todo en main.css -->
+{% endblock %}
 
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-3">
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-primary); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ total_programs }}</h4>
-                                    <small style="color: inherit;">Programas Totales</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-success); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ total_hours|floatformat:1 }}</h4>
-                                    <small style="color: inherit;">Horas Programadas</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-info); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ calendar_data|length }}</h4>
-                                    <small style="color: inherit;">Días Mostrados</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-warning); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ weeks_param }}</h4>
-                                    <small style="color: inherit;">Semanas</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+{% block content %}
+
+<div class="dashboard-wrapper">
+
+  <!-- Page Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1>
+        <i class="fas fa-calendar-week" aria-hidden="true"></i>
+        {{ title }}
+      </h1>
+      <p class="subtitle">Verificador de enlaces y programación</p>
     </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <nav class="admin-breadcrumb" aria-label="Breadcrumb">
+    <ol class="admin-breadcrumb-list">
+      <li class="admin-breadcrumb-item">
+        <a href="{% url 'home' %}"><i class="fas fa-home" aria-hidden="true"></i> Home</a>
+      </li>
+      <li class="admin-breadcrumb-item active">{{ title }}</li>
+    </ol>
+  </nav>
+
+  <!-- Stats -->
+  <div class="stats-grid link-checker-stats">
+    <div class="stat-card purple">
+      <i class="fas fa-calendar stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ total_programs }}</div>
+      <div class="stat-label">Programas Totales</div>
+      <div class="stat-sub">En el sistema</div>
+    </div>
+
+    <div class="stat-card green">
+      <i class="fas fa-clock stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ total_hours|floatformat:1 }}</div>
+      <div class="stat-label">Horas Programadas</div>
+      <div class="stat-sub">Tiempo total</div>
+    </div>
+
+    <div class="stat-card blue">
+      <i class="fas fa-calendar-day stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ calendar_data|length }}</div>
+      <div class="stat-label">Días Mostrados</div>
+      <div class="stat-sub">En el calendario</div>
+    </div>
+
+    <div class="stat-card amber">
+      <i class="fas fa-clock-history stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ weeks_param }}</div>
+      <div class="stat-label">Semanas</div>
+      <div class="stat-sub">Período configurado</div>
+    </div>
+  </div>
+
+  <!-- Calendar Placeholder -->
+  <div class="section-card">
+    <div class="calendar-placeholder">
+      <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+      <p>Calendario de programas</p>
+      <p class="text-muted text-sm">{{ total_programs }} programas • {{ total_hours|floatformat:1 }} horas</p>
+    </div>
+  </div>
+
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- No inline scripts - todo en main.js -->
+{% endblock %}
+
+{% block extra_css %}
+<!-- No inline styles - todo en main.css -->
 {% endblock %}

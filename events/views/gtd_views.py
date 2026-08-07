@@ -2424,7 +2424,7 @@ def create_inbox_item_api(request):
             gtd_category=gtd_category,
             priority=priority,
             action_type=action_type if action_type else None,
-            context=context if context else None
+            context=context
         )
 
         # Asignación automática si se solicita

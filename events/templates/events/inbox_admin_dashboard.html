@@ -3,289 +3,315 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block extra_head %}
+<!-- No inline styles - todo en main.css -->
+{% endblock %}
+
 {% block content %}
-<div class="events-container">
-    <div class="events-page-header">
-        <h1 class="events-page-title">{{ title }}</h1>
-        <nav aria-label="breadcrumb">
-            <ol class="events-breadcrumb">
-                <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Home</a></li>
-                <li style="color: var(--m360-text-muted);">/</li>
-                <li><a href="{% url 'events:panel' %}"><i class="bi bi-calendar-event"></i> Panel</a></li>
-                <li style="color: var(--m360-text-muted);">/</li>
-                <li style="color: var(--m360-text);">{{ title }}</li>
-            </ol>
-        </nav>
+
+<div class="dashboard-wrapper">
+
+  <!-- Page Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1>
+        <i class="fas fa-shield-alt" aria-hidden="true"></i>
+        {{ title }}
+      </h1>
+      <p class="subtitle">Administración del sistema GTD - Inbox</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-primary" onclick="openModal('createInboxItemModal')">
+        <i class="fas fa-plus-circle" aria-hidden="true"></i> Crear Item
+      </button>
+      <a href="{% url 'events:inbox' %}" class="btn btn-ghost">
+        <i class="fas fa-inbox" aria-hidden="true"></i> Ver Inbox
+      </a>
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <nav class="admin-breadcrumb" aria-label="Breadcrumb">
+    <ol class="admin-breadcrumb-list">
+      <li class="admin-breadcrumb-item">
+        <a href="{% url 'home' %}"><i class="fas fa-home" aria-hidden="true"></i> Home</a>
+      </li>
+      <li class="admin-breadcrumb-item">
+        <a href="{% url 'events:panel' %}"><i class="fas fa-calendar-check" aria-hidden="true"></i> Panel</a>
+      </li>
+      <li class="admin-breadcrumb-item active">{{ title }}</li>
+    </ol>
+  </nav>
+
+  <!-- Messages -->
+  {% if messages %}
+  <div class="alerts-container" id="alertsContainer">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible" role="alert">
+      <div class="alert-content">
+        <i class="fas 
+          {% if message.tags == 'success' %}fa-check-circle
+          {% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-triangle
+          {% elif message.tags == 'warning' %}fa-exclamation-circle
+          {% else %}fa-info-circle{% endif %}" 
+          aria-hidden="true">
+        </i>
+        <span class="alert-message">{{ message }}</span>
+      </div>
+      <button type="button" class="alert-dismiss" data-dismiss="alert" aria-label="Close">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <i class="fas fa-inbox stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ stats.total }}</div>
+      <div class="stat-label">Total Items</div>
+      <div class="stat-sub">En el sistema</div>
+    </div>
+    <div class="stat-card green">
+      <i class="fas fa-check-double stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ stats.processed }}</div>
+      <div class="stat-label">Procesados</div>
+      <div class="stat-sub">Completados</div>
+    </div>
+    <div class="stat-card amber">
+      <i class="fas fa-hourglass-half stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ stats.unprocessed }}</div>
+      <div class="stat-label">Sin Procesar</div>
+      <div class="stat-sub">Pendientes</div>
+    </div>
+    <div class="stat-card purple">
+      <i class="fas fa-globe stat-icon" aria-hidden="true"></i>
+      <div class="stat-number">{{ stats.public }}</div>
+      <div class="stat-label">Públicos</div>
+      <div class="stat-sub">Visibles para todos</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="row">
+
+    <!-- Filters -->
+    <div class="col">
+      <div class="section-card">
+        <div class="section-header">
+          <h5><i class="fas fa-filter" aria-hidden="true"></i> Filtros de Búsqueda</h5>
+        </div>
+        <form method="GET" class="admin-filter-form">
+          <div class="form-group">
+            <label for="status" class="form-label">Estado</label>
+            <select name="status" id="status" class="form-control">
+              <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos</option>
+              <option value="processed" {% if status_filter == 'processed' %}selected{% endif %}>Procesados</option>
+              <option value="unprocessed" {% if status_filter == 'unprocessed' %}selected{% endif %}>Sin Procesar</option>
+              <option value="public" {% if status_filter == 'public' %}selected{% endif %}>Públicos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="category" class="form-label">Categoría GTD</label>
+            <select name="category" id="category" class="form-control">
+              <option value="all" {% if category_filter == 'all' %}selected{% endif %}>Todas</option>
+              <option value="accionable" {% if category_filter == 'accionable' %}selected{% endif %}>Accionable</option>
+              <option value="no_accionable" {% if category_filter == 'no_accionable' %}selected{% endif %}>No Accionable</option>
+              <option value="pendiente" {% if category_filter == 'pendiente' %}selected{% endif %}>Pendiente</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="user" class="form-label">Usuario</label>
+            <select name="user" id="user" class="form-control">
+              <option value="all" {% if user_filter == 'all' %}selected{% endif %}>Todos</option>
+              {% for user in active_users %}
+              <option value="{{ user.user.id }}" {% if user_filter == user.user.id|stringformat:'s' %}selected{% endif %}>{{ user.user.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="search" class="form-label">Buscar</label>
+            <input type="text" name="search" id="search" class="form-control" value="{{ search_query }}" placeholder="Título, descripción...">
+          </div>
+          <div class="admin-filter-actions">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-search" aria-hidden="true"></i> Filtrar
+            </button>
+            <a href="{% url 'events:inbox_admin_dashboard' %}" class="btn btn-ghost">
+              <i class="fas fa-times-circle" aria-hidden="true"></i> Limpiar
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items Table -->
+  <div class="section-card admin-table-section">
+    <div class="section-header">
+      <h5>
+        <i class="fas fa-list" aria-hidden="true"></i> Items del Inbox
+        <span class="admin-badge admin-badge-active">{{ inbox_items|length }}</span>
+      </h5>
+      <div class="header-actions">
+        <span class="text-muted text-sm">Mostrando {{ inbox_items|length }} items</span>
+      </div>
     </div>
 
-    {% if messages %}
-    <div class="m360-alert m360-alert-info events-mb-4" role="alert">
-        {% for message in messages %}
-        <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-        {% endfor %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Creado por</th>
+            <th>Asignado a</th>
+            <th>Estado</th>
+            <th>Categoría GTD</th>
+            <th>Prioridad</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in inbox_items %}
+          <tr class="admin-inbox-row" data-id="{{ item.id }}">
+            <th scope="row">{{ item.id }}</th>
+            <td>
+              <strong>{{ item.title }}</strong>
+              {% if item.important %}
+              <i class="fas fa-star admin-text-amber" title="Importante"></i>
+              {% endif %}
+            </td>
+            <td>
+              {% if item.description %}
+              <span title="{{ item.description }}">{{ item.description|truncatechars:50 }}</span>
+              {% else %}
+              <span class="text-muted">Sin descripción</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="admin-badge admin-badge-active">{{ item.created_by.username }}</span>
+            </td>
+            <td>
+              {% if item.assigned_to %}
+              <span class="admin-badge admin-badge-pending">{{ item.assigned_to.username }}</span>
+              {% else %}
+              <span class="admin-badge admin-badge-completed">Sin asignar</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if item.is_processed %}
+              <span class="admin-badge admin-badge-active">Procesado</span>
+              {% else %}
+              <span class="admin-badge admin-badge-pending">Pendiente</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if item.gtd_category == 'accionable' %}
+              <span class="admin-badge admin-badge-active">{{ item.gtd_category|title }}</span>
+              {% elif item.gtd_category == 'no_accionable' %}
+              <span class="admin-badge admin-badge-completed">{{ item.gtd_category|title }}</span>
+              {% else %}
+              <span class="admin-badge admin-badge-pending">{{ item.gtd_category|title|default:"Pendiente" }}</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if item.priority == 'alta' %}
+              <span class="admin-badge admin-badge-danger">Alta</span>
+              {% elif item.priority == 'media' %}
+              <span class="admin-badge admin-badge-warning">Media</span>
+              {% else %}
+              <span class="admin-badge admin-badge-secondary">Baja</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="admin-table-actions">
+                <a href="{% url 'events:process_inbox_item' item.id %}" class="btn btn-sm btn-ghost" title="Procesar item">
+                  <i class="fas fa-gear" aria-hidden="true"></i>
+                </a>
+                <a href="{% url 'events:inbox_item_detail_admin' item.id %}" class="btn btn-sm btn-ghost" title="Ver detalles">
+                  <i class="fas fa-eye" aria-hidden="true"></i>
+                </a>
+                <button class="btn btn-sm admin-btn-delete" data-id="{{ item.id }}" data-title="{{ item.title|escapejs }}" title="Eliminar">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9" class="empty-state-cell">
+              <i class="fas fa-inbox" aria-hidden="true"></i>
+              <p class="text-muted">No hay items en el inbox</p>
+              <button class="btn btn-primary" onclick="openModal('createInboxItemModal')">
+                <i class="fas fa-plus-circle" aria-hidden="true"></i> Crear Primer Item
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    {% endif %}
+  </div>
 
-    <div class="events-row events-gap-3 events-mb-4">
-        <div class="events-col-6 events-col-md-3">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-info); background: rgba(13,202,240,0.05);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-info);">Total Items</div>
-                    <div class="events-h3 events-mb-0">{{ stats.total }}</div>
-                </div>
-            </div>
-        </div>
-        <div class="events-col-6 events-col-md-3">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-success); background: rgba(25,135,84,0.05);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-success);">Procesados</div>
-                    <div class="events-h3 events-mb-0">{{ stats.processed }}</div>
-                </div>
-            </div>
-        </div>
-        <div class="events-col-6 events-col-md-3">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-warning); background: rgba(255,193,7,0.05);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-warning);">Sin Procesar</div>
-                    <div class="events-h3 events-mb-0">{{ stats.unprocessed }}</div>
-                </div>
-            </div>
-        </div>
-        <div class="events-col-6 events-col-md-3">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-primary); background: rgba(0,123,255,0.05);">
-                <div class="m360-card-body events-text-center">
-                    <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-primary);">Públicos</div>
-                    <div class="events-h3 events-mb-0">{{ stats.public }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="events-row events-gap-4">
-        <div class="events-col-lg-8">
-            <div class="m360-card events-mb-4">
-                <div class="m360-card-body">
-                    <h5 class="events-card-title events-mb-3">
-                        <i class="bi bi-funnel" style="margin-right: var(--m360-space-2);"></i>Filtros de Búsqueda
-                    </h5>
-                    <form method="GET" class="events-row events-gap-3">
-                        <div class="events-col-md-3">
-                            <label for="status" class="m360-form-label">Estado</label>
-                            <select name="status" id="status" class="m360-form-control">
-                                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos</option>
-                                <option value="processed" {% if status_filter == 'processed' %}selected{% endif %}>Procesados</option>
-                                <option value="unprocessed" {% if status_filter == 'unprocessed' %}selected{% endif %}>Sin Procesar</option>
-                                <option value="public" {% if status_filter == 'public' %}selected{% endif %}>Públicos</option>
-                            </select>
-                        </div>
-                        <div class="events-col-md-3">
-                            <label for="category" class="m360-form-label">Categoría GTD</label>
-                            <select name="category" id="category" class="m360-form-control">
-                                <option value="all" {% if category_filter == 'all' %}selected{% endif %}>Todas</option>
-                                <option value="accionable" {% if category_filter == 'accionable' %}selected{% endif %}>Accionable</option>
-                                <option value="no_accionable" {% if category_filter == 'no_accionable' %}selected{% endif %}>No Accionable</option>
-                                <option value="pendiente" {% if category_filter == 'pendiente' %}selected{% endif %}>Pendiente</option>
-                            </select>
-                        </div>
-                        <div class="events-col-md-3">
-                            <label for="user" class="m360-form-label">Usuario</label>
-                            <select name="user" id="user" class="m360-form-control">
-                                <option value="all" {% if user_filter == 'all' %}selected{% endif %}>Todos</option>
-                                {% for user in active_users %}
-                                <option value="{{ user.user.id }}" {% if user_filter == user.user.id|stringformat:'s' %}selected{% endif %}>{{ user.user.username }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="events-col-md-3">
-                            <label for="search" class="m360-form-label">Buscar</label>
-                            <input type="text" name="search" id="search" class="m360-form-control" value="{{ search_query }}" placeholder="Título, descripción...">
-                        </div>
-                        <div class="events-col-12">
-                            <button type="submit" class="m360-btn m360-btn-primary">
-                                <i class="bi bi-search" style="margin-right: var(--m360-space-1);"></i>Filtrar
-                            </button>
-                            <a href="{% url 'events:inbox_admin_dashboard' %}" class="m360-btn m360-btn-outline-secondary" style="margin-left: var(--m360-space-2);">
-                                <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i>Limpiar
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="m360-card">
-                <div class="m360-card-body">
-                    <h5 class="events-card-title events-mb-3">
-                        <i class="bi bi-list" style="margin-right: var(--m360-space-2);"></i>Items del Inbox
-                        <span class="m360-badge m360-badge-primary" style="margin-left: var(--m360-space-2);">{{ inbox_items|length }}</span>
-                    </h5>
-
-                    <div class="m360-table-responsive">
-                        <table class="m360-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Título</th>
-                                    <th>Descripción</th>
-                                    <th>Creado por</th>
-                                    <th>Asignado a</th>
-                                    <th>Estado</th>
-                                    <th>Categoría GTD</th>
-                                    <th>Prioridad</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in inbox_items %}
-                                <tr>
-                                    <th scope="row">{{ item.id }}</th>
-                                    <td>
-                                        <strong>{{ item.title }}</strong>
-                                        {% if item.important %}
-                                        <i class="bi bi-star-fill events-text-warning" style="margin-left: var(--m360-space-1);" title="Importante"></i>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if item.description %}
-                                        <span title="{{ item.description }}">{{ item.description|truncatechars:50 }}</span>
-                                        {% else %}
-                                        <span class="events-text-muted">Sin descripción</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="m360-badge m360-badge-info">{{ item.created_by.username }}</span>
-                                    </td>
-                                    <td>
-                                        {% if item.assigned_to %}
-                                        <span class="m360-badge m360-badge-primary">{{ item.assigned_to.username }}</span>
-                                        {% else %}
-                                        <span class="m360-badge m360-badge-secondary">Sin asignar</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if item.is_processed %}
-                                        <span class="m360-badge m360-badge-success">Procesado</span>
-                                        {% else %}
-                                        <span class="m360-badge m360-badge-warning">Pendiente</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if item.gtd_category == 'accionable' %}
-                                        <span class="m360-badge m360-badge-success">{{ item.gtd_category|title }}</span>
-                                        {% elif item.gtd_category == 'no_accionable' %}
-                                        <span class="m360-badge m360-badge-info">{{ item.gtd_category|title }}</span>
-                                        {% else %}
-                                        <span class="m360-badge m360-badge-secondary">{{ item.gtd_category|title }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if item.priority == 'alta' %}
-                                        <span class="m360-badge m360-badge-danger">{{ item.priority|title }}</span>
-                                        {% elif item.priority == 'media' %}
-                                        <span class="m360-badge m360-badge-warning">{{ item.priority|title }}</span>
-                                        {% else %}
-                                        <span class="m360-badge m360-badge-secondary">{{ item.priority|title }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="m360-btn-group">
-                                            <a href="{% url 'events:process_inbox_item' item.id %}" class="m360-btn m360-btn-sm m360-btn-outline-primary" title="Procesar item">
-                                                <i class="bi bi-gear"></i>
-                                            </a>
-                                            <a href="{% url 'events:inbox_item_detail_admin' item.id %}" class="m360-btn m360-btn-sm m360-btn-outline-info" title="Ver detalles">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <button class="m360-btn m360-btn-sm m360-btn-outline-danger" onclick="deleteInboxItem({{ item.id }}, '{{ item.title|escapejs }}')" title="Eliminar">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="9" class="events-text-center events-py-4">
-                                        <i class="bi bi-inbox" style="font-size: var(--m360-icon-2xl); color: var(--m360-text-muted);"></i>
-                                        <p class="events-text-muted events-mt-2">No hay items en el inbox</p>
-                                        <button class="m360-btn m360-btn-primary" data-m360-toggle="modal" data-m360-target="#createInboxItemModal">
-                                            <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Crear Primer Item
-                                        </button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
-<div class="m360-modal" id="createInboxItemModal" tabindex="-1" aria-hidden="true">
-    <div class="m360-modal-dialog m360-modal-lg">
-        <div class="m360-modal-content">
-            <div class="m360-modal-header">
-                <h5 class="m360-modal-title">
-                    <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Crear Nuevo Item del Inbox
-                </h5>
-                <button type="button" class="m360-btn-close" data-m360-close aria-label="Close"></button>
-            </div>
-            <form id="createInboxItemForm">
-                <div class="m360-modal-body">
-                    <div class="events-row events-gap-3">
-                        <div class="events-col-12">
-                            <label for="itemTitle" class="m360-form-label">Título *</label>
-                            <input type="text" class="m360-form-control" id="itemTitle" name="title" required>
-                        </div>
-                        <div class="events-col-12">
-                            <label for="itemDescription" class="m360-form-label">Descripción</label>
-                            <textarea class="m360-form-control" id="itemDescription" name="description" rows="3"></textarea>
-                        </div>
-                        <div class="events-col-md-6">
-                            <label for="itemCategory" class="m360-form-label">Categoría GTD</label>
-                            <select class="m360-form-control" id="itemCategory" name="gtd_category">
-                                <option value="pendiente">Pendiente de Categorizar</option>
-                                <option value="accionable">Accionable</option>
-                                <option value="no_accionable">No Accionable</option>
-                            </select>
-                        </div>
-                        <div class="events-col-md-6">
-                            <label for="itemPriority" class="m360-form-label">Prioridad</label>
-                            <select class="m360-form-control" id="itemPriority" name="priority">
-                                <option value="media">Media</option>
-                                <option value="alta">Alta</option>
-                                <option value="baja">Baja</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="m360-modal-footer">
-                    <button type="button" class="m360-btn m360-btn-outline-secondary" data-m360-close>Cancelar</button>
-                    <button type="submit" class="m360-btn m360-btn-primary">
-                        <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Crear Item
-                    </button>
-                </div>
-            </form>
-        </div>
+<!-- Create Item Modal -->
+<div class="modal-overlay" id="createInboxItemModal">
+  <div class="modal admin-modal-lg">
+    <div class="modal-header">
+      <h5>
+        <i class="fas fa-plus-circle" aria-hidden="true"></i> Crear Nuevo Item del Inbox
+      </h5>
+      <button class="close-btn" onclick="closeModal('createInboxItemModal')" aria-label="Close">&times;</button>
     </div>
+    <form id="createInboxItemForm">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="itemTitle" class="form-label">Título *</label>
+        <input type="text" class="form-control" id="itemTitle" name="title" required>
+      </div>
+      <div class="form-group">
+        <label for="itemDescription" class="form-label">Descripción</label>
+        <textarea class="form-control" id="itemDescription" name="description" rows="3"></textarea>
+      </div>
+      <div class="admin-form-row-2">
+        <div class="form-group">
+          <label for="itemCategory" class="form-label">Categoría GTD</label>
+          <select class="form-control" id="itemCategory" name="gtd_category">
+            <option value="pendiente">Pendiente de Categorizar</option>
+            <option value="accionable">Accionable</option>
+            <option value="no_accionable">No Accionable</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="itemPriority" class="form-label">Prioridad</label>
+          <select class="form-control" id="itemPriority" name="priority">
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+            <option value="baja">Baja</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('createInboxItemModal')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-check-circle" aria-hidden="true"></i> Crear Item
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script>
-function deleteInboxItem(itemId, title) {
-    if (confirm('¿Estás seguro de eliminar el item "' + title + '"? Esta acción no se puede deshacer.')) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.innerHTML = `<input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]').value}"><input type="hidden" name="action" value="delete">`;
-        document.body.appendChild(form);
-        form.action = `/events/inbox/process/${itemId}/`;
-        form.submit();
-    }
-}
+<!-- No inline scripts - todo en main.js -->
+{% endblock %}
 
-document.addEventListener('DOMContentLoaded', function() {
-    const rows = document.querySelectorAll('tbody tr');
-    rows.forEach((row, index) => { row.style.opacity = '0'; row.style.transform = 'translateX(-20px)'; setTimeout(() => { row.style.transition = 'all 0.4s ease-out'; row.style.opacity = '1'; row.style.transform = 'translateX(0)'; }, index * 50); });
-});
-</script>
+{% block extra_css %}
+<!-- No inline styles - todo en main.css -->
 {% endblock %}

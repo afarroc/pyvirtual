@@ -9,7 +9,7 @@
 {% load icon_tags %}
 
 {% block extra_head %}
-<!-- No inline styles -->
+<!-- No inline styles - todo en main.css -->
 {% endblock %}
 
 {% block content %}
@@ -17,7 +17,25 @@
 <div class="dashboard-wrapper">
 
   {% if messages %}
-    {% include 'includes/alert.html' %}
+    <div class="alerts-container" id="alertsContainer">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible" role="alert">
+        <div class="alert-content">
+          <i class="fas 
+            {% if message.tags == 'success' %}fa-check-circle
+            {% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-triangle
+            {% elif message.tags == 'warning' %}fa-exclamation-circle
+            {% else %}fa-info-circle{% endif %}" 
+            aria-hidden="true">
+          </i>
+          <span class="alert-message">{{ message }}</span>
+        </div>
+        <button type="button" class="alert-dismiss" data-dismiss="alert" aria-label="Close">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
   {% endif %}
 
   <!-- Dashboard Header -->
@@ -790,16 +808,16 @@
       <form method="post" action="{% url 'events:status_create' %}">
         {% csrf_token %}
         <div class="form-group">
-          <label for="categoryName">Category Name</label>
-          <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
+          <label for="categoryName" class="form-label">Category Name</label>
+          <input type="text" class="form-control" id="categoryName" name="name" placeholder="Enter category name" required>
         </div>
         <div class="form-group">
-          <label for="categoryColor">Color</label>
-          <input type="color" id="categoryColor" name="color" value="#7c3aed">
+          <label for="categoryColor" class="form-label">Color</label>
+          <input type="color" class="form-control form-control-sm" id="categoryColor" name="color" value="#7c3aed">
         </div>
         <div class="form-group">
-          <label for="categoryDescription">Description</label>
-          <textarea id="categoryDescription" name="description" rows="3" placeholder="Enter category description"></textarea>
+          <label for="categoryDescription" class="form-label">Description</label>
+          <textarea class="form-control" id="categoryDescription" name="description" rows="3" placeholder="Enter category description"></textarea>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal('categoryModal')">Cancel</button>
@@ -814,9 +832,9 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- No inline scripts -->
+<!-- No inline scripts - todo en main.js -->
 {% endblock %}
 
 {% block extra_css %}
-<!-- No inline styles -->
+<!-- No inline styles - todo en main.css -->
 {% endblock %}
