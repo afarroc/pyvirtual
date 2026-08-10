@@ -1,5 +1,5 @@
 ﻿from django import forms
-from .models import Room, Evaluation, EntranceExit, Portal, RoomObject, RoomConnection
+from .models import Room, Evaluation, EntranceExit, Portal, RoomObject, RoomConnection, Box
 import json
 from django.db.models import Q
 from django.utils.translation import gettext as _
@@ -240,22 +240,29 @@ class RoomObjectForm(forms.ModelForm):
                 'placeholder': 'JSON: {"energy": 5, "productivity": 10}'
             })
         }
-        
-        def clean(self):
-            cleaned_data = super().clean()
-            if self.instance.room:
-                if cleaned_data.get('position_x') > self.instance.room.length:
-                    raise forms.ValidationError("La posición X excede el largo de la habitación.")
-                if cleaned_data.get('position_y') > self.instance.room.width:
-                    raise forms.ValidationError("La posición Y excede el ancho de la habitación.")
 
-        def clean_effect(self):
-            effect = self.cleaned_data.get('effect')
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.instance.room:
+            if cleaned_data.get('position_x') > self.instance.room.length:
+                raise forms.ValidationError("La posición X excede el largo de la habitación.")
+            if cleaned_data.get('position_y') > self.instance.room.width:
+                raise forms.ValidationError("La posición Y excede el ancho de la habitación.")
+        return cleaned_data
+
+    def clean_effect(self):
+        effect = self.cleaned_data.get('effect')
+        if effect:
             try:
-                json.loads(effect)
-            except json.JSONDecodeError:
+                if isinstance(effect, str):
+                    json.loads(effect)
+                elif isinstance(effect, dict):
+                    return effect
+                else:
+                    raise forms.ValidationError("Formato JSON inválido.")
+            except (json.JSONDecodeError, TypeError):
                 raise forms.ValidationError("Formato JSON inválido.")
-            return effect
+        return effect
 
 class EvaluationForm(forms.ModelForm):
     class Meta:
@@ -396,5 +403,215 @@ class RoomConnectionForm(forms.ModelForm):
             # Verificar que no exista ya una conexión con la misma entrada
             if RoomConnection.objects.filter(entrance=entrance).exclude(pk=self.instance.pk if self.instance else None).exists():
                 raise forms.ValidationError("Esta entrada ya está conectada a otra habitación.")
+
+        return cleaned_data
+
+
+class BoxForm(forms.ModelForm):
+    class Meta:
+        model = Box
+        fields = [
+            'name', 'description', 'position_x', 'position_y',
+            'width', 'height', 'depth', 'color', 'material_type', 'image',
+            'is_open', 'is_locked', 'required_key', 'mass', 'capacity', 'contents'
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre de la caja',
+                'required': True
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Descripción opcional'
+            }),
+            'position_x': forms.NumberInput(attrs={
+                'min': 0,
+                'class': 'form-control',
+                'placeholder': 'X'
+            }),
+            'position_y': forms.NumberInput(attrs={
+                'min': 0,
+                'class': 'form-control',
+                'placeholder': 'Y'
+            }),
+            'width': forms.NumberInput(attrs={
+                'min': 1,
+                'class': 'form-control'
+            }),
+            'height': forms.NumberInput(attrs={
+                'min': 1,
+                'class': 'form-control'
+            }),
+            'depth': forms.NumberInput(attrs={
+                'min': 1,
+                'class': 'form-control'
+            }),
+            'color': forms.TextInput(attrs={
+                'class': 'form-control',
+                'type': 'color',
+                'placeholder': '#8B4513'
+            }),
+            'material_type': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'form-control'
+            }),
+            'is_open': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'is_locked': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'required_key': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'ID del objeto/llave necesario (opcional)'
+            }),
+            'mass': forms.NumberInput(attrs={
+                'min': 0.1,
+                'step': 0.1,
+                'class': 'form-control'
+            }),
+            'capacity': forms.NumberInput(attrs={
+                'min': 1,
+                'class': 'form-control'
+            }),
+            'contents': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'JSON: [{"id": 1, "name": "item1"}]'
+            })
+        }
+
+    def clean_contents(self):
+        contents = self.cleaned_data.get('contents')
+        if contents:
+            try:
+                if isinstance(contents, str):
+                    parsed = json.loads(contents)
+                    if not isinstance(parsed, list):
+                        raise forms.ValidationError("El contenido debe ser una lista JSON.")
+                    return parsed
+                elif isinstance(contents, list):
+                    return contents
+                else:
+                    raise forms.ValidationError("Formato JSON inválido.")
+            except (json.JSONDecodeError, TypeError):
+                raise forms.ValidationError("Formato JSON inválido.")
+        return []
+
+
+class ObjectCreateForm(forms.Form):
+    """Formulario unificado para crear objetos en una habitación."""
+    object_type = forms.ChoiceField(choices=[
+        ('WORK', 'Estación de trabajo'),
+        ('SOCIAL', 'Área social'),
+        ('REST', 'Zona de descanso'),
+        ('DOOR', 'Puerta'),
+        ('EQUIPMENT', 'Equipo'),
+        ('BOX', 'Caja/Contenedor'),
+    ], widget=forms.Select(attrs={
+        'class': 'form-select',
+        'id': 'id_object_type'
+    }))
+
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Nombre del objeto',
+        'required': True
+    }))
+
+    position_x = forms.IntegerField(min_value=0, widget=forms.NumberInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'X'
+    }))
+    position_y = forms.IntegerField(min_value=0, widget=forms.NumberInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Y'
+    }))
+
+    # Campos específicos de RoomObject
+    effect = forms.CharField(required=False, widget=forms.Textarea(attrs={
+        'class': 'form-control',
+        'rows': 2,
+        'placeholder': 'JSON: {"energy": 5, "productivity": 10}'
+    }))
+
+    # Campos específicos de Box
+    box_width = forms.IntegerField(required=False, min_value=1, widget=forms.NumberInput(attrs={
+        'class': 'form-control'
+    }))
+    box_height = forms.IntegerField(required=False, min_value=1, widget=forms.NumberInput(attrs={
+        'class': 'form-control'
+    }))
+    box_depth = forms.IntegerField(required=False, min_value=1, widget=forms.NumberInput(attrs={
+        'class': 'form-control'
+    }))
+    box_color = forms.CharField(required=False, max_length=7, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'type': 'color',
+        'placeholder': '#8B4513'
+    }))
+    box_material_type = forms.ChoiceField(required=False, choices=Box._meta.get_field('material_type').choices, widget=forms.Select(attrs={
+        'class': 'form-select'
+    }))
+    box_is_locked = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={
+        'class': 'form-check-input'
+    }))
+    box_required_key = forms.CharField(required=False, max_length=100, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'ID del objeto/llave necesario'
+    }))
+    box_mass = forms.DecimalField(required=False, max_digits=10, decimal_places=2, widget=forms.NumberInput(attrs={
+        'class': 'form-control',
+        'step': 0.1
+    }))
+    box_capacity = forms.IntegerField(required=False, min_value=1, widget=forms.NumberInput(attrs={
+        'class': 'form-control'
+    }))
+    box_contents = forms.CharField(required=False, widget=forms.Textarea(attrs={
+        'class': 'form-control',
+        'rows': 2,
+        'placeholder': 'JSON: [{"id": 1, "name": "item1"}]'
+    }))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        object_type = cleaned_data.get('object_type')
+        room = self.room
+
+        if not room:
+            raise forms.ValidationError("Habitación no válida.")
+
+        # Validar límites de posición
+        position_x = cleaned_data.get('position_x') or 0
+        position_y = cleaned_data.get('position_y') or 0
+        if position_x > room.length:
+            raise forms.ValidationError(f"La posición X excede el largo de la habitación ({room.length}).")
+        if position_y > room.width:
+            raise forms.ValidationError(f"La posición Y excede el ancho de la habitación ({room.width}).")
+
+        # Validar JSON effect
+        effect = cleaned_data.get('effect')
+        if effect:
+            try:
+                if isinstance(effect, str):
+                    json.loads(effect)
+            except (json.JSONDecodeError, TypeError):
+                raise forms.ValidationError("Formato JSON inválido en effect.")
+
+        # Validar JSON contents para Box
+        box_contents = cleaned_data.get('box_contents')
+        if box_contents:
+            try:
+                if isinstance(box_contents, str):
+                    parsed = json.loads(box_contents)
+                    if not isinstance(parsed, list):
+                        raise forms.ValidationError("El contenido de la caja debe ser una lista JSON.")
+                    cleaned_data['box_contents'] = parsed
+            except (json.JSONDecodeError, TypeError):
+                raise forms.ValidationError("Formato JSON inválido en contenidos de la caja.")
 
         return cleaned_data
