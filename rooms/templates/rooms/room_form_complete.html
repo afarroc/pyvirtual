@@ -4,590 +4,523 @@
 {% block content %}
 
 {% if messages %}
-<div class="alert alert-info alert-dismissible fade show" role="alert">
-    {% for message in messages %}
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    {% endfor %}
+<div class="alerts-container">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show">
+      <div class="alert-content">
+        <i class="bi bi-{% if message.tags == 'success' %}check-circle-fill{% elif message.tags == 'error' %}x-circle-fill{% elif message.tags == 'warning' %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %}"></i>
+        <span class="alert-message">{{ message }}</span>
+      </div>
+      <button type="button" class="alert-dismiss" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+    </div>
+  {% endfor %}
 </div>
 {% endif %}
 
-<div class="pagetitle" data-mode="{% if is_edit %}edit{% else %}create{% endif %}">
-    <h1>{% if is_edit %}Editar{% else %}Crear{% endif %} Habitación Completa</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'rooms:lobby' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'rooms:room_list' %}">Rooms</a></li>
-            {% if is_edit %}
-            <li class="breadcrumb-item"><a href="{% url 'rooms:room_detail' room.pk %}">{{ room.name }}</a></li>
-            <li class="breadcrumb-item active">Editar Completo</li>
-            {% else %}
-            <li class="breadcrumb-item active">Crear Completo</li>
-            {% endif %}
-        </ol>
-    </nav>
-</div>
-
-<section class="section">
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" id="roomForm">
-                        {% csrf_token %}
-
-                        <!-- Barra de progreso -->
-                        <div class="progress mb-4" style="height: 6px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: 0%" id="formProgress"></div>
-                        </div>
-
-                        <!-- Navegación por pestañas -->
-                        <ul class="nav nav-tabs nav-tabs-bordered" id="roomFormTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
-                                    <i class="bi bi-info-circle"></i> Información Básica
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="dimensions-tab" data-bs-toggle="tab" data-bs-target="#dimensions" type="button" role="tab">
-                                    <i class="bi bi-bounding-box"></i> Dimensiones
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="appearance-tab" data-bs-toggle="tab" data-bs-target="#appearance" type="button" role="tab">
-                                    <i class="bi bi-palette"></i> Apariencia
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="physics-tab" data-bs-toggle="tab" data-bs-target="#physics" type="button" role="tab">
-                                    <i class="bi bi-gear"></i> Propiedades Físicas
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="environment-tab" data-bs-toggle="tab" data-bs-target="#environment" type="button" role="tab">
-                                    <i class="bi bi-tree"></i> Ambiente
-                                </button>
-                            </li>
-                        </ul>
-
-                        <!-- Indicador de errores general -->
-                        {% if form.errors %}
-                        <div class="alert alert-danger mt-3" role="alert">
-                            <h6 class="alert-heading mb-2">
-                                <i class="bi bi-exclamation-triangle-fill"></i> Errores en el formulario
-                            </h6>
-                            <p class="mb-1">Por favor, corrige los siguientes campos antes de guardar:</p>
-                            <ul class="mb-0">
-                                {% for field in form %}
-                                    {% if field.errors %}
-                                    <li><strong>{{ field.label }}</strong>: {{ field.errors.0 }}</li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% endif %}
-
-                        <div class="tab-content pt-4" id="roomFormTabsContent">
-                            <!-- Información Básica -->
-                            <div class="tab-pane fade show active" id="basic" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="{{ form.name.id_for_label }}" class="form-label">
-                                                <i class="bi bi-tag-fill text-primary"></i> Nombre <span class="text-danger">*</span>
-                                            </label>
-                                            {{ form.name }}
-                                            {% if form.name.errors %}
-                                                <div class="text-danger small">{{ form.name.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Nombre único que identificará la habitación</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="{{ form.room_type.id_for_label }}" class="form-label">
-                                                <i class="bi bi-house-door-fill text-primary"></i> Tipo de Habitación <span class="text-danger">*</span>
-                                            </label>
-                                            {{ form.room_type }}
-                                            {% if form.room_type.errors %}
-                                                <div class="text-danger small">{{ form.room_type.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Define el propósito principal de la habitación</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.description.id_for_label }}" class="form-label">
-                                        <i class="bi bi-textarea-resize text-primary"></i> Descripción
-                                    </label>
-                                    {{ form.description }}
-                                    {% if form.description.errors %}
-                                        <div class="text-danger small">{{ form.description.errors.0 }}</div>
-                                    {% endif %}
-                                    <div class="form-text">Describe detalladamente la habitación y su propósito</div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label for="{{ form.capacity.id_for_label }}" class="form-label">
-                                                <i class="bi bi-people-fill text-primary"></i> Capacidad
-                                            </label>
-                                            {{ form.capacity }}
-                                            {% if form.capacity.errors %}
-                                                <div class="text-danger small">{{ form.capacity.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Número máximo de usuarios simultáneos</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label for="{{ form.permissions.id_for_label }}" class="form-label">
-                                                <i class="bi bi-shield-lock-fill text-primary"></i> Permisos
-                                            </label>
-                                            {{ form.permissions }}
-                                            {% if form.permissions.errors %}
-                                                <div class="text-danger small">{{ form.permissions.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Controla quién puede acceder</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label for="{{ form.image.id_for_label }}" class="form-label">
-                                                <i class="bi bi-image-fill text-primary"></i> Imagen
-                                            </label>
-                                            {{ form.image }}
-                                            {% if form.image.errors %}
-                                                <div class="text-danger small">{{ form.image.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Imagen representativa de la habitación</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Dimensiones -->
-                            <div class="tab-pane fade" id="dimensions" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6 class="text-primary mb-3">
-                                            <i class="bi bi-bounding-box-circles"></i> Tamaño Físico
-                                        </h6>
-                                        <div class="row">
-                                            <div class="col-4">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.length.id_for_label }}" class="form-label">Longitud</label>
-                                                    {{ form.length }}
-                                                    {% if form.length.errors %}
-                                                        <div class="text-danger small">{{ form.length.errors.0 }}</div>
-                                                    {% endif %}
-                                                    <div class="form-text">metros</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.width.id_for_label }}" class="form-label">Anchura</label>
-                                                    {{ form.width }}
-                                                    {% if form.width.errors %}
-                                                        <div class="text-danger small">{{ form.width.errors.0 }}</div>
-                                                    {% endif %}
-                                                    <div class="form-text">metros</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.height.id_for_label }}" class="form-label">Altura</label>
-                                                    {{ form.height }}
-                                                    {% if form.height.errors %}
-                                                        <div class="text-danger small">{{ form.height.errors.0 }}</div>
-                                                    {% endif %}
-                                                    <div class="form-text">metros</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6 class="text-primary mb-3">
-                                            <i class="bi bi-compass"></i> Posición y Orientación
-                                        </h6>
-                                        <div class="row">
-                                            <div class="col-4">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.x.id_for_label }}" class="form-label">Posición X</label>
-                                                    {{ form.x }}
-                                                    {% if form.x.errors %}
-                                                        <div class="text-danger small">{{ form.x.errors.0 }}</div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.y.id_for_label }}" class="form-label">Posición Y</label>
-                                                    {{ form.y }}
-                                                    {% if form.y.errors %}
-                                                        <div class="text-danger small">{{ form.y.errors.0 }}</div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.z.id_for_label }}" class="form-label">Posición Z</label>
-                                                    {{ form.z }}
-                                                    {% if form.z.errors %}
-                                                        <div class="text-danger small">{{ form.z.errors.0 }}</div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <h6 class="text-primary mb-3">
-                                            <i class="bi bi-arrow-clockwise"></i> Rotación
-                                        </h6>
-                                        <div class="row">
-                                            <div class="col-4">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.pitch.id_for_label }}" class="form-label">Pitch</label>
-                                                    {{ form.pitch }}
-                                                    {% if form.pitch.errors %}
-                                                        <div class="text-danger small">{{ form.pitch.errors.0 }}</div>
-                                                    {% endif %}
-                                                    <div class="form-text">grados</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.yaw.id_for_label }}" class="form-label">Yaw</label>
-                                                    {{ form.yaw }}
-                                                    {% if form.yaw.errors %}
-                                                        <div class="text-danger small">{{ form.yaw.errors.0 }}</div>
-                                                    {% endif %}
-                                                    <div class="form-text">grados</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.roll.id_for_label }}" class="form-label">Roll</label>
-                                                    {{ form.roll }}
-                                                    {% if form.roll.errors %}
-                                                        <div class="text-danger small">{{ form.roll.errors.0 }}</div>
-                                                    {% endif %}
-                                                    <div class="form-text">grados</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Preview 3D -->
-                                <div class="mt-4">
-                                    <h6 class="text-primary mb-3">
-                                        <i class="bi bi-eye"></i> Preview 3D
-                                    </h6>
-                                    <div class="border rounded p-3 bg-light">
-                                        <div id="roomPreview" class="text-center">
-                                            <i class="bi bi-bounding-box display-4 text-muted"></i>
-                                            <p class="text-muted mt-2">Preview 3D se actualizará automáticamente</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Apariencia -->
-                            <div class="tab-pane fade" id="appearance" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6 class="text-primary mb-3">
-                                            <i class="bi bi-palette"></i> Colores
-                                        </h6>
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.color_primary.id_for_label }}" class="form-label">Color Primario</label>
-                                                    {{ form.color_primary }}
-                                                    {% if form.color_primary.errors %}
-                                                        <div class="text-danger small">{{ form.color_primary.errors.0 }}</div>
-                                                    {% endif %}
-                                                    <div class="form-text">Color principal de la habitación</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.color_secondary.id_for_label }}" class="form-label">Color Secundario</label>
-                                                    {{ form.color_secondary }}
-                                                    {% if form.color_secondary.errors %}
-                                                        <div class="text-danger small">{{ form.color_secondary.errors.0 }}</div>
-                                                    {% endif %}
-                                                    <div class="form-text">Color de acentos y detalles</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="{{ form.opacity.id_for_label }}" class="form-label">Opacidad</label>
-                                            {{ form.opacity }}
-                                            {% if form.opacity.errors %}
-                                                <div class="text-danger small">{{ form.opacity.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Transparencia general (0.0 - 1.0)</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6 class="text-primary mb-3">
-                                            <i class="bi bi-lightbulb"></i> Materiales
-                                        </h6>
-                                        <div class="mb-3">
-                                            <label for="{{ form.material_type.id_for_label }}" class="form-label">Tipo de Material</label>
-                                            {{ form.material_type }}
-                                            {% if form.material_type.errors %}
-                                                <div class="text-danger small">{{ form.material_type.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Material predominante de las superficies</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Propiedades Físicas -->
-                            <div class="tab-pane fade" id="physics" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6 class="text-primary mb-3">
-                                            <i class="bi bi-speedometer2"></i> Propiedades Físicas
-                                        </h6>
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.mass.id_for_label }}" class="form-label">Masa</label>
-                                                    {{ form.mass }}
-                                                    {% if form.mass.errors %}
-                                                        <div class="text-danger small">{{ form.mass.errors.0 }}</div>
-                                                    {% endif %}
-                                                    <div class="form-text">kg</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="{{ form.density.id_for_label }}" class="form-label">Densidad</label>
-                                                    {{ form.density }}
-                                                    {% if form.density.errors %}
-                                                        <div class="text-danger small">{{ form.density.errors.0 }}</div>
-                                                    {% endif %}
-                                                    <div class="form-text">g/cm³</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6 class="text-primary mb-3">
-                                            <i class="bi bi-gear"></i> Coeficientes
-                                        </h6>
-                                        <div class="mb-3">
-                                            <label for="{{ form.friction.id_for_label }}" class="form-label">Fricción</label>
-                                            {{ form.friction }}
-                                            {% if form.friction.errors %}
-                                                <div class="text-danger small">{{ form.friction.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Coeficiente de fricción (0.0 - 1.0)</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="{{ form.restitution.id_for_label }}" class="form-label">Restitución</label>
-                                            {{ form.restitution }}
-                                            {% if form.restitution.errors %}
-                                                <div class="text-danger small">{{ form.restitution.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Coeficiente de restitución (0.0 - 1.0)</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Ambiente -->
-                            <div class="tab-pane fade" id="environment" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6 class="text-primary mb-3">
-                                            <i class="bi bi-thermometer-half"></i> Condiciones Ambientales
-                                        </h6>
-                                        <div class="mb-3">
-                                            <label for="{{ form.temperature.id_for_label }}" class="form-label">Temperatura</label>
-                                            {{ form.temperature }}
-                                            {% if form.temperature.errors %}
-                                                <div class="text-danger small">{{ form.temperature.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Temperatura ambiente en °C</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="{{ form.lighting_intensity.id_for_label }}" class="form-label">Iluminación</label>
-                                            {{ form.lighting_intensity }}
-                                            {% if form.lighting_intensity.errors %}
-                                                <div class="text-danger small">{{ form.lighting_intensity.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Intensidad de iluminación (0-100)</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="{{ form.sound_ambient.id_for_label }}" class="form-label">Sonido Ambiente</label>
-                                            {{ form.sound_ambient }}
-                                            {% if form.sound_ambient.errors %}
-                                                <div class="text-danger small">{{ form.sound_ambient.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Archivo de sonido ambiente</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6 class="text-primary mb-3">
-                                            <i class="bi bi-sliders"></i> Estado y Propiedades Especiales
-                                        </h6>
-                                        <div class="mb-3">
-                                            <div class="form-check">
-                                                {{ form.is_active }}
-                                                <label for="{{ form.is_active.id_for_label }}" class="form-check-label">
-                                                    <i class="bi bi-toggle-on"></i> Habitación Activa
-                                                </label>
-                                            </div>
-                                            {% if form.is_active.errors %}
-                                                <div class="text-danger small">{{ form.is_active.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Si está desactivada, no será accesible</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="{{ form.health.id_for_label }}" class="form-label">Salud/Durabilidad</label>
-                                            {{ form.health }}
-                                            {% if form.health.errors %}
-                                                <div class="text-danger small">{{ form.health.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Estado general de la habitación (0-100)</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="{{ form.special_properties.id_for_label }}" class="form-label">Propiedades Especiales</label>
-                                            {{ form.special_properties }}
-                                            {% if form.special_properties.errors %}
-                                                <div class="text-danger small">{{ form.special_properties.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">JSON con propiedades especiales</div>
-                                        </div>
-                                        {% if is_edit %}
-                                        <div class="mb-3">
-                                            <label for="{{ form.parent_room.id_for_label }}" class="form-label">Habitación Padre</label>
-                                            {{ form.parent_room }}
-                                            {% if form.parent_room.errors %}
-                                                <div class="text-danger small">{{ form.parent_room.errors.0 }}</div>
-                                            {% endif %}
-                                            <div class="form-text">Para crear jerarquías de habitaciones</div>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Barra de acciones -->
-                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                            <div>
-                                <button type="button" class="btn btn-outline-secondary me-2" onclick="saveDraft()">
-                                    <i class="bi bi-save"></i> Guardar Borrador
-                                </button>
-                                <small class="text-muted" id="autoSaveStatus">Auto-guardado: <span class="text-success">Activado</span></small>
-                            </div>
-                            <div>
-                                <a href="{% if is_edit %}{% url 'rooms:room_detail' room.pk %}{% else %}{% url 'rooms:room_list' %}{% endif %}"
-                                   class="btn btn-outline-secondary me-2">
-                                    <i class="bi bi-arrow-left"></i> Cancelar
-                                </a>
-                                {% if is_edit %}
-                                <button type="button" class="btn btn-outline-danger me-2" onclick="confirmDelete()" data-delete-url="{% url 'rooms:room_delete' room.pk %}">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
-                                {% endif %}
-                                <button type="submit" class="btn btn-primary" onclick="return confirmSave()">
-                                    <i class="bi bi-check-lg"></i> {% if is_edit %}Actualizar{% else %}Crear{% endif %} Habitación
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Panel lateral -->
-        <div class="col-lg-4">
-            <!-- Preview en tiempo real -->
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="bi bi-eye-fill text-info"></i> Preview en Tiempo Real
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div id="livePreview" class="text-center p-3 bg-light rounded">
-                        <div class="preview-room" style="width: 100%; height: 150px; background: linear-gradient(45deg, #f8f9fa, #e9ecef); border: 2px solid #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <div class="preview-content">
-                                <i class="bi bi-house-door display-4 text-muted"></i>
-                                <p class="text-muted mt-2 mb-0 small">Preview se actualiza automáticamente</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <small class="text-muted">
-                            <i class="bi bi-info-circle"></i> Los cambios se reflejan aquí en tiempo real
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Estadísticas y consejos -->
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="bi bi-bar-chart-fill text-primary"></i> Estadísticas
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6">
-                            <div class="border-end">
-                                <div class="h4 text-primary">{{ room_count|default:0 }}</div>
-                                <small class="text-muted">Total Habitaciones</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="h4 text-success">{{ active_rooms|default:0 }}</div>
-                            <small class="text-muted">Activas</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Consejos -->
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="bi bi-lightbulb-fill text-warning"></i> Consejos
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0 small">
-                        <li class="mb-2">
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                            Completa primero la información básica
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                            Las dimensiones afectan la experiencia 3D
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                            Usa colores que representen el ambiente
-                        </li>
-                        <li class="mb-0">
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                            Guarda borradores para trabajo en progreso
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+<div class="dashboard-wrapper">
+  <div class="dashboard-header">
+    <div>
+      <h1>{% if is_edit %}Editar{% else %}Crear{% endif %} Habitación Completa</h1>
+      <p class="subtitle">
+        <a href="{% url 'rooms:lobby' %}">Home</a>
+        <span class="text-muted">/</span>
+        <a href="{% url 'rooms:room_list' %}">Rooms</a>
+        {% if is_edit %}
+        <span class="text-muted">/</span>
+        <a href="{% url 'rooms:room_detail' room.pk %}">{{ room.name }}</a>
+        <span class="text-muted">/</span>
+        <span class="text-primary">Editar Completo</span>
+        {% else %}
+        <span class="text-muted">/</span>
+        <span class="text-primary">Crear Completo</span>
+        {% endif %}
+      </p>
     </div>
-</section>
+  </div>
+
+  <div class="two-col">
+    <div class="col">
+      <div class="section-card">
+        <div class="section-header-purple">
+          <h5><i class="bi bi-info-circle-fill me-2"></i> {% if is_edit %}Editar{% else %}Nueva{% endif %} Habitación</h5>
+        </div>
+        <div class="section-body">
+          <form method="post" enctype="multipart/form-data" id="roomForm">
+            {% csrf_token %}
+
+            <!-- Indicador de errores general -->
+            {% if form.errors %}
+            <div class="alert alert-danger">
+              <div class="alert-content">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span class="alert-message">
+                  <strong>Errores en el formulario</strong><br>
+                  Por favor, corrige los siguientes campos antes de guardar:<br>
+                  {% for field in form %}
+                    {% if field.errors %}
+                      <strong>{{ field.label }}:</strong> {{ field.errors.0 }}<br>
+                    {% endif %}
+                  {% endfor %}
+                </span>
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Información Básica -->
+            <div class="section-card mt-3">
+              <div class="section-header-green">
+                <h6><i class="bi bi-info-circle me-2"></i> Información Básica</h6>
+              </div>
+              <div class="section-body">
+                <div class="row">
+                  <div class="col">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">
+                      <i class="bi bi-tag-fill text-primary me-1"></i> Nombre <span class="text-danger">*</span>
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                      <div class="text-danger text-xs mt-2">{{ form.name.errors.0 }}</div>
+                    {% endif %}
+                    <div class="form-text">Nombre único que identificará la habitación</div>
+                  </div>
+                  <div class="col">
+                    <label for="{{ form.room_type.id_for_label }}" class="form-label">
+                      <i class="bi bi-house-door-fill text-primary me-1"></i> Tipo de Habitación <span class="text-danger">*</span>
+                    </label>
+                    {{ form.room_type }}
+                    {% if form.room_type.errors %}
+                      <div class="text-danger text-xs mt-2">{{ form.room_type.errors.0 }}</div>
+                    {% endif %}
+                    <div class="form-text">Define el propósito principal de la habitación</div>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <label for="{{ form.description.id_for_label }}" class="form-label">
+                    <i class="bi bi-textarea-resize text-primary me-1"></i> Descripción
+                  </label>
+                  {{ form.description }}
+                  {% if form.description.errors %}
+                    <div class="text-danger text-xs mt-2">{{ form.description.errors.0 }}</div>
+                  {% endif %}
+                  <div class="form-text">Describe detalladamente la habitación y su propósito</div>
+                </div>
+
+                <div class="row mt-3">
+                  <div class="col">
+                    <label for="{{ form.capacity.id_for_label }}" class="form-label">
+                      <i class="bi bi-people-fill text-primary me-1"></i> Capacidad
+                    </label>
+                    {{ form.capacity }}
+                    {% if form.capacity.errors %}
+                      <div class="text-danger text-xs mt-2">{{ form.capacity.errors.0 }}</div>
+                    {% endif %}
+                    <div class="form-text">Número máximo de usuarios simultáneos</div>
+                  </div>
+                  <div class="col">
+                    <label for="{{ form.permissions.id_for_label }}" class="form-label">
+                      <i class="bi bi-shield-lock-fill text-primary me-1"></i> Permisos
+                    </label>
+                    {{ form.permissions }}
+                    {% if form.permissions.errors %}
+                      <div class="text-danger text-xs mt-2">{{ form.permissions.errors.0 }}</div>
+                    {% endif %}
+                    <div class="form-text">Controla quién puede acceder</div>
+                  </div>
+                  <div class="col">
+                    <label for="{{ form.image.id_for_label }}" class="form-label">
+                      <i class="bi bi-image-fill text-primary me-1"></i> Imagen
+                    </label>
+                    {{ form.image }}
+                    {% if form.image.errors %}
+                      <div class="text-danger text-xs mt-2">{{ form.image.errors.0 }}</div>
+                    {% endif %}
+                    <div class="form-text">Imagen representativa de la habitación</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dimensiones -->
+            <div class="section-card mt-3">
+              <div class="section-header-purple">
+                <h6><i class="bi bi-bounding-box-circles me-2"></i> Dimensiones y Posición</h6>
+              </div>
+              <div class="section-body">
+                <div class="row">
+                  <div class="col">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-bounding-box"></i> Tamaño Físico
+                    </h6>
+                    <div class="row">
+                      <div class="col">
+                        <label for="{{ form.length.id_for_label }}" class="form-label">Longitud</label>
+                        {{ form.length }}
+                        {% if form.length.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.length.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">metros</div>
+                      </div>
+                      <div class="col">
+                        <label for="{{ form.width.id_for_label }}" class="form-label">Anchura</label>
+                        {{ form.width }}
+                        {% if form.width.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.width.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">metros</div>
+                      </div>
+                      <div class="col">
+                        <label for="{{ form.height.id_for_label }}" class="form-label">Altura</label>
+                        {{ form.height }}
+                        {% if form.height.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.height.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">metros</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-compass"></i> Posición y Orientación
+                    </h6>
+                    <div class="row">
+                      <div class="col">
+                        <label for="{{ form.x.id_for_label }}" class="form-label">Posición X</label>
+                        {{ form.x }}
+                        {% if form.x.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.x.errors.0 }}</div>
+                        {% endif %}
+                      </div>
+                      <div class="col">
+                        <label for="{{ form.y.id_for_label }}" class="form-label">Posición Y</label>
+                        {{ form.y }}
+                        {% if form.y.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.y.errors.0 }}</div>
+                        {% endif %}
+                      </div>
+                      <div class="col">
+                        <label for="{{ form.z.id_for_label }}" class="form-label">Posición Z</label>
+                        {{ form.z }}
+                        {% if form.z.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.z.errors.0 }}</div>
+                        {% endif %}
+                      </div>
+                    </div>
+
+                    <h6 class="text-primary mb-3 mt-3">
+                      <i class="bi bi-arrow-clockwise"></i> Rotación
+                    </h6>
+                    <div class="row">
+                      <div class="col">
+                        <label for="{{ form.pitch.id_for_label }}" class="form-label">Pitch</label>
+                        {{ form.pitch }}
+                        {% if form.pitch.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.pitch.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">grados</div>
+                      </div>
+                      <div class="col">
+                        <label for="{{ form.yaw.id_for_label }}" class="form-label">Yaw</label>
+                        {{ form.yaw }}
+                        {% if form.yaw.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.yaw.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">grados</div>
+                      </div>
+                      <div class="col">
+                        <label for="{{ form.roll.id_for_label }}" class="form-label">Roll</label>
+                        {{ form.roll }}
+                        {% if form.roll.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.roll.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">grados</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Apariencia -->
+            <div class="section-card mt-3">
+              <div class="section-header-green">
+                <h6><i class="bi bi-palette me-2"></i> Apariencia</h6>
+              </div>
+              <div class="section-body">
+                <div class="row">
+                  <div class="col">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-palette"></i> Colores
+                    </h6>
+                    <div class="row">
+                      <div class="col">
+                        <label for="{{ form.color_primary.id_for_label }}" class="form-label">Color Primario</label>
+                        {{ form.color_primary }}
+                        {% if form.color_primary.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.color_primary.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Color principal de la habitación</div>
+                      </div>
+                      <div class="col">
+                        <label for="{{ form.color_secondary.id_for_label }}" class="form-label">Color Secundario</label>
+                        {{ form.color_secondary }}
+                        {% if form.color_secondary.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.color_secondary.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Color de acentos y detalles</div>
+                      </div>
+                    </div>
+                    <div class="mt-3">
+                      <label for="{{ form.opacity.id_for_label }}" class="form-label">Opacidad</label>
+                      {{ form.opacity }}
+                      {% if form.opacity.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.opacity.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">Transparencia general (0.0 - 1.0)</div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-lightbulb"></i> Materiales
+                    </h6>
+                    <div>
+                      <label for="{{ form.material_type.id_for_label }}" class="form-label">Tipo de Material</label>
+                      {{ form.material_type }}
+                      {% if form.material_type.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.material_type.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">Material predominante de las superficies</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Propiedades Físicas -->
+            <div class="section-card mt-3">
+              <div class="section-header-purple">
+                <h6><i class="bi bi-gear me-2"></i> Propiedades Físicas</h6>
+              </div>
+              <div class="section-body">
+                <div class="row">
+                  <div class="col">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-speedometer2"></i> Propiedades Físicas
+                    </h6>
+                    <div class="row">
+                      <div class="col">
+                        <label for="{{ form.mass.id_for_label }}" class="form-label">Masa</label>
+                        {{ form.mass }}
+                        {% if form.mass.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.mass.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">kg</div>
+                      </div>
+                      <div class="col">
+                        <label for="{{ form.density.id_for_label }}" class="form-label">Densidad</label>
+                        {{ form.density }}
+                        {% if form.density.errors %}
+                          <div class="text-danger text-xs mt-2">{{ form.density.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">g/cm³</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-sliders"></i> Coeficientes
+                    </h6>
+                    <div>
+                      <label for="{{ form.friction.id_for_label }}" class="form-label">Fricción</label>
+                      {{ form.friction }}
+                      {% if form.friction.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.friction.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">Coeficiente de fricción (0.0 - 1.0)</div>
+                    </div>
+                    <div class="mt-3">
+                      <label for="{{ form.restitution.id_for_label }}" class="form-label">Restitución</label>
+                      {{ form.restitution }}
+                      {% if form.restitution.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.restitution.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">Coeficiente de restitución (0.0 - 1.0)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ambiente -->
+            <div class="section-card mt-3">
+              <div class="section-header-green">
+                <h6><i class="bi bi-sliders me-2"></i> Ambiente y Estado</h6>
+              </div>
+              <div class="section-body">
+                <div class="row">
+                  <div class="col">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-thermometer-half"></i> Condiciones Ambientales
+                    </h6>
+                    <div>
+                      <label for="{{ form.temperature.id_for_label }}" class="form-label">Temperatura</label>
+                      {{ form.temperature }}
+                      {% if form.temperature.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.temperature.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">Temperatura ambiente en °C</div>
+                    </div>
+                    <div class="mt-3">
+                      <label for="{{ form.lighting_intensity.id_for_label }}" class="form-label">Iluminación</label>
+                      {{ form.lighting_intensity }}
+                      {% if form.lighting_intensity.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.lighting_intensity.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">Intensidad de iluminación (0-100)</div>
+                    </div>
+                    <div class="mt-3">
+                      <label for="{{ form.sound_ambient.id_for_label }}" class="form-label">Sonido Ambiente</label>
+                      {{ form.sound_ambient }}
+                      {% if form.sound_ambient.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.sound_ambient.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">Archivo de sonido ambiente</div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-toggle-on"></i> Estado y Propiedades Especiales
+                    </h6>
+                    <div>
+                      <div class="form-check">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}" class="form-check-label">
+                          <i class="bi bi-toggle-on"></i> Habitación Activa
+                        </label>
+                      </div>
+                      {% if form.is_active.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.is_active.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">Si está desactivada, no será accesible</div>
+                    </div>
+                    <div class="mt-3">
+                      <label for="{{ form.health.id_for_label }}" class="form-label">Salud/Durabilidad</label>
+                      {{ form.health }}
+                      {% if form.health.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.health.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">Estado general de la habitación (0-100)</div>
+                    </div>
+                    <div class="mt-3">
+                      <label for="{{ form.special_properties.id_for_label }}" class="form-label">Propiedades Especiales</label>
+                      {{ form.special_properties }}
+                      {% if form.special_properties.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.special_properties.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">JSON con propiedades especiales</div>
+                    </div>
+                    {% if is_edit %}
+                    <div class="mt-3">
+                      <label for="{{ form.parent_room.id_for_label }}" class="form-label">Habitación Padre</label>
+                      {{ form.parent_room }}
+                      {% if form.parent_room.errors %}
+                        <div class="text-danger text-xs mt-2">{{ form.parent_room.errors.0 }}</div>
+                      {% endif %}
+                      <div class="form-text">Para crear jerarquías de habitaciones</div>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra de acciones -->
+            <div class="dashboard-header mt-4" style="border-top: 1px solid var(--gray-200); padding-top: 1rem;">
+              <div>
+                <button type="button" class="btn btn-outline-secondary me-2" onclick="saveDraft()">
+                  <i class="bi bi-save"></i> Guardar Borrador
+                </button>
+                <small class="text-muted">Auto-guardado: <span class="text-success">Activado</span></small>
+              </div>
+              <div>
+                <a href="{% if is_edit %}{% url 'rooms:room_detail' room.pk %}{% else %}{% url 'rooms:room_list' %}{% endif %}"
+                   class="btn btn-outline-secondary me-2">
+                  <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+                {% if is_edit %}
+                <button type="button" class="btn btn-outline-danger me-2" onclick="confirmDelete()" data-delete-url="{% url 'rooms:room_delete' room.pk %}">
+                  <i class="bi bi-trash"></i> Eliminar
+                </button>
+                {% endif %}
+                <button type="submit" class="btn btn-primary" onclick="return confirmSave()">
+                  <i class="bi bi-check-lg"></i> {% if is_edit %}Actualizar{% else %}Crear{% endif %} Habitación
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel lateral -->
+    <div class="col">
+      <div class="section-card">
+        <div class="section-header-purple">
+          <h5><i class="bi bi-eye-fill me-2"></i> Preview en Tiempo Real</h5>
+        </div>
+        <div class="section-body">
+          <div class="text-center p-3 bg-light rounded">
+            <div id="livePreview" style="width: 100%; height: 150px; background: linear-gradient(45deg, #f8f9fa, #e9ecef); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+              <div>
+                <i class="bi bi-house-door text-muted" style="font-size: 2.5rem;"></i>
+                <p class="text-muted mt-2 mb-0 text-xs">Preview se actualiza automáticamente</p>
+              </div>
+            </div>
+          </div>
+          <small class="text-muted">
+            <i class="bi bi-info-circle"></i> Los cambios se reflejan aquí en tiempo real
+          </small>
+        </div>
+      </div>
+
+      <div class="section-card mt-3">
+        <div class="section-header-purple">
+          <h5><i class="bi bi-bar-chart-fill me-2"></i> Estadísticas</h5>
+        </div>
+        <div class="section-body">
+          <div class="row">
+            <div class="col border-end">
+              <div class="text-center">
+                <div class="text-primary" style="font-size: 1.5rem; font-weight: bold;">{{ room_count|default:0 }}</div>
+                <small class="text-muted">Total Habitaciones</small>
+              </div>
+            </div>
+            <div class="col">
+              <div class="text-center">
+                <div class="text-success" style="font-size: 1.5rem; font-weight: bold;">{{ active_rooms|default:0 }}</div>
+                <small class="text-muted">Activas</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card mt-3">
+        <div class="section-header-green">
+          <h5><i class="bi bi-lightbulb-fill me-2"></i> Consejos</h5>
+        </div>
+        <div class="section-body">
+          <ul class="list-unstyled mb-0 text-sm">
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-1"></i> Completa primero la información básica</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-1"></i> Las dimensiones afectan la experiencia 3D</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-1"></i> Usa colores que representen el ambiente</li>
+            <li class="mb-0"><i class="bi bi-check-circle-fill text-success me-1"></i> Guarda borradores para trabajo en progreso</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 
@@ -599,7 +532,7 @@ let isAutoSaveEnabled = true;
 
 // Función de confirmación antes de guardar
 function confirmSave() {
-    const mode = document.querySelector('.pagetitle').getAttribute('data-mode');
+    const mode = document.querySelector('.dashboard-wrapper').getAttribute('data-mode') || document.querySelector('.pagetitle')?.getAttribute('data-mode');
     if (mode === 'edit') {
         return confirm('¿Estás seguro de que deseas actualizar esta habitación? Los cambios serán guardados permanentemente.');
     } else {
@@ -617,17 +550,7 @@ function confirmDelete() {
 
 // Función para guardar borrador
 function saveDraft() {
-    // Aquí iría la lógica para guardar como borrador
     alert('Funcionalidad de guardar borrador - próximamente');
-}
-
-// Actualizar barra de progreso
-function updateProgress() {
-    const tabs = document.querySelectorAll('#roomFormTabs .nav-link');
-    const activeTab = document.querySelector('#roomFormTabs .nav-link.active');
-    const activeIndex = Array.from(tabs).indexOf(activeTab);
-    const progress = ((activeIndex + 1) / tabs.length) * 100;
-    document.getElementById('formProgress').style.width = progress + '%';
 }
 
 // Actualizar preview en tiempo real
@@ -636,37 +559,31 @@ function updateLivePreview() {
     const roomType = document.getElementById('{{ form.room_type.id_for_label }}').value;
     const colorPrimary = document.getElementById('{{ form.color_primary.id_for_label }}').value || '#4CAF50';
 
-    const previewContent = document.querySelector('.preview-content');
-    previewContent.innerHTML = `
+    const previewContent = document.querySelector('#livePreview');
+    if (previewContent) {
+      previewContent.innerHTML = `
         <div style="color: ${colorPrimary}; font-weight: bold;">${name}</div>
         <small class="text-muted">${roomType || 'Tipo no seleccionado'}</small>
-    `;
-
-    // Actualizar color de fondo
-    const previewRoom = document.querySelector('.preview-room');
-    previewRoom.style.background = `linear-gradient(45deg, ${colorPrimary}20, ${colorPrimary}10)`;
+      `;
+      previewContent.style.background = `linear-gradient(45deg, ${colorPrimary}20, ${colorPrimary}10)`;
+    }
 }
 
 // Auto-guardado
 function autoSave() {
     if (!isAutoSaveEnabled) return;
 
-    // Aquí iría la lógica de auto-guardado
     const statusElement = document.getElementById('autoSaveStatus');
-    statusElement.innerHTML = 'Auto-guardado: <span class="text-warning">Guardando...</span>';
-
-    setTimeout(() => {
+    if (statusElement) {
+      statusElement.innerHTML = 'Auto-guardado: <span class="text-warning">Guardando...</span>';
+      setTimeout(() => {
         statusElement.innerHTML = 'Auto-guardado: <span class="text-success">Guardado</span>';
-    }, 1000);
+      }, 1000);
+    }
 }
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Actualizar progreso al cambiar de pestaña
-    document.querySelectorAll('#roomFormTabs .nav-link').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', updateProgress);
-    });
-
     // Actualizar preview en tiempo real
     document.querySelectorAll('input, select, textarea').forEach(field => {
         field.addEventListener('input', updateLivePreview);
@@ -676,7 +593,6 @@ document.addEventListener('DOMContentLoaded', function() {
     autoSaveTimer = setInterval(autoSave, 30000);
 
     // Inicializar
-    updateProgress();
     updateLivePreview();
 
     // Resaltar campos requeridos vacíos al enviar
@@ -693,7 +609,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (hasErrors) {
             alert('Por favor, completa todos los campos requeridos marcados con *');
-            // No prevenimos el envío para que Django valide
         }
     });
 
@@ -714,96 +629,4 @@ window.addEventListener('beforeunload', function() {
     }
 });
 </script>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-/* Estilos para campos con errores */
-.form-control.is-invalid,
-.form-select.is-invalid {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-}
-
-/* Campos requeridos */
-.form-label .text-danger {
-    font-weight: bold;
-}
-
-/* Mejorar apariencia de cards */
-.card {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-/* Iconos en labels */
-.form-label i {
-    margin-right: 0.5rem;
-}
-
-/* Botones de acción */
-.btn {
-    border-radius: 0.375rem;
-}
-
-.btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-outline-danger:hover {
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-/* Preview en tiempo real */
-.preview-room {
-    transition: all 0.3s ease;
-}
-
-.preview-content {
-    transition: all 0.3s ease;
-}
-
-/* Barra de progreso */
-.progress {
-    background-color: #e9ecef;
-}
-
-.progress-bar {
-    transition: width 0.3s ease;
-}
-
-/* Pestañas activas */
-.nav-tabs .nav-link.active {
-    background-color: #f8f9fa;
-    border-color: #dee2e6 #dee2e6 #fff;
-}
-
-/* Formulario en pestañas */
-.tab-content {
-    border: 1px solid #dee2e6;
-    border-top: none;
-    padding: 1.5rem;
-    background-color: #fff;
-}
-
-/* Campos de formulario mejorados */
-.form-control:focus,
-.form-select:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-/* Texto de ayuda */
-.form-text {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-</style>
 {% endblock %}
