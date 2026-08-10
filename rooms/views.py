@@ -3016,7 +3016,7 @@ def room_object_list(request, room_id):
         'room_objects': room_objects,
         'boxes': boxes,
     }
-    return render(request, 'rooms/includes/room_object_list.html', context)
+    return render(request, 'rooms/room_object_list.html', context)
 
 
 @login_required
