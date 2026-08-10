@@ -200,7 +200,9 @@ def room_detail(request, pk):
             'entrance_exits': entrance_exits,  # Confirmar que contiene datos
             'portals': portals,  # Confirmar que contiene datos
             'entrance_exit_form': entrance_exit_form,
-            'portal_form': portal_form
+            'portal_form': portal_form,
+            'room_objects': room.room_objects.all(),
+            'boxes': room.boxes.all(),
         })
     except Http404:
         logger.warning(f"Room with ID {pk} not found in the database.")
