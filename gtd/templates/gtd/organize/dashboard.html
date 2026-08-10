@@ -1,0 +1,255 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-number text-primary">{{ stats.next_actions.total }}</div>
+        <div class="stat-label">Próximas Acciones</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-success">{{ stats.projects.active }}</div>
+        <div class="stat-label">Proyectos Activos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-warning">{{ stats.waiting.total }}</div>
+        <div class="stat-label">Esperando</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-info">{{ stats.someday.total }}</div>
+        <div class="stat-label">Algún día / Quizás</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="section-card">
+            <div class="section-header section-header-primary">
+                <h3 class="section-title">
+                    Próximas Acciones
+                    <span class="badge bg-primary ms-2">{{ stats.next_actions.total }}</span>
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if next_actions.contexts %}
+                    <div class="list-group">
+                        {% for context, items in next_actions.contexts.items %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>{{ context }}</strong>
+                                    <span class="badge bg-secondary">{{ items|length }}</span>
+                                </div>
+                                <div class="mt-1">
+                                    {% for item in items|slice:":3" %}
+                                        <div class="small text-truncate">
+                                            <i class="fas fa-circle text-{{ item.priority }}"></i>
+                                            {{ item.task.title }}
+                                        </div>
+                                    {% endfor %}
+                                    {% if items|length > 3 %}
+                                        <small class="text-muted">+{{ items|length|add:"-3" }} más</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 text-center">
+                        <a href="{% url 'gtd:organize_next_actions' %}" class="btn btn-primary btn-sm">
+                            Ver todas <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No hay próximas acciones</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="section-card">
+            <div class="section-header section-header-success">
+                <h3 class="section-title">
+                    Proyectos
+                    <span class="badge bg-success ms-2">{{ stats.projects.total }}</span>
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if projects.projects %}
+                    <div class="list-group">
+                        {% for status, project_list in projects.projects.items %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>{{ status }}</strong>
+                                    <span class="badge bg-secondary">{{ project_list|length }}</span>
+                                </div>
+                                <div class="mt-1">
+                                    {% for p in project_list|slice:":3" %}
+                                        <div class="small">
+                                            <div class="d-flex justify-content-between">
+                                                <span>{{ p.project.title|truncatechars:20 }}</span>
+                                                <span class="text-muted">{{ p.progress }}%</span>
+                                            </div>
+                                            <div class="progress mt-1" style="height: 4px;">
+                                                <div class="progress-bar bg-success" style="width: {{ p.progress }}%;"></div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    {% if project_list|length > 3 %}
+                                        <small class="text-muted">+{{ project_list|length|add:"-3" }} más</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 text-center">
+                        <a href="{% url 'gtd:organize_projects' %}" class="btn btn-success btn-sm">
+                            Ver todos <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No hay proyectos</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="section-card">
+            <div class="section-header section-header-warning">
+                <h3 class="section-title">
+                    Esperando
+                    <span class="badge bg-warning ms-2">{{ stats.waiting.total }}</span>
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if waiting.delegated or waiting.waiting_for_response %}
+                    <div class="list-group">
+                        {% for item in waiting.delegated|slice:":3" %}
+                            <div class="list-group-item small">
+                                <i class="fas fa-user-check text-info"></i>
+                                Delegado a {{ item.delegated_to.username }}
+                                <div class="text-muted">{{ item.task.title|truncatechars:30 }}</div>
+                            </div>
+                        {% endfor %}
+                        {% for item in waiting.waiting_for_response|slice:":3" %}
+                            <div class="list-group-item small">
+                                <i class="fas fa-hourglass-half text-warning"></i>
+                                Esperando de {{ item.waiting_from.username }}
+                                <div class="text-muted">{{ item.task.title|truncatechars:30 }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 text-center">
+                        <a href="{% url 'gtd:organize_waiting' %}" class="btn btn-warning btn-sm">
+                            Ver todos <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No hay items en espera</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="section-card">
+            <div class="section-header section-header-info">
+                <h3 class="section-title">
+                    Algún día / Quizás
+                    <span class="badge bg-info ms-2">{{ stats.someday.total }}</span>
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if someday.inbox_items or someday.projects or someday.tasks %}
+                    <div class="list-group">
+                        {% for item in someday.inbox_items|slice:":2" %}
+                            <div class="list-group-item small">
+                                <i class="fas fa-inbox text-info"></i>
+                                {{ item.title|truncatechars:30 }}
+                            </div>
+                        {% endfor %}
+                        {% for project in someday.projects|slice:":2" %}
+                            <div class="list-group-item small">
+                                <i class="fas fa-folder text-info"></i>
+                                {{ project.title|truncatechars:30 }}
+                            </div>
+                        {% endfor %}
+                        {% for task in someday.tasks|slice:":2" %}
+                            <div class="list-group-item small">
+                                <i class="fas fa-tasks text-info"></i>
+                                {{ task.title|truncatechars:30 }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 text-center">
+                        <a href="{% url 'gtd:organize_someday' %}" class="btn btn-info btn-sm">
+                            Ver todos <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No hay items en "Algún día"</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="section-card">
+            <div class="section-header section-header-secondary">
+                <h3 class="section-title">
+                    <i class="fas fa-bolt"></i> Acciones Rápidas
+                </h3>
+            </div>
+            <div class="section-body">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <a href="{% url 'gtd:organize_references' %}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-archive"></i> Referencias
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'gtd:organize_calendar' %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-calendar-alt"></i> Agenda
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-success w-100" onclick="refreshOrganize()">
+                            <i class="fas fa-sync"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-warning w-100" onclick="exportOrganize()">
+                            <i class="fas fa-download"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function refreshOrganize() {
+    location.reload();
+}
+
+function exportOrganize() {
+    toastr.info('Función de exportación próximamente');
+}
+
+$(document).keydown(function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'O') {
+        e.preventDefault();
+        window.location.href = '{% url "gtd:organize_dashboard" %}';
+    }
+});
+
+console.log('GTD Organize: Ctrl+Shift+O');
+</script>
+{% endblock %}

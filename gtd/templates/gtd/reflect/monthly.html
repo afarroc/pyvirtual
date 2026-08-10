@@ -1,0 +1,75 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-chart-bar"></i> {{ title }}
+                    <small class="text-light">{{ subtitle }}</small>
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-4">
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <h3 class="text-success">{{ monthly.tasks.completed }}</h3>
+                            <small class="text-muted">Tareas completadas</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <h3 class="text-primary">{{ monthly.projects.completed }}</h3>
+                            <small class="text-muted">Proyectos completados</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <h3 class="text-warning">{{ monthly.projects.active }}</h3>
+                            <small class="text-muted">Proyectos activos</small>
+                        </div>
+                    </div>
+                </div>
+
+                <h5><i class="fas fa-tasks"></i> Tareas</h5>
+                <div class="list-group mb-4">
+                    <div class="list-group-item d-flex justify-content-between">
+                        <span>Creadas</span>
+                        <strong>{{ monthly.tasks.created }}</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                        <span>Completadas</span>
+                        <strong>{{ monthly.tasks.completed }}</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                        <span>Promedio diario</span>
+                        <strong>{{ monthly.tasks.avg_daily_completed }}</strong>
+                    </div>
+                </div>
+
+                <h5><i class="fas fa-lightbulb"></i> Recomendaciones</h5>
+                <ul class="list-group mb-4">
+                    {% for rec in monthly.recommendations %}
+                        <li class="list-group-item">
+                            <i class="fas fa-chevron-right text-info me-2"></i>
+                            {{ rec }}
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">Sin recomendaciones adicionales</li>
+                    {% endfor %}
+                </ul>
+
+                <div class="text-center mt-3">
+                    <a href="{% url 'gtd:reflect_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

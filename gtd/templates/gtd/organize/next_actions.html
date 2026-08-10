@@ -1,0 +1,67 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-number">{{ next_actions.stats.total }}</div>
+        <div class="stat-label">Total Próximas Acciones</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-warning">{{ next_actions.stats.overdue }}</div>
+        <div class="stat-label">Vencidas</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-success">{{ next_actions.stats.due_today }}</div>
+        <div class="stat-label">Para Hoy</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-primary">{{ next_actions.stats.contexts }}</div>
+        <div class="stat-label">Contextos</div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header section-header-primary">
+        <h3 class="section-title">
+            Próximas Acciones
+            {% if selected_context %}
+                <span class="badge bg-info ms-2">{{ selected_context }}</span>
+            {% endif %}
+        </h3>
+    </div>
+    <div class="section-body">
+        {% if next_actions.contexts %}
+            <div class="list-group">
+                {% for context, items in next_actions.contexts.items %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong>{{ context }}</strong>
+                            <span class="badge bg-secondary">{{ items|length }}</span>
+                        </div>
+                        <div class="mt-1">
+                            {% for item in items %}
+                                <div class="small mb-1">
+                                    <i class="fas fa-circle text-{{ item.priority }}"></i>
+                                    {{ item.task.title }}
+                                    {% if item.project %}
+                                        <span class="badge bg-info ms-1">{{ item.project|truncatechars:15 }}</span>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-check-circle fa-3x text-success"></i>
+                <p class="mt-2">No hay próximas acciones</p>
+                <small>Captura y clarifica items para generar próximas acciones</small>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

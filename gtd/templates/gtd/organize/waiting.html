@@ -1,0 +1,118 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-number">{{ waiting.stats.total }}</div>
+        <div class="stat-label">Total Esperando</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-warning">{{ waiting.stats.delegated_count }}</div>
+        <div class="stat-label">Delegados</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-info">{{ waiting.stats.waiting_count }}</div>
+        <div class="stat-label">Esperando Respuesta</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-primary">{{ waiting.stats.inbox_waiting_count }}</div>
+        <div class="stat-label">Inbox</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="section-card">
+            <div class="section-header section-header-warning">
+                <h3 class="section-title">
+                    Delegados
+                    <span class="badge bg-warning ms-2">{{ waiting.stats.delegated_count }}</span>
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if waiting.delegated %}
+                    <div class="list-group">
+                        {% for item in waiting.delegated %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>{{ item.delegated_to.username }}</strong>
+                                    <small class="text-muted">{{ item.waiting_time }} días</small>
+                                </div>
+                                <div class="mt-1">
+                                    <div class="small">{{ item.task.title|truncatechars:40 }}</div>
+                                    {% if item.project %}
+                                        <small class="text-muted">{{ item.project.title }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay tareas delegadas</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="section-card">
+            <div class="section-header section-header-info">
+                <h3 class="section-title">
+                    Esperando Respuesta
+                    <span class="badge bg-info ms-2">{{ waiting.stats.waiting_count }}</span>
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if waiting.waiting_for_response %}
+                    <div class="list-group">
+                        {% for item in waiting.waiting_for_response %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>{{ item.waiting_from.username }}</strong>
+                                    <small class="text-muted">{{ item.waiting_time }} días</small>
+                                </div>
+                                <div class="mt-1">
+                                    <div class="small">{{ item.task.title|truncatechars:40 }}</div>
+                                    {% if item.project %}
+                                        <small class="text-muted">{{ item.project.title }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay items esperando respuesta</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="section-card">
+            <div class="section-header section-header-secondary">
+                <h3 class="section-title">
+                    Inbox
+                    <span class="badge bg-secondary ms-2">{{ waiting.stats.inbox_waiting_count }}</span>
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if waiting.waiting_inbox %}
+                    <div class="list-group">
+                        {% for item in waiting.waiting_inbox %}
+                            <div class="list-group-item">
+                                <div class="small">{{ item.item.title|truncatechars:40 }}</div>
+                                <small class="text-muted">{{ item.waiting_time }} días</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay items en inbox esperando</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

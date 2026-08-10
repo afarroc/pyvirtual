@@ -1,0 +1,527 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+
+<!-- ============================================
+     ENCABEZADO
+     ============================================ -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="fas fa-filter text-primary"></i> 
+            Clarificar Inbox
+        </h1>
+        <div class="subtitle">
+            <i class="fas fa-arrow-right"></i> Procesa cada item y decide: ¿Es accionable?
+        </div>
+    </div>
+    <div class="header-actions">
+        <span class="badge bg-warning text-dark d-flex align-items-center gap-2 px-3 py-2">
+            <i class="fas fa-clock"></i> 
+            <span id="pendingCount">{{ total_pending }}</span> pendientes
+        </span>
+        <a href="{% url 'gtd:capture_inbox' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Capturar
+        </a>
+    </div>
+</div>
+
+<!-- ============================================
+     PROGRESO
+     ============================================ -->
+<div class="section-card mb-3">
+    <div class="section-body">
+        <div class="flex justify-between items-center">
+            <span class="text-muted text-sm">
+                <i class="fas fa-chart-line text-primary"></i> Progreso de Clarificación
+            </span>
+            <span class="font-semibold">{{ stats.processed }}/{{ stats.total }}</span>
+        </div>
+        <div class="progress mt-1">
+            <div class="progress-fill" style="width: {{ stats.processing_rate }}%;"></div>
+        </div>
+        <div class="flex justify-between text-xs text-muted mt-1">
+            <span>{{ stats.processed }} clarificados</span>
+            <span>{{ stats.unprocessed }} pendientes</span>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     LISTA DE ITEMS PENDIENTES
+     ============================================ -->
+<div class="section-card">
+    <div class="section-header section-header-primary">
+        <h5 class="mb-0">
+            <i class="fas fa-list"></i> Items por Clarificar
+            <span class="badge badge-light ms-2" id="itemsCount">{{ pending_items.count }}</span>
+        </h5>
+        <small class="text-light opacity-75">
+            <i class="fas fa-info-circle"></i> Procesa uno por uno
+        </small>
+    </div>
+    <div class="section-body">
+        {% if pending_items %}
+            <div class="pending-list" id="pendingList">
+                {% for item in pending_items %}
+                    <div class="pending-item priority-{{ item.priority }}" id="pending-{{ item.id }}" data-id="{{ item.id }}">
+                        <div class="pending-item-content">
+                            <div class="pending-item-header">
+                                <span class="pending-item-priority">
+                                    {% if item.priority == 'alta' %}
+                                        <i class="fas fa-flag text-danger"></i>
+                                    {% elif item.priority == 'media' %}
+                                        <i class="fas fa-flag text-warning"></i>
+                                    {% else %}
+                                        <i class="fas fa-flag text-secondary"></i>
+                                    {% endif %}
+                                </span>
+                                <span class="pending-item-title">{{ item.title }}</span>
+                                <span class="pending-item-time text-muted text-xs">
+                                    <i class="fas fa-clock"></i> {{ item.created_at|timesince }}
+                                </span>
+                            </div>
+                            {% if item.description %}
+                                <div class="pending-item-desc text-muted text-sm">{{ item.description|truncatewords:12 }}</div>
+                            {% endif %}
+                            <div class="pending-item-actions">
+                                <a href="{% url 'gtd:clarify_process_item' item.id %}" class="btn btn-primary btn-sm process-btn" data-id="{{ item.id }}">
+                                    <i class="fas fa-edit"></i> Procesar
+                                </a>
+                                <button class="btn btn-danger btn-sm delete-item" data-id="{{ item.id }}" data-title="{{ item.title|escapejs }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state text-center py-5">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h5 class="text-muted">¡Todos los items han sido clarificados!</h5>
+                <p class="text-muted small">
+                    La bandeja de entrada está vacía. 
+                    <a href="{% url 'gtd:capture_inbox' %}" class="text-primary">Captura nuevos items</a> para continuar.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ============================================
+     CONSEJO GTD
+     ============================================ -->
+<div class="section-card" style="border-left: 4px solid var(--green);">
+    <div class="section-body">
+        <div class="flex gap-2 items-start">
+            <i class="fas fa-lightbulb text-success fs-4 mt-1"></i>
+            <div>
+                <h6 class="font-semibold mb-1">Regla de los 2 minutos</h6>
+                <p class="text-muted small mb-0">
+                    Si la acción toma menos de 2 minutos, 
+                    <span class="text-success font-semibold">hazla ahora</span>. 
+                    Si no, decide entre delegar, posponer o convertir en proyecto.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+    
+    var csrfToken = '{{ csrf_token }}';
+    var pendingList = document.getElementById('pendingList');
+    
+    // ============================================
+    // ELIMINAR ITEM
+    // ============================================
+    
+    function deleteItem(itemId, title) {
+        if (!confirm('¿Eliminar el item "' + title + '"?')) return;
+        
+        var btn = document.querySelector('.delete-item[data-id="' + itemId + '"]');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-small"></span>';
+        }
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/gtd/inbox/' + itemId + '/delete/', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+        
+        xhr.onload = function() {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-trash"></i>';
+            }
+            
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        removeItem(itemId);
+                        updateStats(response.stats);
+                        showToast('success', response.message);
+                    } else {
+                        showToast('danger', response.error || 'Error al eliminar');
+                    }
+                } catch (e) {
+                    showToast('danger', 'Error al procesar la respuesta');
+                }
+            } else {
+                showToast('danger', 'Error al eliminar (Código ' + xhr.status + ')');
+            }
+        };
+        
+        xhr.onerror = function() {
+            showToast('danger', 'Error de conexión');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-trash"></i>';
+            }
+        };
+        
+        xhr.send('csrfmiddlewaretoken=' + encodeURIComponent(csrfToken));
+    }
+    
+    function removeItem(itemId) {
+        var el = document.getElementById('pending-' + itemId);
+        if (el) {
+            el.style.transition = 'opacity 0.3s, transform 0.3s';
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(20px)';
+            setTimeout(function() {
+                el.remove();
+                updateItemsCount();
+                checkEmpty();
+            }, 300);
+        }
+    }
+    
+    function updateItemsCount() {
+        var items = document.querySelectorAll('.pending-item');
+        var countEl = document.getElementById('itemsCount');
+        var pendingEl = document.getElementById('pendingCount');
+        if (countEl) countEl.textContent = items.length;
+        if (pendingEl) pendingEl.textContent = items.length;
+    }
+    
+    function checkEmpty() {
+        var items = document.querySelectorAll('.pending-item');
+        var list = document.getElementById('pendingList');
+        if (items.length === 0 && list) {
+            list.innerHTML = `
+                <div class="empty-state text-center py-5">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h5 class="text-muted">¡Todos los items han sido clarificados!</h5>
+                    <p class="text-muted small">
+                        La bandeja de entrada está vacía. 
+                        <a href="{% url 'gtd:capture_inbox' %}" class="text-primary">Captura nuevos items</a> para continuar.
+                    </p>
+                </div>
+            `;
+        }
+    }
+    
+    // ============================================
+    // ACTUALIZAR ESTADÍSTICAS
+    // ============================================
+    
+    function updateStats(stats) {
+        if (!stats) return;
+        
+        var progressFill = document.querySelector('.progress-fill');
+        if (progressFill && stats.processing_rate !== undefined) {
+            progressFill.style.width = Math.min(100, stats.processing_rate) + '%';
+        }
+        
+        var processedEl = document.querySelector('.progress + .flex .font-semibold');
+        if (processedEl) {
+            processedEl.textContent = stats.processed + '/' + stats.total;
+        }
+    }
+    
+    // ============================================
+    // TOAST NOTIFICATIONS
+    // ============================================
+    
+    function showToast(type, message) {
+        var existing = document.querySelector('.toast-notification');
+        if (existing) existing.remove();
+        
+        var toast = document.createElement('div');
+        toast.className = 'toast-notification toast-' + type;
+        var iconMap = {
+            'success': 'check-circle',
+            'danger': 'exclamation-circle',
+            'warning': 'exclamation-triangle',
+            'info': 'info-circle'
+        };
+        toast.innerHTML = '<i class="fas fa-' + (iconMap[type] || 'info-circle') + '"></i> ' + message;
+        document.body.appendChild(toast);
+        
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100px)';
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 4000);
+    }
+    
+    // ============================================
+    // EVENTOS
+    // ============================================
+    
+    document.addEventListener('click', function(e) {
+        var deleteTarget = e.target.closest('.delete-item');
+        if (deleteTarget) {
+            e.preventDefault();
+            deleteItem(deleteTarget.dataset.id, deleteTarget.dataset.title);
+        }
+    });
+    
+    // Actualizar contador cada 30 segundos
+    function updatePendingCount() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/gtd/clarify/stats/', true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success && response.stats) {
+                        var el = document.getElementById('pendingCount');
+                        if (el) el.textContent = response.stats.unprocessed || 0;
+                    }
+                } catch (e) {}
+            }
+        };
+        xhr.send();
+    }
+    
+    setInterval(updatePendingCount, 30000);
+    
+    console.log('Clarificación GTD iniciada');
+    console.log('Haz clic en "Procesar" para clarificar cada item');
+    
+})();
+</script>
+
+<style>
+/* ============================================
+   ESTILOS PARA CLARIFICACIÓN
+   ============================================ */
+
+/* Pending List */
+.pending-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.pending-item {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+    border-left: 4px solid var(--gray-300);
+}
+
+.pending-item:hover {
+    transform: translateX(2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.pending-item.priority-alta {
+    border-left-color: var(--red);
+    background: #fffaf8;
+}
+
+.pending-item.priority-media {
+    border-left-color: var(--amber);
+}
+
+.pending-item.priority-baja {
+    border-left-color: var(--blue);
+}
+
+.pending-item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.pending-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.pending-item-priority {
+    flex-shrink: 0;
+}
+
+.pending-item-title {
+    font-weight: 500;
+    flex: 1;
+}
+
+.pending-item-time {
+    font-size: 0.7rem;
+    color: var(--gray-400);
+    flex-shrink: 0;
+}
+
+.pending-item-desc {
+    font-size: 0.8rem;
+    color: var(--gray-500);
+    padding-left: 1.5rem;
+}
+
+.pending-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-left: 1.5rem;
+    margin-top: 0.25rem;
+}
+
+.pending-item-actions .btn-sm {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.75rem;
+}
+
+/* Badge light */
+.badge-light {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 0.15rem 0.6rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* Progress */
+.progress {
+    width: 100%;
+    height: 0.5rem;
+    background: var(--gray-200);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--purple), #a78bfa);
+    border-radius: 999px;
+    transition: width 0.5s ease;
+}
+
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-sm);
+    background: #fff;
+    box-shadow: var(--shadow-lg);
+    border-left: 4px solid var(--gray-300);
+    z-index: 2000;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: slideInRight 0.3s ease;
+    max-width: 400px;
+    border: 1px solid var(--gray-200);
+}
+
+.toast-notification.toast-success {
+    border-left-color: var(--green);
+    background: var(--green-light);
+}
+
+.toast-notification.toast-danger {
+    border-left-color: var(--red);
+    background: var(--red-light);
+}
+
+.toast-notification.toast-warning {
+    border-left-color: var(--amber);
+    background: var(--amber-light);
+}
+
+.toast-notification.toast-info {
+    border-left-color: var(--blue);
+    background: var(--blue-light);
+}
+
+.toast-notification i {
+    font-size: 1.1rem;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pending-item-header {
+        flex-wrap: wrap;
+    }
+    
+    .pending-item-time {
+        width: 100%;
+        padding-left: 1.5rem;
+    }
+    
+    .pending-item-actions {
+        flex-wrap: wrap;
+    }
+    
+    .pending-item-actions .btn-sm {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .pending-item {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .pending-item-title {
+        font-size: 0.875rem;
+    }
+    
+    .toast-notification {
+        top: 1rem;
+        right: 1rem;
+        left: 1rem;
+        max-width: none;
+        font-size: 0.8rem;
+        padding: 0.6rem 1rem;
+    }
+}
+</style>
+{% endblock %}

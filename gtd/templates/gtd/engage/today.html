@@ -1,0 +1,49 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-clock"></i> {{ title }}
+                    <small class="text-light">{{ subtitle }}</small>
+                </h4>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for item in today_tasks %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if item.is_overdue %}
+                                    <span class="badge bg-danger me-1">Vencida</span>
+                                {% endif %}
+                                <span class="badge bg-{{ item.priority }} me-1">{{ item.priority }}</span>
+                                {{ item.task.title|truncatechars:50 }}
+                                {% if item.project %}
+                                    <small class="text-muted">({{ item.project }})</small>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'events:task_edit' item.task.id %}" class="btn btn-sm btn-ghost">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-muted text-center">
+                            <i class="fas fa-check-circle"></i> No hay tareas para hoy
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{% url 'gtd:engage_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

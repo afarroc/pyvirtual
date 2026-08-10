@@ -1,0 +1,94 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-number">{{ references.stats.total }}</div>
+        <div class="stat-label">Total Referencias</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-info">{{ references.stats.inbox_count }}</div>
+        <div class="stat-label">Inbox</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-primary">{{ references.stats.tasks_count }}</div>
+        <div class="stat-label">Tareas</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-success">{{ references.stats.projects_count }}</div>
+        <div class="stat-label">Proyectos</div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header section-header-secondary">
+        <h3 class="section-title">Referencias Archivadas</h3>
+    </div>
+    <div class="section-body">
+        <form method="get" class="mb-3">
+            <div class="row">
+                <div class="col-md-8">
+                    <input type="text" class="form-control search-bar" name="search" placeholder="Buscar referencias..." value="{{ search }}">
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            {% if references.inbox_items %}
+                <div class="col-md-4">
+                    <h5>Inbox</h5>
+                    <div class="list-group">
+                        {% for item in references.inbox_items %}
+                            <div class="list-group-item small">
+                                {{ item.title|truncatechars:50 }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if references.tasks %}
+                <div class="col-md-4">
+                    <h5>Tareas</h5>
+                    <div class="list-group">
+                        {% for task in references.tasks %}
+                            <div class="list-group-item small">
+                                {{ task.title|truncatechars:50 }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if references.projects %}
+                <div class="col-md-4">
+                    <h5>Proyectos</h5>
+                    <div class="list-group">
+                        {% for project in references.projects %}
+                            <div class="list-group-item small">
+                                {{ project.title|truncatechars:50 }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if not references.inbox_items and not references.tasks and not references.projects %}
+            <div class="empty-state">
+                <i class="fas fa-archive fa-3x text-muted"></i>
+                <p class="mt-2">No hay referencias archivadas</p>
+                <small>Archiva items del inbox para verlos aquí</small>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

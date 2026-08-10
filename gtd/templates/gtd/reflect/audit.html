@@ -1,0 +1,62 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-search"></i> {{ title }}
+                    <small class="text-light">{{ subtitle }}</small>
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-4">
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <h3 class="text-warning">{{ health_score }}%</h3>
+                            <small class="text-muted">Salud del sistema</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <h3 class="text-danger">{{ stats.unprocessed_inbox }}</h3>
+                            <small class="text-muted">Inbox pendiente</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <h3 class="text-success">{{ stats.completed_tasks }}</h3>
+                            <small class="text-muted">Tareas completadas</small>
+                        </div>
+                    </div>
+                </div>
+
+                <h5><i class="fas fa-exclamation-triangle"></i> Issues</h5>
+                <ul class="list-group mb-4">
+                    {% for issue in issues %}
+                        <li class="list-group-item">
+                            <span class="badge bg-{% if issue.type == 'error' %}danger{% elif issue.type == 'warning' %}warning{% else %}info{% endif %} me-1">
+                                {{ issue.type }}
+                            </span>
+                            {{ issue.message }}
+                            <div class="small text-muted">{{ issue.suggestion }}</div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">No se encontraron issues. Sistema saludable</li>
+                    {% endfor %}
+                </ul>
+
+                <div class="text-center mt-3">
+                    <a href="{% url 'gtd:reflect_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

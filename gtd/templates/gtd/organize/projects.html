@@ -1,0 +1,69 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-number">{{ projects.stats.total }}</div>
+        <div class="stat-label">Total Proyectos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-success">{{ projects.stats.active }}</div>
+        <div class="stat-label">Activos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-warning">{{ projects.stats.blocked }}</div>
+        <div class="stat-label">Bloqueados</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-primary">{{ projects.stats.completed }}</div>
+        <div class="stat-label">Completados</div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header section-header-success">
+        <h3 class="section-title">
+            Proyectos
+            {% if selected_status %}
+                <span class="badge bg-success ms-2">{{ selected_status }}</span>
+            {% endif %}
+        </h3>
+    </div>
+    <div class="section-body">
+        {% if projects.projects %}
+            <div class="list-group">
+                {% for status, project_list in projects.projects.items %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong>{{ status }}</strong>
+                            <span class="badge bg-secondary">{{ project_list|length }}</span>
+                        </div>
+                        <div class="mt-1">
+                            {% for p in project_list %}
+                                <div class="small mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{% url 'gtd:organize_project_detail' p.project.id %}">{{ p.project.title|truncatechars:25 }}</a>
+                                        <span class="text-muted">{{ p.progress }}%</span>
+                                    </div>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar bg-success" style="width: {{ p.progress }}%;"></div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-folder-open fa-3x text-muted"></i>
+                <p class="mt-2">No hay proyectos</p>
+                <small>Crea proyectos desde el inbox o desde aquí</small>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

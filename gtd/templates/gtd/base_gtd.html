@@ -1,0 +1,128 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Navegación GTD -->
+    <nav class="gtd-nav" aria-label="GTD navigation">
+        <div class="gtd-nav-inner d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <a class="gtd-nav-brand d-flex align-items-center gap-2 text-decoration-none fw-bold fs-5" href="{% url 'gtd:capture_inbox' %}">
+                <i class="fas fa-tasks text-primary"></i> GTD
+            </a>
+            <ul class="gtd-nav-list d-flex flex-wrap gap-1 list-unstyled mb-0">
+                <li class="gtd-nav-item">
+                    <a class="gtd-nav-link btn btn-sm btn-ghost {% if request.resolver_match.url_name == 'capture_inbox' %}active{% endif %}" 
+                       href="{% url 'gtd:capture_inbox' %}">
+                        <i class="fas fa-inbox"></i> Capturar
+                    </a>
+                </li>
+                <li class="gtd-nav-item">
+                    <a class="gtd-nav-link btn btn-sm btn-ghost {% if request.resolver_match.url_name|slice:':7' == 'clarify' %}active{% endif %}" 
+                       href="{% url 'gtd:clarify_inbox' %}">
+                        <i class="fas fa-filter"></i> Clarificar
+                    </a>
+                </li>
+                <li class="gtd-nav-item">
+                    <a class="gtd-nav-link btn btn-sm btn-ghost {% if request.resolver_match.url_name|slice:':8' == 'organize' %}active{% endif %}" 
+                       href="{% url 'gtd:organize_next_actions' %}">
+                        <i class="fas fa-list"></i> Organizar
+                    </a>
+                </li>
+                <li class="gtd-nav-item">
+                    <a class="gtd-nav-link btn btn-sm btn-ghost {% if request.resolver_match.url_name|slice:':6' == 'reflect' %}active{% endif %}" 
+                       href="{% url 'gtd:reflect_weekly' %}">
+                        <i class="fas fa-sync"></i> Reflexionar
+                    </a>
+                </li>
+                <li class="gtd-nav-item">
+                    <a class="gtd-nav-link btn btn-sm btn-ghost {% if request.resolver_match.url_name|slice:':6' == 'engage' %}active{% endif %}" 
+                       href="{% url 'gtd:engage_dashboard' %}">
+                        <i class="fas fa-play"></i> Ejecutar
+                    </a>
+                </li>
+            </ul>
+            <span class="gtd-nav-actions d-flex align-items-center gap-2">
+                <span class="badge bg-warning text-dark d-flex align-items-center gap-1" id="pendingCount">
+                    <i class="fas fa-clock"></i> 
+                    <span id="pendingCountNumber">{{ unprocessed_count|default:0 }}</span>
+                </span>
+            </span>
+        </div>
+    </nav>
+
+    {% block gtd_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.min.js"></script>
+<script>
+// jQuery ya está cargado aquí
+(function($) {
+    'use strict';
+    
+    function updatePendingCount() {
+        $.ajax({
+            url: '{% url "gtd:capture_stats" %}',
+            method: 'GET',
+            success: function(response) {
+                if (response.success && response.stats) {
+                    $('#pendingCountNumber').text(response.stats.unprocessed || 0);
+                }
+            }
+        });
+    }
+
+    setInterval(updatePendingCount, 30000);
+
+    window.quickCapture = function(title) {
+        if (!title) {
+            if (typeof toastr !== 'undefined') {
+                toastr.warning('Ingresa un título para capturar');
+            }
+            return;
+        }
+        
+        $.ajax({
+            url: '{% url "gtd:capture_quick_add" %}',
+            method: 'GET',
+            data: { title: title },
+            success: function(response) {
+                if (response.success) {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success(response.message);
+                    }
+                    updatePendingCount();
+                    if (window.location.pathname.includes('inbox')) {
+                        location.reload();
+                    }
+                } else {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(response.error);
+                    }
+                }
+            },
+            error: function() {
+                if (typeof toastr !== 'undefined') {
+                    toastr.error('Error al capturar el item');
+                }
+            }
+        });
+    };
+
+    $(document).keydown(function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+            e.preventDefault();
+            var title = prompt('📥 Captura rápida GTD\n¿Qué quieres capturar?');
+            if (title && title.trim()) {
+                window.quickCapture(title.trim());
+            }
+        }
+    });
+
+    console.log('💡 GTD Quick Capture: Presiona Ctrl+Shift+I para capturar rápidamente');
+    
+})(jQuery);
+</script>
+{% endblock %}

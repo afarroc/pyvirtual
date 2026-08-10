@@ -1,0 +1,81 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="gtd-section">
+    <div class="gtd-section-header">
+        <h2>
+            <i class="fas fa-calendar-week"></i> {{ title }}
+            <small class="text-muted">{{ subtitle }}</small>
+        </h2>
+    </div>
+
+    <div class="gtd-metrics-grid">
+        <div class="gtd-metric-item">
+            <div class="gtd-metric-value text-success">{{ weekly.completed_this_week }}</div>
+            <div class="gtd-metric-label">Completadas esta semana</div>
+        </div>
+        <div class="gtd-metric-item">
+            <div class="gtd-metric-value text-primary">{{ weekly.next_actions }}</div>
+            <div class="gtd-metric-label">Próximas acciones</div>
+        </div>
+        <div class="gtd-metric-item">
+            <div class="gtd-metric-value text-warning">{{ weekly.projects.active }}</div>
+            <div class="gtd-metric-label">Proyectos activos</div>
+        </div>
+        <div class="gtd-metric-item">
+            <div class="gtd-metric-value text-danger">{{ weekly.overdue_tasks }}</div>
+            <div class="gtd-metric-label">Tareas vencidas</div>
+        </div>
+    </div>
+
+    <div class="gtd-metrics-row">
+        <div class="gtd-metrics-card">
+            <div class="gtd-metrics-title">
+                <i class="fas fa-inbox"></i> Inbox
+            </div>
+            <div class="gtd-objectives-list">
+                <div class="gtd-objective-item muted">
+                    <span>Sin procesar</span>
+                    <strong>{{ weekly.inbox.unprocessed }}</strong>
+                </div>
+                <div class="gtd-objective-item muted">
+                    <span>Nuevos esta semana</span>
+                    <strong>{{ weekly.inbox.new_this_week }}</strong>
+                </div>
+                <div class="gtd-objective-item muted">
+                    <span>Procesados esta semana</span>
+                    <strong>{{ weekly.inbox.processed_this_week }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="gtd-metrics-card">
+            <div class="gtd-metrics-title">
+                <i class="fas fa-list"></i> Items de revisión
+            </div>
+            <div class="gtd-objectives-list">
+                {% for item in weekly.review_items %}
+                    <div class="gtd-objective-item {{ item.priority }}">
+                        <span class="priority-indicator priority-{{ item.priority }}"></span>
+                        <span>
+                            <strong>{{ item.category }}</strong>: {{ item.message }}
+                        </span>
+                    </div>
+                    <div class="text-muted">{{ item.action }}</div>
+                {% empty %}
+                    <div class="gtd-objective-item muted">Todo en orden. Buen trabajo</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'gtd:reflect_dashboard' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+{% endblock %}

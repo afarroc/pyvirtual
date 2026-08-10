@@ -1,0 +1,301 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Encabezado -->
+        <div class="gtd-header text-center">
+            <div class="container">
+                <h1 class="display-4">
+                    <i class="fas fa-play"></i> {{ title }}
+                </h1>
+                <p class="lead">{{ subtitle }}</p>
+                
+                <div class="gtd-stats justify-content-center mt-4">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.total }}</div>
+                        <div class="stat-label">Tareas Pendientes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number text-danger">{{ stats.overdue }}</div>
+                        <div class="stat-label">Vencidas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number text-warning">{{ stats.due_today }}</div>
+                        <div class="stat-label">Para Hoy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number text-success">{{ stats.completion_rate }}%</div>
+                        <div class="stat-label">Tasa de Completación</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contextos -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-tags"></i> Contextos Disponibles
+                    <span class="badge bg-light text-primary float-end">{{ contexts|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    {% for context in contexts %}
+                        <div class="col-md-2 col-4">
+                            <a href="{% url 'gtd:engage_context' context|cut:'@' %}" 
+                               class="btn btn-outline-primary w-100 text-truncate">
+                                <i class="fas fa-hashtag"></i> {{ context }}
+                            </a>
+                        </div>
+                    {% empty %}
+                        <div class="col-12 text-muted text-center">
+                            No hay contextos disponibles
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tareas de Hoy y Recomendaciones -->
+<div class="row mt-4">
+    <!-- Tareas de Hoy -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clock"></i> Tareas para Hoy
+                    <span class="badge bg-dark text-warning float-end">{{ today_tasks|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for item in today_tasks|slice:":10" %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if item.is_overdue %}
+                                    <span class="badge bg-danger me-1">Vencida</span>
+                                {% endif %}
+                                <span class="badge bg-{{ item.priority }} me-1">{{ item.priority }}</span>
+                                {{ item.task.title|truncatechars:40 }}
+                                {% if item.project %}
+                                    <small class="text-muted">({{ item.project }})</small>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'events:task_edit' item.task.id %}" class="btn btn-sm btn-ghost">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-muted text-center">
+                            <i class="fas fa-check-circle"></i> No hay tareas para hoy
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{% url 'gtd:engage_today' %}" class="btn btn-sm btn-warning">
+                    Ver todas las tareas de hoy
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recomendaciones -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-lightbulb"></i> Recomendaciones
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for rec in recommendations %}
+                    <div class="alert alert-{% if rec.priority == 'high' %}danger{% elif rec.priority == 'medium' %}warning{% else %}info{% endif %} mb-2">
+                        <h6 class="alert-heading">
+                            {% if rec.priority == 'high' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% elif rec.priority == 'medium' %}
+                                <i class="fas fa-info-circle"></i>
+                            {% else %}
+                                <i class="fas fa-check-circle"></i>
+                            {% endif %}
+                            {{ rec.message }}
+                        </h6>
+                        <p class="mb-0 small">{{ rec.action }}</p>
+                    </div>
+                {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-thumbs-up fa-3x"></i>
+                        <p class="mt-2">Todo en orden. Sigue con el buen trabajo.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Por Energía y Tareas Rápidas -->
+<div class="row mt-4">
+    <!-- Por Energía -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bolt"></i> Tareas por Energía
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4 text-center">
+                        <h6 class="text-danger">Alta</h6>
+                        <span class="badge bg-danger">{{ energy_tasks.high_energy|length }}</span>
+                        <ul class="list-unstyled small mt-1">
+                            {% for item in energy_tasks.high_energy|slice:":3" %}
+                                <li>{{ item.task.title|truncatechars:20 }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-4 text-center">
+                        <h6 class="text-warning">Media</h6>
+                        <span class="badge bg-warning">{{ energy_tasks.medium_energy|length }}</span>
+                        <ul class="list-unstyled small mt-1">
+                            {% for item in energy_tasks.medium_energy|slice:":3" %}
+                                <li>{{ item.task.title|truncatechars:20 }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-4 text-center">
+                        <h6 class="text-success">Baja</h6>
+                        <span class="badge bg-success">{{ energy_tasks.low_energy|length }}</span>
+                        <ul class="list-unstyled small mt-1">
+                            {% for item in energy_tasks.low_energy|slice:":3" %}
+                                <li>{{ item.task.title|truncatechars:20 }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center mt-2">
+                    <a href="{% url 'gtd:engage_by_energy' 'high' %}" class="btn btn-sm btn-ghost">
+                        Ver todas por energía
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tareas Rápidas -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-stopwatch"></i> Tareas Rápidas (&lt; 15 min)
+                    <span class="badge bg-light text-success float-end">{{ quick_tasks|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for item in quick_tasks|slice:":5" %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-secondary me-1">{{ item.estimated_time }}min</span>
+                                {{ item.task.title|truncatechars:35 }}
+                            </div>
+                            <a href="{% url 'events:task_edit' item.task.id %}" class="btn btn-sm btn-ghost">
+                                <i class="fas fa-play"></i>
+                            </a>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-muted text-center">
+                            No hay tareas rápidas disponibles
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{% url 'gtd:engage_by_time' 15 %}" class="btn btn-sm btn-success">
+                    Ver todas las tareas rápidas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones Rápidas -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bolt"></i> Acciones de Ejecución
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" onclick="startFocusMode()">
+                            <i class="fas fa-crosshairs"></i> Modo Enfoque
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-warning w-100" onclick="quickAddTask()">
+                            <i class="fas fa-plus"></i> Agregar Tarea Rápida
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-success w-100" onclick="completeToday()">
+                            <i class="fas fa-check-double"></i> Marcar Hoy Completado
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-info w-100" onclick="exportTasks()">
+                            <i class="fas fa-download"></i> Exportar Tareas
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function startFocusMode() {
+    toastr.info('Modo enfoque activado. Concéntrate en tus tareas.');
+}
+
+function quickAddTask() {
+    window.location.href = '{% url "gtd:capture_inbox" %}';
+}
+
+function completeToday() {
+    if (confirm('¿Marcar todas las tareas de hoy como completadas?')) {
+        toastr.success('Buen trabajo. Tareas de hoy completadas.');
+    }
+}
+
+function exportTasks() {
+    toastr.info('Generando exportación de tareas...');
+}
+
+$(document).keydown(function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+        e.preventDefault();
+        window.location.href = '{% url "gtd:engage_dashboard" %}';
+    }
+});
+
+console.log('GTD Engage: Presiona Ctrl+Shift+E para ir a ejecución');
+</script>
+{% endblock %}

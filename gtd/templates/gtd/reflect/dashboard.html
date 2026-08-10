@@ -1,0 +1,270 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Encabezado -->
+        <div class="gtd-header text-center">
+            <div class="container">
+                <h1 class="display-4">
+                    <i class="fas fa-sync-alt"></i> {{ title }}
+                </h1>
+                <p class="lead">{{ subtitle }}</p>
+                
+                <!-- Health Score -->
+                <div class="gtd-stats justify-content-center mt-4">
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: {% if health_score >= 80 %}var(--green){% elif health_score >= 50 %}var(--amber){% else %}var(--red){% endif %};">
+                            {{ health_score }}%
+                        </div>
+                        <div class="stat-label">Salud del Sistema</div>
+                        <div class="stat-sub">
+                            {% if health_score >= 80 %}Excelente{% elif health_score >= 50 %}Regular{% else %}Necesita Atencion{% endif %}
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ weekly.stats_summary.total_active_items }}</div>
+                        <div class="stat-label">Items Activos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number text-success">{{ weekly.completed_this_week }}</div>
+                        <div class="stat-label">Completados esta Semana</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number text-warning">{{ weekly.overdue_tasks }}</div>
+                        <div class="stat-label">Tareas Vencidas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Grid de Revisiones -->
+<div class="row mt-4">
+    <!-- Revisión Diaria -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-sun"></i> Revisión Diaria
+                    <span class="badge bg-light text-info float-end">{{ daily.date|date:"d/m" }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h4 class="text-success">{{ daily.completed_today }}</h4>
+                        <small class="text-muted">Completadas</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-warning">{{ daily.tasks_today }}</h4>
+                        <small class="text-muted">Pendientes</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-danger">{{ daily.overdue }}</h4>
+                        <small class="text-muted">Vencidas</small>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="text-muted"><i class="fas fa-bullseye"></i> Enfoque del Día</h6>
+                <ul class="list-unstyled">
+                    {% for item in daily.focus_items|slice:":3" %}
+                        <li class="small mb-1">
+                            <i class="fas fa-circle text-{{ item.priority }}"></i>
+                            {{ item.title|truncatechars:40 }}
+                        </li>
+                    {% empty %}
+                        <li class="text-muted small">Sin tareas de enfoque</li>
+                    {% endfor %}
+                </ul>
+                <div class="mt-2 text-center">
+                    <a href="{% url 'gtd:reflect_daily' %}" class="btn btn-sm btn-info">
+                        Ver Detalle <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revisión Semanal -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar-week"></i> Revisión Semanal
+                    <span class="badge bg-light text-primary float-end">Semana {{ weekly.period.week_number }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h4 class="text-success">{{ weekly.completed_this_week }}</h4>
+                        <small class="text-muted">Completadas</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-primary">{{ weekly.next_actions }}</h4>
+                        <small class="text-muted">Próximas Acciones</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-warning">{{ weekly.projects.active }}</h4>
+                        <small class="text-muted">Proyectos Activos</small>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="text-muted"><i class="fas fa-list"></i> Items de Revisión</h6>
+                <ul class="list-unstyled">
+                    {% for item in weekly.review_items|slice:":3" %}
+                        <li class="small mb-1">
+                            <span class="badge bg-{{ item.priority }} me-1">{{ item.category }}</span>
+                            {{ item.message|truncatechars:35 }}
+                        </li>
+                    {% empty %}
+                        <li class="text-muted small">Todo en orden. Buen trabajo</li>
+                    {% endfor %}
+                </ul>
+                <div class="mt-2 text-center">
+                    <a href="{% url 'gtd:reflect_weekly' %}" class="btn btn-sm btn-primary">
+                        Ver Detalle <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auditoría -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-search"></i> Auditoría
+                    <span class="badge bg-light text-dark float-end">
+                        {{ audit.issues|length }} issues
+                    </span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h4 class="text-danger">{{ audit.stats.unprocessed_inbox }}</h4>
+                        <small class="text-muted">Inbox Pendiente</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-warning">{{ audit.stats.active_projects }}</h4>
+                        <small class="text-muted">Proyectos Activos</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-success">{{ audit.stats.completed_tasks }}</h4>
+                        <small class="text-muted">Tareas Completadas</small>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="text-muted"><i class="fas fa-exclamation-triangle"></i> Issues Encontrados</h6>
+                <ul class="list-unstyled">
+                    {% for issue in audit.issues|slice:":3" %}
+                        <li class="small mb-1">
+                            <span class="badge bg-{% if issue.type == 'error' %}danger{% elif issue.type == 'warning' %}warning{% else %}info{% endif %} me-1">
+                                {{ issue.type }}
+                            </span>
+                            {{ issue.message|truncatechars:30 }}
+                        </li>
+                    {% empty %}
+                        <li class="text-muted small">No se encontraron issues. Sistema saludable</li>
+                    {% endfor %}
+                </ul>
+                <div class="mt-2 text-center">
+                    <a href="{% url 'gtd:reflect_audit' %}" class="btn btn-sm btn-dark">
+                        Ver Detalle <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones Rápidas -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bolt"></i> Acciones de Reflexión
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" onclick="runWeeklyReview()">
+                            <i class="fas fa-calendar-check"></i> Iniciar Revisión Semanal
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-success w-100" onclick="runDailyReview()">
+                            <i class="fas fa-check-double"></i> Marcar Revisión Diaria
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-warning w-100" onclick="runAudit()">
+                            <i class="fas fa-search"></i> Ejecutar Auditoría
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-info w-100" onclick="exportReview()">
+                            <i class="fas fa-download"></i> Exportar Informe
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function runWeeklyReview() {
+    toastr.info('Iniciando revisión semanal...');
+    window.location.href = "{% url 'gtd:reflect_weekly' %}";
+}
+
+function runDailyReview() {
+    if (confirm('¿Marcar la revisión diaria como completada?')) {
+        $.ajax({
+            url: '{% url "gtd:reflect_mark_reviewed" %}',
+            method: 'POST',
+            data: {
+                type: 'daily',
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success('Revisión diaria marcada como completada');
+                    location.reload();
+                }
+            }
+        });
+    }
+}
+
+function runAudit() {
+    toastr.info('Ejecutando auditoría...');
+    window.location.href = "{% url 'gtd:reflect_audit' %}";
+}
+
+function exportReview() {
+    toastr.info('Generando informe de revisión...');
+}
+
+$(document).keydown(function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+        e.preventDefault();
+        window.location.href = '{% url "gtd:reflect_dashboard" %}';
+    }
+});
+
+console.log('GTD Reflect: Presiona Ctrl+Shift+R para ir a reflexión');
+</script>
+{% endblock %}

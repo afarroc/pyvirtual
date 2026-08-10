@@ -1,0 +1,85 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="section-card mb-4">
+    <div class="section-header section-header-primary">
+        <h3 class="section-title">{{ project_data.project.title }}</h3>
+    </div>
+    <div class="section-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-number">{{ project_data.total_tasks }}</div>
+                    <div class="stat-label">Total Tareas</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-number text-success">{{ project_data.completed_tasks }}</div>
+                    <div class="stat-label">Completadas</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-number text-info">{{ project_data.timeline.completion_rate }}%</div>
+                    <div class="stat-label">Progreso</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="section-card">
+            <div class="section-header section-header-warning">
+                <h3 class="section-title">Tareas</h3>
+            </div>
+            <div class="section-body">
+                {% if project_data.tasks_by_status %}
+                    <div class="list-group">
+                        {% for status, tasks in project_data.tasks_by_status.items %}
+                            <div class="list-group-item">
+                                <strong>{{ status }}</strong>
+                                <span class="badge bg-secondary float-end">{{ tasks|length }}</span>
+                                <div class="mt-1">
+                                    {% for task in tasks %}
+                                        <div class="small mb-1">
+                                            <i class="fas fa-circle text-{{ task.priority|default:'secondary' }}"></i>
+                                            {{ task.title }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay tareas en este proyecto</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="section-card">
+            <div class="section-header section-header-info">
+                <h3 class="section-title">Próxima Acción</h3>
+            </div>
+            <div class="section-body">
+                {% if project_data.next_action %}
+                    <p><strong>{{ project_data.next_action.title }}</strong></p>
+                    <small class="text-muted">
+                        Prioridad: {{ project_data.next_action.priority }}<br>
+                        Vencimiento: {{ project_data.next_action.due_date|default:"Sin fecha" }}
+                    </small>
+                {% else %}
+                    <p class="text-muted">No hay próxima acción definida</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

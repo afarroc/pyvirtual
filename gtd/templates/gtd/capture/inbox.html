@@ -1,0 +1,939 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+
+<!-- ============================================
+     ENCABEZADO
+     ============================================ -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="fas fa-inbox"></i> Bandeja de Entrada
+        </h1>
+        <div class="subtitle">
+            <i class="fas fa-quote-left text-muted"></i> 
+            Tu mente es para tener ideas, no para retenerlas
+            <i class="fas fa-quote-right text-muted"></i>
+            — David Allen
+        </div>
+    </div>
+    <div class="header-actions">
+        <span class="badge bg-warning text-dark d-flex align-items-center gap-2 px-3 py-2" id="pendingCount">
+            <i class="fas fa-clock"></i> 
+            <span id="pendingCountNumber">{{ unprocessed_items.count }}</span> pendientes
+        </span>
+        <a href="{% url 'gtd:clarify_inbox' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-right"></i> Clarificar
+        </a>
+    </div>
+</div>
+
+<!-- ============================================
+     CAPTURA RÁPIDA - DISEÑO MEJORADO
+     ============================================ -->
+<div class="section-card mb-4">
+    <div class="section-header section-header-purple">
+        <h5 class="mb-0">
+            <i class="fas fa-bolt"></i> Captura Rápida
+            <span class="badge bg-primary ms-2">
+                <i class="fas fa-keyboard"></i> Enter
+            </span>
+        </h5>
+        <small class="text-light opacity-75">
+            <i class="fas fa-info-circle"></i> Captura todo, sin filtrar
+        </small>
+    </div>
+    <div class="section-body pt-3">
+        <div class="row g-3">
+            <div class="col-md-10">
+                <div class="capture-input-wrapper">
+                    <input type="text" class="form-control form-control-lg" id="captureInput"
+                           placeholder="¿Qué tienes en mente? Escribe y presiona Enter para capturar..." 
+                           autofocus>
+                    <div class="capture-quick-tips">
+                        <small class="text-muted">
+                            <i class="fas fa-lightbulb"></i> 
+                            <span class="d-none d-md-inline">Consejo GTD: </span>
+                            Captura todo lo que llama tu atención. La claridad viene después.
+                        </small>
+                        <span class="text-muted capture-shortcut">
+                            <kbd>Enter</kbd> Capturar · <kbd>Ctrl+Shift+I</kbd> Captura global
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary btn-lg w-100" type="button" id="captureBtn">
+                    <i class="fas fa-plus"></i> Capturar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Feedback de captura -->
+        <div id="captureFeedback" class="mt-3" style="display:none;"></div>
+    </div>
+</div>
+
+<!-- ============================================
+     LISTA DE PENDIENTES - CON BOTÓN "HACER AHORA"
+     ============================================ -->
+<div class="row">
+    <!-- Columna principal: Pendientes -->
+    <div class="col-lg-8">
+        <div class="section-card section-pendientes">
+            <div class="section-header section-header-amber d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-hourglass-half"></i> Bandeja de Entrada
+                    <span class="badge bg-warning text-dark ms-2" id="unprocessedBadge">
+                        {{ unprocessed_items.count }}
+                    </span>
+                </h5>
+                <div class="header-actions">
+                    <span class="text-muted small me-2">
+                        <i class="fas fa-arrow-right"></i> 
+                        <span class="d-none d-sm-inline">Siguiente paso: </span>
+                        <a href="{% url 'gtd:clarify_inbox' %}" class="text-decoration-none">Clarificar</a>
+                    </span>
+                </div>
+            </div>
+            <div class="section-body p-0">
+                <div class="list-group list-group-flush" id="unprocessedList">
+                    {% for item in unprocessed_items %}
+                        <div class="list-group-item priority-{{ item.priority }}" id="item-{{ item.id }}" data-id="{{ item.id }}">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="flex-grow-1 me-2">
+                                    <h6 class="mb-1 item-title-wrapper">
+                                        {% if item.priority == 'alta' %}
+                                            <span class="badge bg-danger priority-badge">!</span>
+                                        {% elif item.priority == 'media' %}
+                                            <span class="badge bg-warning text-dark priority-badge">-</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary priority-badge">·</span>
+                                        {% endif %}
+                                        <span class="item-title">{{ item.title }}</span>
+                                    </h6>
+                                    {% if item.description %}
+                                        <p class="mb-1 text-muted small item-description">{{ item.description|truncatewords:15 }}</p>
+                                    {% endif %}
+                                    <div class="item-meta d-flex align-items-center gap-3 flex-wrap">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i> 
+                                            <span class="item-time" data-timestamp="{{ item.created_at.isoformat }}">
+                                                {{ item.created_at|timesince }} ago
+                                            </span>
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fas fa-tag"></i> 
+                                            <span class="badge bg-light text-muted">Pendiente de clarificar</span>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-1 flex-shrink-0 align-items-center">
+                                    <button class="btn btn-sm btn-success do-now-btn" 
+                                            data-id="{{ item.id }}" 
+                                            data-title="{{ item.title|escapejs }}"
+                                            title="Si la acción toma menos de 2 minutos, hazla ahora">
+                                        <i class="fas fa-check-circle"></i> 
+                                        <span class="d-none d-md-inline">Hacer Ahora</span>
+                                    </button>
+                                    <a href="{% url 'gtd:clarify_process' item.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i> 
+                                        <span class="d-none d-md-inline">Clarificar</span>
+                                    </a>
+                                    <button class="btn btn-sm btn-danger delete-item" 
+                                            data-id="{{ item.id }}" 
+                                            data-title="{{ item.title|escapejs }}"
+                                            title="Eliminar este item">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="empty-state text-center py-5" id="emptyUnprocessed">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5 class="text-muted">¡Bandeja de entrada vacía!</h5>
+                            <p class="text-muted small">
+                                Tu mente está libre. Captura algo nuevo para empezar a construir tu sistema GTD.
+                            </p>
+                            <button class="btn btn-sm btn-outline-primary mt-2" id="focusCaptureBtn">
+                                <i class="fas fa-pen"></i> Capturar ahora
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Columna lateral: Estadísticas y contexto GTD -->
+    <div class="col-lg-4">
+        <!-- Estadísticas rápidas -->
+        <div class="section-card mb-3">
+            <div class="section-header section-header-blue">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-simple"></i> Tu Progreso GTD
+                </h5>
+            </div>
+            <div class="section-body">
+                <div class="gtd-progress-stats">
+                    <div class="stat-item d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-muted"><i class="fas fa-database text-purple"></i> Total Capturado</span>
+                        <span class="fw-bold" id="statTotal">{{ stats.total }}</span>
+                    </div>
+                    <div class="stat-item d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-muted"><i class="fas fa-hourglass-half text-warning"></i> Pendientes</span>
+                        <span class="fw-bold" id="statUnprocessed">{{ stats.unprocessed }}</span>
+                    </div>
+                    <div class="stat-item d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-muted"><i class="fas fa-check-circle text-success"></i> Clarificados</span>
+                        <span class="fw-bold" id="statProcessed">{{ stats.processed }}</span>
+                    </div>
+                    <div class="stat-item d-flex justify-content-between align-items-center py-2">
+                        <span class="text-muted"><i class="fas fa-flag text-danger"></i> Alta Prioridad</span>
+                        <span class="fw-bold text-danger" id="statHighPriority">{{ stats.high_priority }}</span>
+                    </div>
+                </div>
+                
+                <div class="gtd-progress mt-3">
+                    <div class="d-flex justify-content-between small">
+                        <span class="text-muted">Tasa de procesamiento</span>
+                        <span class="fw-bold" id="statRate">{{ stats.capture_rate|default:0 }}%</span>
+                    </div>
+                    <div class="progress-bar mt-1">
+                        <div class="progress-fill progress-fill-green" 
+                             style="width: {{ stats.capture_rate|default:0 }}%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Atajos y consejos GTD -->
+        <div class="section-card mb-3">
+            <div class="section-header section-header-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-keyboard"></i> Atajos Rápidos
+                </h5>
+            </div>
+            <div class="section-body">
+                <div class="gtd-shortcuts">
+                    <div class="shortcut-item d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span><kbd>Enter</kbd> en el campo</span>
+                        <span class="text-muted">Capturar inmediato</span>
+                    </div>
+                    <div class="shortcut-item d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd></span>
+                        <span class="text-muted">Captura global</span>
+                    </div>
+                    <div class="shortcut-item d-flex justify-content-between align-items-center py-2">
+                        <span><kbd>Ctrl</kbd> + <kbd>Click</kbd></span>
+                        <span class="text-muted">Abrir en nueva pestaña</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Consejo GTD del día -->
+        <div class="section-card" style="border-left: 4px solid var(--purple);">
+            <div class="section-body">
+                <div class="d-flex gap-2 align-items-start">
+                    <i class="fas fa-lightbulb text-purple fs-4 mt-1"></i>
+                    <div>
+                        <h6 class="fw-semibold mb-1">Principio GTD</h6>
+                        <p class="text-muted small mb-0">
+                            "Tu mente es para tener ideas, no para retenerlas."<br>
+                            <span class="text-purple">Captura todo, clarifica después.</span>
+                        </p>
+                        <div class="mt-2 small text-muted">
+                            <i class="fas fa-clock"></i> Última captura: 
+                            <span id="lastCaptureTime">--:--:--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+    
+    // ============================================
+    // CONFIGURACIÓN
+    // ============================================
+    var FEEDBACK_TIMEOUT = 4000;
+    var csrfToken = document.getElementById('csrfToken')?.value || '{{ csrf_token }}';
+    
+    // Elementos del DOM
+    var elements = {
+        captureInput: document.getElementById('captureInput'),
+        captureBtn: document.getElementById('captureBtn'),
+        feedback: document.getElementById('captureFeedback'),
+        unprocessedList: document.getElementById('unprocessedList'),
+        pendingCount: document.getElementById('pendingCountNumber'),
+        unprocessedBadge: document.getElementById('unprocessedBadge'),
+        lastCaptureTime: document.getElementById('lastCaptureTime')
+    };
+    
+    if (!elements.captureBtn || !elements.captureInput) {
+        console.error('Elementos críticos no encontrados');
+        return;
+    }
+    
+    // ============================================
+    // CAPTURA
+    // ============================================
+    function doCapture() {
+        var title = elements.captureInput.value.trim();
+        if (!title) {
+            showFeedback('warning', '✏️ Escribe algo para capturar.');
+            elements.captureInput.focus();
+            return;
+        }
+        
+        elements.captureBtn.disabled = true;
+        elements.captureBtn.innerHTML = '<span class="spinner-small"></span> Capturando...';
+        hideFeedback();
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/gtd/inbox/submit/', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+        
+        xhr.onload = function() {
+            elements.captureBtn.disabled = false;
+            elements.captureBtn.innerHTML = '<i class="fas fa-plus"></i> Capturar';
+            
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        showFeedback('success', '✅ ' + response.message);
+                        updateStats(response.stats);
+                        updateBadges(response);
+                        
+                        if (response.item) {
+                            addUnprocessedItem(response.item);
+                            if (elements.lastCaptureTime) {
+                                var now = new Date();
+                                elements.lastCaptureTime.textContent = now.toLocaleTimeString();
+                            }
+                        }
+                        
+                        elements.captureInput.value = '';
+                        elements.captureInput.focus();
+                        animateSuccess();
+                    } else {
+                        showFeedback('danger', '❌ ' + (response.error || 'Error al capturar'));
+                    }
+                } catch (e) {
+                    console.error('Error parsing response:', e);
+                    showFeedback('danger', '❌ Error al procesar la respuesta');
+                }
+            } else {
+                showFeedback('danger', '❌ Error en la solicitud (Código ' + xhr.status + ')');
+            }
+        };
+        
+        xhr.onerror = function() {
+            showFeedback('danger', '❌ Error de conexión al servidor');
+            elements.captureBtn.disabled = false;
+            elements.captureBtn.innerHTML = '<i class="fas fa-plus"></i> Capturar';
+        };
+        
+        var params = 'title=' + encodeURIComponent(title) +
+                     '&description=' + encodeURIComponent('') +
+                     '&priority=' + encodeURIComponent('media') +
+                     '&csrfmiddlewaretoken=' + encodeURIComponent(csrfToken);
+        
+        xhr.send(params);
+    }
+    
+    // ============================================
+    // HACER AHORA
+    // ============================================
+    function doNow(itemId, title) {
+        if (!confirm('¿Quieres marcar "' + title + '" como hecho ahora?\n\nRegla de los 2 Minutos.')) {
+            return;
+        }
+        
+        var btn = document.querySelector('.do-now-btn[data-id="' + itemId + '"]');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-small"></span>';
+        }
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/gtd/inbox/' + itemId + '/done/', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+        
+        xhr.onload = function() {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> <span class="d-none d-md-inline">Hacer Ahora</span>';
+            }
+            
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        removeItem(itemId);
+                        updateStats(response.stats);
+                        updateBadges(response);
+                        showFeedback('success', '✅ ' + response.message);
+                    } else {
+                        showFeedback('danger', '❌ ' + (response.error || 'Error al completar la acción'));
+                    }
+                } catch (e) {
+                    console.error('Error:', e);
+                    showFeedback('danger', '❌ Error al procesar la respuesta');
+                }
+            } else {
+                showFeedback('danger', '❌ Error al completar (Código ' + xhr.status + ')');
+            }
+        };
+        
+        xhr.onerror = function() {
+            showFeedback('danger', '❌ Error de conexión');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> <span class="d-none d-md-inline">Hacer Ahora</span>';
+            }
+        };
+        
+        xhr.send('csrfmiddlewaretoken=' + encodeURIComponent(csrfToken));
+    }
+    
+    // ============================================
+    // ELIMINAR
+    // ============================================
+    function deleteItem(itemId, title) {
+        if (!confirm('¿Estás seguro de que quieres eliminar el item "' + title + '"?')) {
+            return;
+        }
+        
+        var btn = document.querySelector('.delete-item[data-id="' + itemId + '"]');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-small"></span>';
+        }
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/gtd/inbox/' + itemId + '/delete/', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+        
+        xhr.onload = function() {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-trash"></i>';
+            }
+            
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        removeItem(itemId);
+                        updateStats(response.stats);
+                        updateBadges(response);
+                        showFeedback('success', '✅ ' + response.message);
+                    } else {
+                        showFeedback('danger', '❌ ' + (response.error || 'Error al eliminar'));
+                    }
+                } catch (e) {
+                    console.error('Error:', e);
+                    showFeedback('danger', '❌ Error al procesar la respuesta');
+                }
+            } else {
+                showFeedback('danger', '❌ Error al eliminar (Código ' + xhr.status + ')');
+            }
+        };
+        
+        xhr.onerror = function() {
+            showFeedback('danger', '❌ Error de conexión');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-trash"></i>';
+            }
+        };
+        
+        xhr.send('csrfmiddlewaretoken=' + encodeURIComponent(csrfToken));
+    }
+    
+    // ============================================
+    // UI HELPERS
+    // ============================================
+    function removeItem(itemId) {
+        var el = document.getElementById('item-' + itemId);
+        if (el) {
+            el.style.transition = 'opacity 0.3s, transform 0.3s';
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(20px)';
+            setTimeout(function() {
+                el.remove();
+                var remaining = document.querySelectorAll('#unprocessedList .list-group-item');
+                if (remaining.length === 0) {
+                    showEmptyState();
+                }
+            }, 300);
+        }
+    }
+    
+    function addUnprocessedItem(item) {
+        var emptyEl = document.getElementById('emptyUnprocessed');
+        if (emptyEl) emptyEl.remove();
+        
+        if (document.getElementById('item-' + item.id)) return;
+        
+        var priorityBadge = '';
+        if (item.priority === 'alta') {
+            priorityBadge = '<span class="badge bg-danger priority-badge">!</span>';
+        } else if (item.priority === 'media') {
+            priorityBadge = '<span class="badge bg-warning text-dark priority-badge">-</span>';
+        } else {
+            priorityBadge = '<span class="badge bg-secondary priority-badge">·</span>';
+        }
+        
+        var descriptionHtml = '';
+        if (item.description) {
+            var desc = item.description.substring(0, 100);
+            desc += item.description.length > 100 ? '...' : '';
+            descriptionHtml = '<p class="mb-1 text-muted small item-description">' + escapeHtml(desc) + '</p>';
+        }
+        
+        var div = document.createElement('div');
+        div.className = 'list-group-item priority-' + item.priority;
+        div.id = 'item-' + item.id;
+        div.setAttribute('data-id', item.id);
+        div.style.animation = 'slideInRight 0.4s ease';
+        div.innerHTML = `
+            <div class="d-flex w-100 justify-content-between align-items-start">
+                <div class="flex-grow-1 me-2">
+                    <h6 class="mb-1 item-title-wrapper">
+                        ${priorityBadge}
+                        <span class="item-title">${escapeHtml(item.title)}</span>
+                    </h6>
+                    ${descriptionHtml}
+                    <div class="item-meta d-flex align-items-center gap-3 flex-wrap">
+                        <small class="text-muted">
+                            <i class="fas fa-clock"></i> 
+                            <span class="item-time">hace unos segundos</span>
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-tag"></i> 
+                            <span class="badge bg-light text-muted">Pendiente de clarificar</span>
+                        </small>
+                    </div>
+                </div>
+                <div class="d-flex gap-1 flex-shrink-0 align-items-center">
+                    <button class="btn btn-sm btn-success do-now-btn" 
+                            data-id="${item.id}" 
+                            data-title="${escapeHtml(item.title)}"
+                            title="Si la acción toma menos de 2 minutos, hazla ahora">
+                        <i class="fas fa-check-circle"></i> 
+                        <span class="d-none d-md-inline">Hacer Ahora</span>
+                    </button>
+                    <a href="/gtd/inbox/${item.id}/process/" class="btn btn-sm btn-primary">
+                        <i class="fas fa-edit"></i> 
+                        <span class="d-none d-md-inline">Clarificar</span>
+                    </a>
+                    <button class="btn btn-sm btn-danger delete-item" 
+                            data-id="${item.id}" 
+                            data-title="${escapeHtml(item.title)}"
+                            title="Eliminar este item">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        var list = elements.unprocessedList;
+        if (list) {
+            list.insertBefore(div, list.firstChild);
+            
+            var items = list.querySelectorAll('.list-group-item');
+            if (items.length > 50) {
+                items[items.length - 1].remove();
+            }
+        }
+    }
+    
+    function showEmptyState() {
+        var list = elements.unprocessedList;
+        if (!list) return;
+        
+        var emptyDiv = document.createElement('div');
+        emptyDiv.id = 'emptyUnprocessed';
+        emptyDiv.className = 'empty-state text-center py-5';
+        emptyDiv.innerHTML = `
+            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+            <h5 class="text-muted">¡Bandeja de entrada vacía!</h5>
+            <p class="text-muted small">
+                Tu mente está libre. Captura algo nuevo para empezar a construir tu sistema GTD.
+            </p>
+            <button class="btn btn-sm btn-outline-primary mt-2" id="focusCaptureBtn">
+                <i class="fas fa-pen"></i> Capturar ahora
+            </button>
+        `;
+        list.appendChild(emptyDiv);
+        
+        var focusBtn = document.getElementById('focusCaptureBtn');
+        if (focusBtn) {
+            focusBtn.addEventListener('click', function() {
+                elements.captureInput.focus();
+            });
+        }
+    }
+    
+    function updateStats(stats) {
+        if (!stats) return;
+        
+        var statMapping = {
+            'statTotal': stats.total,
+            'statUnprocessed': stats.unprocessed,
+            'statProcessed': stats.processed,
+            'statHighPriority': stats.high_priority,
+            'statRate': stats.capture_rate + '%'
+        };
+        
+        Object.keys(statMapping).forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                var value = statMapping[id];
+                if (id === 'statRate') {
+                    el.textContent = value || '0%';
+                } else {
+                    el.textContent = value !== undefined ? value : 0;
+                }
+            }
+        });
+        
+        var progressFill = document.querySelector('.progress-fill-green');
+        if (progressFill && stats.capture_rate !== undefined) {
+            var rate = Math.min(100, Math.max(0, stats.capture_rate));
+            progressFill.style.width = rate + '%';
+        }
+    }
+    
+    function updateBadges(response) {
+        var unprocessedBadge = document.getElementById('unprocessedBadge');
+        var pendingCountNumber = document.getElementById('pendingCountNumber');
+        
+        if (unprocessedBadge) unprocessedBadge.textContent = response.unprocessed_count || 0;
+        if (pendingCountNumber) pendingCountNumber.textContent = response.unprocessed_count || 0;
+    }
+    
+    function showFeedback(type, message) {
+        var el = elements.feedback;
+        if (!el) return;
+        
+        el.style.display = 'block';
+        el.className = 'alert alert-' + type + ' animate-fade-in';
+        var iconMap = {
+            'success': 'check-circle',
+            'warning': 'exclamation-triangle',
+            'danger': 'times-circle',
+            'info': 'info-circle'
+        };
+        var icon = iconMap[type] || 'info-circle';
+        el.innerHTML = '<i class="fas fa-' + icon + '"></i> ' + message;
+        
+        clearTimeout(el._timeout);
+        el._timeout = setTimeout(function() {
+            hideFeedback();
+        }, FEEDBACK_TIMEOUT);
+    }
+    
+    function hideFeedback() {
+        var el = elements.feedback;
+        if (el) {
+            el.style.display = 'none';
+            el.className = '';
+        }
+    }
+    
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function animateSuccess() {
+        var btn = elements.captureBtn;
+        btn.style.transition = 'transform 0.1s';
+        btn.style.transform = 'scale(0.95)';
+        setTimeout(function() {
+            btn.style.transform = 'scale(1)';
+        }, 100);
+    }
+    
+    function updatePendingCount() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/gtd/inbox/stats/', true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success && response.stats) {
+                        var el = document.getElementById('pendingCountNumber');
+                        if (el) el.textContent = response.stats.unprocessed || 0;
+                    }
+                } catch (e) {
+                    console.error('Error updating count:', e);
+                }
+            }
+        };
+        xhr.send();
+    }
+    
+    // ============================================
+    // EVENTOS
+    // ============================================
+    if (elements.captureInput) {
+        elements.captureInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                doCapture();
+            }
+        });
+    }
+    
+    if (elements.captureBtn) {
+        elements.captureBtn.addEventListener('click', doCapture);
+    }
+    
+    document.addEventListener('click', function(e) {
+        var doNowTarget = e.target.closest('.do-now-btn');
+        if (doNowTarget) {
+            e.preventDefault();
+            doNow(doNowTarget.dataset.id, doNowTarget.dataset.title);
+        }
+        
+        var deleteTarget = e.target.closest('.delete-item');
+        if (deleteTarget) {
+            e.preventDefault();
+            deleteItem(deleteTarget.dataset.id, deleteTarget.dataset.title);
+        }
+    });
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+            e.preventDefault();
+            var title = prompt('Captura rápida GTD\n¿Qué quieres capturar?');
+            if (title && title.trim()) {
+                elements.captureInput.value = title.trim();
+                doCapture();
+            }
+        }
+        if (e.key === 'Escape') {
+            hideFeedback();
+        }
+    });
+    
+    setInterval(updatePendingCount, 30000);
+    
+    if (elements.captureInput) {
+        elements.captureInput.focus();
+    }
+    
+    console.log('GTD Quick Capture: Ctrl+Shift+I');
+    console.log('Bandeja de entrada lista para capturar');
+    
+    document.querySelectorAll('#unprocessedList .list-group-item').forEach(function(el, index) {
+        el.style.animationDelay = (index * 0.05) + 's';
+        el.classList.add('animate-slide-in');
+    });
+})();
+</script>
+
+<style>
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s ease both;
+}
+
+.animate-fade-in {
+    animation: slideIn 0.2s ease both;
+}
+
+.capture-input-wrapper {
+    position: relative;
+}
+
+#captureInput {
+    border-radius: var(--radius);
+    border: 2px solid var(--gray-200);
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+#captureInput:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 4px var(--purple-light);
+    background: #fff;
+}
+
+#captureInput::placeholder {
+    color: var(--gray-400);
+    font-weight: 400;
+}
+
+.capture-quick-tips {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.capture-shortcut {
+    font-size: 0.7rem;
+    color: var(--gray-400);
+}
+
+.capture-shortcut kbd {
+    background: var(--gray-100);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    border: 1px solid var(--gray-300);
+}
+
+.list-group-item {
+    transition: all 0.2s ease;
+    padding: 0.75rem 1rem;
+    border-left: 3px solid transparent;
+}
+
+.list-group-item:hover {
+    background: var(--gray-50);
+    transform: translateX(2px);
+}
+
+.list-group-item.priority-alta {
+    border-left-color: var(--red);
+    background: #fffaf8;
+}
+
+.list-group-item.priority-media {
+    border-left-color: var(--amber);
+}
+
+.list-group-item.priority-baja {
+    border-left-color: var(--blue);
+}
+
+.priority-badge {
+    min-width: 20px;
+    display: inline-block;
+    text-align: center;
+}
+
+.item-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.item-title {
+    font-weight: 500;
+}
+
+.item-meta {
+    margin-top: 0.25rem;
+}
+
+.do-now-btn {
+    transition: all 0.2s ease;
+}
+
+.do-now-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.delete-item:hover {
+    transform: scale(1.05);
+}
+
+.stat-item {
+    transition: background 0.2s ease;
+}
+
+.stat-item:hover {
+    background: var(--gray-50);
+    padding-left: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    #captureInput {
+        font-size: 1rem;
+        padding: 0.6rem 0.75rem;
+    }
+    
+    .capture-quick-tips {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .capture-shortcut {
+        font-size: 0.65rem;
+    }
+    
+    .list-group-item {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .do-now-btn span,
+    .delete-item span,
+    .btn-primary span {
+        display: none !important;
+    }
+    
+    .do-now-btn i,
+    .delete-item i,
+    .btn-primary i {
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .gtd-progress-stats .stat-item {
+        font-size: 0.85rem;
+        padding: 0.35rem 0;
+    }
+    
+    .item-title-wrapper {
+        font-size: 0.9rem;
+    }
+}
+</style>
+{% endblock %}

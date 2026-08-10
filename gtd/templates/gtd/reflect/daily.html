@@ -1,0 +1,125 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-sun"></i> {{ title }}
+                    <small class="text-light">{{ subtitle }}</small>
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Resumen -->
+                <div class="row text-center mb-4">
+                    <div class="col-md-3">
+                        <div class="p-3 border rounded">
+                            <h3 class="text-success">{{ daily.completed_today }}</h3>
+                            <small class="text-muted">Completadas Hoy</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 border rounded">
+                            <h3 class="text-warning">{{ daily.tasks_today }}</h3>
+                            <small class="text-muted">Pendientes Hoy</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 border rounded">
+                            <h3 class="text-danger">{{ daily.overdue }}</h3>
+                            <small class="text-muted">Tareas Vencidas</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 border rounded">
+                            <h3 class="text-info">{{ daily.new_inbox }}</h3>
+                            <small class="text-muted">Nuevos Items Inbox</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items de Enfoque -->
+                <h5><i class="fas fa-bullseye"></i> Items de Enfoque</h5>
+                <div class="list-group mb-4">
+                    {% for item in daily.focus_items %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-{{ item.priority }} me-2">{{ item.priority }}</span>
+                                {{ item.title }}
+                                {% if item.project %}
+                                    <small class="text-muted">({{ item.project }})</small>
+                                {% endif %}
+                            </div>
+                            <span class="badge bg-primary">Enfoque</span>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-muted text-center">
+                            No hay items de enfoque para hoy
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Recomendaciones -->
+                <h5><i class="fas fa-lightbulb"></i> Recomendaciones</h5>
+                <ul class="list-group mb-4">
+                    {% for rec in daily.recommendations %}
+                        <li class="list-group-item">
+                            <i class="fas fa-chevron-right text-info me-2"></i>
+                            {{ rec }}
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">Sin recomendaciones adicionales</li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Tareas de Mañana -->
+                <h5><i class="fas fa-calendar-alt"></i> Tareas para Mañana</h5>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Tienes <strong>{{ daily.tasks_tomorrow }}</strong> tareas programadas para mañana.
+                    {% if daily.tasks_tomorrow > 0 %}
+                        <a href="{% url 'gtd:engage_today' %}" class="alert-link">
+                            Ver tareas
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="text-center mt-3">
+                    <button class="btn btn-success" onclick="markDailyComplete()">
+                        <i class="fas fa-check-double"></i> Marcar Revisión Diaria Completada
+                    </button>
+                    <a href="{% url 'gtd:reflect_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function markDailyComplete() {
+    if (confirm('¿Marcar la revisión diaria como completada?')) {
+        $.ajax({
+            url: '{% url "gtd:reflect_mark_reviewed" %}',
+            method: 'POST',
+            data: {
+                type: 'daily',
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success('Revisión diaria marcada como completada');
+                    window.location.href = '{% url "gtd:reflect_dashboard" %}';
+                }
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

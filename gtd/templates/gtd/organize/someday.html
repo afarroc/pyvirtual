@@ -1,0 +1,99 @@
+{% extends "gtd/base_gtd.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - GTD{% endblock %}
+
+{% block gtd_content %}
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-number">{{ someday.stats.total }}</div>
+        <div class="stat-label">Total Algún día</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-info">{{ someday.stats.inbox_count }}</div>
+        <div class="stat-label">Inbox</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-primary">{{ someday.stats.projects_count }}</div>
+        <div class="stat-label">Proyectos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number text-warning">{{ someday.stats.tasks_count }}</div>
+        <div class="stat-label">Tareas</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="section-card">
+            <div class="section-header section-header-info">
+                <h3 class="section-title">
+                    Inbox
+                    <span class="badge bg-info ms-2">{{ someday.stats.inbox_count }}</span>
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if someday.inbox_items %}
+                    <div class="list-group">
+                        {% for item in someday.inbox_items %}
+                            <div class="list-group-item small">
+                                {{ item.title|truncatechars:40 }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay items en inbox</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="section-card">
+            <div class="section-header section-header-primary">
+                <h3 class="section-title">
+                    Proyectos
+                    <span class="badge bg-primary ms-2">{{ someday.stats.projects_count }}</span>
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if someday.projects %}
+                    <div class="list-group">
+                        {% for project in someday.projects %}
+                            <div class="list-group-item small">
+                                {{ project.title|truncatechars:40 }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay proyectos</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="section-card">
+            <div class="section-header section-header-warning">
+                <h3 class="section-title">
+                    Tareas
+                    <span class="badge bg-warning ms-2">{{ someday.stats.tasks_count }}</span>
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if someday.tasks %}
+                    <div class="list-group">
+                        {% for task in someday.tasks %}
+                            <div class="list-group-item small">
+                                {{ task.title|truncatechars:40 }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay tareas</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
