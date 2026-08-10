@@ -3967,7 +3967,7 @@ img {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.55);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
@@ -3984,6 +3984,14 @@ img {
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-xl);
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  overflow: auto;
+  flex: 1;
 }
 
 .object-action-panel {
