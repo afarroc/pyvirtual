@@ -1,0 +1,124 @@
+{% load static %}
+<div id="objectPanelState">
+  <p class="text-muted mb-2">Selecciona el tipo de objeto a crear:</p>
+  <div class="hotbar">
+    {% for item in hotbar_types %}
+    <button type="button"
+            class="hotbar-slot"
+            data-object-type="{{ item.type }}"
+            title="{{ item.label }}">
+      <i class="bi {{ item.icon }}"></i>
+      <span class="hotbar-label">{{ item.label }}</span>
+    </button>
+    {% endfor %}
+  </div>
+</div>
+
+<div id="objectFormArea" style="display:none;">
+  <div class="mb-3">
+    <button type="button" class="btn btn-outline-secondary btn-sm" id="backToHotbar">
+      <i class="bi bi-arrow-left"></i> Volver
+    </button>
+    <span class="ms-2 text-muted" id="selectedTypeLabel"></span>
+  </div>
+
+  <form id="objectCreateForm" method="post" action="{% url 'rooms:create_room_object' room_id=room.pk %}" novalidate>
+    {% csrf_token %}
+    <div class="row g-3">
+      <div class="col">
+        <label class="form-label">Nombre</label>
+        {{ form.name }}
+        <div class="form-error text-danger text-xs mt-2"></div>
+      </div>
+      <div class="col">
+        <label class="form-label">Posición X</label>
+        {{ form.position_x }}
+        <div class="form-error text-danger text-xs mt-2"></div>
+      </div>
+      <div class="col">
+        <label class="form-label">Posición Y</label>
+        {{ form.position_y }}
+        <div class="form-error text-danger text-xs mt-2"></div>
+      </div>
+
+      <div class="col-12 object-fields room-object-fields" style="display:none;">
+        <div class="row g-3">
+          <div class="col">
+            <label class="form-label">Efecto (JSON)</label>
+            {{ form.effect }}
+            <div class="form-text">Ej: {"energy": 5, "productivity": 10}</div>
+            <div class="form-error text-danger text-xs mt-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 object-fields box-fields" style="display:none;">
+        <div class="row g-3">
+          <div class="col">
+            <label class="form-label">Ancho (cm)</label>
+            {{ form.box_width }}
+            <div class="form-error text-danger text-xs mt-2"></div>
+          </div>
+          <div class="col">
+            <label class="form-label">Alto (cm)</label>
+            {{ form.box_height }}
+            <div class="form-error text-danger text-xs mt-2"></div>
+          </div>
+          <div class="col">
+            <label class="form-label">Profundidad (cm)</label>
+            {{ form.box_depth }}
+            <div class="form-error text-danger text-xs mt-2"></div>
+          </div>
+          <div class="col">
+            <label class="form-label">Color</label>
+            {{ form.box_color }}
+          </div>
+          <div class="col">
+            <label class="form-label">Material</label>
+            {{ form.box_material_type }}
+          </div>
+          <div class="col">
+            <label class="form-label">Masa (kg)</label>
+            {{ form.box_mass }}
+            <div class="form-error text-danger text-xs mt-2"></div>
+          </div>
+          <div class="col">
+            <div class="form-check">
+              {{ form.box_is_locked }}
+              <label class="form-check-label">Cerrado con llave</label>
+            </div>
+          </div>
+          <div class="col">
+            <label class="form-label">ID de llave requerida</label>
+            {{ form.box_required_key }}
+          </div>
+          <div class="col">
+            <label class="form-label">Capacidad de items</label>
+            {{ form.box_capacity }}
+            <div class="form-error text-danger text-xs mt-2"></div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Contenido inicial (JSON)</label>
+            {{ form.box_contents }}
+            <div class="form-text">Ej: [{"id": 1, "name": "item1"}]</div>
+            <div class="form-error text-danger text-xs mt-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-footer">
+      <button type="button" class="btn btn-secondary" id="cancelObjectBtn">Cancelar</button>
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> Crear objeto
+      </button>
+    </div>
+  </form>
+</div>
+
+<div id="objectFeedback" style="display:none;" class="text-center py-4">
+  <div id="feedbackIcon" class="mb-2"></div>
+  <h5 id="feedbackTitle" class="mb-2"></h5>
+  <p id="feedbackMessage" class="text-muted mb-3"></p>
+  <button type="button" class="btn btn-primary" id="feedbackClose">Cerrar</button>
+</div>

@@ -488,13 +488,18 @@
     });
   </script>
 
-  {% include 'rooms/includes/object_action_panel.html' %}
+  {% include 'rooms/includes/object_action_panel.html' with room=room %}
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const openBtn = document.querySelector('[data-open-object-panel]');
-      if (openBtn && window.openObjectPanel) {
-        openBtn.addEventListener('click', window.openObjectPanel);
+      if (openBtn) {
+        openBtn.addEventListener('click', function() {
+          const panel = document.getElementById('objectActionPanel');
+          if (panel && window.openObjectPanel) {
+            window.openObjectPanel();
+          }
+        });
       }
     });
   </script>

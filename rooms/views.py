@@ -2888,6 +2888,10 @@ def object_action_panel(request, room_id):
         'hotbar_types': hotbar_types,
         'page_title': f'Crear objeto en {room.name}',
     }
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'rooms/includes/object_action_panel_content.html', context)
+
     return render(request, 'rooms/includes/object_action_panel.html', context)
 
 
