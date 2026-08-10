@@ -3030,7 +3030,7 @@ def box_detail(request, box_id):
         'box': box,
         'room': box.room,
     }
-    return render(request, 'rooms/includes/box_detail.html', context)
+    return render(request, 'rooms/box_detail.html', context)
 
 
 @login_required
