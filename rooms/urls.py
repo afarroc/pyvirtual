@@ -136,7 +136,7 @@ urlpatterns = [
       path('api/objects/hotbar-types/', object_hotbar_types, name='object-hotbar-types'),
 
       # Room objects and boxes
-      path('rooms/<int:room_id>/objects/', room_object_list, name='room_object_list'),
+      path('<int:room_id>/objects/', room_object_list, name='room_object_list'),
       path('boxes/<int:box_id>/', box_detail, name='box_detail'),
       path('boxes/<int:box_id>/action/', box_action, name='box_action'),
   ]
