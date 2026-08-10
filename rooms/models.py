@@ -427,6 +427,76 @@ class RoomObject(models.Model):
         return f"{self.name} ({self.get_object_type_display()}) in {self.room.name}"
 
 
+class Box(models.Model):
+    name = models.CharField(max_length=100)
+    room = models.ForeignKey(Room, related_name='boxes', on_delete=models.CASCADE)
+    position_x = models.IntegerField(default=0)
+    position_y = models.IntegerField(default=0)
+    width = models.IntegerField(default=60, help_text='Ancho en cm')
+    height = models.IntegerField(default=40, help_text='Alto en cm')
+    depth = models.IntegerField(default=40, help_text='Profundidad en cm')
+    color = models.CharField(max_length=7, default='#8B4513', help_text='Color en formato hex (#RRGGBB)')
+    material_type = models.CharField(max_length=50, choices=[
+        ('WOOD', 'Madera'),
+        ('METAL', 'Metal'),
+        ('PLASTIC', 'Plástico'),
+        ('CARDBOARD', 'Cartón'),
+        ('GLASS', 'Vidrio'),
+        ('SPECIAL', 'Especial')
+    ], default='CARDBOARD')
+    is_open = models.BooleanField(default=False, help_text='Estado actual (abierto/cerrado)')
+    is_locked = models.BooleanField(default=False, help_text='Si está cerrado con llave')
+    required_key = models.CharField(max_length=100, blank=True, help_text='ID del objeto/llave necesario')
+    mass = models.DecimalField(max_digits=10, decimal_places=2, default=1.0, help_text='Masa en kg')
+    capacity = models.IntegerField(default=10, help_text='Capacidad de items')
+    contents = models.JSONField(default=list, help_text='Lista de items dentro de la caja')
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='./box_images/', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        state = "🔓" if not self.is_locked else "🔒"
+        open_state = "🟢" if self.is_open else "🔴"
+        return f"{state}{open_state} {self.name} ({self.room.name})"
+
+    def can_open(self, player_profile):
+        if not self.is_locked:
+            return True, "La caja se puede abrir"
+        if self.required_key and self.required_key in getattr(player_profile, 'inventory', []):
+            return True, "Llave correcta"
+        return False, "Caja cerrada con llave"
+
+    def open(self):
+        if not self.is_open:
+            self.is_open = True
+            self.save()
+
+    def close(self):
+        if self.is_open:
+            self.is_open = False
+            self.save()
+
+    def add_item(self, item):
+        contents = self.contents or []
+        if len(contents) < self.capacity:
+            contents.append(item)
+            self.contents = contents
+            self.save()
+            return True
+        return False
+
+    def remove_item(self, item_id):
+        contents = self.contents or []
+        for index, item in enumerate(contents):
+            if item.get('id') == item_id:
+                contents.pop(index)
+                self.contents = contents
+                self.save()
+                return item
+        return None
+
+
 class EntranceExit(models.Model):
     name = models.CharField(max_length=255)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='entrance_exits')

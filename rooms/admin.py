@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    PlayerProfile, Room, RoomConnection, RoomObject,
+    PlayerProfile, Room, RoomConnection, RoomObject, Box,
     EntranceExit, Portal, Comment, Evaluation,
     RoomMember, Message, Outbox, CDC
 )
@@ -75,6 +75,39 @@ class RoomObjectAdmin(admin.ModelAdmin):
     list_filter = ('object_type', 'room')
     search_fields = ('name', 'room__name')
     readonly_fields = ('effect',)
+
+@admin.register(Box)
+class BoxAdmin(admin.ModelAdmin):
+    list_display = ('name', 'room', 'is_open', 'is_locked', 'mass', 'capacity', 'updated_at')
+    list_filter = ('is_open', 'is_locked', 'material_type', 'room')
+    search_fields = ('name', 'room__name', 'description')
+    readonly_fields = ('created_at', 'updated_at')
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'room', 'description')
+        }),
+        ('Position', {
+            'fields': ('position_x', 'position_y')
+        }),
+        ('Dimensions', {
+            'fields': ('width', 'height', 'depth', 'mass')
+        }),
+        ('Appearance', {
+            'fields': ('color', 'material_type', 'image'),
+            'classes': ('collapse',)
+        }),
+        ('State', {
+            'fields': ('is_open', 'is_locked', 'required_key')
+        }),
+        ('Inventory', {
+            'fields': ('capacity', 'contents'),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 @admin.register(EntranceExit)
 class EntranceExitAdmin(admin.ModelAdmin):
