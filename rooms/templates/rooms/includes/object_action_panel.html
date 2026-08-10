@@ -7,112 +7,136 @@
         <button type="button" class="btn-close" data-close-panel aria-label="Close"></button>
       </div>
 
-      <!-- Hotbar de tipos -->
-      <div class="hotbar">
-        {% for item in hotbar_types %}
-        <button type="button"
-                class="hotbar-slot btn btn-{{ item.color }}"
-                data-object-type="{{ item.type }}"
-                data-bs-toggle="tooltip"
-                data-bs-placement="bottom"
-                title="{{ item.label }}">
-          <i class="bi {{ item.icon }}"></i>
-          <span class="hotbar-label">{{ item.label }}</span>
-        </button>
-        {% endfor %}
-      </div>
-
-      <!-- Formulario dinámico -->
-      <form id="objectCreateForm" method="post" action="{% url 'rooms:create_room_object' room_id=room.pk %}" novalidate>
-        {% csrf_token %}
-        <div class="panel-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Nombre</label>
-              {{ form.name }}
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Tipo</label>
-              {{ form.object_type }}
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Posición X</label>
-              {{ form.position_x }}
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Posición Y</label>
-              {{ form.position_y }}
-            </div>
-
-            <!-- Campos específicos de RoomObject -->
-            <div class="col-12 object-fields room-object-fields">
-              <div class="row g-3">
-                <div class="col-12">
-                  <label class="form-label">Efecto (JSON)</label>
-                  {{ form.effect }}
-                  <div class="form-text">Ej: {"energy": 5, "productivity": 10}</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Campos específicos de Box -->
-            <div class="col-12 object-fields box-fields" style="display:none;">
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <label class="form-label">Ancho (cm)</label>
-                  {{ form.box_width }}
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Alto (cm)</label>
-                  {{ form.box_height }}
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Profundidad (cm)</label>
-                  {{ form.box_depth }}
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Color</label>
-                  {{ form.box_color }}
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Material</label>
-                  {{ form.box_material_type }}
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Masa (kg)</label>
-                  {{ form.box_mass }}
-                </div>
-                <div class="col-md-6">
-                  <div class="form-check">
-                    {{ form.box_is_locked }}
-                    <label class="form-check-label">Cerrado con llave</label>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">ID de llave requerida</label>
-                  {{ form.box_required_key }}
-                </div>
-                <div class="col-12">
-                  <label class="form-label">Capacidad de items</label>
-                  {{ form.box_capacity }}
-                </div>
-                <div class="col-12">
-                  <label class="form-label">Contenido inicial (JSON)</label>
-                  {{ form.box_contents }}
-                  <div class="form-text">Ej: [{"id": 1, "name": "item1"}]</div>
-                </div>
-              </div>
-            </div>
+      <div class="panel-body">
+        <!-- Estado 1: selector de tipo -->
+        <div id="objectTypeSelector">
+          <p class="text-muted mb-2">Selecciona el tipo de objeto a crear:</p>
+          <div class="hotbar">
+            {% for item in hotbar_types %}
+            <button type="button"
+                    class="hotbar-slot"
+                    data-object-type="{{ item.type }}"
+                    title="{{ item.label }}">
+              <i class="bi {{ item.icon }}"></i>
+              <span class="hotbar-label">{{ item.label }}</span>
+            </button>
+            {% endfor %}
           </div>
         </div>
 
-        <div class="panel-footer">
-          <button type="button" class="btn btn-secondary" data-close-panel>Cancelar</button>
-          <button type="submit" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i> Crear objeto
-          </button>
+        <!-- Estado 2: formulario dinámico -->
+        <div id="objectFormArea" style="display:none;">
+          <div class="mb-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="backToHotbar">
+              <i class="bi bi-arrow-left"></i> Volver
+            </button>
+            <span class="ms-2 text-muted" id="selectedTypeLabel"></span>
+          </div>
+
+          <form id="objectCreateForm" method="post" action="{% url 'rooms:create_room_object' room_id=room.pk %}" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col">
+                <label class="form-label">Nombre</label>
+                {{ form.name }}
+                <div class="form-error text-danger text-xs mt-2"></div>
+              </div>
+              <div class="col">
+                <label class="form-label">Posición X</label>
+                {{ form.position_x }}
+                <div class="form-error text-danger text-xs mt-2"></div>
+              </div>
+              <div class="col">
+                <label class="form-label">Posición Y</label>
+                {{ form.position_y }}
+                <div class="form-error text-danger text-xs mt-2"></div>
+              </div>
+
+              <!-- Campos específicos de RoomObject -->
+              <div class="col-12 object-fields room-object-fields" style="display:none;">
+                <div class="row g-3">
+                  <div class="col">
+                    <label class="form-label">Efecto (JSON)</label>
+                    {{ form.effect }}
+                    <div class="form-text">Ej: {"energy": 5, "productivity": 10}</div>
+                    <div class="form-error text-danger text-xs mt-2"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Campos específicos de Box -->
+              <div class="col-12 object-fields box-fields" style="display:none;">
+                <div class="row g-3">
+                  <div class="col">
+                    <label class="form-label">Ancho (cm)</label>
+                    {{ form.box_width }}
+                    <div class="form-error text-danger text-xs mt-2"></div>
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Alto (cm)</label>
+                    {{ form.box_height }}
+                    <div class="form-error text-danger text-xs mt-2"></div>
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Profundidad (cm)</label>
+                    {{ form.box_depth }}
+                    <div class="form-error text-danger text-xs mt-2"></div>
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Color</label>
+                    {{ form.box_color }}
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Material</label>
+                    {{ form.box_material_type }}
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Masa (kg)</label>
+                    {{ form.box_mass }}
+                    <div class="form-error text-danger text-xs mt-2"></div>
+                  </div>
+                  <div class="col">
+                    <div class="form-check">
+                      {{ form.box_is_locked }}
+                      <label class="form-check-label">Cerrado con llave</label>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <label class="form-label">ID de llave requerida</label>
+                    {{ form.box_required_key }}
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Capacidad de items</label>
+                    {{ form.box_capacity }}
+                    <div class="form-error text-danger text-xs mt-2"></div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Contenido inicial (JSON)</label>
+                    {{ form.box_contents }}
+                    <div class="form-text">Ej: [{"id": 1, "name": "item1"}]</div>
+                    <div class="form-error text-danger text-xs mt-2"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-footer">
+              <button type="button" class="btn btn-secondary" data-close-panel>Cancelar</button>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Crear objeto
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+
+        <!-- Estado 3: feedback -->
+        <div id="objectFeedback" style="display:none;" class="text-center py-4">
+          <div id="feedbackIcon" class="mb-2"></div>
+          <h5 id="feedbackTitle" class="mb-2"></h5>
+          <p id="feedbackMessage" class="text-muted mb-3"></p>
+          <button type="button" class="btn btn-primary" id="feedbackClose">Cerrar</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -123,48 +147,74 @@
   if (!panel) return;
 
   const form = panel.querySelector('#objectCreateForm');
-  const typeSelect = panel.querySelector('#id_object_type');
-  const roomFields = panel.querySelector('.room-object-fields');
-  const boxFields = panel.querySelector('.box-fields');
+  const typeSelector = panel.querySelector('#objectTypeSelector');
+  const formArea = panel.querySelector('#objectFormArea');
+  const feedbackArea = panel.querySelector('#objectFeedback');
+  const backBtn = panel.querySelector('#backToHotbar');
+  const selectedTypeLabel = panel.querySelector('#selectedTypeLabel');
   const slots = panel.querySelectorAll('.hotbar-slot');
-  const dialog = panel.querySelector('.modal-dialog');
 
-  function updateFields() {
-    if (!typeSelect) return;
-    const type = typeSelect.value;
-    if (roomFields) roomFields.style.display = type === 'BOX' ? 'none' : 'block';
-    if (boxFields) boxFields.style.display = type === 'BOX' ? 'block' : 'none';
+  const typeLabels = {
+    'WORK': 'Workstation',
+    'SOCIAL': 'Social Area',
+    'REST': 'Rest Zone',
+    'DOOR': 'Door',
+    'EQUIPMENT': 'Equipment',
+    'BOX': 'Box',
+  };
+
+  function showState(state) {
+    if (typeSelector) typeSelector.style.display = state === 'select' ? 'block' : 'none';
+    if (formArea) formArea.style.display = state === 'form' ? 'block' : 'none';
+    if (feedbackArea) feedbackArea.style.display = state === 'feedback' ? 'block' : 'none';
+  }
+
+  function showFeedback(success, title, message) {
+    const icon = panel.querySelector('#feedbackIcon');
+    const titleEl = panel.querySelector('#feedbackTitle');
+    const messageEl = panel.querySelector('#feedbackMessage');
+    if (icon) icon.innerHTML = success
+      ? '<i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>'
+      : '<i class="bi bi-x-circle-fill text-danger" style="font-size: 3rem;"></i>';
+    if (titleEl) titleEl.textContent = title;
+    if (messageEl) messageEl.textContent = message;
+    showState('feedback');
   }
 
   slots.forEach(function(slot) {
     slot.addEventListener('click', function() {
       const type = this.getAttribute('data-object-type');
-      if (typeSelect) {
-        typeSelect.value = type;
-        updateFields();
-      }
+      const typeInput = form.querySelector('#id_object_type');
+      if (typeInput) typeInput.value = type;
+
+      if (selectedTypeLabel) selectedTypeLabel.textContent = typeLabels[type] || type;
+      updateFields(type);
+      showState('form');
+
       slots.forEach(function(s) { s.classList.remove('active'); });
       this.classList.add('active');
     });
   });
 
-  if (typeSelect) {
-    typeSelect.addEventListener('change', updateFields);
-    updateFields();
+  if (backBtn) {
+    backBtn.addEventListener('click', function() {
+      showState('select');
+      slots.forEach(function(s) { s.classList.remove('active'); });
+    });
   }
 
   panel.addEventListener('click', function(e) {
-    if (e.target.hasAttribute('data-close-panel')) {
+    if (e.target.hasAttribute('data-close-panel') || e.target === panel) {
+      showState('select');
       panel.style.display = 'none';
       document.body.style.overflow = '';
     }
   });
 
-  panel.addEventListener('click', function(e) {
-    if (e.target === panel) {
-      panel.style.display = 'none';
-      document.body.style.overflow = '';
-    }
+  panel.querySelector('#feedbackClose').addEventListener('click', function() {
+    showState('select');
+    panel.style.display = 'none';
+    document.body.style.overflow = '';
   });
 
   form.addEventListener('submit', function(e) {
@@ -182,17 +232,15 @@
     .then(function(response) { return response.json(); })
     .then(function(data) {
       if (data.success) {
-        alert(data.message || 'Objeto creado correctamente.');
+        showFeedback(true, 'Objeto creado', data.message || 'El objeto se creó correctamente.');
         form.reset();
-        if (typeSelect) updateFields();
-        panel.style.display = 'none';
-        document.body.style.overflow = '';
+        slots.forEach(function(s) { s.classList.remove('active'); });
       } else {
-        alert(data.message || 'Error al crear el objeto.');
+        showFeedback(false, 'Error', data.message || 'No se pudo crear el objeto.');
       }
     })
     .catch(function() {
-      alert('Error de conexión.');
+      showFeedback(false, 'Error', 'Error de conexión.');
     })
     .finally(function() {
       button.disabled = false;
@@ -201,12 +249,15 @@
   });
 
   window.openObjectPanel = function() {
+    showState('select');
     panel.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    if (dialog) dialog.focus();
+    form.reset();
+    slots.forEach(function(s) { s.classList.remove('active'); });
   };
 
   window.closeObjectPanel = function() {
+    showState('select');
     panel.style.display = 'none';
     document.body.style.overflow = '';
   };
