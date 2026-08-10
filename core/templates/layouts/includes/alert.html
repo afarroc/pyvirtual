@@ -1,0 +1,11 @@
+<div class="alerts-container">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show">
+      <div class="alert-content">
+        <i class="bi bi-{% if message.tags == 'success' %}check-circle-fill{% elif message.tags == 'error' %}x-circle-fill{% elif message.tags == 'warning' %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %}"></i>
+        <span class="alert-message">{{ message }}</span>
+      </div>
+      <button type="button" class="alert-dismiss" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+    </div>
+  {% endfor %}
+</div>
