@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'accounts.apps.AccountsConfig',
     'events.apps.EventsConfig',
+    'gtd.apps.GtdConfig',
     'chat',
     'rooms',
     'bots',

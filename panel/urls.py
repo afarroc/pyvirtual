@@ -27,6 +27,7 @@ urlpatterns = [
     path('cv/',        include('cv.urls',       namespace='cv')),
     path('digitalizacion/', include('digitalizacion.urls', namespace='digitalizacion')),
     path('events/',    include('events.urls')),
+    path('gtd/',       include('gtd.urls', namespace='gtd')),
     path('help/',      include('help.urls',     namespace='help')),
     path('kpis/',      include('kpis.urls')),
     path('memento/',   include('memento.urls')),
