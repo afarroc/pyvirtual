@@ -6,7 +6,8 @@ from .views import (
     MessageListCreateAPIView, JoinRoomView, LeaveRoomView,
     room_view, navigate_room, create_room_connection, edit_room_connection,
     delete_room_connection, RoomCRUDViewSet, EntranceExitCRUDViewSet,
-    PortalCRUDViewSet, RoomConnectionCRUDViewSet
+    PortalCRUDViewSet, RoomConnectionCRUDViewSet, object_action_panel,
+    create_room_object, object_hotbar_types
 )
 
 app_name = 'rooms'
@@ -127,5 +128,10 @@ urlpatterns = [
      path('room/', room_view, name='current_room'),
      path('room/<int:room_id>/', room_view, name='room_view'),
      path('navigate/<str:direction>/', navigate_room, name='navigate_room'),
-]
+     
+     # Object Action Panel
+     path('rooms/<int:room_id>/objects/panel/', object_action_panel, name='object_action_panel'),
+     path('rooms/<int:room_id>/objects/create/', create_room_object, name='create_room_object'),
+     path('api/objects/hotbar-types/', object_hotbar_types, name='object-hotbar-types'),
+ ]
 

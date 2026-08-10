@@ -3,8 +3,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy
-from .models import Room, Comment, Evaluation, EntranceExit, Portal, RoomObject, PlayerProfile
-from .forms import RoomForm, EvaluationForm, EntranceExitForm, PortalForm, RoomConnectionForm
+from .models import Room, Comment, Evaluation, EntranceExit, Portal, RoomObject, PlayerProfile, Box
+from .forms import RoomForm, EvaluationForm, EntranceExitForm, PortalForm, RoomConnectionForm, ObjectCreateForm
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.mail import send_mail
@@ -2856,3 +2856,128 @@ def create_navigation_test_zone(request):
 
         messages.success(request, 'Zona de pruebas de navegación creada exitosamente. Te hemos teletransportado a la habitación raíz.')
         return redirect('rooms:room_detail', pk=root_room.pk)
+
+
+# ==========================================
+# ACTION PANEL - CREACIÓN DE OBJETOS
+# ==========================================
+
+@login_required
+def object_action_panel(request, room_id):
+    """Renderiza el panel de acciones para crear objetos en una habitación."""
+    room = get_object_or_404(Room, pk=room_id)
+    if not room.can_user_manage(request.user):
+        messages.error(request, 'No tienes permisos para modificar esta habitación.')
+        return redirect('rooms:room_detail', pk=room.pk)
+
+    form = ObjectCreateForm()
+    form.room = room
+
+    hotbar_types = [
+        {'type': 'WORK', 'label': 'Workstation', 'icon': 'bi-tools', 'color': 'primary'},
+        {'type': 'SOCIAL', 'label': 'Social Area', 'icon': 'bi-people', 'color': 'success'},
+        {'type': 'REST', 'label': 'Rest Zone', 'icon': 'bi-moon', 'color': 'info'},
+        {'type': 'DOOR', 'label': 'Door', 'icon': 'bi-door-open', 'color': 'warning'},
+        {'type': 'EQUIPMENT', 'label': 'Equipment', 'icon': 'bi-cpu', 'color': 'secondary'},
+        {'type': 'BOX', 'label': 'Box', 'icon': 'bi-box', 'color': 'dark'},
+    ]
+
+    context = {
+        'room': room,
+        'form': form,
+        'hotbar_types': hotbar_types,
+        'page_title': f'Crear objeto en {room.name}',
+    }
+    return render(request, 'rooms/includes/object_action_panel.html', context)
+
+
+@login_required
+def create_room_object(request, room_id):
+    """Crea un RoomObject o Box en la habitación indicada."""
+    room = get_object_or_404(Room, pk=room_id)
+    if not room.can_user_manage(request.user):
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Método no permitido.'}, status=405)
+
+    form = ObjectCreateForm(request.POST)
+    form.room = room
+
+    if not form.is_valid():
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors.get_json_data(),
+            'message': 'Formulario inválido.'
+        }, status=400)
+
+    object_type = form.cleaned_data['object_type']
+
+    if object_type == 'BOX':
+        box = Box(
+            room=room,
+            name=form.cleaned_data['name'],
+            description=form.cleaned_data.get('description', ''),
+            position_x=form.cleaned_data.get('position_x', 0),
+            position_y=form.cleaned_data.get('position_y', 0),
+            width=form.cleaned_data.get('box_width', 60),
+            height=form.cleaned_data.get('box_height', 40),
+            depth=form.cleaned_data.get('box_depth', 40),
+            color=form.cleaned_data.get('box_color', '#8B4513'),
+            material_type=form.cleaned_data.get('box_material_type', 'CARDBOARD'),
+            is_locked=form.cleaned_data.get('box_is_locked', False),
+            required_key=form.cleaned_data.get('box_required_key', ''),
+            mass=form.cleaned_data.get('box_mass', 1.0),
+            capacity=form.cleaned_data.get('box_capacity', 10),
+            contents=form.cleaned_data.get('box_contents', []),
+        )
+        box.save()
+        return JsonResponse({
+            'success': True,
+            'message': f'Caja "{box.name}" creada exitosamente.',
+            'object': {
+                'id': box.id,
+                'name': box.name,
+                'type': 'BOX',
+                'room_id': room.id,
+                'position_x': box.position_x,
+                'position_y': box.position_y,
+            }
+        })
+    else:
+        room_object = RoomObject(
+            room=room,
+            name=form.cleaned_data['name'],
+            object_type=object_type,
+            position_x=form.cleaned_data.get('position_x', 0),
+            position_y=form.cleaned_data.get('position_y', 0),
+            effect=form.cleaned_data.get('effect', {}),
+        )
+        room_object.save()
+        return JsonResponse({
+            'success': True,
+            'message': f'Objeto "{room_object.name}" creado exitosamente.',
+            'object': {
+                'id': room_object.id,
+                'name': room_object.name,
+                'type': room_object.object_type,
+                'room_id': room.id,
+                'position_x': room_object.position_x,
+                'position_y': room_object.position_y,
+            }
+        })
+
+
+@login_required
+@api_view(['GET'])
+def object_hotbar_types(request):
+    """Devuelve los tipos de objeto disponibles para el hotbar."""
+    types = [
+        {'type': 'WORK', 'label': 'Workstation', 'icon': 'bi-tools', 'color': 'primary'},
+        {'type': 'SOCIAL', 'label': 'Social Area', 'icon': 'bi-people', 'color': 'success'},
+        {'type': 'REST', 'label': 'Rest Zone', 'icon': 'bi-moon', 'color': 'info'},
+        {'type': 'DOOR', 'label': 'Door', 'icon': 'bi-door-open', 'color': 'warning'},
+        {'type': 'EQUIPMENT', 'label': 'Equipment', 'icon': 'bi-cpu', 'color': 'secondary'},
+        {'type': 'BOX', 'label': 'Box', 'icon': 'bi-box', 'color': 'dark'},
+    ]
+    return Response({'success': True, 'types': types})
