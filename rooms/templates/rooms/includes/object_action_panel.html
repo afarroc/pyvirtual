@@ -86,15 +86,25 @@
       if (feedbackArea) feedbackArea.style.display = state === 'feedback' ? 'block' : 'none';
     }
 
-    function showFeedback(success, title, message) {
+    function showFeedback(success, title, message, detail) {
       const icon = root.querySelector('#feedbackIcon');
       const titleEl = root.querySelector('#feedbackTitle');
       const messageEl = root.querySelector('#feedbackMessage');
+      const detailEl = root.querySelector('#feedbackDetail');
       if (icon) icon.innerHTML = success
         ? '<i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>'
         : '<i class="bi bi-x-circle-fill text-danger" style="font-size: 3rem;"></i>';
       if (titleEl) titleEl.textContent = title;
       if (messageEl) messageEl.textContent = message;
+      if (detailEl) {
+        detailEl.innerHTML = '';
+        if (detail) {
+          detailEl.textContent = detail;
+          detailEl.style.display = 'block';
+        } else {
+          detailEl.style.display = 'none';
+        }
+      }
       showState('feedback');
     }
 
@@ -139,7 +149,8 @@
           form.reset();
           slots.forEach(function(s) { s.classList.remove('active'); });
         } else {
-          showFeedback(false, 'Error', data.message || 'No se pudo crear el objeto.');
+          var detail = buildErrorDetail(data);
+          showFeedback(false, data.message || 'No se pudo crear el objeto.', detail);
         }
       })
       .catch(function() {
@@ -161,6 +172,36 @@
     const boxFields = form.querySelector('.box-fields');
     if (roomFields) roomFields.style.display = type === 'BOX' ? 'none' : 'block';
     if (boxFields) boxFields.style.display = type === 'BOX' ? 'block' : 'none';
+  }
+
+  function buildErrorDetail(data) {
+    if (!data || data.success !== false) return '';
+    var parts = [];
+    if (data.message) parts.push(data.message);
+    if (data.errors) {
+      try {
+        var errorObj = typeof data.errors === 'string' ? JSON.parse(data.errors) : data.errors;
+        var entries = Object.entries(errorObj);
+        entries.forEach(function(entry) {
+          var key = entry[0];
+          var value = entry[1];
+          var messages = [];
+          if (Array.isArray(value)) {
+            value.forEach(function(item) {
+              if (item && item.msg) messages.push(item.msg);
+              else messages.push(String(item));
+            });
+          } else {
+            messages.push(String(value));
+          }
+          parts.push(key + ': ' + messages.join(', '));
+        });
+      } catch (e) {
+        parts.push(String(data.errors));
+      }
+    }
+    if (data.exception) parts.push('Exception: ' + data.exception);
+    return parts.join('\n');
   }
 })();
 </script>
