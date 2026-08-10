@@ -1,5 +1,6 @@
 # events/urls.py - Versión corregida
 from django.urls import path, include
+from django.views.generic import RedirectView
 from .views import *  # Esto importa TODAS las vistas directamente
 from .setup_views import SetupView
 from .views.ai_assistant import inbox_ai_summary, inbox_ai_chat
@@ -223,4 +224,11 @@ path('dependencies/graph/<int:task_id>/', task_dependency_graph, name='task_depe
     path('configuration/status/create/', status_create, name='status_create_no_model'),
     path('configuration/status/edit/', status_edit, name='status_edit_no_model'),
     path('configuration/status/delete/<int:model_id>/', status_delete, name='status_delete_no_status_id'),
+]
+
+# Redirecciones GTD hacia la nueva app gtd
+urlpatterns += [
+    path('inbox/', RedirectView.as_view(pattern_name='gtd:capture_inbox', permanent=False)),
+    path('inbox/process/', RedirectView.as_view(pattern_name='gtd:clarify_process', permanent=False)),
+    path('inbox/process/<int:item_id>/', RedirectView.as_view(pattern_name='gtd:clarify_process', permanent=False)),
 ]
