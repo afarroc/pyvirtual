@@ -7,7 +7,8 @@ from .views import (
     room_view, navigate_room, create_room_connection, edit_room_connection,
     delete_room_connection, RoomCRUDViewSet, EntranceExitCRUDViewSet,
     PortalCRUDViewSet, RoomConnectionCRUDViewSet, object_action_panel,
-    create_room_object, object_hotbar_types
+    create_room_object, object_hotbar_types, room_object_list, box_detail,
+    box_action
 )
 
 app_name = 'rooms'
@@ -129,9 +130,14 @@ urlpatterns = [
      path('room/<int:room_id>/', room_view, name='room_view'),
      path('navigate/<str:direction>/', navigate_room, name='navigate_room'),
      
-     # Object Action Panel
-     path('<int:room_id>/objects/panel/', object_action_panel, name='object_action_panel'),
-     path('<int:room_id>/objects/create/', create_room_object, name='create_room_object'),
-     path('api/objects/hotbar-types/', object_hotbar_types, name='object-hotbar-types'),
- ]
+      # Object Action Panel
+      path('<int:room_id>/objects/panel/', object_action_panel, name='object_action_panel'),
+      path('<int:room_id>/objects/create/', create_room_object, name='create_room_object'),
+      path('api/objects/hotbar-types/', object_hotbar_types, name='object-hotbar-types'),
+
+      # Room objects and boxes
+      path('rooms/<int:room_id>/objects/', room_object_list, name='room_object_list'),
+      path('boxes/<int:box_id>/', box_detail, name='box_detail'),
+      path('boxes/<int:box_id>/action/', box_action, name='box_action'),
+  ]
 

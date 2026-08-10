@@ -1,0 +1,206 @@
+{% load static %}
+<div class="box-detail">
+  <div class="dashboard-header">
+    <div>
+      <h3>{{ box.name }}</h3>
+      <p class="subtitle">
+        <a href="{% url 'rooms:room_detail' box.room.pk %}">{{ box.room.name }}</a>
+        <span class="text-muted">/</span>
+        <a href="{% url 'rooms:room_object_list' box.room.pk %}">Objetos</a>
+        <span class="text-muted">/</span>
+        <span class="text-primary">{{ box.name }}</span>
+      </p>
+    </div>
+    <div class="header-actions">
+      <a href="{% url 'rooms:room_object_list' box.room.pk %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="col">
+      <div class="section-card">
+        <div class="section-header-purple">
+          <h5><i class="bi bi-box me-2"></i> Información de la caja</h5>
+        </div>
+        <div class="section-body">
+          <div class="stat-list">
+            <div class="stat-row"><span class="text-muted">Nombre</span> <span>{{ box.name }}</span></div>
+            <div class="stat-row"><span class="text-muted">Habitación</span> <span>{{ box.room.name }}</span></div>
+            <div class="stat-row"><span class="text-muted">Posición</span> <span>{{ box.position_x }}, {{ box.position_y }}</span></div>
+            <div class="stat-row"><span class="text-muted">Dimensiones</span> <span>{{ box.width }}×{{ box.height }}×{{ box.depth }} cm</span></div>
+            <div class="stat-row"><span class="text-muted">Material</span> <span>{{ box.get_material_type_display }}</span></div>
+            <div class="stat-row"><span class="text-muted">Color</span> <span>
+              <span class="d-inline-block border rounded" style="width:1.2rem;height:1.2rem;background:{{ box.color }};vertical-align:middle;margin-right:.5rem;"></span>
+              {{ box.color }}
+            </span></div>
+            <div class="stat-row"><span class="text-muted">Masa</span> <span>{{ box.mass }} kg</span></div>
+            <div class="stat-row"><span class="text-muted">Capacidad</span> <span>{{ box.capacity }}</span></div>
+            <div class="stat-row"><span class="text-muted">Estado</span> <span>
+              {% if box.is_locked %}
+                <span class="badge bg-danger">🔒 Cerrada con llave</span>
+              {% elif box.is_open %}
+                <span class="badge bg-success">🟢 Abierta</span>
+              {% else %}
+                <span class="badge bg-secondary">🔴 Cerrada</span>
+              {% endif %}
+            </span></div>
+            <div class="stat-row"><span class="text-muted">Contenido</span> <span>{{ box.contents|length }} / {{ box.capacity }} items</span></div>
+            {% if box.required_key %}
+            <div class="stat-row"><span class="text-muted">Llave requerida</span> <span>{{ box.required_key }}</span></div>
+            {% endif %}
+            {% if box.description %}
+            <div class="stat-row"><span class="text-muted">Descripción</span> <span>{{ box.description }}</span></div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card mt-3">
+        <div class="section-header-green">
+          <h5><i class="bi bi-collection me-2"></i> Contenido</h5>
+        </div>
+        <div class="section-body">
+          {% if box.contents %}
+            <ul class="list-unstyled mb-0">
+              {% for item in box.contents %}
+              <li class="mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <i class="bi bi-box-seam me-1 text-primary"></i>
+                    <strong>{{ item.name|default:"Item sin nombre" }}</strong>
+                    <small class="text-muted">(ID: {{ item.id|default:"sin id" }})</small>
+                  </div>
+                  <button type="button" class="btn btn-outline-danger btn-sm box-remove-item" data-item-id="{{ item.id|default:"" }}">
+                    <i class="bi bi-trash"></i> Remover
+                  </button>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">La caja está vacía.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="section-card">
+        <div class="section-header-purple">
+          <h5><i class="bi bi-lightning me-2"></i> Acciones</h5>
+        </div>
+        <div class="section-body">
+          <div class="d-grid gap-2">
+            <form method="post" action="{% url 'rooms:box_action' box.pk %}?action=open" class="box-action-form" data-action="open">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success w-100" {% if box.is_open %}disabled{% endif %}>
+                <i class="bi bi-unlock"></i> Abrir caja
+              </button>
+            </form>
+
+            <form method="post" action="{% url 'rooms:box_action' box.pk %}?action=close" class="box-action-form" data-action="close">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-secondary w-100" {% if not box.is_open and not box.is_locked %}disabled{% endif %}>
+                <i class="bi bi-lock"></i> Cerrar caja
+              </button>
+            </form>
+
+            <form method="post" action="{% url 'rooms:box_action' box.pk %}?action=add_item" class="box-action-form" data-action="add_item">
+              {% csrf_token %}
+              <div class="mb-2">
+                <input type="text" name="item_name" class="form-control" placeholder="Nombre del item" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100" {% if box.is_locked %}disabled{% endif %}>
+                <i class="bi bi-plus-circle"></i> Agregar item
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card mt-3">
+        <div class="section-header-green">
+          <h5><i class="bi bi-info-circle me-2"></i> Estado actual</h5>
+        </div>
+        <div class="section-body">
+          <div id="boxActionFeedback"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const container = document.querySelector('.box-detail');
+  if (!container) return;
+
+  container.querySelectorAll('.box-action-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const action = form.getAttribute('data-action');
+      const feedback = container.querySelector('#boxActionFeedback');
+      const button = form.querySelector('button[type="submit"]');
+      const originalText = button.innerHTML;
+      button.disabled = true;
+      button.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando...';
+
+      const formData = new FormData(form);
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          if (feedback) {
+            feedback.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle-fill me-1"></i>' + (data.message || 'Acción completada.') + '</div>';
+          }
+          if (action === 'add_item' || action === 'remove_item') {
+            location.reload();
+          } else {
+            location.reload();
+          }
+        } else {
+          if (feedback) {
+            feedback.innerHTML = '<div class="alert alert-danger"><i class="bi bi-x-circle-fill me-1"></i>' + (data.message || 'Error en la acción.') + '</div>';
+          }
+        }
+      })
+      .catch(function() {
+        if (feedback) {
+          feedback.innerHTML = '<div class="alert alert-danger"><i class="bi bi-x-circle-fill me-1"></i>Error de conexión.</div>';
+        }
+      })
+      .finally(function() {
+        button.disabled = false;
+        button.innerHTML = originalText;
+      });
+    });
+  });
+
+  container.querySelectorAll('.box-remove-item').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const itemId = this.getAttribute('data-item-id');
+      if (!confirm('¿Remover este item de la caja?')) return;
+      const feedback = container.querySelector('#boxActionFeedback');
+      fetch('{% url 'rooms:box_action' box.pk %}?action=remove_item', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: new URLSearchParams({ item_id: itemId })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          location.reload();
+        } else {
+          if (feedback) feedback.innerHTML = '<div class="alert alert-danger">' + (data.message || 'Error al remover item.') + '</div>';
+        }
+      });
+    });
+  });
+})();
+</script>

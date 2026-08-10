@@ -14,6 +14,7 @@ from django.http import Http404
 from django.db.models import Q  # Import for search functionality
 from django.utils import timezone
 from datetime import timedelta
+import uuid
 from .transition_manager import get_room_transition_manager
 
 # Ensure Room refers to the model, not overridden
@@ -2999,3 +3000,75 @@ def object_hotbar_types(request):
         {'type': 'BOX', 'label': 'Box', 'icon': 'bi-box', 'color': 'dark'},
     ]
     return Response({'success': True, 'types': types})
+
+
+@login_required
+def room_object_list(request, room_id):
+    """Lista los objetos de una habitación, agrupados por tipo."""
+    room = get_object_or_404(Room, pk=room_id)
+    room_objects = room.room_objects.select_related('room').all()
+    boxes = room.boxes.all()
+
+    context = {
+        'room': room,
+        'room_objects': room_objects,
+        'boxes': boxes,
+    }
+    return render(request, 'rooms/includes/room_object_list.html', context)
+
+
+@login_required
+def box_detail(request, box_id):
+    """Detalle de una caja con acciones disponibles."""
+    box = get_object_or_404(Box.objects.select_related('room'), pk=box_id)
+    if not box.room.can_user_manage(request.user):
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+
+    context = {
+        'box': box,
+        'room': box.room,
+    }
+    return render(request, 'rooms/includes/box_detail.html', context)
+
+
+@login_required
+def box_action(request, box_id):
+    """Acciones sobre una caja: abrir, cerrar, agregar item, remover item."""
+    box = get_object_or_404(Box, pk=box_id)
+    if not box.room.can_user_manage(request.user):
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+
+    action = request.POST.get('action') or request.GET.get('action')
+
+    if action == 'open':
+        can_open, reason = box.can_open(None)
+        if not can_open:
+            return JsonResponse({'success': False, 'message': reason}, status=400)
+        box.open()
+        return JsonResponse({'success': True, 'message': f'Caja "{box.name}" abierta.', 'is_open': box.is_open})
+
+    if action == 'close':
+        box.close()
+        return JsonResponse({'success': True, 'message': f'Caja "{box.name}" cerrada.', 'is_open': box.is_open})
+
+    if action == 'add_item':
+        item_name = request.POST.get('item_name')
+        item_id = request.POST.get('item_id')
+        if not item_name and not item_id:
+            return JsonResponse({'success': False, 'message': 'Debes enviar item_name o item_id.'}, status=400)
+        item = {'id': item_id or str(uuid.uuid4()), 'name': item_name or 'Item sin nombre'}
+        added = box.add_item(item)
+        if not added:
+            return JsonResponse({'success': False, 'message': 'La caja está llena.', 'capacity': box.capacity, 'contents_count': len(box.contents or [])}, status=400)
+        return JsonResponse({'success': True, 'message': 'Item agregado.', 'item': item, 'contents': box.contents})
+
+    if action == 'remove_item':
+        item_id = request.POST.get('item_id')
+        if not item_id:
+            return JsonResponse({'success': False, 'message': 'Debes enviar item_id.'}, status=400)
+        item = box.remove_item(item_id)
+        if item is None:
+            return JsonResponse({'success': False, 'message': 'Item no encontrado.'}, status=404)
+        return JsonResponse({'success': True, 'message': 'Item removido.', 'item': item, 'contents': box.contents})
+
+    return JsonResponse({'success': False, 'message': f'Acción no soportada: {action}'}, status=400)
