@@ -178,6 +178,7 @@
     if (!data || data.success !== false) return '';
     var parts = [];
     if (data.message) parts.push(data.message);
+    if (data.detail) parts.push(data.detail);
     if (data.errors) {
       try {
         var errorObj = typeof data.errors === 'string' ? JSON.parse(data.errors) : data.errors;
@@ -201,6 +202,7 @@
       }
     }
     if (data.exception) parts.push('Exception: ' + data.exception);
+    if (data.trace) parts.push('Trace: ' + data.trace);
     return parts.join('\n');
   }
 })();

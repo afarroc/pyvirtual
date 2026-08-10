@@ -2917,6 +2917,8 @@ def create_room_object(request, room_id):
         }, status=400)
 
     object_type = form.cleaned_data['object_type']
+    print('OBJECT_TYPE:', repr(object_type))
+    print('FORM_DATA:', form.cleaned_data)
 
     try:
         if object_type == 'BOX':
@@ -2973,11 +2975,14 @@ def create_room_object(request, room_id):
                 }
             })
     except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
         return JsonResponse({
             'success': False,
             'message': 'Error al crear el objeto.',
             'detail': str(e),
-            'exception': str(type(e).__name__)
+            'exception': str(type(e).__name__),
+            'trace': tb
         }, status=400)
 
 
