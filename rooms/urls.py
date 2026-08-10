@@ -130,8 +130,8 @@ urlpatterns = [
      path('navigate/<str:direction>/', navigate_room, name='navigate_room'),
      
      # Object Action Panel
-     path('rooms/<int:room_id>/objects/panel/', object_action_panel, name='object_action_panel'),
-     path('rooms/<int:room_id>/objects/create/', create_room_object, name='create_room_object'),
+     path('<int:room_id>/objects/panel/', object_action_panel, name='object_action_panel'),
+     path('<int:room_id>/objects/create/', create_room_object, name='create_room_object'),
      path('api/objects/hotbar-types/', object_hotbar_types, name='object-hotbar-types'),
  ]
 

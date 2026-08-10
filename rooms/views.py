@@ -2912,64 +2912,73 @@ def create_room_object(request, room_id):
         return JsonResponse({
             'success': False,
             'errors': form.errors.get_json_data(),
-            'message': 'Formulario inválido.'
+            'message': 'Formulario inválido.',
+            'detail': 'El formulario contiene errores. Revisa los campos e intenta nuevamente.'
         }, status=400)
 
     object_type = form.cleaned_data['object_type']
 
-    if object_type == 'BOX':
-        box = Box(
-            room=room,
-            name=form.cleaned_data['name'],
-            description=form.cleaned_data.get('description', ''),
-            position_x=form.cleaned_data.get('position_x', 0),
-            position_y=form.cleaned_data.get('position_y', 0),
-            width=form.cleaned_data.get('box_width', 60),
-            height=form.cleaned_data.get('box_height', 40),
-            depth=form.cleaned_data.get('box_depth', 40),
-            color=form.cleaned_data.get('box_color', '#8B4513'),
-            material_type=form.cleaned_data.get('box_material_type', 'CARDBOARD'),
-            is_locked=form.cleaned_data.get('box_is_locked', False),
-            required_key=form.cleaned_data.get('box_required_key', ''),
-            mass=form.cleaned_data.get('box_mass', 1.0),
-            capacity=form.cleaned_data.get('box_capacity', 10),
-            contents=form.cleaned_data.get('box_contents', []),
-        )
-        box.save()
+    try:
+        if object_type == 'BOX':
+            box = Box(
+                room=room,
+                name=form.cleaned_data['name'],
+                description=form.cleaned_data.get('description', ''),
+                position_x=form.cleaned_data.get('position_x', 0),
+                position_y=form.cleaned_data.get('position_y', 0),
+                width=form.cleaned_data.get('box_width', 60),
+                height=form.cleaned_data.get('box_height', 40),
+                depth=form.cleaned_data.get('box_depth', 40),
+                color=form.cleaned_data.get('box_color', '#8B4513'),
+                material_type=form.cleaned_data.get('box_material_type', 'CARDBOARD'),
+                is_locked=form.cleaned_data.get('box_is_locked', False),
+                required_key=form.cleaned_data.get('box_required_key', ''),
+                mass=form.cleaned_data.get('box_mass', 1.0),
+                capacity=form.cleaned_data.get('box_capacity', 10),
+                contents=form.cleaned_data.get('box_contents', []),
+            )
+            box.save()
+            return JsonResponse({
+                'success': True,
+                'message': f'Caja "{box.name}" creada exitosamente.',
+                'object': {
+                    'id': box.id,
+                    'name': box.name,
+                    'type': 'BOX',
+                    'room_id': room.id,
+                    'position_x': box.position_x,
+                    'position_y': box.position_y,
+                }
+            })
+        else:
+            room_object = RoomObject(
+                room=room,
+                name=form.cleaned_data['name'],
+                object_type=object_type,
+                position_x=form.cleaned_data.get('position_x', 0),
+                position_y=form.cleaned_data.get('position_y', 0),
+                effect=form.cleaned_data.get('effect', {}),
+            )
+            room_object.save()
+            return JsonResponse({
+                'success': True,
+                'message': f'Objeto "{room_object.name}" creado exitosamente.',
+                'object': {
+                    'id': room_object.id,
+                    'name': room_object.name,
+                    'type': room_object.object_type,
+                    'room_id': room.id,
+                    'position_x': room_object.position_x,
+                    'position_y': room_object.position_y,
+                }
+            })
+    except Exception as e:
         return JsonResponse({
-            'success': True,
-            'message': f'Caja "{box.name}" creada exitosamente.',
-            'object': {
-                'id': box.id,
-                'name': box.name,
-                'type': 'BOX',
-                'room_id': room.id,
-                'position_x': box.position_x,
-                'position_y': box.position_y,
-            }
-        })
-    else:
-        room_object = RoomObject(
-            room=room,
-            name=form.cleaned_data['name'],
-            object_type=object_type,
-            position_x=form.cleaned_data.get('position_x', 0),
-            position_y=form.cleaned_data.get('position_y', 0),
-            effect=form.cleaned_data.get('effect', {}),
-        )
-        room_object.save()
-        return JsonResponse({
-            'success': True,
-            'message': f'Objeto "{room_object.name}" creado exitosamente.',
-            'object': {
-                'id': room_object.id,
-                'name': room_object.name,
-                'type': room_object.object_type,
-                'room_id': room.id,
-                'position_x': room_object.position_x,
-                'position_y': room_object.position_y,
-            }
-        })
+            'success': False,
+            'message': 'Error al crear el objeto.',
+            'detail': str(e),
+            'exception': str(type(e).__name__)
+        }, status=400)
 
 
 @login_required

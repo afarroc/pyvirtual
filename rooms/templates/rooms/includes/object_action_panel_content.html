@@ -24,6 +24,7 @@
 
   <form id="objectCreateForm" method="post" action="{% url 'rooms:create_room_object' room_id=room.pk %}" novalidate>
     {% csrf_token %}
+    <input type="hidden" name="object_type" id="id_object_type" value="">
     <div class="row g-3">
       <div class="col">
         <label class="form-label">Nombre</label>
