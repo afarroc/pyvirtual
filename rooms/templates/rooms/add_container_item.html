@@ -1,0 +1,91 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+  <div class="dashboard-header">
+    <div>
+      <h1>Agregar item</h1>
+      <p class="subtitle">
+        <a href="{% url 'rooms:lobby' %}">Home</a>
+        <span class="text-muted">/</span>
+        <a href="{% url 'rooms:container_detail' container.pk %}">{{ container.name }}</a>
+        <span class="text-muted">/</span>
+        <span class="text-primary">Nuevo item</span>
+      </p>
+    </div>
+    <div class="header-actions">
+      <a href="{% url 'rooms:container_detail' container.pk %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header-purple">
+      <h5><i class="bi bi-plus-circle-fill me-2"></i> Nuevo item en {{ container.name }}</h5>
+    </div>
+    <div class="section-body">
+      <form method="post">
+        {% csrf_token %}
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} mb-3">
+              <div class="alert-content">
+                <span class="alert-message">{{ message }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="mb-3">
+          <label for="id_name" class="form-label">Nombre <span class="text-danger">*</span></label>
+          <input type="text" name="name" id="id_name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="id_cell_type" class="form-label">Tipo</label>
+          <select name="cell_type" id="id_cell_type" class="form-select">
+            <option value="ITEM">Item</option>
+            <option value="OBJECT">Objeto</option>
+            <option value="FURNITURE">Mobiliario</option>
+            <option value="DECORATION">Decoración</option>
+          </select>
+        </div>
+
+        <div class="flex gap-3 mb-3">
+          <div class="w-full">
+            <label for="id_position_x" class="form-label">Posición X</label>
+            <input type="number" name="position_x" id="id_position_x" class="form-control" value="0">
+          </div>
+          <div class="w-full">
+            <label for="id_position_y" class="form-label">Posición Y</label>
+            <input type="number" name="position_y" id="id_position_y" class="form-control" value="0">
+          </div>
+          <div class="w-full">
+            <label for="id_position_z" class="form-label">Posición Z</label>
+            <input type="number" name="position_z" id="id_position_z" class="form-control" value="0">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="id_description" class="form-label">Descripción</label>
+          <textarea name="description" id="id_description" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="flex justify-between items-center mt-4" style="border-top: 1px solid var(--gray-200); padding-top: 1rem;">
+          <a href="{% url 'rooms:container_detail' container.pk %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg"></i> Agregar item
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
