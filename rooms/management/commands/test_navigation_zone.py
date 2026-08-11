@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
-from rooms.models import Room, EntranceExit, Portal, RoomConnection, RoomObject
+from rooms.models import Room, EntranceExit, Portal, RoomConnection, Cell
 
 class Command(BaseCommand):
     help = 'Test the navigation test zone creation'
@@ -72,7 +72,7 @@ class Command(BaseCommand):
             # Check connections
             total_doors = EntranceExit.objects.all().count()
             total_portals = Portal.objects.all().count()
-            total_objects = RoomObject.objects.all().count()
+            total_objects = Cell.objects.all().count()
 
             self.stdout.write(f'Connections - Doors: {total_doors}, Portals: {total_portals}, Objects: {total_objects}')
 
