@@ -4,9 +4,8 @@ from . import views
 from .views import (
     RoomListViewSet, RoomDetailViewSet, RoomSearchViewSet,
     MessageListCreateAPIView, JoinRoomView, LeaveRoomView,
-    room_view, navigate_room, create_room_connection, edit_room_connection,
-    delete_room_connection, RoomCRUDViewSet, EntranceExitCRUDViewSet,
-    PortalCRUDViewSet, RoomConnectionCRUDViewSet, object_action_panel,
+    room_view, navigate_room, navigate_to_cell, create_room_connection, edit_room_connection,
+    delete_room_connection, RoomCRUDViewSet, RoomConnectionCRUDViewSet, object_action_panel,
     create_room_object, object_hotbar_types, room_object_list, box_detail,
     box_action
 )
@@ -17,15 +16,30 @@ app_name = 'rooms'
 urlpatterns = [
     # Main views
     path('', views.lobby, name='lobby'),
+    path('universes/', views.universe_list, name='universe_list'),
+    path('universes/create/', views.create_universe, name='create_universe'),
+    path('universes/<int:pk>/', views.universe_detail, name='universe_detail'),
+    path('universes/<int:pk>/join/', views.join_universe, name='join_universe'),
+    path('worlds/', views.world_list, name='world_list'),
+    path('worlds/create/', views.create_world, name='create_world'),
+    path('worlds/<int:pk>/', views.world_detail, name='world_detail'),
+    path('areas/', views.area_list, name='area_list'),
+    path('areas/create/', views.create_area, name='create_area'),
+    path('areas/<int:pk>/', views.area_detail, name='area_detail'),
     path('register-presence/', views.register_presence, name='register_presence'),
     path('search/', views.room_search, name='room_search'),
 
     # Rooms
     path('rooms/', views.room_list, name='room_list'),
-    path('rooms/crud/', views.room_crud_view, name='room_crud'),
     path('rooms/create/', views.create_room, name='room_create'),
+    path('rooms/create-cell/', views.create_cell, name='create_cell'),
     path('rooms/create-complete/', views.create_room_complete, name='room_create_complete'),
+    path('rooms/crud/', views.room_crud_view, name='room_crud'),
     path('rooms/<int:pk>/', views.room_detail, name='room_detail'),
+    path('rooms/<int:pk>/cell/', views.cell_detail, name='cell_detail'),
+    path('rooms/<int:pk>/container/', views.container_detail, name='container_detail'),
+    path('rooms/<int:pk>/container/add/', views.add_container_item, name='add_container_item'),
+    path('rooms/<int:pk>/item/', views.item_detail, name='item_detail'),
     path('rooms/<int:pk>/delete/', views.room_delete, name='room_delete'),
     path('rooms/<int:pk>/3d/', views.room_3d_view, name='room_3d'),
     path('rooms/<int:pk>/3d-interactive/', views.room_3d_interactive_view, name='room_3d_interactive'),
@@ -43,7 +57,7 @@ urlpatterns = [
     path('entrance-exits/<int:pk>/', views.entrance_exit_detail, name='entrance_exit_detail'),
     path('entrance-exits/<int:pk>/edit/', views.edit_entrance_exit, name='edit_entrance_exit'),
     path('entrance-exits/<int:pk>/delete/', views.delete_entrance_exit, name='delete_entrance_exit'),
-    
+
     # Room Connections
     path('rooms/<int:room_id>/connections/create/', create_room_connection, name='create_room_connection'),
     path('rooms/<int:room_id>/connections/<int:connection_id>/edit/', edit_room_connection, name='edit_room_connection'),
@@ -66,30 +80,6 @@ urlpatterns = [
         'delete': 'destroy'
     }), name='room-crud-detail'),
 
-    # CRUD API Routes - Full REST API for EntranceExit (Doors)
-    path('api/crud/doors/', EntranceExitCRUDViewSet.as_view({
-        'get': 'list',
-        'post': 'create'
-    }), name='entrance-exit-crud-list'),
-    path('api/crud/doors/<int:pk>/', EntranceExitCRUDViewSet.as_view({
-        'get': 'retrieve',
-        'put': 'update',
-        'patch': 'partial_update',
-        'delete': 'destroy'
-    }), name='entrance-exit-crud-detail'),
-
-    # CRUD API Routes - Full REST API for Portal
-    path('api/crud/portals/', PortalCRUDViewSet.as_view({
-        'get': 'list',
-        'post': 'create'
-    }), name='portal-crud-list'),
-    path('api/crud/portals/<int:pk>/', PortalCRUDViewSet.as_view({
-        'get': 'retrieve',
-        'put': 'update',
-        'patch': 'partial_update',
-        'delete': 'destroy'
-    }), name='portal-crud-detail'),
-
     # CRUD API Routes - Full REST API for RoomConnection
     path('api/crud/connections/', RoomConnectionCRUDViewSet.as_view({
         'get': 'list',
@@ -104,7 +94,7 @@ urlpatterns = [
     path('api/rooms/<int:room_id>/messages/', MessageListCreateAPIView.as_view(), name='room-messages-api'),
     path('api/rooms/<int:room_id>/join/', JoinRoomView.as_view(), name='join-room-api'),
     path('api/rooms/<int:room_id>/leave/', LeaveRoomView.as_view(), name='leave-room-api'),
-    
+
     # Transition System API Routes
     path('api/transitions/available/', views.get_available_transitions, name='available-transitions-api'),
     path('api/entrance/<int:entrance_id>/use/', views.use_entrance_exit, name='use-entrance-api'),
@@ -125,19 +115,47 @@ urlpatterns = [
     # Navigation Test Zone
     path('navigation-test-zone/', views.create_navigation_test_zone, name='create_navigation_test_zone'),
 
-   # ... otras URLs existentes ...
-     path('room/', room_view, name='current_room'),
-     path('room/<int:room_id>/', room_view, name='room_view'),
-     path('navigate/<str:direction>/', navigate_room, name='navigate_room'),
-     
-      # Object Action Panel
-      path('<int:room_id>/objects/panel/', object_action_panel, name='object_action_panel'),
-      path('<int:room_id>/objects/create/', create_room_object, name='create_room_object'),
-      path('api/objects/hotbar-types/', object_hotbar_types, name='object-hotbar-types'),
+    # Legacy room shortcuts
+    path('room/', room_view, name='current_room'),
+    path('room/<int:room_id>/', room_view, name='room_view'),
+    path('navigate/<str:direction>/', navigate_room, name='navigate_room'),
+    path('navigate/cell/<int:cell_id>/', navigate_to_cell, name='navigate_to_cell'),
 
-      # Room objects and boxes
-      path('<int:room_id>/objects/', room_object_list, name='room_object_list'),
-      path('boxes/<int:box_id>/', box_detail, name='box_detail'),
-      path('boxes/<int:box_id>/action/', box_action, name='box_action'),
-  ]
+    # Object Action Panel
+    path('rooms/<int:room_id>/objects/panel/', object_action_panel, name='object_action_panel'),
+    path('rooms/<int:room_id>/objects/create/', create_room_object, name='create_room_object'),
+    path('api/objects/hotbar-types/', object_hotbar_types, name='object-hotbar-types'),
 
+    # Room objects and boxes
+    path('rooms/<int:room_id>/objects/', room_object_list, name='room_object_list'),
+    path('rooms/boxes/<int:box_id>/', box_detail, name='box_detail'),
+    path('rooms/boxes/<int:box_id>/action/', box_action, name='box_action'),
+
+    # Legacy aliases for room URLs
+    path('list/', views.room_list, name='room_list_legacy'),
+    path('create/', views.create_room, name='room_create_legacy'),
+    path('create-cell/', views.create_cell, name='create_cell_legacy'),
+    path('create-complete/', views.create_room_complete, name='room_create_complete_legacy'),
+    path('<int:pk>/', views.room_detail, name='room_detail_legacy'),
+    path('<int:pk>/cell/', views.cell_detail, name='cell_detail_legacy'),
+    path('<int:pk>/container/', views.container_detail, name='container_detail_legacy'),
+    path('<int:pk>/container/add/', views.add_container_item, name='add_container_item_legacy'),
+    path('<int:pk>/item/', views.item_detail, name='item_detail_legacy'),
+    path('<int:pk>/delete/', views.room_delete, name='room_delete_legacy'),
+    path('<int:pk>/3d/', views.room_3d_view, name='room_3d_legacy'),
+    path('<int:pk>/3d-interactive/', views.room_3d_interactive_view, name='room_3d_interactive_legacy'),
+    path('<int:pk>/comments/', views.room_comments, name='room_comments_legacy'),
+    path('<int:pk>/evaluations/', views.room_evaluations, name='room_evaluations_legacy'),
+    path('<int:room_id>/connections/create/', create_room_connection, name='create_room_connection_legacy'),
+    path('<int:room_id>/connections/<int:connection_id>/edit/', edit_room_connection, name='edit_room_connection_legacy'),
+    path('<int:room_id>/connections/<int:connection_id>/delete/', delete_room_connection, name='delete_room_connection_legacy'),
+    path('<int:room_id>/objects/panel/', object_action_panel, name='object_action_panel_legacy'),
+    path('<int:room_id>/objects/create/', create_room_object, name='create_room_object_legacy'),
+    path('<int:room_id>/objects/', room_object_list, name='room_object_list_legacy'),
+    path('boxes/<int:box_id>/', box_detail, name='box_detail_legacy'),
+    path('boxes/<int:box_id>/action/', box_action, name='box_action_legacy'),
+    path('room/', room_view, name='current_room_legacy'),
+    path('room/<int:room_id>/', room_view, name='room_view_legacy'),
+    path('navigate/<str:direction>/', navigate_room, name='navigate_room_legacy'),
+    path('navigate/cell/<int:cell_id>/', navigate_to_cell, name='navigate_to_cell_legacy'),
+]

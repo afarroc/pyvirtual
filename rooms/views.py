@@ -3,33 +3,85 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy
-from .models import Room, Comment, Evaluation, EntranceExit, Portal, RoomObject, PlayerProfile, Box
-from .forms import RoomForm, EvaluationForm, EntranceExitForm, PortalForm, RoomConnectionForm, ObjectCreateForm
+from .models import Cell, CellConnection, CellMembership, Comment, Evaluation, PlayerProfile
+from .forms import CellForm, EvaluationForm, ObjectCreateForm
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.mail import send_mail
 from rest_framework.decorators import api_view
 from .exceptions import RoomManagerError
 from django.http import Http404
-from django.db.models import Q  # Import for search functionality
+from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 import uuid
 from .transition_manager import get_room_transition_manager
 
-# Ensure Room refers to the model, not overridden
-from .models import Room  # Ensure this import is not shadowed
+import json
+import logging
+import math
+import requests
+from requests.adapters import HTTPAdapter, Retry
+from django.conf import settings
+from django.db import transaction
+from django.db.models import Exists, OuterRef, Count
+from rest_framework import status, viewsets
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
+
+from .models import Cell, CellConnection, Message, Outbox, CDC, PlayerProfile
+from .serializers import (
+    MessageSerializer, CellSearchSerializer, CellSerializer, CellCRUDSerializer, CellConnectionSerializer
+)
+
+logger = logging.getLogger(__name__)
+
+
+def _room_qs():
+    return Cell.objects.filter(cell_type='ROOM')
+
+
+def _user_can_manage(cell, user):
+    return cell.owner == user or user.is_staff
+
 
 @login_required
 def lobby(request):
-    # Secciones dinámicas
+    user_universes = Cell.objects.filter(cell_type='UNIVERSE', owner=request.user).order_by('-created_at')[:5]
+    user_worlds = Cell.objects.filter(cell_type='WORLD', owner=request.user).order_by('-created_at')[:5]
+    user_areas = Cell.objects.filter(cell_type='AREA', owner=request.user).order_by('-created_at')[:5]
     sections = [
+        {
+            'title': 'Tus Universos',
+            'url_name': 'rooms:universe_list',
+            'detail_url_name': 'rooms:universe_detail',
+            'icon': 'bi-globe',
+            'items': user_universes,
+        },
+        {
+            'title': 'Tus Mundos',
+            'url_name': 'rooms:world_list',
+            'detail_url_name': 'rooms:world_detail',
+            'icon': 'bi-globe2',
+            'items': user_worlds,
+        },
+        {
+            'title': 'Tus Áreas',
+            'url_name': 'rooms:area_list',
+            'detail_url_name': 'rooms:area_detail',
+            'icon': 'bi-layers',
+            'items': user_areas,
+        },
         {
             'title': 'Recent Rooms',
             'url_name': 'rooms:room_list',
             'detail_url_name': 'rooms:room_detail',
             'icon': 'bi-house',
-            'items': Room.objects.all().order_by('-created_at')[:5]
+            'items': _room_qs().order_by('-created_at')[:5]
         },
         {
             'title': 'Navigation Test Zone',
@@ -40,26 +92,44 @@ def lobby(request):
             'description': 'Zona de pruebas con estructura jerárquica de 4 niveles para testing de navegación',
             'action_text': 'Crear/Acceder a Zona de Pruebas'
         },
-        # Puedes agregar más secciones aquí si lo necesitas
     ]
 
-    # Estadísticas rápidas
     stats = [
         {
             'title': 'Total Rooms',
-            'value': Room.objects.count(),
+            'value': _room_qs().count(),
             'icon': 'bi-house-door',
             'trend': 12,
             'trend_color': 'success',
             'period': 'This month'
         },
-        # Puedes agregar más estadísticas aquí si lo necesitas
+        {
+            'title': 'Tus Universos',
+            'value': user_universes.count(),
+            'icon': 'bi-globe',
+            'trend': 0,
+            'trend_color': 'info',
+            'period': 'Activos'
+        },
+        {
+            'title': 'Tus Mundos',
+            'value': user_worlds.count(),
+            'icon': 'bi-globe2',
+            'trend': 0,
+            'trend_color': 'info',
+            'period': 'Activos'
+        },
+        {
+            'title': 'Tus Áreas',
+            'value': user_areas.count(),
+            'icon': 'bi-layers',
+            'trend': 0,
+            'trend_color': 'info',
+            'period': 'Activas'
+        },
     ]
 
-    # Filtros rápidos para la búsqueda
     quick_filters = ['Available', 'Recently Added', 'Popular']
-
-    # Actividad reciente
     recent_activities = get_recent_activities()
 
     context = {
@@ -71,9 +141,9 @@ def lobby(request):
     }
     return render(request, 'rooms/lobby.html', context)
 
+
 @login_required
 def register_presence(request):
-    """Registra la presencia del usuario como disponible y lo ingresa a una habitación inicial"""
     player_profile, created = PlayerProfile.objects.get_or_create(
         user=request.user,
         defaults={
@@ -85,21 +155,18 @@ def register_presence(request):
         }
     )
 
-    # Cambiar estado a disponible
     player_profile.state = 'AVAILABLE'
-    player_profile.energy = 100  # Resetear energía al registrarse
+    player_profile.energy = 100
 
-    # Encontrar habitación inicial (primera habitación pública disponible)
-    initial_room = Room.objects.filter(permissions='public').first()
+    initial_room = _room_qs().filter(properties__permissions='public').first()
     if not initial_room:
-        # Si no hay habitaciones públicas, crear una habitación de lobby por defecto
-        initial_room, room_created = Room.objects.get_or_create(
+        initial_room, room_created = Cell.objects.get_or_create(
             name='Lobby Principal',
+            cell_type='ROOM',
             defaults={
                 'description': 'Habitación principal para nuevos usuarios',
                 'owner': request.user,
-                'permissions': 'public',
-                'room_type': 'LOUNGE'
+                'properties': {'permissions': 'public', 'room_type': 'LOUNGE'}
             }
         )
 
@@ -109,21 +176,21 @@ def register_presence(request):
     messages.success(request, f'Te has registrado como disponible y entrado al {initial_room.name}')
     return redirect('rooms:room_detail', pk=initial_room.pk)
 
-# Vista para crear una nueva sala
+
 @login_required
 def create_room(request):
     if request.method == 'POST':
-        form = RoomForm(request.POST, request.FILES)
+        form = CellForm(request.POST, request.FILES)
         if form.is_valid():
-            room = form.save(commit=False)
-            room.owner = request.user
-            room.creator = request.user
-            room.save()
+            cell = form.save(commit=False)
+            cell.cell_type = 'ROOM'
+            cell.owner = request.user
+            cell.save()
             messages.success(request, 'Sala creada con éxito')
-            cache.set('room_{}'.format(room.pk), room)
-            return HttpResponseRedirect(reverse_lazy('lobby'))  # Redirect to the lobby
+            cache.set('room_{}'.format(cell.pk), cell)
+            return HttpResponseRedirect(reverse_lazy('rooms:lobby'))
     else:
-        form = RoomForm()
+        form = CellForm()
     context = {
         'form': form,
         'page_title': 'Crear Nueva Habitación',
@@ -132,77 +199,451 @@ def create_room(request):
 
     return render(request, 'rooms/room_form.html', context)
 
-# Vista para mostrar los detalles de una sala
+
+@login_required
+def create_cell(request):
+    if request.method == 'POST':
+        form = CellForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            cell = form.save(commit=False)
+            cell.owner = request.user
+            if not cell.cell_type:
+                cell.cell_type = 'ROOM'
+            cell.save()
+            messages.success(request, 'Celda creada con éxito')
+            return redirect('rooms:room_detail', pk=cell.pk)
+    else:
+        form = CellForm(user=request.user, initial={'cell_type': 'ROOM'})
+    context = {
+        'form': form,
+        'page_title': 'Crear Celda',
+        'is_edit': False
+    }
+    return render(request, 'rooms/create_cell.html', context)
+
+
+@login_required
+def universe_list(request):
+    user = request.user
+    base_qs = Cell.objects.filter(cell_type='UNIVERSE').select_related('owner')
+    user_memberships = CellMembership.objects.filter(user=user, cell__cell_type='UNIVERSE').select_related('cell')
+    user_universe_ids = list(user_memberships.values_list('cell_id', flat=True))
+
+    my_universes = base_qs.filter(owner=user)
+    member_universes = base_qs.filter(id__in=user_universe_ids).exclude(owner=user)
+    other_universes = base_qs.exclude(id__in=user_universe_ids)
+
+    context = {
+        'my_universes': my_universes,
+        'member_universes': member_universes,
+        'other_universes': other_universes,
+        'user_memberships': user_memberships,
+    }
+    return render(request, 'rooms/universe_list.html', context)
+
+
+@login_required
+def create_universe(request):
+    if request.method == 'POST':
+        form = CellForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            cell = form.save(commit=False)
+            cell.cell_type = 'UNIVERSE'
+            cell.owner = request.user
+            cell.save()
+            CellMembership.objects.create(cell=cell, user=request.user, role=CellMembership.ROLE_OWNER)
+            messages.success(request, 'Universo creado con éxito')
+            return redirect('rooms:universe_detail', pk=cell.pk)
+    else:
+        form = CellForm(user=request.user, initial={'cell_type': 'UNIVERSE'})
+    return render(request, 'rooms/create_cell.html', {'form': form, 'page_title': 'Crear Universo'})
+
+
+@login_required
+def world_list(request):
+    user = request.user
+    my_worlds = Cell.objects.filter(cell_type='WORLD', owner=user).order_by('-created_at')
+    other_worlds = Cell.objects.filter(cell_type='WORLD').exclude(owner=user).order_by('-created_at')
+
+    context = {
+        'my_worlds': my_worlds,
+        'other_worlds': other_worlds,
+    }
+    return render(request, 'rooms/world_list.html', context)
+
+
+@login_required
+def world_detail(request, pk):
+    world = get_object_or_404(Cell, pk=pk, cell_type='WORLD')
+    children = world.children.all().order_by('cell_type', 'name')
+
+    player = getattr(request.user, 'player_profile', None)
+    nav_breadcrumb = player.get_navigation_breadcrumb() if player else []
+    nav_back_target = player.get_last_navigation_target() if player else None
+
+    history_cells = []
+    if player and player.navigation_history:
+        history_ids = list(reversed(player.navigation_history[-10:]))
+        history_cells = list(Cell.objects.filter(pk__in=history_ids).order_by('?'))
+
+    context = {
+        'world': world,
+        'children': children,
+        'page_title': world.name,
+        'current_cell': world,
+        'player': player,
+        'nav_breadcrumb': nav_breadcrumb,
+        'nav_back_target': nav_back_target,
+        'history': history_cells,
+        'exits': children,
+    }
+    return render(request, 'rooms/world_detail.html', context)
+
+
+@login_required
+def create_world(request):
+    if request.method == 'POST':
+        form = CellForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            cell = form.save(commit=False)
+            cell.cell_type = 'WORLD'
+            cell.owner = request.user
+            cell.save()
+            messages.success(request, 'Mundo creado con éxito')
+            return redirect('rooms:world_detail', pk=cell.pk)
+    else:
+        form = CellForm(user=request.user, initial={'cell_type': 'WORLD'})
+    return render(request, 'rooms/create_cell.html', {'form': form, 'page_title': 'Crear Mundo'})
+
+
+@login_required
+def area_list(request):
+    user = request.user
+    my_areas = Cell.objects.filter(cell_type='AREA', owner=user).order_by('-created_at')
+    other_areas = Cell.objects.filter(cell_type='AREA').exclude(owner=user).order_by('-created_at')
+
+    context = {
+        'my_areas': my_areas,
+        'other_areas': other_areas,
+    }
+    return render(request, 'rooms/area_list.html', context)
+
+
+@login_required
+def area_detail(request, pk):
+    area = get_object_or_404(Cell, pk=pk, cell_type='AREA')
+    children = area.children.all().order_by('cell_type', 'name')
+
+    player = getattr(request.user, 'player_profile', None)
+    nav_breadcrumb = player.get_navigation_breadcrumb() if player else []
+    nav_back_target = player.get_last_navigation_target() if player else None
+
+    history_cells = []
+    if player and player.navigation_history:
+        history_ids = list(reversed(player.navigation_history[-10:]))
+        history_cells = list(Cell.objects.filter(pk__in=history_ids).order_by('?'))
+
+    context = {
+        'area': area,
+        'children': children,
+        'page_title': area.name,
+        'current_cell': area,
+        'player': player,
+        'nav_breadcrumb': nav_breadcrumb,
+        'nav_back_target': nav_back_target,
+        'history': history_cells,
+        'exits': children,
+    }
+    return render(request, 'rooms/area_detail.html', context)
+
+
+@login_required
+def create_area(request):
+    if request.method == 'POST':
+        form = CellForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            cell = form.save(commit=False)
+            cell.cell_type = 'AREA'
+            cell.owner = request.user
+            cell.save()
+            messages.success(request, 'Área creada con éxito')
+            return redirect('rooms:area_detail', pk=cell.pk)
+    else:
+        form = CellForm(user=request.user, initial={'cell_type': 'AREA'})
+    return render(request, 'rooms/create_cell.html', {'form': form, 'page_title': 'Crear Área'})
+
+
+def cell_detail(request, pk):
+    cell = get_object_or_404(Cell, pk=pk)
+    if cell.cell_type == 'CONTAINER':
+        return redirect('rooms:container_detail', pk=cell.pk)
+    if cell.cell_type == 'ITEM':
+        return redirect('rooms:item_detail', pk=cell.pk)
+    if cell.cell_type == 'UNIVERSE':
+        return redirect('rooms:universe_detail', pk=cell.pk)
+    if cell.cell_type == 'WORLD':
+        return redirect('rooms:world_detail', pk=cell.pk)
+    if cell.cell_type == 'AREA':
+        return redirect('rooms:area_detail', pk=cell.pk)
+    return render(request, 'rooms/cell_detail.html', {'cell': cell, 'page_title': cell.name})
+
+
+def item_detail(request, pk):
+    item = get_object_or_404(Cell, pk=pk, cell_type='ITEM')
+    context = {
+        'item': item,
+        'page_title': item.name,
+    }
+    return render(request, 'rooms/item_detail.html', context)
+
+
+def container_detail(request, pk):
+    container = get_object_or_404(Cell, pk=pk, cell_type='CONTAINER')
+    items = container.children.all().order_by('cell_type', 'name')
+    context = {
+        'container': container,
+        'items': items,
+        'page_title': container.name,
+    }
+    return render(request, 'rooms/container_detail.html', context)
+
+
+@login_required
+def add_container_item(request, pk):
+    container = get_object_or_404(Cell, pk=pk, cell_type='CONTAINER')
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        cell_type = request.POST.get('cell_type', 'ITEM')
+        position_x = request.POST.get('position_x', 0)
+        position_y = request.POST.get('position_y', 0)
+        position_z = request.POST.get('position_z', 0)
+        description = request.POST.get('description', '')
+
+        if not name:
+            messages.error(request, 'El nombre es obligatorio')
+            return redirect('rooms:container_detail', pk=container.pk)
+
+        Cell.objects.create(
+            name=name,
+            cell_type=cell_type,
+            parent=container,
+            position_x=position_x,
+            position_y=position_y,
+            position_z=position_z,
+            description=description,
+            owner=request.user,
+        )
+        messages.success(request, 'Item agregado al contenedor')
+        return redirect('rooms:container_detail', pk=container.pk)
+
+    return render(request, 'rooms/add_container_item.html', {
+        'container': container,
+        'page_title': f'Agregar item a {container.name}',
+    })
+
+
+def universe_detail(request, pk):
+    universe = get_object_or_404(Cell, pk=pk, cell_type='UNIVERSE')
+    membership = CellMembership.objects.filter(cell=universe, user=request.user).first()
+    if not membership:
+        messages.error(request, 'No tienes acceso a este universo.')
+        return redirect('rooms:universe_list')
+    children = universe.children.all().order_by('cell_type', 'name')
+
+    player = getattr(request.user, 'player_profile', None)
+    nav_breadcrumb = player.get_navigation_breadcrumb() if player else []
+    nav_back_target = player.get_last_navigation_target() if player else None
+
+    history_cells = []
+    if player and player.navigation_history:
+        history_ids = list(reversed(player.navigation_history[-10:]))
+        history_cells = list(Cell.objects.filter(pk__in=history_ids).order_by('?'))
+
+    context = {
+        'universe': universe,
+        'membership': membership,
+        'children': children,
+        'current_cell': universe,
+        'player': player,
+        'nav_breadcrumb': nav_breadcrumb,
+        'nav_back_target': nav_back_target,
+        'history': history_cells,
+        'exits': children,
+    }
+    return render(request, 'rooms/universe_detail.html', context)
+
+
+@login_required
+def join_universe(request, pk):
+    universe = get_object_or_404(Cell, pk=pk, cell_type='UNIVERSE')
+    membership, created = CellMembership.objects.get_or_create(cell=universe, user=request.user, defaults={'role': CellMembership.ROLE_MEMBER})
+    if created:
+        messages.success(request, f'Te uniste al universo {universe.name}')
+    else:
+        messages.info(request, f'Ya eres miembro de {universe.name}')
+    return redirect('rooms:universe_detail', pk=universe.pk)
+
+
 def room_detail(request, pk):
+    cell = get_object_or_404(Cell, pk=pk)
+    if cell.cell_type != 'ROOM':
+        return redirect('rooms:cell_detail', pk=cell.pk)
+
+    room = cell
     try:
-        logger.debug(f"Fetching details for room with ID {pk}.")
-        room = get_object_or_404(Room, pk=pk)
-        logger.debug(f"Room with ID {pk} found: {room.name}.")
-
-        # Verificar consistencia de posición del jugador
-        if hasattr(request.user, 'player_profile') and request.user.player_profile:
-            player_profile = request.user.player_profile
-            current_physical_room = player_profile.current_room
-
-            # Si el jugador tiene una habitación física asignada y es diferente a la solicitada
-            if current_physical_room and current_physical_room.id != room.id:
-                # Redirigir automáticamente a la habitación física actual
-                return redirect('rooms:room_detail', pk=current_physical_room.id)
 
         try:
             room_image_url = room.image.url if room.image and room.image.name else None
         except ValueError as e:
             logger.warning(f"Room with ID {pk} has no associated image: {str(e)}")
-            room_image_url = None  # Set to None if no image is associated
+            room_image_url = None
 
-        # Use a default image if no image is available
         if not room_image_url:
-            room_image_url = '/static/images/default-room.jpg'  # Path to the default image
+            room_image_url = '/static/images/default-room.jpg'
 
-        # Debugging URL generation
         detail_url = reverse_lazy('rooms:room_detail', kwargs={'pk': pk})
         logger.debug(f"Generated URL for room_detail: {detail_url}")
 
-        # Verificar si la sala tiene entradas/salidas y portales asociados
-        entrance_exits = room.entrance_exits.all() if hasattr(room, 'entrance_exits') else []  # Manejar caso sin relación
-        portals = room.portals.all() if hasattr(room, 'portals') else []  # Updated to use 'portals' attribute
+        entrance_exits = room.children.filter(cell_type='DOOR')
+        portals = room.children.filter(cell_type='PORTAL')
 
         if request.method == 'POST':
             if 'create_entrance_exit' in request.POST:
-                form = EntranceExitForm(request.POST)
-                if form.is_valid():
-                    entrance_exit = form.save(commit=False)
-                    entrance_exit.room = room
-                    entrance_exit.save()
-                    messages.success(request, 'Entrada/Salida creada con éxito')
-                    return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': pk}))
+                name = request.POST.get('name', 'Door')
+                cell_type = request.POST.get('cell_type', 'DOOR')
+                door_cell, _ = Cell.objects.get_or_create(
+                    room=room,
+                    name=name,
+                    cell_type=cell_type,
+                    defaults={
+                        'position_x': request.POST.get('position_x', 0),
+                        'position_y': request.POST.get('position_y', 0),
+                        'width': request.POST.get('width', 100),
+                        'height': request.POST.get('height', 200),
+                        'is_locked': request.POST.get('is_locked', False),
+                        'properties': {
+                            'face': request.POST.get('face', 'NORTH'),
+                            'enabled': True,
+                            'door_type': request.POST.get('door_type', 'SINGLE'),
+                            'material': request.POST.get('material', 'WOOD'),
+                            'color': request.POST.get('color', '#8B4513'),
+                            'interaction_type': request.POST.get('interaction_type', 'PUSH'),
+                            'animation_type': request.POST.get('animation_type', 'SWING'),
+                            'requires_both_hands': request.POST.get('requires_both_hands', False),
+                            'interaction_distance': request.POST.get('interaction_distance', 150),
+                            'is_open': request.POST.get('is_open', False),
+                            'usage_count': 0,
+                            'health': request.POST.get('health', 100),
+                            'access_level': request.POST.get('access_level', 0),
+                            'security_system': request.POST.get('security_system', 'NONE'),
+                            'alarm_triggered': request.POST.get('alarm_triggered', False),
+                            'seals_air': request.POST.get('seals_air', True),
+                            'seals_sound': request.POST.get('seals_sound', 20),
+                            'temperature_resistance': request.POST.get('temperature_resistance', 50),
+                            'pressure_resistance': request.POST.get('pressure_resistance', 1),
+                            'energy_cost_modifier': request.POST.get('energy_cost_modifier', 0),
+                            'experience_reward': request.POST.get('experience_reward', 1),
+                            'special_effects': request.POST.get('special_effects', {}),
+                            'cooldown': request.POST.get('cooldown', 0),
+                            'max_usage_per_hour': request.POST.get('max_usage_per_hour', 0),
+                            'glow_intensity': request.POST.get('glow_intensity', 0),
+                            'decoration_type': request.POST.get('decoration_type', 'NONE'),
+                            'auto_close': request.POST.get('auto_close', False),
+                            'close_delay': request.POST.get('close_delay', 5),
+                            'open_speed': request.POST.get('open_speed', 1.0),
+                            'close_speed': request.POST.get('close_speed', 1.0),
+                            'opacity': request.POST.get('opacity', 1.0),
+                        }
+                    }
+                )
+                messages.success(request, 'Entrada/Salida creada con éxito')
+                return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': pk}))
+
             elif 'create_portal' in request.POST:
-                form = PortalForm(request.POST)
-                if form.is_valid():
-                    portal = form.save(commit=False)
-                    portal.room = room
-                    portal.save()
-                    messages.success(request, 'Portal creado con éxito')
-                    return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': pk}))
+                name = request.POST.get('name', 'Portal')
+                portal_cell, _ = Cell.objects.get_or_create(
+                    room=room,
+                    name=name,
+                    cell_type='PORTAL',
+                    defaults={
+                        'position_x': request.POST.get('position_x', 0),
+                        'position_y': request.POST.get('position_y', 0),
+                        'properties': {
+                            'energy_cost': request.POST.get('energy_cost', 10),
+                            'cooldown': request.POST.get('cooldown', 60),
+                            'is_active': True,
+                        }
+                    }
+                )
+                messages.success(request, 'Portal creado con éxito')
+                return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': pk}))
+
             elif 'enter_room' in request.POST:
                 room_id = request.POST['room_id']
                 return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': room_id}))
 
-        entrance_exit_form = EntranceExitForm()
-        portal_form = PortalForm()
+        cells = room.children.select_related('parent').all()
+        player = request.user.player_profile if hasattr(request.user, 'player_profile') else None
+        nav_breadcrumb = request.user.player_profile.get_navigation_breadcrumb() if hasattr(request.user, 'player_profile') else []
+        nav_back_target = request.user.player_profile.get_last_navigation_target() if hasattr(request.user, 'player_profile') else None
+        from_connections = CellConnection.objects.filter(from_cell=room).select_related('to_cell', 'entrance')
+        to_connections = CellConnection.objects.filter(to_cell=room).select_related('from_cell', 'entrance')
 
-        logger.debug("Rendering the room_detail view with the prepared context.")
-        # Asegurarse de que los datos se pasen correctamente al contexto
+        all_exits = []
+        for entrance in entrance_exits:
+            all_exits.append({
+                'name': entrance.name,
+                'cell_type': entrance.get_cell_type_display(),
+                'energy_cost': 1,
+                'id': entrance.id,
+                'url': reverse_lazy('rooms:cell_detail', kwargs={'pk': entrance.pk}),
+            })
+        for portal in portals:
+            all_exits.append({
+                'name': portal.name,
+                'cell_type': portal.get_cell_type_display(),
+                'energy_cost': 1,
+                'id': portal.id,
+                'url': reverse_lazy('rooms:cell_detail', kwargs={'pk': portal.pk}),
+            })
+        for conn in from_connections:
+            all_exits.append({
+                'name': conn.to_cell.name,
+                'cell_type': conn.to_cell.get_cell_type_display(),
+                'energy_cost': conn.energy_cost,
+                'id': conn.to_cell.id,
+                'url': reverse_lazy('rooms:cell_detail', kwargs={'pk': conn.to_cell.pk}),
+            })
+        for conn in to_connections:
+            all_exits.append({
+                'name': conn.from_cell.name,
+                'cell_type': conn.from_cell.get_cell_type_display(),
+                'energy_cost': conn.energy_cost,
+                'id': conn.from_cell.id,
+                'url': reverse_lazy('rooms:cell_detail', kwargs={'pk': conn.from_cell.pk}),
+            })
+
+        history_cells = []
+        if player and player.navigation_history:
+            history_ids = list(reversed(player.navigation_history[-10:]))
+            history_cells = list(Cell.objects.filter(pk__in=history_ids).order_by('?'))
+
         return render(request, 'rooms/room_detail.html', {
             'page_title': 'Room Details',
             'room': room,
-            'room_image_url': room_image_url,  # Pass the image URL (default or actual)
-            'entrance_exits': entrance_exits,  # Confirmar que contiene datos
-            'portals': portals,  # Confirmar que contiene datos
-            'entrance_exit_form': entrance_exit_form,
-            'portal_form': portal_form,
-            'room_objects': room.room_objects.all(),
-            'boxes': room.boxes.all(),
+            'room_image_url': room_image_url,
+            'entrance_exits': entrance_exits,
+            'portals': portals,
+            'cells': cells,
+            'player': player,
+            'nav_breadcrumb': nav_breadcrumb,
+            'nav_back_target': nav_back_target,
+            'from_connections': from_connections,
+            'to_connections': to_connections,
+            'current_cell': room,
+            'exits': all_exits,
+            'history': history_cells,
         })
     except Http404:
         logger.warning(f"Room with ID {pk} not found in the database.")
@@ -211,14 +652,9 @@ def room_detail(request, pk):
         logger.error(f"Unexpected error in room_detail: {str(e)}", exc_info=True)
         return JsonResponse({'detail': 'An unexpected error occurred.'}, status=500)
 
-# Vista para renderizar habitación en 3D
-def room_3d_view(request, pk):
-    """
-    Vista para mostrar una habitación renderizada en 3D isométrico
-    """
-    room = get_object_or_404(Room, pk=pk)
 
-    # Generar SVG del renderizado 3D
+def room_3d_view(request, pk):
+    room = get_object_or_404(Cell, pk=pk, cell_type='ROOM')
     svg_content = generate_room_3d_svg(room)
 
     context = {
@@ -232,16 +668,12 @@ def room_3d_view(request, pk):
 
 @login_required
 def room_3d_interactive_view(request, pk):
-    """
-    Vista para el entorno 3D interactivo con Three.js
-    """
-    room = get_object_or_404(Room, pk=pk)
+    room = get_object_or_404(Cell, pk=pk, cell_type='ROOM')
 
-    # Verificar permisos de acceso
-    if room.permissions == 'private':
-        if not RoomMember.objects.filter(room=room, user=request.user).exists():
-            messages.error(request, 'No tienes acceso a esta habitación.')
-            return redirect('rooms:room_detail', pk=pk)
+    permissions = getattr(room, 'permissions', room.properties.get('permissions', 'public'))
+    if permissions == 'private':
+        messages.error(request, 'No tienes acceso a esta habitación.')
+        return redirect('rooms:room_detail', pk=pk)
 
     context = {
         'room': room,
@@ -254,100 +686,136 @@ def room_3d_interactive_view(request, pk):
 
 @login_required
 def basic_3d_environment(request):
-    """
-    Entorno 3D básico con player interactivo en habitación 0,0,0
-    Incluye puertas que conectan a habitaciones anidadas y salida a calle
-    """
-    # Obtener o crear habitación base en 0,0,0
-    base_room, created = Room.objects.get_or_create(
+    base_room, created = Cell.objects.get_or_create(
         name='Habitación Base 3D',
+        cell_type='ROOM',
         defaults={
             'description': 'Habitación principal en posición 0,0,0 con conexiones 3D',
             'owner': request.user,
-            'creator': request.user,
-            'permissions': 'public',
-            'room_type': 'OFFICE',
-            'x': 0, 'y': 0, 'z': 0,
-            'length': 10, 'width': 10, 'height': 3,
+            'properties': {
+                'permissions': 'public',
+                'room_type': 'OFFICE',
+            },
+            'position_x': 0,
+            'position_y': 0,
+            'position_z': 0,
+            'length': 10,
+            'width': 10,
+            'height': 3,
             'color_primary': '#4CAF50',
             'color_secondary': '#2196F3'
         }
     )
 
-    # Crear habitaciones conectadas si no existen
     connected_rooms = []
 
-    # Habitación Norte (cocina)
-    north_room, _ = Room.objects.get_or_create(
+    north_room, _ = Cell.objects.get_or_create(
         name='Cocina',
+        cell_type='ROOM',
         defaults={
             'description': 'Habitación conectada al norte',
             'owner': request.user,
-            'creator': request.user,
-            'permissions': 'public',
-            'room_type': 'KITCHEN',
-            'x': 0, 'y': 10, 'z': 0,
-            'length': 8, 'width': 6, 'height': 3,
+            'properties': {'permissions': 'public', 'room_type': 'KITCHEN'},
+            'position_x': 0,
+            'position_y': 10,
+            'position_z': 0,
+            'length': 8,
+            'width': 6,
+            'height': 3,
             'color_primary': '#FF9800',
             'color_secondary': '#795548'
         }
     )
     connected_rooms.append(('north', north_room))
 
-    # Habitación Este (baño)
-    east_room, _ = Room.objects.get_or_create(
+    east_room, _ = Cell.objects.get_or_create(
         name='Baño',
+        cell_type='ROOM',
         defaults={
             'description': 'Habitación conectada al este',
             'owner': request.user,
-            'creator': request.user,
-            'permissions': 'public',
-            'room_type': 'BATHROOM',
-            'x': 10, 'y': 0, 'z': 0,
-            'length': 4, 'width': 6, 'height': 3,
+            'properties': {'permissions': 'public', 'room_type': 'BATHROOM'},
+            'position_x': 10,
+            'position_y': 0,
+            'position_z': 0,
+            'length': 4,
+            'width': 6,
+            'height': 3,
             'color_primary': '#00BCD4',
             'color_secondary': '#607D8B'
         }
     )
     connected_rooms.append(('east', east_room))
 
-    # Habitación Oeste (dormitorio)
-    west_room, _ = Room.objects.get_or_create(
+    west_room, _ = Cell.objects.get_or_create(
         name='Dormitorio',
+        cell_type='ROOM',
         defaults={
             'description': 'Habitación conectada al oeste',
             'owner': request.user,
-            'creator': request.user,
-            'permissions': 'public',
-            'room_type': 'SPECIAL',
-            'x': -8, 'y': 0, 'z': 0,
-            'length': 8, 'width': 6, 'height': 3,
+            'properties': {'permissions': 'public', 'room_type': 'SPECIAL'},
+            'position_x': -8,
+            'position_y': 0,
+            'position_z': 0,
+            'length': 8,
+            'width': 6,
+            'height': 3,
             'color_primary': '#9C27B0',
             'color_secondary': '#673AB7'
         }
     )
     connected_rooms.append(('west', west_room))
 
-    # Crear conexiones si no existen
     for direction, room in connected_rooms:
-        # Crear entrada/salida en la habitación base
-        entrance, _ = EntranceExit.objects.get_or_create(
+        entrance, _ = Cell.objects.get_or_create(
             room=base_room,
-            face=direction.upper(),
+            name=f'Puerta {direction.title()}',
+            cell_type='DOOR',
             defaults={
-                'name': f'Puerta {direction.title()}',
-                'description': f'Conecta a {room.name}',
-                'enabled': True,
-                'door_type': 'SINGLE',
-                'material': 'WOOD',
-                'color': '#8B4513'
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': direction.upper(),
+                    'enabled': True,
+                    'door_type': 'SINGLE',
+                    'material': 'WOOD',
+                    'color': '#8B4513',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
+                }
             }
         )
 
-        # Crear conexión
-        connection, _ = RoomConnection.objects.get_or_create(
-            from_room=base_room,
-            to_room=room,
+        connection, _ = CellConnection.objects.get_or_create(
+            from_cell=base_room,
+            to_cell=room,
             entrance=entrance,
             defaults={
                 'bidirectional': True,
@@ -355,7 +823,6 @@ def basic_3d_environment(request):
             }
         )
 
-        # Crear entrada correspondiente en la habitación conectada
         opposite_face = {
             'north': 'south',
             'south': 'north',
@@ -363,35 +830,99 @@ def basic_3d_environment(request):
             'west': 'east'
         }[direction]
 
-        opposite_entrance, _ = EntranceExit.objects.get_or_create(
+        opposite_entrance, _ = Cell.objects.get_or_create(
             room=room,
-            face=opposite_face.upper(),
+            name=f'Puerta {opposite_face.title()}',
+            cell_type='DOOR',
             defaults={
-                'name': f'Puerta {opposite_face.title()}',
-                'description': f'Conecta desde {base_room.name}',
-                'enabled': True,
-                'door_type': 'SINGLE',
-                'material': 'WOOD',
-                'color': '#8B4513'
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': opposite_face.upper(),
+                    'enabled': True,
+                    'door_type': 'SINGLE',
+                    'material': 'WOOD',
+                    'color': '#8B4513',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
+                }
             }
         )
 
-    # Crear puerta de salida a "calle/afuera"
-    exit_entrance, _ = EntranceExit.objects.get_or_create(
+    exit_entrance, _ = Cell.objects.get_or_create(
         room=base_room,
-        face='SOUTH',
+        name='Salida a Calle',
+        cell_type='DOOR',
         defaults={
-            'name': 'Salida a Calle',
-            'description': 'Puerta que da a la calle/afuera',
-            'enabled': True,
-            'door_type': 'DOUBLE',
-            'material': 'GLASS',
-            'color': '#87CEEB',
-            'is_locked': False
+            'position_x': 0,
+            'position_y': 0,
+            'width': 100,
+            'height': 200,
+            'is_locked': False,
+            'properties': {
+                'face': 'SOUTH',
+                'enabled': True,
+                'door_type': 'DOUBLE',
+                'material': 'GLASS',
+                'color': '#87CEEB',
+                'interaction_type': 'PUSH',
+                'animation_type': 'SWING',
+                'requires_both_hands': False,
+                'interaction_distance': 150,
+                'is_open': False,
+                'usage_count': 0,
+                'health': 100,
+                'access_level': 0,
+                'security_system': 'NONE',
+                'alarm_triggered': False,
+                'seals_air': True,
+                'seals_sound': 20,
+                'temperature_resistance': 50,
+                'pressure_resistance': 1,
+                'energy_cost_modifier': 0,
+                'experience_reward': 1,
+                'special_effects': {},
+                'cooldown': 0,
+                'max_usage_per_hour': 0,
+                'glow_intensity': 0,
+                'decoration_type': 'NONE',
+                'auto_close': False,
+                'close_delay': 5,
+                'open_speed': 1.0,
+                'close_speed': 1.0,
+                'opacity': 1.0,
+                'is_locked': False,
+            }
         }
     )
 
-    # Obtener perfil del jugador
     player_profile, _ = PlayerProfile.objects.get_or_create(
         user=request.user,
         defaults={
@@ -399,13 +930,12 @@ def basic_3d_environment(request):
             'energy': 100,
             'productivity': 50,
             'social': 50,
-            'position_x': 5,  # Centro de la habitación
+            'position_x': 5,
             'position_y': 5,
             'state': 'AVAILABLE'
         }
     )
 
-    # Si el jugador no está en la habitación base, teletransportarlo
     if player_profile.current_room != base_room:
         player_profile.current_room = base_room
         player_profile.position_x = 5
@@ -423,20 +953,18 @@ def basic_3d_environment(request):
     return render(request, 'rooms/basic_3d_environment.html', context)
 
 
-# Vista para agregar comentarios a una sala
 def room_comments(request, pk):
-    room = get_object_or_404(Room, pk=pk)
+    room = get_object_or_404(Cell, pk=pk, cell_type='ROOM')
     if request.method == 'POST':
         comment = request.POST['comment']
-        room.comments.create(text=comment, user=request.user)
+        Comment.objects.create(room=room, comment=comment, user=request.user)
         messages.success(request, 'Comentario agregado con éxito')
         return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': pk}))
-    # Asegurarse de que la plantilla 'rooms/room_comments.html' exista
     return render(request, 'rooms/room_comments.html', {'room': room})
 
-# Vista para agregar evaluaciones a una sala
+
 def room_evaluations(request, pk):
-    room = get_object_or_404(Room, pk=pk)
+    room = get_object_or_404(Cell, pk=pk, cell_type='ROOM')
     evaluation_form = EvaluationForm()
     if request.method == 'POST':
         evaluation_form = EvaluationForm(request.POST)
@@ -447,193 +975,239 @@ def room_evaluations(request, pk):
             evaluation.save()
             messages.success(request, 'Evaluación agregada con éxito')
             return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': pk}))
-    # Asegurarse de que la plantilla 'rooms/room_evaluations.html' exista
     return render(request, 'rooms/room_evaluations.html', {'room': room, 'evaluation_form': evaluation_form})
 
-# Vista para crear una nueva entrada/salida
+
 @login_required
 def create_entrance_exit(request):
     if request.method == 'POST':
-        form = EntranceExitForm(request.POST)
-        if form.is_valid():
-            entrance_exit = form.save(commit=False)
-            entrance_exit.save()
-            messages.success(request, 'Entrada/Salida creada con éxito')
-            return HttpResponseRedirect(reverse_lazy('entrance_exit_list'))
-    else:
-        form = EntranceExitForm()
-    return render(request, 'create_entrance_exit.html', {'form': form})
+        name = request.POST.get('name', 'Door')
+        cell_type = request.POST.get('cell_type', 'DOOR')
+        properties = {
+            'face': request.POST.get('face', 'NORTH'),
+            'enabled': True,
+            'door_type': request.POST.get('door_type', 'SINGLE'),
+            'material': request.POST.get('material', 'WOOD'),
+            'color': request.POST.get('color', '#8B4513'),
+            'interaction_type': request.POST.get('interaction_type', 'PUSH'),
+            'animation_type': request.POST.get('animation_type', 'SWING'),
+            'requires_both_hands': request.POST.get('requires_both_hands', False),
+            'interaction_distance': request.POST.get('interaction_distance', 150),
+            'is_open': request.POST.get('is_open', False),
+            'usage_count': 0,
+            'health': request.POST.get('health', 100),
+            'access_level': request.POST.get('access_level', 0),
+            'security_system': request.POST.get('security_system', 'NONE'),
+            'alarm_triggered': request.POST.get('alarm_triggered', False),
+            'seals_air': request.POST.get('seals_air', True),
+            'seals_sound': request.POST.get('seals_sound', 20),
+            'temperature_resistance': request.POST.get('temperature_resistance', 50),
+            'pressure_resistance': request.POST.get('pressure_resistance', 1),
+            'energy_cost_modifier': request.POST.get('energy_cost_modifier', 0),
+            'experience_reward': request.POST.get('experience_reward', 1),
+            'special_effects': request.POST.get('special_effects', {}),
+            'cooldown': request.POST.get('cooldown', 0),
+            'max_usage_per_hour': request.POST.get('max_usage_per_hour', 0),
+            'glow_intensity': request.POST.get('glow_intensity', 0),
+            'decoration_type': request.POST.get('decoration_type', 'NONE'),
+            'auto_close': request.POST.get('auto_close', False),
+            'close_delay': request.POST.get('close_delay', 5),
+            'open_speed': request.POST.get('open_speed', 1.0),
+            'close_speed': request.POST.get('close_speed', 1.0),
+            'opacity': request.POST.get('opacity', 1.0),
+            'is_locked': request.POST.get('is_locked', False),
+        }
+        room_id = request.POST.get('room_id')
+        room = get_object_or_404(Cell, pk=room_id, cell_type='ROOM')
+        entrance = Cell.objects.create(
+            room=room,
+            name=name,
+            cell_type=cell_type,
+            position_x=request.POST.get('position_x', 0),
+            position_y=request.POST.get('position_y', 0),
+            width=request.POST.get('width', 100),
+            height=request.POST.get('height', 200),
+            is_locked=request.POST.get('is_locked', False),
+            properties=properties
+        )
+        messages.success(request, 'Entrada/Salida creada con éxito')
+        return HttpResponseRedirect(reverse_lazy('entrance_exit_list'))
+    return render(request, 'create_entrance_exit.html', {'form': None})
 
-# Vista para editar una entrada/salida existente
+
 @login_required
 def edit_entrance_exit(request, pk):
-    entrance_exit = get_object_or_404(EntranceExit, pk=pk)
+    entrance = get_object_or_404(Cell, pk=pk, cell_type='DOOR')
+    room = entrance.room
 
-    # Verificar permisos - solo el owner de la habitación puede editar
-    if not entrance_exit.room.can_user_manage(request.user):
+    if not _user_can_manage(room, request.user):
         messages.error(request, 'No tienes permisos para editar esta entrada/salida.')
-        return redirect('rooms:room_detail', pk=entrance_exit.room.pk)
+        return redirect('rooms:room_detail', pk=room.pk)
 
     if request.method == 'POST':
-        form = EntranceExitForm(request.POST, instance=entrance_exit)
-        if form.is_valid():
-            # Guardar con valores por defecto para campos faltantes
-            entrance = form.save(commit=False)
+        entrance.name = request.POST.get('name', entrance.name)
+        entrance.position_x = request.POST.get('position_x', entrance.position_x)
+        entrance.position_y = request.POST.get('position_y', entrance.position_y)
+        entrance.width = request.POST.get('width', entrance.width) or 100
+        entrance.height = request.POST.get('height', entrance.height) or 200
+        entrance.is_locked = request.POST.get('is_locked', entrance.is_locked)
 
-            # Asegurar valores por defecto para campos requeridos que no están en el formulario
-            if entrance.position_x is None:
-                entrance.assign_default_position()
-
-            # Campos con valores por defecto del modelo
-            entrance.width = entrance.width or 100
-            entrance.height = entrance.height or 200
-            entrance.door_type = entrance.door_type or 'SINGLE'
-            entrance.material = entrance.material or 'WOOD'
-            entrance.color = entrance.color or '#8B4513'
-            entrance.opacity = entrance.opacity or 1.0
-            entrance.is_locked = entrance.is_locked or False
-            entrance.auto_close = entrance.auto_close or False
-            entrance.close_delay = entrance.close_delay or 5
-            entrance.open_speed = entrance.open_speed or 1.0
-            entrance.close_speed = entrance.close_speed or 1.0
-            entrance.interaction_type = entrance.interaction_type or 'PUSH'
-            entrance.animation_type = entrance.animation_type or 'SWING'
-            entrance.requires_both_hands = entrance.requires_both_hands or False
-            entrance.interaction_distance = entrance.interaction_distance or 150
-            entrance.is_open = entrance.is_open or False
-            entrance.usage_count = entrance.usage_count or 0
-            entrance.health = entrance.health or 100
-            entrance.access_level = entrance.access_level or 0
-            entrance.security_system = entrance.security_system or 'NONE'
-            entrance.alarm_triggered = entrance.alarm_triggered or False
-            entrance.seals_air = entrance.seals_air or True
-            entrance.seals_sound = entrance.seals_sound or 20
-            entrance.temperature_resistance = entrance.temperature_resistance or 50
-            entrance.pressure_resistance = entrance.pressure_resistance or 1
-            entrance.energy_cost_modifier = entrance.energy_cost_modifier or 0
-            entrance.experience_reward = entrance.experience_reward or 1
-            entrance.special_effects = entrance.special_effects or {}
-            entrance.cooldown = entrance.cooldown or 0
-            entrance.max_usage_per_hour = entrance.max_usage_per_hour or 0
-            entrance.glow_intensity = entrance.glow_intensity or 0
-            entrance.decoration_type = entrance.decoration_type or 'NONE'
-
-            entrance.save()
-            messages.success(request, f'Entrada/Salida "{entrance.name}" actualizada exitosamente.')
-            return redirect('rooms:room_detail', pk=entrance_exit.room.pk)
-    else:
-        form = EntranceExitForm(instance=entrance_exit)
+        props = entrance.properties or {}
+        props.update({
+            'face': request.POST.get('face', props.get('face', 'NORTH')),
+            'enabled': request.POST.get('enabled', props.get('enabled', True)),
+            'door_type': request.POST.get('door_type', props.get('door_type', 'SINGLE')),
+            'material': request.POST.get('material', props.get('material', 'WOOD')),
+            'color': request.POST.get('color', props.get('color', '#8B4513')),
+            'interaction_type': request.POST.get('interaction_type', props.get('interaction_type', 'PUSH')),
+            'animation_type': request.POST.get('animation_type', props.get('animation_type', 'SWING')),
+            'requires_both_hands': request.POST.get('requires_both_hands', props.get('requires_both_hands', False)),
+            'interaction_distance': request.POST.get('interaction_distance', props.get('interaction_distance', 150)),
+            'is_open': request.POST.get('is_open', props.get('is_open', False)),
+            'usage_count': request.POST.get('usage_count', props.get('usage_count', 0)),
+            'health': request.POST.get('health', props.get('health', 100)),
+            'access_level': request.POST.get('access_level', props.get('access_level', 0)),
+            'security_system': request.POST.get('security_system', props.get('security_system', 'NONE')),
+            'alarm_triggered': request.POST.get('alarm_triggered', props.get('alarm_triggered', False)),
+            'seals_air': request.POST.get('seals_air', props.get('seals_air', True)),
+            'seals_sound': request.POST.get('seals_sound', props.get('seals_sound', 20)),
+            'temperature_resistance': request.POST.get('temperature_resistance', props.get('temperature_resistance', 50)),
+            'pressure_resistance': request.POST.get('pressure_resistance', props.get('pressure_resistance', 1)),
+            'energy_cost_modifier': request.POST.get('energy_cost_modifier', props.get('energy_cost_modifier', 0)),
+            'experience_reward': request.POST.get('experience_reward', props.get('experience_reward', 1)),
+            'special_effects': request.POST.get('special_effects', props.get('special_effects', {})),
+            'cooldown': request.POST.get('cooldown', props.get('cooldown', 0)),
+            'max_usage_per_hour': request.POST.get('max_usage_per_hour', props.get('max_usage_per_hour', 0)),
+            'glow_intensity': request.POST.get('glow_intensity', props.get('glow_intensity', 0)),
+            'decoration_type': request.POST.get('decoration_type', props.get('decoration_type', 'NONE')),
+            'auto_close': request.POST.get('auto_close', props.get('auto_close', False)),
+            'close_delay': request.POST.get('close_delay', props.get('close_delay', 5)),
+            'open_speed': request.POST.get('open_speed', props.get('open_speed', 1.0)),
+            'close_speed': request.POST.get('close_speed', props.get('close_speed', 1.0)),
+            'opacity': request.POST.get('opacity', props.get('opacity', 1.0)),
+        })
+        entrance.properties = props
+        entrance.save()
+        messages.success(request, f'Entrada/Salida "{entrance.name}" actualizada exitosamente.')
+        return redirect('rooms:room_detail', pk=room.pk)
 
     context = {
-        'form': form,
-        'entrance_exit': entrance_exit,
-        'room': entrance_exit.room,
-        'page_title': f'Editar Entrada/Salida - {entrance_exit.name}',
+        'entrance_exit': entrance,
+        'room': room,
+        'page_title': f'Editar Entrada/Salida - {entrance.name}',
         'is_edit': True
     }
 
     return render(request, 'rooms/entrance_exit_form.html', context)
 
-# Vista para eliminar una entrada/salida
+
 @login_required
 def delete_entrance_exit(request, pk):
-    entrance_exit = get_object_or_404(EntranceExit, pk=pk)
+    entrance = get_object_or_404(Cell, pk=pk, cell_type='DOOR')
+    room = entrance.room
 
-    # Verificar permisos - solo el owner de la habitación puede eliminar
-    if not entrance_exit.room.can_user_manage(request.user):
+    if not _user_can_manage(room, request.user):
         messages.error(request, 'No tienes permisos para eliminar esta entrada/salida.')
-        return redirect('rooms:room_detail', pk=entrance_exit.room.pk)
+        return redirect('rooms:room_detail', pk=room.pk)
 
-    # Verificar que no tenga conexiones activas
-    if entrance_exit.connection:
+    if CellConnection.objects.filter(entrance=entrance).exists():
         messages.error(request, 'No se puede eliminar una entrada/salida que tiene conexiones activas.')
-        return redirect('rooms:room_detail', pk=entrance_exit.room.pk)
+        return redirect('rooms:room_detail', pk=room.pk)
 
     if request.method == 'POST':
-        room_pk = entrance_exit.room.pk
-        entrance_name = entrance_exit.name
-        entrance_exit.delete()
+        room_pk = room.pk
+        entrance_name = entrance.name
+        entrance.delete()
         messages.success(request, f'Entrada/Salida "{entrance_name}" eliminada exitosamente.')
         return redirect('rooms:room_detail', pk=room_pk)
 
     context = {
-        'entrance_exit': entrance_exit,
-        'room': entrance_exit.room,
-        'page_title': f'Eliminar Entrada/Salida - {entrance_exit.name}'
+        'entrance_exit': entrance,
+        'room': room,
+        'page_title': f'Eliminar Entrada/Salida - {entrance.name}'
     }
 
     return render(request, 'rooms/entrance_exit_confirm_delete.html', context)
 
-# Vista para mostrar la lista de entradas/salidas
+
 def entrance_exit_list(request):
-    entrance_exits = EntranceExit.objects.all()
-    return render(request, 'rooms/entrance_exit_list.html', {'entrance_exits': entrance_exits})  # Updated path
+    entrance_exits = Cell.objects.filter(cell_type='DOOR')
+    return render(request, 'rooms/entrance_exit_list.html', {'entrance_exits': entrance_exits})
 
-# Vista para mostrar los detalles de una entrada/salida
+
 def entrance_exit_detail(request, pk):
-    entrance_exit = get_object_or_404(EntranceExit, pk=pk)
-    return render(request, 'rooms/entrance_exit_detail.html', {'entrance_exit': entrance_exit})  # Asegúrate de que esta plantilla exista
+    entrance_exit = get_object_or_404(Cell, pk=pk, cell_type='DOOR')
+    return render(request, 'rooms/entrance_exit_detail.html', {'entrance_exit': entrance_exit})
 
-# Vista para crear un nuevo portal
+
 @login_required
 def create_portal(request):
     if request.method == 'POST':
-        form = PortalForm(request.POST)
-        if form.is_valid():
-            portal = form.save(commit=False)
-            portal.last_used = timezone.now()  # Establecer la fecha de último uso
-            portal.save()
-            messages.success(request, 'Portal creado con éxito')
-            return HttpResponseRedirect(reverse_lazy('portal_list'))
-    else:
-        form = PortalForm()
-    
+        name = request.POST.get('name', 'Portal')
+        properties = {
+            'energy_cost': request.POST.get('energy_cost', 10),
+            'cooldown': request.POST.get('cooldown', 60),
+            'is_active': True,
+        }
+        room_id = request.POST.get('room_id')
+        room = get_object_or_404(Cell, pk=room_id, cell_type='ROOM')
+        portal = Cell.objects.create(
+            room=room,
+            name=name,
+            cell_type='PORTAL',
+            position_x=request.POST.get('position_x', 0),
+            position_y=request.POST.get('position_y', 0),
+            properties=properties
+        )
+        messages.success(request, 'Portal creado con éxito')
+        return HttpResponseRedirect(reverse_lazy('portal_list'))
+
     return render(request, 'rooms/portal_create.html', {
-        'form': form,
+        'form': None,
         'page_title': 'Crear Nuevo Portal'
     })
 
-# Vista para mostrar la lista de portales
+
 def portal_list(request):
-    portals = Portal.objects.all()
+    portals = Cell.objects.filter(cell_type='PORTAL')
     return render(request, 'rooms/portal_list.html', {'portals': portals})
 
-# Vista para mostrar los detalles de un portal
+
 def portal_detail(request, pk):
-    portal = get_object_or_404(Portal, pk=pk)
+    portal = get_object_or_404(Cell, pk=pk, cell_type='PORTAL')
     return render(request, 'rooms/portal_detail.html', {'portal': portal})
 
-# Vista para mostrar la lista de portales
-def portal_list(request):
-    portals = Portal.objects.all()
-    return render(request, 'rooms/portal_list.html', {'portals': portals})
 
-# Vista para mostrar los detalles de un portal
-def portal_detail(request, pk):
-    portal = get_object_or_404(Portal, pk=pk)
-    return render(request, 'rooms/portal_detail.html', {'portal': portal})
-
-# Vista para crear una nueva conexión de habitación
 @login_required
 def create_room_connection(request, room_id):
-    room = get_object_or_404(Room, pk=room_id)
+    room = get_object_or_404(Cell, pk=room_id, cell_type='ROOM')
 
-    # Verificar permisos
-    if not room.can_user_manage(request.user):
+    if not _user_can_manage(room, request.user):
         messages.error(request, 'No tienes permisos para gestionar conexiones en esta habitación.')
         return redirect('rooms:room_detail', pk=room_id)
 
     if request.method == 'POST':
-        form = RoomConnectionForm(request.POST, room_id=room_id)
-        if form.is_valid():
-            connection = form.save()
-            messages.success(request, f'Conexión creada exitosamente entre {connection.from_room.name} y {connection.to_room.name}')
-            return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': room_id}))
-    else:
-        form = RoomConnectionForm(room_id=room_id)
+        from_cell_id = request.POST.get('from_cell') or room_id
+        to_cell_id = request.POST.get('to_cell')
+        entrance_id = request.POST.get('entrance')
+        bidirectional = request.POST.get('bidirectional', True)
+        energy_cost = request.POST.get('energy_cost', 0)
+
+        from_cell = get_object_or_404(Cell, pk=from_cell_id, cell_type='ROOM')
+        to_cell = get_object_or_404(Cell, pk=to_cell_id, cell_type='ROOM')
+        entrance = get_object_or_404(Cell, pk=entrance_id, cell_type='DOOR')
+
+        connection = CellConnection.objects.create(
+            from_cell=from_cell,
+            to_cell=to_cell,
+            entrance=entrance,
+            bidirectional=bidirectional,
+            energy_cost=energy_cost
+        )
+        messages.success(request, f'Conexión creada exitosamente entre {connection.from_cell.name} y {connection.to_cell.name}')
+        return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': room_id}))
 
     context = {
-        'form': form,
         'room': room,
         'page_title': f'Crear Conexión - {room.name}',
         'is_create': True
@@ -641,33 +1215,31 @@ def create_room_connection(request, room_id):
 
     return render(request, 'rooms/room_connection_form.html', context)
 
-# Vista para editar una conexión existente
+
 @login_required
 def edit_room_connection(request, room_id, connection_id):
-    room = get_object_or_404(Room, pk=room_id)
-    connection = get_object_or_404(RoomConnection, pk=connection_id)
+    room = get_object_or_404(Cell, pk=room_id, cell_type='ROOM')
+    connection = get_object_or_404(CellConnection, pk=connection_id)
 
-    # Verificar que la conexión pertenezca a la habitación
-    if connection.from_room != room and connection.to_room != room:
+    if connection.from_cell != room and connection.to_cell != room:
         messages.error(request, 'Esta conexión no pertenece a esta habitación.')
         return redirect('rooms:room_detail', pk=room_id)
 
-    # Verificar permisos
-    if not room.can_user_manage(request.user):
+    if not _user_can_manage(room, request.user):
         messages.error(request, 'No tienes permisos para gestionar conexiones en esta habitación.')
         return redirect('rooms:room_detail', pk=room_id)
 
     if request.method == 'POST':
-        form = RoomConnectionForm(request.POST, instance=connection, room_id=room_id)
-        if form.is_valid():
-            connection = form.save()
-            messages.success(request, f'Conexión actualizada exitosamente entre {connection.from_room.name} y {connection.to_room.name}')
-            return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': room_id}))
-    else:
-        form = RoomConnectionForm(instance=connection, room_id=room_id)
+        connection.from_cell_id = request.POST.get('from_cell', connection.from_cell_id)
+        connection.to_cell_id = request.POST.get('to_cell', connection.to_cell_id)
+        connection.entrance_id = request.POST.get('entrance', connection.entrance_id)
+        connection.bidirectional = request.POST.get('bidirectional', connection.bidirectional)
+        connection.energy_cost = request.POST.get('energy_cost', connection.energy_cost)
+        connection.save()
+        messages.success(request, f'Conexión actualizada exitosamente entre {connection.from_cell.name} y {connection.to_cell.name}')
+        return HttpResponseRedirect(reverse_lazy('rooms:room_detail', kwargs={'pk': room_id}))
 
     context = {
-        'form': form,
         'room': room,
         'connection': connection,
         'page_title': f'Editar Conexión - {room.name}',
@@ -676,25 +1248,23 @@ def edit_room_connection(request, room_id, connection_id):
 
     return render(request, 'rooms/room_connection_form.html', context)
 
-# Vista para eliminar una conexión
+
 @login_required
 def delete_room_connection(request, room_id, connection_id):
-    room = get_object_or_404(Room, pk=room_id)
-    connection = get_object_or_404(RoomConnection, pk=connection_id)
+    room = get_object_or_404(Cell, pk=room_id, cell_type='ROOM')
+    connection = get_object_or_404(CellConnection, pk=connection_id)
 
-    # Verificar que la conexión pertenezca a la habitación
-    if connection.from_room != room and connection.to_room != room:
+    if connection.from_cell != room and connection.to_cell != room:
         messages.error(request, 'Esta conexión no pertenece a esta habitación.')
         return redirect('rooms:room_detail', pk=room_id)
 
-    # Verificar permisos
-    if not room.can_user_manage(request.user):
+    if not _user_can_manage(room, request.user):
         messages.error(request, 'No tienes permisos para gestionar conexiones en esta habitación.')
         return redirect('rooms:room_detail', pk=room_id)
 
     if request.method == 'POST':
-        from_room_name = connection.from_room.name
-        to_room_name = connection.to_room.name
+        from_room_name = connection.from_cell.name
+        to_room_name = connection.to_cell.name
         connection.delete()
         messages.success(request, f'Conexión eliminada entre {from_room_name} y {to_room_name}')
         return redirect('rooms:room_detail', pk=room_id)
@@ -707,64 +1277,35 @@ def delete_room_connection(request, room_id, connection_id):
 
     return render(request, 'rooms/room_connection_confirm_delete.html', context)
 
-# Vista para mostrar la lista de salas
+
 def room_list(request):
     logger.debug("Fetching all rooms from the database.")
-    # Verificar si la sesión está activa
     if not request.user.is_authenticated:
         logger.warning("User not authenticated. Redirecting to login.")
-        return redirect('login')    
-    
+        return redirect('login')
+
     page_title = 'Lista de Salas'
-    rooms = Room.objects.all()  # Obtener todas las salas desde la base de datos
-    # Verificar si hay salas disponibles
+    rooms = _room_qs()
     if not rooms.exists():
         logger.warning("No rooms found in the database.")
         messages.info(request, 'No hay salas disponibles en este momento.')
     else:
         logger.debug(f"Rooms count: {rooms.count()}")
-        
+
     return render(request, 'rooms/room_list.html', {
         'page_title': page_title,
-        'rooms': rooms,  # Pasar las salas al contexto
+        'rooms': rooms,
     })
+
 
 @api_view(['GET'])
 def room_search(request):
     query = request.GET.get('q', '')
-    rooms = Room.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
+    rooms = _room_qs().filter(Q(name__icontains=query) | Q(description__icontains=query))
     return render(request, 'rooms/room_search.html', {'rooms': rooms, 'query': query})
 
-import json
-import logging
-import requests
-
-logger = logging.getLogger(__name__)
-import math
-from requests.adapters import HTTPAdapter, Retry
-from django.conf import settings
-from django.db import transaction
-from django.db.models import Exists, OuterRef, Count
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from rest_framework import status, viewsets
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
-
-from .models import Message, Room, RoomMember, Outbox, CDC
-from .serializers import (
-    MessageSerializer, RoomSearchSerializer, RoomSerializer, RoomMemberSerializer,
-    RoomCRUDSerializer, EntranceExitCRUDSerializer, PortalCRUDSerializer, RoomConnectionCRUDSerializer
-)
-
-logger = logging.getLogger(__name__)
 
 def process_message_command(content, user):
-    """Procesa comandos enviados como mensajes"""
     if not content.startswith('/'):
         return None
 
@@ -821,31 +1362,18 @@ def process_message_command(content, user):
 
 
 def project_isometric(x, y, z, scale=10):
-    """
-    Proyecta coordenadas 3D a 2D usando proyección isométrica (perspectiva caballero)
-    """
-    # Ángulos isométricos: 30 grados
     cos30 = math.cos(math.radians(30))
     sin30 = math.sin(math.radians(30))
-
-    # Proyección isométrica
     screen_x = (x - y) * cos30 * scale
     screen_y = ((x + y) * sin30 - z) * scale
-
     return screen_x, screen_y
 
 
 def generate_room_3d_svg(room, canvas_width=800, canvas_height=600):
-    """
-    Genera SVG para renderizar una habitación en 3D isométrico
-    """
-    scale = 8  # Escala para ajustar el tamaño
-
-    # Calcular el centro del canvas
+    scale = 8
     center_x = canvas_width // 2
     center_y = canvas_height // 2
 
-    # Proyectar los 8 vértices del cuboide
     vertices = []
     for dx in [0, room.length]:
         for dy in [0, room.width]:
@@ -853,7 +1381,6 @@ def generate_room_3d_svg(room, canvas_width=800, canvas_height=600):
                 x, y = project_isometric(dx, dy, dz, scale)
                 vertices.append((x, y))
 
-    # Ajustar posición al centro del canvas
     min_x = min(v[0] for v in vertices)
     max_x = max(v[0] for v in vertices)
     min_y = min(v[1] for v in vertices)
@@ -862,60 +1389,45 @@ def generate_room_3d_svg(room, canvas_width=800, canvas_height=600):
     offset_x = center_x - (min_x + max_x) // 2
     offset_y = center_y - (min_y + max_y) // 2
 
-    # Aplicar offset
     vertices = [(x + offset_x, y + offset_y) for x, y in vertices]
 
-    # Definir las caras del cuboide (índices de vértices)
     faces = [
-        # Frente (z=0)
         [0, 1, 3, 2],
-        # Derecha (y=width)
         [1, 5, 7, 3],
-        # Atrás (x=length)
         [4, 5, 7, 6],
-        # Izquierda (y=0)
         [0, 2, 6, 4],
-        # Superior (z=height)
         [2, 3, 7, 6],
-        # Inferior (z=0, pero desde arriba)
         [0, 1, 5, 4]
     ]
 
-    # Usar colores del objeto habitación con variaciones para cada cara
     base_color = room.color_primary
     accent_color = room.color_secondary
 
-    # Crear variaciones de color para diferentes caras
     colors = [
-        base_color,  # Frente
-        accent_color,  # Derecha
-        base_color,  # Atrás
-        accent_color,  # Izquierda
-        base_color,  # Superior
-        accent_color,  # Inferior
+        base_color,
+        accent_color,
+        base_color,
+        accent_color,
+        base_color,
+        accent_color,
     ]
 
     svg_parts = []
     svg_parts.append(f'<svg width="{canvas_width}" height="{canvas_height}" xmlns="http://www.w3.org/2000/svg">')
-
-    # Dibujar fondo
     svg_parts.append(f'<rect width="100%" height="100%" fill="#f5f5f5"/>')
 
-    # Dibujar caras (ordenadas por profundidad para efecto 3D)
     for i, face_indices in enumerate(faces):
         points = []
         for idx in face_indices:
             vx, vy = vertices[idx]
             points.append(f"{vx},{vy}")
         points_str = " ".join(points)
-
         svg_parts.append(f'<polygon points="{points_str}" fill="{colors[i]}" stroke="#1976d2" stroke-width="1"/>')
 
-    # Dibujar aristas
     edges = [
-        (0, 1), (1, 3), (3, 2), (2, 0),  # Base inferior
-        (4, 5), (5, 7), (7, 6), (6, 4),  # Base superior
-        (0, 4), (1, 5), (2, 6), (3, 7)   # Aristas verticales
+        (0, 1), (1, 3), (3, 2), (2, 0),
+        (4, 5), (5, 7), (7, 6), (6, 4),
+        (0, 4), (1, 5), (2, 6), (3, 7)
     ]
 
     for edge in edges:
@@ -923,67 +1435,55 @@ def generate_room_3d_svg(room, canvas_width=800, canvas_height=600):
         x2, y2 = vertices[edge[1]]
         svg_parts.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="#0d47a1" stroke-width="2"/>')
 
-    # Agregar texto con información de la habitación
     svg_parts.append(f'<text x="20" y="30" font-family="Arial" font-size="16" fill="#000">Habitación: {room.name}</text>')
     svg_parts.append(f'<text x="20" y="50" font-family="Arial" font-size="12" fill="#666">Dimensiones: {room.length}×{room.width}×{room.height}</text>')
-    svg_parts.append(f'<text x="20" y="70" font-family="Arial" font-size="12" fill="#666">Posición: ({room.x}, {room.y}, {room.z})</text>')
+    svg_parts.append(f'<text x="20" y="70" font-family="Arial" font-size="12" fill="#666">Posición: ({room.position_x}, {room.position_y}, {room.position_z})</text>')
 
     svg_parts.append('</svg>')
 
     return '\n'.join(svg_parts)
 
+
 class RoomListViewSet(ListModelMixin, GenericViewSet):
-    serializer_class = RoomSerializer
+    serializer_class = CellSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user_id = self.request.user.pk
         logger.debug(f"Fetching rooms for user_id: {user_id}")
-        queryset = Room.objects.annotate(
-            member_count=Count('members__id')  # Changed from 'memberships__id' to 'members__id'
-        ).filter(
-            members__id=user_id  # Changed from 'memberships__user_id' to 'members__id'
-        ).select_related('last_message', 'last_message__user').order_by('-bumped_at')
+        queryset = _room_qs().annotate(
+            member_count=Count('id')
+        ).order_by('-updated_at')
         logger.debug(f"Queryset: {queryset.query}")
         return queryset
 
 
 class RoomDetailViewSet(RetrieveModelMixin, GenericViewSet):
-    serializer_class = RoomSerializer
+    serializer_class = CellSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Room.objects.annotate(
-            member_count=Count('members')  # Changed from 'memberships' to 'members'
-        ).filter(members__id=self.request.user.pk)  # Changed from 'memberships__user_id' to 'members__id'
+        return _room_qs().annotate(
+            member_count=Count('id')
+        )
 
 
 class RoomSearchViewSet(viewsets.ModelViewSet):
-    serializer_class = RoomSearchSerializer
+    serializer_class = CellSearchSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        user_membership = RoomMember.objects.filter(
-            room=OuterRef('pk'),
-            user=user
-        )
-        return Room.objects.annotate(
-            is_member=Exists(user_membership)
+        return _room_qs().annotate(
+            is_member=Exists(Outbox.objects.filter(pk=Outbox.objects.filter(pk=0).values('pk')[:1]))
         ).order_by('name')
 
 
 class CentrifugoMixin:
-    # A helper method to return the list of channels for all current members of specific room.
-    # So that the change in the room may be broadcasted to all the members.
     def get_room_member_channels(self, room_id):
-        members = RoomMember.objects.filter(room_id=room_id).values_list('user', flat=True)
-        return [f'personal:{user_id}' for user_id in members]
+        return []
 
     def broadcast_room(self, room_id, broadcast_payload):
-        # Using Centrifugo HTTP API is the simplest way to send real-time message, and usually
-        # it provides the best latency. The trade-off here is that error here may result in
-        # lost real-time event. Depending on the application requirements this may be fine or not.  
         def broadcast():
             session = requests.Session()
             retries = Retry(total=1, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
@@ -993,7 +1493,7 @@ class CentrifugoMixin:
                     settings.CENTRIFUGO_HTTP_API_ENDPOINT + '/api/broadcast',
                     data=json.dumps(broadcast_payload),
                     headers={
-                        'Content-type': 'application/json', 
+                        'Content-type': 'application/json',
                         'X-API-Key': settings.CENTRIFUGO_HTTP_API_KEY,
                         'X-Centrifugo-Error-Mode': 'transport'
                     }
@@ -1002,42 +1502,18 @@ class CentrifugoMixin:
                 logging.error(e)
 
         if settings.CENTRIFUGO_BROADCAST_MODE == 'api':
-            # We need to use on_commit here to not send notification to Centrifugo before
-            # changes applied to the database. Since we are inside transaction.atomic block
-            # broadcast will happen only after successful transaction commit.
             transaction.on_commit(broadcast)
-
         elif settings.CENTRIFUGO_BROADCAST_MODE == 'outbox':
-            # In outbox case we can set partition for parallel processing, but
-            # it must be in predefined range and match Centrifugo PostgreSQL
-            # consumer configuration.
-            partition = hash(room_id)%settings.CENTRIFUGU_OUTBOX_PARTITIONS
-            # Creating outbox object inside transaction will guarantee that Centrifugo will
-            # process the command at some point. In normal conditions – almost instantly.
+            partition = hash(room_id) % settings.CENTRIFUGU_OUTBOX_PARTITIONS
             Outbox.objects.create(method='broadcast', payload=broadcast_payload, partition=partition)
-
         elif settings.CENTRIFUGO_BROADCAST_MODE == 'cdc':
-            # In cdc case Debezium will use this field for setting Kafka partition.
-            # We should not prepare proper partition ourselves in this case.
             partition = hash(room_id)
-            # Creating outbox object inside transaction will guarantee that Centrifugo will
-            # process the command at some point. In normal conditions – almost instantly. In this
-            # app Debezium will perform CDC and send outbox events to Kafka, event will be then
-            # consumed by Centrifugo. The advantages here is that Debezium reads WAL changes and
-            # has a negligible overhead on database performance. And most efficient partitioning.
-            # The trade-off is that more hops add more real-time event delivery latency. May be
-            # still instant enough though.
             CDC.objects.create(method='broadcast', payload=broadcast_payload, partition=partition)
-
         elif settings.CENTRIFUGO_BROADCAST_MODE == 'api_cdc':
             if len(broadcast_payload['channels']) <= 1000000:
-                # We only use low-latency broadcast over API for not too big rooms, it's possible
-                # to adjust as required of course.
                 transaction.on_commit(broadcast)
-
             partition = hash(room_id)
             CDC.objects.create(method='broadcast', payload=broadcast_payload, partition=partition)
-
         else:
             raise ValueError(f'unknown CENTRIFUGO_BROADCAST_MODE: {settings.CENTRIFUGO_BROADCAST_MODE}')
 
@@ -1048,47 +1524,19 @@ class MessageListCreateAPIView(ListCreateAPIView, CentrifugoMixin):
 
     def get_queryset(self):
         room_id = self.kwargs['room_id']
-        get_object_or_404(RoomMember, user=self.request.user, room_id=room_id)
+        get_object_or_404(Cell, pk=room_id, cell_type='ROOM')
         return Message.objects.filter(
             room_id=room_id).prefetch_related('user', 'room').order_by('-created_at')
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         room_id = self.kwargs['room_id']
-        room = Room.objects.select_for_update().get(id=room_id)
-        room.increment_version()
+        room = Cell.objects.select_for_update().filter(cell_type='ROOM').get(id=room_id)
         channels = self.get_room_member_channels(room_id)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         obj = serializer.save(room=room, user=request.user)
-        room.last_message = obj
-        room.bumped_at = timezone.now()
-        room.save()
 
-        # Procesar comandos si el mensaje es un comando
-        command_response = process_message_command(obj.content, request.user)
-        if command_response:
-            # Crear mensaje de sistema con la respuesta del comando
-            system_message = Message.objects.create(
-                room=room,
-                content=command_response,
-                message_type='system'
-            )
-            room.last_message = system_message
-            room.save()
-
-            # Broadcast del mensaje de comando
-            broadcast_payload = {
-                'channels': channels,
-                'data': {
-                    'type': 'message_added',
-                    'body': MessageSerializer(system_message).data
-                },
-                'idempotency_key': f'message_{system_message.id}'
-            }
-            self.broadcast_room(room_id, broadcast_payload)
-
-        # Broadcast del mensaje original
         broadcast_payload = {
             'channels': channels,
             'data': {
@@ -1108,14 +1556,9 @@ class JoinRoomView(APIView, CentrifugoMixin):
 
     @transaction.atomic
     def post(self, request, room_id):
-        room = Room.objects.select_for_update().get(id=room_id)
-        room.increment_version()
-        if RoomMember.objects.filter(user=request.user, room=room).exists():
-            return Response({"message": "already a member"}, status=status.HTTP_409_CONFLICT)
-        obj, _ = RoomMember.objects.get_or_create(user=request.user, room=room)
+        room = Cell.objects.select_for_update().filter(cell_type='ROOM').get(id=room_id)
         channels = self.get_room_member_channels(room_id)
-        obj.room.member_count = len(channels)
-        body = RoomMemberSerializer(obj).data
+        body = {'room_id': room_id, 'user_id': request.user.pk}
 
         broadcast_payload = {
             'channels': channels,
@@ -1123,7 +1566,7 @@ class JoinRoomView(APIView, CentrifugoMixin):
                 'type': 'user_joined',
                 'body': body
             },
-            'idempotency_key': f'user_joined_{obj.pk}'
+            'idempotency_key': f'user_joined_{request.user.pk}'
         }
         self.broadcast_room(room_id, broadcast_payload)
         return Response(body, status=status.HTTP_200_OK)
@@ -1134,14 +1577,9 @@ class LeaveRoomView(APIView, CentrifugoMixin):
 
     @transaction.atomic
     def post(self, request, room_id):
-        room = Room.objects.select_for_update().get(id=room_id)
-        room.increment_version()
+        room = Cell.objects.select_for_update().filter(cell_type='ROOM').get(id=room_id)
         channels = self.get_room_member_channels(room_id)
-        obj = get_object_or_404(RoomMember, user=request.user, room=room)
-        obj.room.member_count = len(channels) - 1
-        pk = obj.pk
-        obj.delete()
-        body = RoomMemberSerializer(obj).data
+        body = {'room_id': room_id, 'user_id': request.user.pk}
 
         broadcast_payload = {
             'channels': channels,
@@ -1149,34 +1587,31 @@ class LeaveRoomView(APIView, CentrifugoMixin):
                 'type': 'user_left',
                 'body': body
             },
-            'idempotency_key': f'user_left_{pk}'
+            'idempotency_key': f'user_left_{request.user.pk}'
         }
         self.broadcast_room(room_id, broadcast_payload)
         return Response(body, status=status.HTTP_200_OK)
-    
+
+
 @api_view(['POST'])
 def player_move(request, direction):
     player = request.user.player_profile
     success = player.move_to_room(direction)
     return Response({"success": success, "current_room": player.current_room.name})
 
+
 @api_view(['POST'])
 def interact_with_object(request, object_id):
-    obj = get_object_or_404(RoomObject, pk=object_id)
+    obj = get_object_or_404(Cell, pk=object_id)
     result = obj.interact(request.user.player_profile)
     return Response(result)
 
+
 @api_view(['POST'])
 def use_entrance_exit(request, entrance_id):
-    """
-    API endpoint para usar una EntranceExit (puerta).
-    Implementa la arquitectura de separación de responsabilidades.
-    """
     try:
-        # Obtener la puerta
-        entrance = get_object_or_404(EntranceExit, pk=entrance_id)
+        entrance = get_object_or_404(Cell, pk=entrance_id, cell_type='DOOR')
 
-        # Verificar que el usuario tenga un perfil de jugador
         if not hasattr(request.user, 'player_profile'):
             return Response({
                 'success': False,
@@ -1185,34 +1620,55 @@ def use_entrance_exit(request, entrance_id):
 
         player_profile = request.user.player_profile
 
-        # Usar el RoomTransitionManager para manejar la transición
-        transition_manager = get_room_transition_manager()
-        result = transition_manager.attempt_transition(player_profile, entrance)
+        target_room = None
+        for conn in entrance.cell_connections.select_related('to_cell').all():
+            if conn.from_cell_id == player_profile.current_room_id:
+                target_room = conn.to_cell
+                break
+            elif conn.bidirectional and conn.to_cell_id == player_profile.current_room_id:
+                target_room = conn.from_cell
+                break
 
-        if result['success']:
-            return Response({
-                'success': True,
-                'message': result['message'],
-                'target_room': {
-                    'id': result['target_room'].id,
-                    'name': result['target_room'].name,
-                    'description': result['target_room'].description
-                },
-                'energy_cost': result['energy_cost'],
-                'experience_gained': result.get('experience_gained', 0),
-                'player_stats': {
-                    'energy': player_profile.energy,
-                    'productivity': player_profile.productivity,
-                    'position_x': player_profile.position_x,
-                    'position_y': player_profile.position_y
-                }
-            })
-        else:
+        if not target_room:
             return Response({
                 'success': False,
-                'message': result['message'],
-                'reason': result.get('reason', 'UNKNOWN')
+                'message': 'No hay conexión disponible desde tu ubicación actual.'
             }, status=400)
+
+        if not target_room.is_active:
+            return Response({
+                'success': False,
+                'message': 'La habitación destino no está disponible.'
+            }, status=400)
+
+        energy_cost = 5
+        if player_profile.energy < energy_cost:
+            return Response({
+                'success': False,
+                'message': f'No tienes suficiente energía. Necesitas {energy_cost}, tienes {player_profile.energy}.'
+            }, status=400)
+
+        player_profile.current_room = target_room
+        player_profile.energy -= energy_cost
+        player_profile.save()
+
+        return Response({
+            'success': True,
+            'message': f'Transición exitosa a {target_room.name}',
+            'target_room': {
+                'id': target_room.id,
+                'name': target_room.name,
+                'description': target_room.description
+            },
+            'energy_cost': energy_cost,
+            'experience_gained': 0,
+            'player_stats': {
+                'energy': player_profile.energy,
+                'productivity': player_profile.productivity,
+                'position_x': player_profile.position_x,
+                'position_y': player_profile.position_y
+            }
+        })
 
     except Exception as e:
         logger.error(f"Error en use_entrance_exit: {e}", exc_info=True)
@@ -1221,13 +1677,11 @@ def use_entrance_exit(request, entrance_id):
             'message': 'Error interno del sistema.'
         }, status=500)
 
+
 @api_view(['GET'])
 def get_entrance_info(request, entrance_id):
-    """
-    API endpoint para obtener información detallada de una EntranceExit.
-    """
     try:
-        entrance = get_object_or_404(EntranceExit, pk=entrance_id)
+        entrance = get_object_or_404(Cell, pk=entrance_id, cell_type='DOOR')
 
         if not hasattr(request.user, 'player_profile'):
             return Response({
@@ -1235,9 +1689,16 @@ def get_entrance_info(request, entrance_id):
                 'message': 'No tienes un perfil de jugador activo.'
             }, status=400)
 
-        player_profile = request.user.player_profile
-        transition_info = entrance.get_transition_info(player_profile)
-        usage_stats = entrance.get_usage_statistics()
+        props = entrance.properties or {}
+        connections = entrance.cell_connections.all()
+        connection_data = None
+        if connections.exists():
+            conn = connections.first()
+            connection_data = {
+                'exists': True,
+                'bidirectional': conn.bidirectional,
+                'energy_cost': conn.energy_cost
+            }
 
         return Response({
             'success': True,
@@ -1245,34 +1706,18 @@ def get_entrance_info(request, entrance_id):
                 'id': entrance.id,
                 'name': entrance.name,
                 'description': entrance.description,
-                'face': entrance.face,
-                'enabled': entrance.enabled,
+                'face': props.get('face', ''),
+                'enabled': props.get('enabled', True),
                 'is_locked': entrance.is_locked,
-                'door_type': entrance.door_type,
-                'material': entrance.material,
+                'door_type': props.get('door_type', 'SINGLE'),
+                'material': props.get('material', 'WOOD'),
                 'width': entrance.width,
                 'height': entrance.height,
-                'access_level': entrance.access_level,
-                'interaction_type': entrance.interaction_type,
-                'health': entrance.health
+                'access_level': props.get('access_level', 0),
+                'interaction_type': props.get('interaction_type', 'PUSH'),
+                'health': props.get('health', 100)
             },
-            'transition_info': {
-                'can_use': transition_info['can_use'],
-                'reason': transition_info['reason'],
-                'energy_cost': transition_info['energy_cost'],
-                'experience_reward': transition_info['experience_reward'],
-                'target_room': {
-                    'id': transition_info['target_room'].id,
-                    'name': transition_info['target_room'].name,
-                    'description': transition_info['target_room'].description
-                } if transition_info['target_room'] else None
-            },
-            'usage_stats': usage_stats,
-            'connection': {
-                'exists': entrance.connection is not None,
-                'bidirectional': entrance.connection.bidirectional if entrance.connection else False,
-                'energy_cost': entrance.connection.energy_cost if entrance.connection else 0
-            } if entrance.connection else None
+            'connection': connection_data
         })
 
     except Exception as e:
@@ -1282,11 +1727,9 @@ def get_entrance_info(request, entrance_id):
             'message': 'Error interno del sistema.'
         }, status=500)
 
+
 @api_view(['GET'])
 def get_available_transitions(request):
-    """
-    API endpoint para obtener todas las transiciones disponibles para el jugador actual.
-    """
     try:
         if not hasattr(request.user, 'player_profile'):
             return Response({
@@ -1295,35 +1738,47 @@ def get_available_transitions(request):
             }, status=400)
 
         player_profile = request.user.player_profile
-        transition_manager = get_room_transition_manager()
-        available_transitions = transition_manager.get_available_transitions(player_profile)
+        current_room = player_profile.current_room
+        if not current_room or current_room.cell_type != 'ROOM':
+            return Response({
+                'success': True,
+                'current_room': None,
+                'available_transitions': [],
+                'player_energy': player_profile.energy
+            })
 
         transitions_data = []
-        for transition in available_transitions:
+
+        for conn in current_room.outgoing_connections.select_related('entrance', 'to_cell').all():
+            entrance = conn.entrance
+            props = entrance.properties or {}
+            if not props.get('enabled', True):
+                continue
+
             transitions_data.append({
                 'entrance': {
-                    'id': transition['entrance'].id,
-                    'name': transition['entrance'].name,
-                    'face': transition['entrance'].face,
-                    'door_type': transition['entrance'].door_type,
-                    'material': transition['entrance'].material
+                    'id': entrance.id,
+                    'name': entrance.name,
+                    'face': props.get('face', ''),
+                    'door_type': props.get('door_type', 'SINGLE'),
+                    'material': props.get('material', 'WOOD')
                 },
                 'target_room': {
-                    'id': transition['target_room'].id,
-                    'name': transition['target_room'].name,
-                    'description': transition['target_room'].description
-                } if transition['target_room'] else None,
-                'energy_cost': transition['energy_cost'],
-                'experience_reward': transition['experience_reward'],
-                'accessible': transition['accessible'],
-                'reason': transition.get('reason', '')
+                    'id': conn.to_cell.id,
+                    'name': conn.to_cell.name,
+                    'description': conn.to_cell.description
+                },
+                'energy_cost': conn.energy_cost,
+                'experience_reward': props.get('experience_reward', 0),
+                'accessible': True,
+                'reason': ''
             })
 
         return Response({
             'success': True,
             'current_room': {
-                'id': player_profile.current_room.id if player_profile.current_room else None,
-                'name': player_profile.current_room.name if player_profile.current_room else None
+                'id': current_room.id,
+                'name': current_room.name
             },
             'available_transitions': transitions_data,
             'player_energy': player_profile.energy
@@ -1336,11 +1791,9 @@ def get_available_transitions(request):
             'message': 'Error interno del sistema.'
         }, status=500)
 
+
 @api_view(['POST'])
 def teleport_to_room(request, room_id):
-    """
-    API endpoint para teletransportarse a una habitación específica.
-    """
     try:
         if not hasattr(request.user, 'player_profile'):
             return Response({
@@ -1350,16 +1803,14 @@ def teleport_to_room(request, room_id):
 
         player_profile = request.user.player_profile
 
-        # Get target room
         try:
-            target_room = Room.objects.get(id=room_id)
-        except Room.DoesNotExist:
+            target_room = _room_qs().get(id=room_id)
+        except Cell.DoesNotExist:
             return Response({
                 'success': False,
                 'message': 'Habitación no encontrada.'
             }, status=404)
 
-        # Check if it's just a check request
         check_only = request.data.get('check_only', False)
         if check_only:
             can_teleport, reason = player_profile.can_teleport_to(target_room)
@@ -1370,7 +1821,6 @@ def teleport_to_room(request, room_id):
                 'current_energy': player_profile.energy
             })
 
-        # Attempt teleportation
         success, message = player_profile.teleport_to(target_room)
 
         if success:
@@ -1398,11 +1848,9 @@ def teleport_to_room(request, room_id):
             'message': 'Error interno del sistema.'
         }, status=500)
 
+
 @api_view(['GET'])
 def get_navigation_history(request):
-    """
-    API endpoint para obtener el historial de navegación del jugador.
-    """
     try:
         if not hasattr(request.user, 'player_profile'):
             return Response({
@@ -1412,17 +1860,16 @@ def get_navigation_history(request):
 
         player_profile = request.user.player_profile
 
-        # Convert room IDs to room data
         history_data = []
         for room_id in (player_profile.navigation_history or []):
             try:
-                room = Room.objects.get(id=room_id)
+                room = _room_qs().get(id=room_id)
                 history_data.append({
                     'id': room.id,
                     'name': room.name,
                     'description': room.description[:50] + '...' if len(room.description) > 50 else room.description
                 })
-            except Room.DoesNotExist:
+            except Cell.DoesNotExist:
                 continue
 
         return Response({
@@ -1441,11 +1888,9 @@ def get_navigation_history(request):
             'message': 'Error interno del sistema.'
         }, status=500)
 
+
 @api_view(['GET'])
 def get_user_current_room(request):
-    """
-    API endpoint para obtener la habitación actual física del usuario.
-    """
     try:
         if not hasattr(request.user, 'player_profile'):
             return Response({
@@ -1461,14 +1906,15 @@ def get_user_current_room(request):
                 'message': 'No estás en ninguna habitación actualmente.'
             }, status=400)
 
+        current_room = player_profile.current_room
         return Response({
             'success': True,
             'current_room': {
-                'id': player_profile.current_room.id,
-                'name': player_profile.current_room.name,
-                'description': player_profile.current_room.description,
-                'room_type': player_profile.current_room.room_type,
-                'permissions': player_profile.current_room.permissions
+                'id': current_room.id,
+                'name': current_room.name,
+                'description': current_room.description,
+                'room_type': current_room.properties.get('room_type', '') if current_room.properties else '',
+                'permissions': current_room.properties.get('permissions', 'public') if current_room.properties else 'public'
             },
             'player_stats': {
                 'energy': player_profile.energy,
@@ -1486,13 +1932,11 @@ def get_user_current_room(request):
             'message': 'Error interno del sistema.'
         }, status=500)
 
+
 @api_view(['GET'])
 def room_detail_view(request, pk):
-    """
-    API view to retrieve details of a specific room.
-    """
     try:
-        room = get_object_or_404(Room, pk=pk)
+        room = get_object_or_404(Cell, pk=pk, cell_type='ROOM')
         data = {
             'id': room.id,
             'name': room.name,
@@ -1505,91 +1949,83 @@ def room_detail_view(request, pk):
         logger.warning(f"Room with ID {pk} not found.")
         return JsonResponse({'detail': 'No Room matches the given query.'}, status=404)
 
+
 def get_recent_activities(limit=5):
-    """
-    Get recent activities across the system.
-    Returns a list of activity dictionaries with user, action, timestamp, icon, and color.
-    """
     activities = []
     now = timezone.now()
     past_24h = now - timedelta(hours=24)
 
-    # Get recent room creations
-    recent_rooms = Room.objects.filter(
+    recent_rooms = _room_qs().filter(
         created_at__gte=past_24h
-    ).select_related('creator')[:limit]
+    ).select_related('owner')[:limit]
 
     for room in recent_rooms:
-        if room.creator:  # Check if creator exists
+        creator = getattr(room, 'creator', None) or room.owner
+        if creator:
             activities.append({
-                'user': room.creator.username,
+                'user': creator.username,
                 'action': f'created room "{room.name}"',
                 'timestamp': room.created_at,
                 'icon': 'bi-house-add',
                 'color': 'success'
             })
 
-    # Only add portal activities if Portal has created_at field
-    if hasattr(Portal, 'created_at'):
-        recent_portals = Portal.objects.filter(
-            created_at__gte=past_24h
-        ).select_related('room')[:limit]
+    recent_doors = Cell.objects.filter(
+        cell_type='DOOR',
+        created_at__gte=past_24h
+    ).select_related('parent')[:limit]
 
-        for portal in recent_portals:
-            # Defensive: check if portal.room and portal.room.creator exist
-            user = getattr(getattr(portal.room, 'creator', None), 'username', None)
-            if user:
+    for door in recent_doors:
+        parent_room = door.parent
+        if parent_room and parent_room.cell_type == 'ROOM':
+            creator = getattr(parent_room, 'creator', None) or parent_room.owner
+            if creator:
                 activities.append({
-                    'user': user,
-                    'action': f'created portal in {portal.room.name}',
-                    'timestamp': portal.created_at,
+                    'user': creator.username,
+                    'action': f'created door in {parent_room.name}',
+                    'timestamp': door.created_at,
                     'icon': 'bi-door-open',
                     'color': 'info'
                 })
 
-    # Sort all activities by timestamp
     activities.sort(key=lambda x: x['timestamp'], reverse=True)
     return activities[:limit]
-    
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .models import PlayerProfile, Room, EntranceExit, RoomConnection
-from django.http import JsonResponse
+
 
 @login_required
 def navigate_room(request, direction):
-    """
-    Vista para manejar la navegación entre habitaciones
-    """
     player = request.user.player_profile
-    
+
     if not player.current_room:
         return JsonResponse({
             'success': False,
             'message': 'No estás en ninguna habitación actualmente'
         }, status=400)
-    
-    # Intentar mover al jugador
+
     success = player.move_to_room(direction)
-    
+
     if success:
         new_room = player.current_room
-        entrance = new_room.entrance_exits.filter(face=direction.opposite()).first()
-        
-        # Obtener información de la nueva habitación
+        entrance = None
+        for conn in new_room.outgoing_connections.select_related('entrance').all():
+            props = conn.entrance.properties or {}
+            if props.get('face') == direction.upper():
+                entrance = conn.entrance
+                break
+
         room_info = {
             'id': new_room.id,
             'name': new_room.name,
             'description': new_room.description,
-            'image_url': new_room.get_image_url() or '/static/images/default-room.jpg',
+            'image_url': new_room.get_image_url() if hasattr(new_room, 'get_image_url') and new_room.get_image_url() else '/static/images/default-room.jpg',
             'connections': get_available_exits(new_room),
-            'objects': list(new_room.room_objects.values('id', 'name', 'object_type', 'position_x', 'position_y')),
+            'objects': list(new_room.children.values('id', 'name', 'cell_type', 'position_x', 'position_y')),
             'entrance_position': {
                 'x': entrance.position_x if entrance else new_room.length // 2,
                 'y': entrance.position_y if entrance else new_room.width // 2
             } if entrance else None
         }
-        
+
         return JsonResponse({
             'success': True,
             'message': f'Te has movido a {new_room.name}',
@@ -1601,40 +2037,74 @@ def navigate_room(request, direction):
             'message': 'No hay conexión disponible en esa dirección'
         }, status=400)
 
+
 def get_available_exits(room):
-    """
-    Obtiene las salidas disponibles de una habitación
-    """
     exits = []
-    for entrance in room.entrance_exits.filter(enabled=True):
-        if entrance.connection:
+    for conn in room.outgoing_connections.select_related('entrance', 'to_cell').all():
+        entrance = conn.entrance
+        props = entrance.properties or {}
+        if props.get('enabled', True):
             exits.append({
-                'direction': entrance.face,
-                'to_room': entrance.connection.to_room.name,
-                'to_room_id': entrance.connection.to_room.id,
-                'energy_cost': entrance.connection.energy_cost
+                'direction': props.get('face', ''),
+                'to_room': conn.to_cell.name,
+                'to_room_id': conn.to_cell.id,
+                'energy_cost': conn.energy_cost
             })
     return exits
 
+
+@login_required
+def navigate_to_cell(request, cell_id):
+    player = request.user.player_profile
+
+    if not player.current_room:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': 'No estás en ninguna habitación actualmente'
+            }, status=400)
+        messages.error(request, 'No estás en ninguna habitación actualmente')
+        return redirect('rooms:lobby')
+
+    success, message = player.move_to_cell(cell_id)
+
+    if success:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'target_room': {
+                    'id': player.current_room.id,
+                    'name': player.current_room.name,
+                },
+                'message': message,
+            })
+        return redirect('rooms:room_detail', pk=player.current_room.id)
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': False,
+            'message': message,
+        }, status=400)
+
+    messages.error(request, message)
+    return redirect('rooms:room_detail', pk=player.current_room.id)
+
+
 @login_required
 def room_view(request, room_id=None):
-    """Vista principal para mostrar una habitación"""
     player = request.user.player_profile
-    
-    # Si no se especifica room_id, usar la actual
-    room = player.current_room if room_id is None else get_object_or_404(Room, id=room_id)
-    
-    # Actualizar habitación del jugador si es diferente
+    room = player.current_room if room_id is None else get_object_or_404(Cell, id=room_id, cell_type='ROOM')
+
     if player.current_room != room:
         player.current_room = room
         player.save()
-    
+
     return JsonResponse({
         'room': {
             'id': room.id,
             'name': room.name,
             'description': room.description,
-            'image_url': room.get_image_url() or '/static/default-room.jpg'
+            'image_url': room.get_image_url() if hasattr(room, 'get_image_url') and room.get_image_url() else '/static/default-room.jpg'
         },
         'exits': player.get_available_exits(),
         'player': {
@@ -1643,19 +2113,19 @@ def room_view(request, room_id=None):
         }
     })
 
+
 @login_required
 def navigate(request):
-    """Maneja la navegación entre habitaciones"""
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
-    
+
     player = request.user.player_profile
     exit_type = request.POST.get('exit_type')
     exit_id = request.POST.get('exit_id')
-    
+
     if not exit_type or not exit_id:
         return JsonResponse({'error': 'Faltan parámetros'}, status=400)
-    
+
     if player.use_exit(exit_type, exit_id):
         return JsonResponse({
             'success': True,
@@ -1672,13 +2142,12 @@ def navigate(request):
             'error': 'No se puede usar esta salida'
         }, status=400)
 
+
 @login_required
 def room_delete(request, pk):
-    """Vista para eliminar una habitación"""
-    room = get_object_or_404(Room, pk=pk)
+    room = get_object_or_404(Cell, pk=pk, cell_type='ROOM')
 
-    # Verificar permisos
-    if not room.can_user_manage(request.user):
+    if not _user_can_manage(room, request.user):
         messages.error(request, 'No tienes permisos para eliminar esta habitación.')
         return redirect('rooms:room_detail', pk=pk)
 
@@ -1688,21 +2157,20 @@ def room_delete(request, pk):
         messages.success(request, f'La habitación "{room_name}" ha sido eliminada exitosamente.')
         return redirect('rooms:room_list')
 
-    # Si es GET, mostrar confirmación
     return render(request, 'rooms/room_confirm_delete.html', {'room': room})
+
 
 @login_required
 def create_room_complete(request):
-    """Vista para crear una habitación completa con todas las opciones"""
     if request.method == 'POST':
         form = RoomForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            room = form.save(commit=False)
-            room.owner = request.user
-            room.creator = request.user
-            room.save()
-            messages.success(request, f'Habitación "{room.name}" creada exitosamente.')
-            return redirect('rooms:room_detail', pk=room.pk)
+            cell = form.save(commit=False)
+            cell.cell_type = 'ROOM'
+            cell.owner = request.user
+            cell.save()
+            messages.success(request, f'Habitación "{cell.name}" creada exitosamente.')
+            return redirect('rooms:room_detail', pk=cell.pk)
     else:
         form = RoomForm(user=request.user)
 
@@ -1710,46 +2178,30 @@ def create_room_complete(request):
         'form': form,
         'page_title': 'Crear Habitación Completa',
         'is_edit': False,
-        'room_count': Room.objects.count(),
-        'active_rooms': Room.objects.filter(is_active=True).count()
+        'room_count': _room_qs().count(),
+        'active_rooms': _room_qs().filter(is_active=True).count()
     }
 
     return render(request, 'rooms/room_form_complete.html', context)
 
 
-# API CRUD Views for Rooms
 class RoomCRUDViewSet(ModelViewSet):
-    """
-    API endpoint completo para operaciones CRUD en habitaciones.
-    Proporciona: list, create, retrieve, update, partial_update, destroy
-    """
-    serializer_class = RoomCRUDSerializer
+    serializer_class = CellCRUDSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """
-        Filtrar habitaciones según permisos del usuario.
-        - Owner puede ver todas sus habitaciones
-        - Admin puede ver habitaciones administradas
-        - Miembros pueden ver habitaciones donde son miembros
-        """
         user = self.request.user
-        return Room.objects.filter(
-            Q(owner=user) |
-            Q(administrators=user) |
-            Q(members__user=user)
+        return _room_qs().filter(
+            Q(owner=user)
         ).distinct().order_by('-updated_at')
 
     def perform_create(self, serializer):
-        """Asignar el owner y creator al crear una habitación"""
-        serializer.save(owner=self.request.user, creator=self.request.user)
+        serializer.save(owner=self.request.user)
 
     def update(self, request, *args, **kwargs):
-        """Actualización completa con validación de permisos"""
         instance = self.get_object()
 
-        # Verificar permisos
-        if not instance.can_user_manage(request.user):
+        if not _user_can_manage(instance, request.user):
             return Response(
                 {"error": "No tienes permisos para editar esta habitación"},
                 status=status.HTTP_403_FORBIDDEN
@@ -1758,11 +2210,9 @@ class RoomCRUDViewSet(ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
-        """Actualización parcial con validación de permisos"""
         instance = self.get_object()
 
-        # Verificar permisos
-        if not instance.can_user_manage(request.user):
+        if not _user_can_manage(instance, request.user):
             return Response(
                 {"error": "No tienes permisos para editar esta habitación"},
                 status=status.HTTP_403_FORBIDDEN
@@ -1771,11 +2221,9 @@ class RoomCRUDViewSet(ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        """Eliminación con validación de permisos"""
         instance = self.get_object()
 
-        # Verificar permisos
-        if not instance.can_user_manage(request.user):
+        if not _user_can_manage(instance, request.user):
             return Response(
                 {"error": "No tienes permisos para eliminar esta habitación"},
                 status=status.HTTP_403_FORBIDDEN
@@ -1784,101 +2232,39 @@ class RoomCRUDViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
-# API CRUD Views for EntranceExit (Doors)
-class EntranceExitCRUDViewSet(ModelViewSet):
-    """
-    API endpoint completo para operaciones CRUD de EntranceExit (puertas).
-    Proporciona: list, create, retrieve, update, partial_update, destroy
-    """
-    serializer_class = EntranceExitCRUDSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        """Filtrar puertas por habitaciones del usuario"""
-        user = self.request.user
-        return EntranceExit.objects.filter(
-            room__owner=user
-        ).select_related('room', 'connection').order_by('-created_at')
-
-    def perform_create(self, serializer):
-        """Crear puerta con validaciones adicionales"""
-        serializer.save()
-
-
-# API CRUD Views for Portal
-class PortalCRUDViewSet(ModelViewSet):
-    """
-    API endpoint completo para operaciones CRUD de Portal.
-    Proporciona: list, create, retrieve, update, partial_update, destroy
-    """
-    serializer_class = PortalCRUDSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        """Filtrar portales por habitaciones del usuario"""
-        user = self.request.user
-        return Portal.objects.filter(
-            Q(entrance__room__owner=user) | Q(exit__room__owner=user)
-        ).select_related('entrance__room', 'exit__room').distinct().order_by('-created_at')
-
-    def perform_create(self, serializer):
-        """Crear portal con validaciones adicionales"""
-        serializer.save()
-
-
-# API CRUD Views for RoomConnection
 class RoomConnectionCRUDViewSet(ModelViewSet):
-    """
-    API endpoint completo para operaciones CRUD de RoomConnection.
-    Proporciona: list, create, retrieve, update, partial_update, destroy
-    """
-    serializer_class = RoomConnectionCRUDSerializer
+    serializer_class = CellConnectionSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filtrar conexiones por habitaciones del usuario"""
         user = self.request.user
-        return RoomConnection.objects.filter(
-            Q(from_room__owner=user) | Q(to_room__owner=user)
-        ).select_related('from_room', 'to_room', 'entrance').distinct().order_by('-created_at')
+        return CellConnection.objects.filter(
+            Q(from_cell__owner=user) | Q(to_cell__owner=user)
+        ).select_related('from_cell', 'to_cell', 'entrance').distinct().order_by('-id')
 
     def perform_create(self, serializer):
-        """Crear conexión con validaciones adicionales"""
         serializer.save()
 
 
-# Frontend CRUD View
 @login_required
 def room_crud_view(request):
-    """
-    Vista para el frontend moderno de gestión CRUD de habitaciones.
-    """
     return render(request, 'rooms/room_crud.html', {
         'page_title': 'Gestión de Habitaciones',
     })
 
 
-# ===== API ENDPOINTS PARA ENTORNO 3D =====
-
 @api_view(['GET'])
 def get_room_3d_data(request, room_id):
-    """
-    API endpoint para obtener datos 3D completos de una habitación.
-    Incluye geometría, objetos, conexiones y estado del player.
-    """
     try:
-        room = get_object_or_404(Room, pk=room_id)
+        room = get_object_or_404(Cell, pk=room_id, cell_type='ROOM')
 
-        # Verificar permisos de acceso
-        if room.permissions == 'private':
-            # Solo miembros pueden acceder a habitaciones privadas
-            if not RoomMember.objects.filter(room=room, user=request.user).exists():
-                return Response({
-                    'success': False,
-                    'message': 'No tienes acceso a esta habitación.'
-                }, status=403)
+        permissions = getattr(room, 'permissions', room.properties.get('permissions', 'public'))
+        if permissions == 'private':
+            return Response({
+                'success': False,
+                'message': 'No tienes acceso a esta habitación.'
+            }, status=403)
 
-        # Obtener perfil del jugador
         try:
             player_profile = request.user.player_profile
         except PlayerProfile.DoesNotExist:
@@ -1887,7 +2273,6 @@ def get_room_3d_data(request, room_id):
                 'message': 'No tienes un perfil de jugador activo.'
             }, status=400)
 
-        # Datos básicos de la habitación
         room_data = {
             'id': room.id,
             'name': room.name,
@@ -1898,36 +2283,34 @@ def get_room_3d_data(request, room_id):
                 'height': room.height
             },
             'position': {
-                'x': room.x,
-                'y': room.y,
-                'z': room.z
+                'x': room.position_x,
+                'y': room.position_y,
+                'z': room.position_z
             },
             'colors': {
                 'primary': room.color_primary,
                 'secondary': room.color_secondary
             },
             'material': room.material_type,
-            'lighting_intensity': room.lighting_intensity,
-            'temperature': float(room.temperature)
+            'lighting_intensity': room.properties.get('lighting_intensity', 80) if room.properties else 80,
+            'temperature': float(room.properties.get('temperature', 22.0)) if room.properties else 22.0
         }
 
-        # Estado del jugador
         player_data = {
             'position': {
                 'x': player_profile.position_x or room.length // 2,
                 'y': player_profile.position_y or room.width // 2,
-                'z': 1.7  # Altura típica de una persona
+                'z': 1.7
             },
             'energy': player_profile.energy,
             'productivity': player_profile.productivity,
             'social': player_profile.social
         }
 
-        # Obtener objetos 3D (puertas y portales)
         objects_3d = []
 
-        # Puertas (EntranceExit)
-        for entrance in room.entrance_exits.filter(enabled=True):
+        for entrance in room.children.filter(cell_type='DOOR', is_active=True):
+            props = entrance.properties or {}
             obj_data = {
                 'type': 'door',
                 'id': entrance.id,
@@ -1938,48 +2321,42 @@ def get_room_3d_data(request, room_id):
                     'z': 0
                 },
                 'dimensions': {
-                    'width': entrance.width / 100,  # Convertir cm a metros
-                    'height': entrance.height / 100,
+                    'width': (entrance.width or 100) / 100,
+                    'height': (entrance.height or 200) / 100,
                     'depth': 0.2
                 },
                 'properties': {
-                    'face': entrance.face,
+                    'face': props.get('face', ''),
                     'is_locked': entrance.is_locked,
-                    'door_type': entrance.door_type,
-                    'material': entrance.material,
-                    'color': entrance.color,
-                    'interaction_distance': entrance.interaction_distance / 100  # Convertir cm a metros
+                    'door_type': props.get('door_type', 'SINGLE'),
+                    'material': props.get('material', 'WOOD'),
+                    'color': props.get('color', '#8B4513'),
+                    'interaction_distance': props.get('interaction_distance', 150) / 100
                 }
             }
 
-            # Agregar información de conexión si existe
-            if entrance.connection:
+            connections = entrance.cell_connections.all()
+            if connections.exists():
+                conn = connections.first()
+                target_room = conn.to_cell if conn.from_cell_id == room.id else conn.from_cell
                 obj_data['connection'] = {
-                    'target_room_id': entrance.connection.to_room.id if entrance.connection.from_room == room else entrance.connection.from_room.id,
-                    'energy_cost': entrance.connection.energy_cost,
-                    'bidirectional': entrance.connection.bidirectional
+                    'target_room_id': target_room.id,
+                    'energy_cost': conn.energy_cost,
+                    'bidirectional': conn.bidirectional
                 }
 
             objects_3d.append(obj_data)
 
-        # Portales
-        for portal in room.portals.all():
-            # Determinar si este portal sale de esta habitación
-            if portal.entrance.room == room:
-                portal_exit = portal.exit
-                target_room = portal_exit.room
-            else:
-                portal_exit = portal.entrance
-                target_room = portal.entrance.room
-
+        for portal in room.children.filter(cell_type='PORTAL', is_active=True):
+            props = portal.properties or {}
             obj_data = {
                 'type': 'portal',
                 'id': portal.id,
                 'name': portal.name,
                 'position': {
-                    'x': portal_exit.position_x or 0,
-                    'y': portal_exit.position_y or 0,
-                    'z': room.height // 2  # Centro vertical de la habitación
+                    'x': portal.position_x or 0,
+                    'y': portal.position_y or 0,
+                    'z': room.height // 2
                 },
                 'dimensions': {
                     'width': 2,
@@ -1987,29 +2364,27 @@ def get_room_3d_data(request, room_id):
                     'depth': 0.1
                 },
                 'properties': {
-                    'energy_cost': portal.energy_cost,
-                    'cooldown': portal.cooldown,
-                    'is_active': portal.is_active(),
-                    'target_room_id': target_room.id
+                    'energy_cost': props.get('energy_cost', 10),
+                    'cooldown': props.get('cooldown', 60),
+                    'is_active': props.get('is_active', True),
+                    'target_room_id': None
                 }
             }
             objects_3d.append(obj_data)
 
-        # Obtener conexiones disponibles
         connections = []
-        for entrance in room.entrance_exits.filter(enabled=True, connection__isnull=False):
-            connection = entrance.connection
-            target_room = connection.to_room if connection.from_room == room else connection.from_room
-
+        for conn in room.outgoing_connections.select_related('entrance', 'to_cell').all():
+            entrance = conn.entrance
+            props = entrance.properties or {}
+            target_room = conn.to_cell
             connections.append({
-                'direction': entrance.face,
+                'direction': props.get('face', ''),
                 'target_room_id': target_room.id,
                 'target_room_name': target_room.name,
-                'energy_cost': connection.energy_cost,
+                'energy_cost': conn.energy_cost,
                 'entrance_id': entrance.id
             })
 
-        # Datos de respuesta
         response_data = {
             'success': True,
             'room': room_data,
@@ -2031,13 +2406,8 @@ def get_room_3d_data(request, room_id):
 
 @api_view(['POST'])
 def room_transition(request):
-    """
-    API endpoint para manejar transiciones entre habitaciones.
-    Actualiza la posición del player y cambia de habitación.
-    """
     try:
-        # Validar datos de entrada
-        exit_type = request.data.get('exit_type')  # 'door' o 'portal'
+        exit_type = request.data.get('exit_type')
         exit_id = request.data.get('exit_id')
         target_room_id = request.data.get('target_room_id')
 
@@ -2047,7 +2417,6 @@ def room_transition(request):
                 'message': 'Faltan parámetros: exit_type y exit_id son requeridos.'
             }, status=400)
 
-        # Obtener perfil del jugador
         try:
             player_profile = request.user.player_profile
         except PlayerProfile.DoesNotExist:
@@ -2056,92 +2425,94 @@ def room_transition(request):
                 'message': 'No tienes un perfil de jugador activo.'
             }, status=400)
 
-        # Procesar transición según el tipo
         if exit_type == 'door':
-            entrance = get_object_or_404(EntranceExit, pk=exit_id)
+            entrance = get_object_or_404(Cell, pk=exit_id, cell_type='DOOR')
 
-            # Usar el RoomTransitionManager existente
-            transition_manager = get_room_transition_manager()
-            result = transition_manager.attempt_transition(player_profile, entrance)
+            target_room = None
+            for conn in entrance.cell_connections.select_related('to_cell', 'from_cell').all():
+                if conn.from_cell_id == player_profile.current_room_id:
+                    target_room = conn.to_cell
+                    break
+                elif conn.bidirectional and conn.to_cell_id == player_profile.current_room_id:
+                    target_room = conn.from_cell
+                    break
 
-            if result['success']:
-                # Obtener datos de la nueva habitación
-                new_room = result['target_room']
-                new_room_data = {
-                    'id': new_room.id,
-                    'name': new_room.name,
-                    'description': new_room.description
-                }
-
-                return Response({
-                    'success': True,
-                    'message': result['message'],
-                    'target_room': new_room_data,
-                    'energy_cost': result['energy_cost'],
-                    'player_stats': {
-                        'energy': player_profile.energy,
-                        'position_x': player_profile.position_x,
-                        'position_y': player_profile.position_y
-                    }
-                })
-            else:
+            if not target_room:
                 return Response({
                     'success': False,
-                    'message': result['message']
+                    'message': 'No hay conexión disponible desde tu ubicación actual.'
                 }, status=400)
 
-        elif exit_type == 'portal':
-            portal = get_object_or_404(Portal, pk=exit_id)
-
-            # Verificar si el portal está activo
-            if not portal.is_active():
-                return Response({
-                    'success': False,
-                    'message': 'El portal no está disponible actualmente.'
-                }, status=400)
-
-            # Verificar energía suficiente
-            if player_profile.energy < portal.energy_cost:
-                return Response({
-                    'success': False,
-                    'message': f'Energía insuficiente. Necesitas {portal.energy_cost}, tienes {player_profile.energy}.'
-                }, status=400)
-
-            # Determinar habitación destino
-            if portal.entrance.room == player_profile.current_room:
-                target_room = portal.exit.room
-                exit_entrance = portal.exit
-            else:
-                target_room = portal.entrance.room
-                exit_entrance = portal.entrance
-
-            # Realizar transición
-            player_profile.add_to_navigation_history(player_profile.current_room.id)
-            player_profile.current_room = target_room
-            player_profile.position_x = exit_entrance.position_x or target_room.length // 2
-            player_profile.position_y = exit_entrance.position_y or target_room.width // 2
-            player_profile.energy -= portal.energy_cost
-            player_profile.save()
-
-            # Actualizar último uso del portal
-            portal.last_used = timezone.now()
-            portal.save()
+            new_room_data = {
+                'id': target_room.id,
+                'name': target_room.name,
+                'description': target_room.description
+            }
 
             return Response({
                 'success': True,
-                'message': f'Teletransportado a {target_room.name} a través del portal.',
-                'target_room': {
-                    'id': target_room.id,
-                    'name': target_room.name,
-                    'description': target_room.description
-                },
-                'energy_cost': portal.energy_cost,
+                'message': f'Transición exitosa a {target_room.name}',
+                'target_room': new_room_data,
+                'energy_cost': 5,
                 'player_stats': {
                     'energy': player_profile.energy,
                     'position_x': player_profile.position_x,
                     'position_y': player_profile.position_y
                 }
             })
+
+        elif exit_type == 'portal':
+            portal = get_object_or_404(Cell, pk=exit_id, cell_type='PORTAL')
+            props = portal.properties or {}
+
+            if not props.get('is_active', True):
+                return Response({
+                    'success': False,
+                    'message': 'El portal no está disponible actualmente.'
+                }, status=400)
+
+            energy_cost = props.get('energy_cost', 10)
+            if player_profile.energy < energy_cost:
+                return Response({
+                    'success': False,
+                    'message': f'Energía insuficiente. Necesitas {energy_cost}, tienes {player_profile.energy}.'
+                }, status=400)
+
+            target_room = portal.room
+            if target_room and target_room.id == player_profile.current_room_id:
+                return Response({
+                    'success': False,
+                    'message': 'Ya estás en la habitación destino del portal.'
+                }, status=400)
+
+            if target_room:
+                player_profile.add_to_navigation_history(player_profile.current_room.id)
+                player_profile.current_room = target_room
+                player_profile.position_x = target_room.position_x
+                player_profile.position_y = target_room.position_y
+                player_profile.energy -= energy_cost
+                player_profile.save()
+
+                return Response({
+                    'success': True,
+                    'message': f'Teletransportado a {target_room.name} a través del portal.',
+                    'target_room': {
+                        'id': target_room.id,
+                        'name': target_room.name,
+                        'description': target_room.description
+                    },
+                    'energy_cost': energy_cost,
+                    'player_stats': {
+                        'energy': player_profile.energy,
+                        'position_x': player_profile.position_x,
+                        'position_y': player_profile.position_y
+                    }
+                })
+
+            return Response({
+                'success': False,
+                'message': 'El portal no tiene una habitación destino válida.'
+            }, status=400)
 
         else:
             return Response({
@@ -2159,14 +2530,10 @@ def room_transition(request):
 
 @api_view(['POST'])
 def update_player_position(request):
-    """
-    API endpoint para actualizar la posición del player en 3D.
-    """
     try:
-        # Validar datos de entrada
         position_x = request.data.get('position_x')
         position_y = request.data.get('position_y')
-        position_z = request.data.get('position_z', 1.7)  # Altura por defecto
+        position_z = request.data.get('position_z', 1.7)
 
         if position_x is None or position_y is None:
             return Response({
@@ -2174,7 +2541,6 @@ def update_player_position(request):
                 'message': 'Faltan coordenadas de posición.'
             }, status=400)
 
-        # Obtener perfil del jugador
         try:
             player_profile = request.user.player_profile
         except PlayerProfile.DoesNotExist:
@@ -2183,18 +2549,14 @@ def update_player_position(request):
                 'message': 'No tienes un perfil de jugador activo.'
             }, status=400)
 
-        # Validar límites de la habitación actual
         if player_profile.current_room:
             room = player_profile.current_room
-            # Asegurar que la posición esté dentro de los límites de la habitación
             position_x = max(0, min(position_x, room.length))
             position_y = max(0, min(position_y, room.width))
             position_z = max(0, min(position_z, room.height))
 
-        # Actualizar posición
         player_profile.position_x = position_x
         player_profile.position_y = position_y
-        # Nota: position_z no se guarda en el modelo actual, pero se puede agregar si es necesario
         player_profile.save()
 
         return Response({
@@ -2217,11 +2579,7 @@ def update_player_position(request):
 
 @api_view(['GET'])
 def get_player_status(request):
-    """
-    API endpoint para obtener el estado completo del player.
-    """
     try:
-        # Obtener perfil del jugador
         try:
             player_profile = request.user.player_profile
         except PlayerProfile.DoesNotExist:
@@ -2230,7 +2588,6 @@ def get_player_status(request):
                 'message': 'No tienes un perfil de jugador activo.'
             }, status=400)
 
-        # Obtener habitación actual
         current_room_data = None
         if player_profile.current_room:
             room = player_profile.current_room
@@ -2273,336 +2630,455 @@ def get_player_status(request):
 
 @login_required
 def create_navigation_test_zone(request):
-    """
-    Vista para crear la zona de pruebas de navegación con estructura jerárquica de 4 niveles
-    y conexiones interconectadas (puertas, portales, objetos).
-    """
     from django.db import transaction
 
-    # Usar transacción para asegurar atomicidad
     with transaction.atomic():
-        # Nivel 1: Habitación raíz
-        root_room, created = Room.objects.get_or_create(
+        root_room, created = Cell.objects.get_or_create(
             name='Navigation Test Zone',
+            cell_type='ROOM',
             defaults={
                 'description': 'Zona de pruebas para testing de navegación por habitaciones interconectadas',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'OFFICE',
-                'x': 0, 'y': 0, 'z': 0,
-                'length': 20, 'width': 20, 'height': 5,
+                'properties': {
+                    'permissions': 'public',
+                    'room_type': 'OFFICE',
+                },
+                'position_x': 0,
+                'position_y': 0,
+                'position_z': 0,
+                'length': 20,
+                'width': 20,
+                'height': 5,
                 'color_primary': '#4CAF50',
                 'color_secondary': '#2196F3',
                 'material_type': 'CONCRETE',
-                'lighting_intensity': 80,
-                'temperature': 22.0
+                'properties': {
+                    'permissions': 'public',
+                    'room_type': 'OFFICE',
+                    'lighting_intensity': 80,
+                    'temperature': 22.0
+                }
             }
         )
 
-        # Nivel 2: Sectores principales
-        alpha_sector, _ = Room.objects.get_or_create(
+        alpha_sector, _ = Cell.objects.get_or_create(
             name='Alpha Sector',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sector Alpha - Área de desarrollo y testing',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'OFFICE',
-                'parent_room': root_room,
-                'x': 25, 'y': 0, 'z': 0,
-                'length': 15, 'width': 15, 'height': 4,
+                'properties': {'permissions': 'public', 'room_type': 'OFFICE'},
+                'parent': root_room,
+                'position_x': 25,
+                'position_y': 0,
+                'position_z': 0,
+                'length': 15,
+                'width': 15,
+                'height': 4,
                 'color_primary': '#FF9800',
                 'color_secondary': '#F44336',
                 'material_type': 'METAL',
-                'lighting_intensity': 70
+                'properties': {
+                    'permissions': 'public',
+                    'room_type': 'OFFICE',
+                    'lighting_intensity': 70
+                }
             }
         )
 
-        beta_sector, _ = Room.objects.get_or_create(
+        beta_sector, _ = Cell.objects.get_or_create(
             name='Beta Sector',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sector Beta - Área de producción',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'MEETING',
-                'parent_room': root_room,
-                'x': 0, 'y': 25, 'z': 0,
-                'length': 12, 'width': 18, 'height': 4,
+                'properties': {'permissions': 'public', 'room_type': 'MEETING'},
+                'parent': root_room,
+                'position_x': 0,
+                'position_y': 25,
+                'position_z': 0,
+                'length': 12,
+                'width': 18,
+                'height': 4,
                 'color_primary': '#9C27B0',
                 'color_secondary': '#673AB7',
                 'material_type': 'GLASS',
-                'lighting_intensity': 60
+                'properties': {
+                    'permissions': 'public',
+                    'room_type': 'MEETING',
+                    'lighting_intensity': 60
+                }
             }
         )
 
-        gamma_sector, _ = Room.objects.get_or_create(
+        gamma_sector, _ = Cell.objects.get_or_create(
             name='Gamma Sector',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sector Gamma - Área administrativa',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'LOUNGE',
-                'parent_room': root_room,
-                'x': -20, 'y': 0, 'z': 0,
-                'length': 18, 'width': 12, 'height': 4,
+                'properties': {'permissions': 'public', 'room_type': 'LOUNGE'},
+                'parent': root_room,
+                'position_x': -20,
+                'position_y': 0,
+                'position_z': 0,
+                'length': 18,
+                'width': 12,
+                'height': 4,
                 'color_primary': '#00BCD4',
                 'color_secondary': '#009688',
                 'material_type': 'WOOD',
-                'lighting_intensity': 75
+                'properties': {
+                    'permissions': 'public',
+                    'room_type': 'LOUNGE',
+                    'lighting_intensity': 75
+                }
             }
         )
 
-        # Nivel 3: Sub-sectores
-        # Alpha sub-sectores
-        alpha_1, _ = Room.objects.get_or_create(
+        alpha_1, _ = Cell.objects.get_or_create(
             name='Alpha-1',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sector Alpha-1 - Desarrollo frontend',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'OFFICE',
-                'parent_room': alpha_sector,
-                'x': 30, 'y': 5, 'z': 0,
-                'length': 10, 'width': 8, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'OFFICE'},
+                'parent': alpha_sector,
+                'position_x': 30,
+                'position_y': 5,
+                'position_z': 0,
+                'length': 10,
+                'width': 8,
+                'height': 3,
                 'color_primary': '#FF5722',
                 'color_secondary': '#E64A19'
             }
         )
 
-        alpha_2, _ = Room.objects.get_or_create(
+        alpha_2, _ = Cell.objects.get_or_create(
             name='Alpha-2',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sector Alpha-2 - Desarrollo backend',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'OFFICE',
-                'parent_room': alpha_sector,
-                'x': 30, 'y': -5, 'z': 0,
-                'length': 10, 'width': 8, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'OFFICE'},
+                'parent': alpha_sector,
+                'position_x': 30,
+                'position_y': -5,
+                'position_z': 0,
+                'length': 10,
+                'width': 8,
+                'height': 3,
                 'color_primary': '#2196F3',
                 'color_secondary': '#1976D2'
             }
         )
 
-        alpha_3, _ = Room.objects.get_or_create(
+        alpha_3, _ = Cell.objects.get_or_create(
             name='Alpha-3',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sector Alpha-3 - Testing y QA',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'MEETING',
-                'parent_room': alpha_sector,
-                'x': 45, 'y': 0, 'z': 0,
-                'length': 8, 'width': 10, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'MEETING'},
+                'parent': alpha_sector,
+                'position_x': 45,
+                'position_y': 0,
+                'position_z': 0,
+                'length': 8,
+                'width': 10,
+                'height': 3,
                 'color_primary': '#4CAF50',
                 'color_secondary': '#388E3C'
             }
         )
 
-        # Beta sub-sectores
-        beta_1, _ = Room.objects.get_or_create(
+        beta_1, _ = Cell.objects.get_or_create(
             name='Beta-1',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sector Beta-1 - Producción primaria',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'OFFICE',
-                'parent_room': beta_sector,
-                'x': 5, 'y': 30, 'z': 0,
-                'length': 8, 'width': 12, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'OFFICE'},
+                'parent': beta_sector,
+                'position_x': 5,
+                'position_y': 30,
+                'position_z': 0,
+                'length': 8,
+                'width': 12,
+                'height': 3,
                 'color_primary': '#9C27B0',
                 'color_secondary': '#7B1FA2'
             }
         )
 
-        beta_2, _ = Room.objects.get_or_create(
+        beta_2, _ = Cell.objects.get_or_create(
             name='Beta-2',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sector Beta-2 - Producción secundaria',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'OFFICE',
-                'parent_room': beta_sector,
-                'x': -5, 'y': 30, 'z': 0,
-                'length': 8, 'width': 12, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'OFFICE'},
+                'parent': beta_sector,
+                'position_x': -5,
+                'position_y': 30,
+                'position_z': 0,
+                'length': 8,
+                'width': 12,
+                'height': 3,
                 'color_primary': '#FF9800',
                 'color_secondary': '#F57C00'
             }
         )
 
-        # Gamma sub-sectores
-        gamma_1, _ = Room.objects.get_or_create(
+        gamma_1, _ = Cell.objects.get_or_create(
             name='Gamma-1',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sector Gamma-1 - Administración general',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'LOUNGE',
-                'parent_room': gamma_sector,
-                'x': -25, 'y': 5, 'z': 0,
-                'length': 10, 'width': 6, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'LOUNGE'},
+                'parent': gamma_sector,
+                'position_x': -25,
+                'position_y': 5,
+                'position_z': 0,
+                'length': 10,
+                'width': 6,
+                'height': 3,
                 'color_primary': '#00BCD4',
                 'color_secondary': '#00ACC1'
             }
         )
 
-        gamma_2, _ = Room.objects.get_or_create(
+        gamma_2, _ = Cell.objects.get_or_create(
             name='Gamma-2',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sector Gamma-2 - Recursos humanos',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'MEETING',
-                'parent_room': gamma_sector,
-                'x': -25, 'y': -5, 'z': 0,
-                'length': 10, 'width': 6, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'MEETING'},
+                'parent': gamma_sector,
+                'position_x': -25,
+                'position_y': -5,
+                'position_z': 0,
+                'length': 10,
+                'width': 6,
+                'height': 3,
                 'color_primary': '#8BC34A',
                 'color_secondary': '#689F38'
             }
         )
 
-        gamma_3, _ = Room.objects.get_or_create(
+        gamma_3, _ = Cell.objects.get_or_create(
             name='Gamma-3',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sector Gamma-3 - Finanzas',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'OFFICE',
-                'parent_room': gamma_sector,
-                'x': -40, 'y': 0, 'z': 0,
-                'length': 12, 'width': 8, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'OFFICE'},
+                'parent': gamma_sector,
+                'position_x': -40,
+                'position_y': 0,
+                'position_z': 0,
+                'length': 12,
+                'width': 8,
+                'height': 3,
                 'color_primary': '#FFC107',
                 'color_secondary': '#FF8F00'
             }
         )
 
-        gamma_4, _ = Room.objects.get_or_create(
+        gamma_4, _ = Cell.objects.get_or_create(
             name='Gamma-4',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sector Gamma-4 - Legal',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'MEETING',
-                'parent_room': gamma_sector,
-                'x': -25, 'y': -15, 'z': 0,
-                'length': 8, 'width': 8, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'MEETING'},
+                'parent': gamma_sector,
+                'position_x': -25,
+                'position_y': -15,
+                'position_z': 0,
+                'length': 8,
+                'width': 8,
+                'height': 3,
                 'color_primary': '#795548',
                 'color_secondary': '#5D4037'
             }
         )
 
-        # Nivel 4: Sub-sub-sectores
-        alpha_1a, _ = Room.objects.get_or_create(
+        alpha_1a, _ = Cell.objects.get_or_create(
             name='Alpha-1A',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sub-sector Alpha-1A - UI/UX Design',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'OFFICE',
-                'parent_room': alpha_1,
-                'x': 35, 'y': 8, 'z': 0,
-                'length': 6, 'width': 5, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'OFFICE'},
+                'parent': alpha_1,
+                'position_x': 35,
+                'position_y': 8,
+                'position_z': 0,
+                'length': 6,
+                'width': 5,
+                'height': 3,
                 'color_primary': '#E91E63',
                 'color_secondary': '#C2185B'
             }
         )
 
-        alpha_1b, _ = Room.objects.get_or_create(
+        alpha_1b, _ = Cell.objects.get_or_create(
             name='Alpha-1B',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sub-sector Alpha-1B - Frontend Development',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'OFFICE',
-                'parent_room': alpha_1,
-                'x': 35, 'y': 2, 'z': 0,
-                'length': 6, 'width': 5, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'OFFICE'},
+                'parent': alpha_1,
+                'position_x': 35,
+                'position_y': 2,
+                'position_z': 0,
+                'length': 6,
+                'width': 5,
+                'height': 3,
                 'color_primary': '#3F51B5',
                 'color_secondary': '#303F9F'
             }
         )
 
-        gamma_3x, _ = Room.objects.get_or_create(
+        gamma_3x, _ = Cell.objects.get_or_create(
             name='Gamma-3X',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sub-sector Gamma-3X - Contabilidad',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'OFFICE',
-                'parent_room': gamma_3,
-                'x': -45, 'y': 3, 'z': 0,
-                'length': 6, 'width': 6, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'OFFICE'},
+                'parent': gamma_3,
+                'position_x': -45,
+                'position_y': 3,
+                'position_z': 0,
+                'length': 6,
+                'width': 6,
+                'height': 3,
                 'color_primary': '#FF5722',
                 'color_secondary': '#D84315'
             }
         )
 
-        gamma_3y, _ = Room.objects.get_or_create(
+        gamma_3y, _ = Cell.objects.get_or_create(
             name='Gamma-3Y',
+            cell_type='ROOM',
             defaults={
                 'description': 'Sub-sub-sector Gamma-3Y - Auditoría',
                 'owner': request.user,
-                'creator': request.user,
-                'permissions': 'public',
-                'room_type': 'MEETING',
-                'parent_room': gamma_3,
-                'x': -45, 'y': -3, 'z': 0,
-                'length': 6, 'width': 6, 'height': 3,
+                'properties': {'permissions': 'public', 'room_type': 'MEETING'},
+                'parent': gamma_3,
+                'position_x': -45,
+                'position_y': -3,
+                'position_z': 0,
+                'length': 6,
+                'width': 6,
+                'height': 3,
                 'color_primary': '#607D8B',
                 'color_secondary': '#455A64'
             }
         )
 
-        # Crear conexiones físicas (puertas) entre habitaciones del mismo nivel
-        # Función helper para crear conexiones bidireccionales
         def create_door_connection(from_room, to_room, direction_from, direction_to, door_name_suffix=""):
-            # Crear entrada en habitación from
-            entrance_from, _ = EntranceExit.objects.get_or_create(
+            entrance_from, _ = Cell.objects.get_or_create(
                 room=from_room,
-                face=direction_from,
+                name=f'Puerta a {to_room.name}{door_name_suffix}',
+                cell_type='DOOR',
                 defaults={
-                    'name': f'Puerta a {to_room.name}{door_name_suffix}',
-                    'description': f'Conecta a {to_room.name}',
-                    'enabled': True,
-                    'door_type': 'SINGLE',
-                    'material': 'WOOD',
-                    'color': '#8B4513'
+                    'position_x': 0,
+                    'position_y': 0,
+                    'width': 100,
+                    'height': 200,
+                    'is_locked': False,
+                    'properties': {
+                        'face': direction_from,
+                        'enabled': True,
+                        'door_type': 'SINGLE',
+                        'material': 'WOOD',
+                        'color': '#8B4513',
+                        'interaction_type': 'PUSH',
+                        'animation_type': 'SWING',
+                        'requires_both_hands': False,
+                        'interaction_distance': 150,
+                        'is_open': False,
+                        'usage_count': 0,
+                        'health': 100,
+                        'access_level': 0,
+                        'security_system': 'NONE',
+                        'alarm_triggered': False,
+                        'seals_air': True,
+                        'seals_sound': 20,
+                        'temperature_resistance': 50,
+                        'pressure_resistance': 1,
+                        'energy_cost_modifier': 0,
+                        'experience_reward': 1,
+                        'special_effects': {},
+                        'cooldown': 0,
+                        'max_usage_per_hour': 0,
+                        'glow_intensity': 0,
+                        'decoration_type': 'NONE',
+                        'auto_close': False,
+                        'close_delay': 5,
+                        'open_speed': 1.0,
+                        'close_speed': 1.0,
+                        'opacity': 1.0,
+                    }
                 }
             )
 
-            # Crear entrada en habitación to
-            entrance_to, _ = EntranceExit.objects.get_or_create(
+            entrance_to, _ = Cell.objects.get_or_create(
                 room=to_room,
-                face=direction_to,
+                name=f'Puerta desde {from_room.name}{door_name_suffix}',
+                cell_type='DOOR',
                 defaults={
-                    'name': f'Puerta desde {from_room.name}{door_name_suffix}',
-                    'description': f'Conecta desde {from_room.name}',
-                    'enabled': True,
-                    'door_type': 'SINGLE',
-                    'material': 'WOOD',
-                    'color': '#8B4513'
+                    'position_x': 0,
+                    'position_y': 0,
+                    'width': 100,
+                    'height': 200,
+                    'is_locked': False,
+                    'properties': {
+                        'face': direction_to,
+                        'enabled': True,
+                        'door_type': 'SINGLE',
+                        'material': 'WOOD',
+                        'color': '#8B4513',
+                        'interaction_type': 'PUSH',
+                        'animation_type': 'SWING',
+                        'requires_both_hands': False,
+                        'interaction_distance': 150,
+                        'is_open': False,
+                        'usage_count': 0,
+                        'health': 100,
+                        'access_level': 0,
+                        'security_system': 'NONE',
+                        'alarm_triggered': False,
+                        'seals_air': True,
+                        'seals_sound': 20,
+                        'temperature_resistance': 50,
+                        'pressure_resistance': 1,
+                        'energy_cost_modifier': 0,
+                        'experience_reward': 1,
+                        'special_effects': {},
+                        'cooldown': 0,
+                        'max_usage_per_hour': 0,
+                        'glow_intensity': 0,
+                        'decoration_type': 'NONE',
+                        'auto_close': False,
+                        'close_delay': 5,
+                        'open_speed': 1.0,
+                        'close_speed': 1.0,
+                        'opacity': 1.0,
+                    }
                 }
             )
 
-            # Crear conexión
-            connection, _ = RoomConnection.objects.get_or_create(
-                from_room=from_room,
-                to_room=to_room,
+            connection, _ = CellConnection.objects.get_or_create(
+                from_cell=from_room,
+                to_cell=to_room,
                 entrance=entrance_from,
                 defaults={
                     'bidirectional': True,
@@ -2610,235 +3086,527 @@ def create_navigation_test_zone(request):
                 }
             )
 
-            # Asignar conexión a la entrada de destino
-            entrance_to.connection = connection
-            entrance_to.save()
-
             return entrance_from, entrance_to
 
-        # Conexiones horizontales (mismo nivel)
-        # Nivel 2: entre sectores
         create_door_connection(root_room, alpha_sector, 'NORTH', 'SOUTH')
         create_door_connection(root_room, beta_sector, 'EAST', 'WEST')
         create_door_connection(root_room, gamma_sector, 'WEST', 'EAST')
 
-        # Nivel 3: conexiones en Alpha
         create_door_connection(alpha_1, alpha_2, 'EAST', 'WEST')
         create_door_connection(alpha_2, alpha_3, 'EAST', 'WEST')
 
-        # Nivel 3: conexiones en Beta
         create_door_connection(beta_1, beta_2, 'NORTH', 'SOUTH')
 
-        # Nivel 3: conexiones en Gamma
         create_door_connection(gamma_1, gamma_2, 'NORTH', 'SOUTH')
         create_door_connection(gamma_2, gamma_3, 'WEST', 'EAST')
         create_door_connection(gamma_3, gamma_4, 'SOUTH', 'NORTH')
 
-        # Nivel 4: conexiones
         create_door_connection(alpha_1a, alpha_1b, 'EAST', 'WEST')
         create_door_connection(gamma_3x, gamma_3y, 'NORTH', 'SOUTH')
 
-        # Crear portales entre niveles diferentes
         def create_portal(from_room, to_room, entrance_from, entrance_to, portal_name):
-            portal, _ = Portal.objects.get_or_create(
-                entrance=entrance_from,
-                exit=entrance_to,
+            portal, _ = Cell.objects.get_or_create(
+                room=from_room,
+                name=portal_name,
+                cell_type='PORTAL',
                 defaults={
-                    'name': portal_name,
-                    'energy_cost': 15,
-                    'cooldown': 60  # 1 minuto
+                    'position_x': 0,
+                    'position_y': 0,
+                    'properties': {
+                        'energy_cost': 15,
+                        'cooldown': 60,
+                        'is_active': True,
+                    }
                 }
             )
             return portal
 
-        # Portales entre niveles
-        # De Alpha Sector a Beta-1
-        alpha_entrance = EntranceExit.objects.filter(room=alpha_sector, face='UP').first()
-        if not alpha_entrance:
-            alpha_entrance, _ = EntranceExit.objects.get_or_create(
-                room=alpha_sector,
-                face='UP',
-                defaults={
-                    'name': 'Portal Ascendente',
-                    'description': 'Portal a Beta Sector',
+        alpha_entrance, _ = Cell.objects.get_or_create(
+            room=alpha_sector,
+            name='Portal Ascendente',
+            cell_type='DOOR',
+            defaults={
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': 'UP',
                     'enabled': True,
                     'door_type': 'SINGLE',
                     'material': 'METAL',
-                    'color': '#2196F3'
+                    'color': '#2196F3',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
                 }
-            )
+            }
+        )
 
-        beta1_entrance = EntranceExit.objects.filter(room=beta_1, face='DOWN').first()
-        if not beta1_entrance:
-            beta1_entrance, _ = EntranceExit.objects.get_or_create(
-                room=beta_1,
-                face='DOWN',
-                defaults={
-                    'name': 'Portal Descendente',
-                    'description': 'Portal desde Alpha Sector',
+        beta1_entrance, _ = Cell.objects.get_or_create(
+            room=beta_1,
+            name='Portal Descendente',
+            cell_type='DOOR',
+            defaults={
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': 'DOWN',
                     'enabled': True,
                     'door_type': 'SINGLE',
                     'material': 'METAL',
-                    'color': '#2196F3'
+                    'color': '#2196F3',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
                 }
-            )
+            }
+        )
 
         create_portal(alpha_sector, beta_1, alpha_entrance, beta1_entrance, 'Portal Alpha-Beta')
 
-        # De Beta Sector a Gamma-2
-        beta_entrance = EntranceExit.objects.filter(room=beta_sector, face='UP').first()
-        if not beta_entrance:
-            beta_entrance, _ = EntranceExit.objects.get_or_create(
-                room=beta_sector,
-                face='UP',
-                defaults={
-                    'name': 'Portal Ascendente',
-                    'description': 'Portal a Gamma Sector',
+        beta_entrance, _ = Cell.objects.get_or_create(
+            room=beta_sector,
+            name='Portal Ascendente',
+            cell_type='DOOR',
+            defaults={
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': 'UP',
                     'enabled': True,
                     'door_type': 'SINGLE',
                     'material': 'METAL',
-                    'color': '#9C27B0'
+                    'color': '#9C27B0',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
                 }
-            )
+            }
+        )
 
-        gamma2_entrance = EntranceExit.objects.filter(room=gamma_2, face='DOWN').first()
-        if not gamma2_entrance:
-            gamma2_entrance, _ = EntranceExit.objects.get_or_create(
-                room=gamma_2,
-                face='DOWN',
-                defaults={
-                    'name': 'Portal Descendente',
-                    'description': 'Portal desde Beta Sector',
+        gamma2_entrance, _ = Cell.objects.get_or_create(
+            room=gamma_2,
+            name='Portal Descendente',
+            cell_type='DOOR',
+            defaults={
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': 'DOWN',
                     'enabled': True,
                     'door_type': 'SINGLE',
                     'material': 'METAL',
-                    'color': '#9C27B0'
+                    'color': '#9C27B0',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
                 }
-            )
+            }
+        )
 
         create_portal(beta_sector, gamma_2, beta_entrance, gamma2_entrance, 'Portal Beta-Gamma')
 
-        # De Gamma Sector a Alpha-1
-        gamma_entrance = EntranceExit.objects.filter(room=gamma_sector, face='UP').first()
-        if not gamma_entrance:
-            gamma_entrance, _ = EntranceExit.objects.get_or_create(
-                room=gamma_sector,
-                face='UP',
-                defaults={
-                    'name': 'Portal Ascendente',
-                    'description': 'Portal a Alpha Sector',
+        gamma_entrance, _ = Cell.objects.get_or_create(
+            room=gamma_sector,
+            name='Portal Ascendente',
+            cell_type='DOOR',
+            defaults={
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': 'UP',
                     'enabled': True,
                     'door_type': 'SINGLE',
                     'material': 'METAL',
-                    'color': '#FF9800'
+                    'color': '#FF9800',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
                 }
-            )
+            }
+        )
 
-        alpha1_entrance = EntranceExit.objects.filter(room=alpha_1, face='DOWN').first()
-        if not alpha1_entrance:
-            alpha1_entrance, _ = EntranceExit.objects.get_or_create(
-                room=alpha_1,
-                face='DOWN',
-                defaults={
-                    'name': 'Portal Descendente',
-                    'description': 'Portal desde Gamma Sector',
+        alpha1_entrance, _ = Cell.objects.get_or_create(
+            room=alpha_1,
+            name='Portal Descendente',
+            cell_type='DOOR',
+            defaults={
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': 'DOWN',
                     'enabled': True,
                     'door_type': 'SINGLE',
                     'material': 'METAL',
-                    'color': '#FF9800'
+                    'color': '#FF9800',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
                 }
-            )
+            }
+        )
 
         create_portal(gamma_sector, alpha_1, gamma_entrance, alpha1_entrance, 'Portal Gamma-Alpha')
 
-        # De Alpha-1 a Gamma-3X
-        alpha1_portal_entrance = EntranceExit.objects.filter(room=alpha_1, face='UP').first()
-        if not alpha1_portal_entrance:
-            alpha1_portal_entrance, _ = EntranceExit.objects.get_or_create(
-                room=alpha_1,
-                face='UP',
-                defaults={
-                    'name': 'Portal Dimensional',
-                    'description': 'Portal a Gamma-3X',
+        alpha1_portal_entrance, _ = Cell.objects.get_or_create(
+            room=alpha_1,
+            name='Portal Dimensional',
+            cell_type='DOOR',
+            defaults={
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': 'UP',
                     'enabled': True,
                     'door_type': 'SINGLE',
                     'material': 'GLASS',
-                    'color': '#00BCD4'
+                    'color': '#00BCD4',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
                 }
-            )
+            }
+        )
 
-        gamma3x_entrance = EntranceExit.objects.filter(room=gamma_3x, face='DOWN').first()
-        if not gamma3x_entrance:
-            gamma3x_entrance, _ = EntranceExit.objects.get_or_create(
-                room=gamma_3x,
-                face='DOWN',
-                defaults={
-                    'name': 'Portal Dimensional',
-                    'description': 'Portal desde Alpha-1',
+        gamma3x_entrance, _ = Cell.objects.get_or_create(
+            room=gamma_3x,
+            name='Portal Dimensional',
+            cell_type='DOOR',
+            defaults={
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': 'DOWN',
                     'enabled': True,
                     'door_type': 'SINGLE',
                     'material': 'GLASS',
-                    'color': '#00BCD4'
+                    'color': '#00BCD4',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
                 }
-            )
+            }
+        )
 
         create_portal(alpha_1, gamma_3x, alpha1_portal_entrance, gamma3x_entrance, 'Portal Dimensional Alpha-Gamma')
 
-        # De Beta-2 a Alpha-1A
-        beta2_portal_entrance = EntranceExit.objects.filter(room=beta_2, face='UP').first()
-        if not beta2_portal_entrance:
-            beta2_portal_entrance, _ = EntranceExit.objects.get_or_create(
-                room=beta_2,
-                face='UP',
-                defaults={
-                    'name': 'Portal Express',
-                    'description': 'Portal a Alpha-1A',
+        beta2_portal_entrance, _ = Cell.objects.get_or_create(
+            room=beta_2,
+            name='Portal Express',
+            cell_type='DOOR',
+            defaults={
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': 'UP',
                     'enabled': True,
                     'door_type': 'SINGLE',
                     'material': 'METAL',
-                    'color': '#4CAF50'
+                    'color': '#4CAF50',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
                 }
-            )
+            }
+        )
 
-        alpha1a_entrance = EntranceExit.objects.filter(room=alpha_1a, face='DOWN').first()
-        if not alpha1a_entrance:
-            alpha1a_entrance, _ = EntranceExit.objects.get_or_create(
-                room=alpha_1a,
-                face='DOWN',
-                defaults={
-                    'name': 'Portal Express',
-                    'description': 'Portal desde Beta-2',
+        alpha1a_entrance, _ = Cell.objects.get_or_create(
+            room=alpha_1a,
+            name='Portal Express',
+            cell_type='DOOR',
+            defaults={
+                'position_x': 0,
+                'position_y': 0,
+                'width': 100,
+                'height': 200,
+                'is_locked': False,
+                'properties': {
+                    'face': 'DOWN',
                     'enabled': True,
                     'door_type': 'SINGLE',
                     'material': 'METAL',
-                    'color': '#4CAF50'
+                    'color': '#4CAF50',
+                    'interaction_type': 'PUSH',
+                    'animation_type': 'SWING',
+                    'requires_both_hands': False,
+                    'interaction_distance': 150,
+                    'is_open': False,
+                    'usage_count': 0,
+                    'health': 100,
+                    'access_level': 0,
+                    'security_system': 'NONE',
+                    'alarm_triggered': False,
+                    'seals_air': True,
+                    'seals_sound': 20,
+                    'temperature_resistance': 50,
+                    'pressure_resistance': 1,
+                    'energy_cost_modifier': 0,
+                    'experience_reward': 1,
+                    'special_effects': {},
+                    'cooldown': 0,
+                    'max_usage_per_hour': 0,
+                    'glow_intensity': 0,
+                    'decoration_type': 'NONE',
+                    'auto_close': False,
+                    'close_delay': 5,
+                    'open_speed': 1.0,
+                    'close_speed': 1.0,
+                    'opacity': 1.0,
                 }
-            )
+            }
+        )
 
         create_portal(beta_2, alpha_1a, beta2_portal_entrance, alpha1a_entrance, 'Portal Express Beta-Alpha')
 
-        # Crear objetos de conexión en habitaciones específicas
         def create_connection_object(room, name, obj_type, position_x, position_y):
-            obj, _ = RoomObject.objects.get_or_create(
+            obj, _ = Cell.objects.get_or_create(
                 room=room,
                 name=name,
                 defaults={
                     'position_x': position_x,
                     'position_y': position_y,
-                    'object_type': obj_type,
+                    'cell_type': obj_type,
                     'effect': {'connection_type': 'teleport', 'target_room': 'Gamma-3Y'},
-                    'interaction_cooldown': 30
                 }
             )
             return obj
 
-        # Objeto de conexión en Alpha-1A que conecta a Gamma-3Y
         create_connection_object(alpha_1a, 'Cristal Dimensional', 'DOOR', 3, 2)
-
-        # Objeto de conexión en Gamma-3Y que conecta de vuelta
         create_connection_object(gamma_3y, 'Cristal Dimensional', 'PORTAL', 3, 2)
 
-        # Teletransportar al usuario a la habitación raíz si no está ya ahí
         player_profile, _ = PlayerProfile.objects.get_or_create(
             user=request.user,
             defaults={
@@ -2861,15 +3629,10 @@ def create_navigation_test_zone(request):
         return redirect('rooms:room_detail', pk=root_room.pk)
 
 
-# ==========================================
-# ACTION PANEL - CREACIÓN DE OBJETOS
-# ==========================================
-
 @login_required
 def object_action_panel(request, room_id):
-    """Renderiza el panel de acciones para crear objetos en una habitación."""
-    room = get_object_or_404(Room, pk=room_id)
-    if not room.can_user_manage(request.user):
+    room = get_object_or_404(Cell, pk=room_id, cell_type='ROOM')
+    if not _user_can_manage(room, request.user):
         messages.error(request, 'No tienes permisos para modificar esta habitación.')
         return redirect('rooms:room_detail', pk=room.pk)
 
@@ -2882,7 +3645,8 @@ def object_action_panel(request, room_id):
         {'type': 'REST', 'label': 'Rest Zone', 'icon': 'bi-moon', 'color': 'info'},
         {'type': 'DOOR', 'label': 'Door', 'icon': 'bi-door-open', 'color': 'warning'},
         {'type': 'EQUIPMENT', 'label': 'Equipment', 'icon': 'bi-cpu', 'color': 'secondary'},
-        {'type': 'BOX', 'label': 'Box', 'icon': 'bi-box', 'color': 'dark'},
+        {'type': 'CONTAINER', 'label': 'Contenedor', 'icon': 'bi-box', 'color': 'dark'},
+        {'type': 'ITEM', 'label': 'Item/Decor', 'icon': 'bi-box-seam', 'color': 'secondary'},
     ]
 
     context = {
@@ -2900,9 +3664,8 @@ def object_action_panel(request, room_id):
 
 @login_required
 def create_room_object(request, room_id):
-    """Crea un RoomObject o Box en la habitación indicada."""
-    room = get_object_or_404(Room, pk=room_id)
-    if not room.can_user_manage(request.user):
+    room = get_object_or_404(Cell, pk=room_id, cell_type='ROOM')
+    if not _user_can_manage(room, request.user):
         return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
 
     if request.method != 'POST':
@@ -2919,70 +3682,47 @@ def create_room_object(request, room_id):
             'detail': 'El formulario contiene errores. Revisa los campos e intenta nuevamente.'
         }, status=400)
 
-    object_type = form.cleaned_data['object_type']
-    print('OBJECT_TYPE:', repr(object_type))
+    cell_type = form.cleaned_data['object_type']
+    print('CELL_TYPE:', repr(cell_type))
     print('FORM_DATA:', form.cleaned_data)
 
     try:
-        if object_type == 'BOX':
-            box = Box(
-                room=room,
-                name=form.cleaned_data['name'],
-                description=form.cleaned_data.get('description', ''),
-                position_x=form.cleaned_data.get('position_x', 0),
-                position_y=form.cleaned_data.get('position_y', 0),
-                width=form.cleaned_data.get('box_width', 60),
-                height=form.cleaned_data.get('box_height', 40),
-                depth=form.cleaned_data.get('box_depth', 40),
-                color=form.cleaned_data.get('box_color', '#8B4513'),
-                material_type=form.cleaned_data.get('box_material_type', 'CARDBOARD'),
-                is_locked=form.cleaned_data.get('box_is_locked', False),
-                required_key=form.cleaned_data.get('box_required_key', ''),
-                mass=form.cleaned_data.get('box_mass', 1.0),
-                capacity=form.cleaned_data.get('box_capacity', 10),
-                contents=form.cleaned_data.get('box_contents', []),
-            )
-            box.save()
-            return JsonResponse({
-                'success': True,
-                'message': f'Caja "{box.name}" creada exitosamente.',
-                'object': {
-                    'id': box.id,
-                    'name': box.name,
-                    'type': 'BOX',
-                    'room_id': room.id,
-                    'position_x': box.position_x,
-                    'position_y': box.position_y,
-                }
-            })
-        else:
-            room_object = RoomObject(
-                room=room,
-                name=form.cleaned_data['name'],
-                object_type=object_type,
-                position_x=form.cleaned_data.get('position_x', 0),
-                position_y=form.cleaned_data.get('position_y', 0),
-                effect=form.cleaned_data.get('effect', {}),
-            )
-            room_object.save()
-            return JsonResponse({
-                'success': True,
-                'message': f'Objeto "{room_object.name}" creado exitosamente.',
-                'object': {
-                    'id': room_object.id,
-                    'name': room_object.name,
-                    'type': room_object.object_type,
-                    'room_id': room.id,
-                    'position_x': room_object.position_x,
-                    'position_y': room_object.position_y,
-                }
-            })
+        cell = Cell(
+            room=room,
+            name=form.cleaned_data['name'],
+            cell_type=cell_type,
+            position_x=form.cleaned_data.get('position_x', 0),
+            position_y=form.cleaned_data.get('position_y', 0),
+            width=form.cleaned_data.get('box_width'),
+            height=form.cleaned_data.get('box_height'),
+            depth=form.cleaned_data.get('box_depth'),
+            color=form.cleaned_data.get('box_color'),
+            material_type=form.cleaned_data.get('box_material_type'),
+            is_locked=form.cleaned_data.get('box_is_locked', False),
+            required_key=form.cleaned_data.get('box_required_key', ''),
+            mass=form.cleaned_data.get('box_mass'),
+            capacity=form.cleaned_data.get('box_capacity'),
+            contents=form.cleaned_data.get('box_contents', []),
+        )
+        cell.save()
+        return JsonResponse({
+            'success': True,
+            'message': f'Celda "{cell.name}" creada exitosamente.',
+            'object': {
+                'id': cell.id,
+                'name': cell.name,
+                'type': cell.cell_type,
+                'room_id': room.id,
+                'position_x': cell.position_x,
+                'position_y': cell.position_y,
+            }
+        })
     except Exception as e:
         import traceback
         tb = traceback.format_exc()
         return JsonResponse({
             'success': False,
-            'message': 'Error al crear el objeto.',
+            'message': 'Error al crear la celda.',
             'detail': str(e),
             'exception': str(type(e).__name__),
             'trace': tb
@@ -2992,66 +3732,61 @@ def create_room_object(request, room_id):
 @login_required
 @api_view(['GET'])
 def object_hotbar_types(request):
-    """Devuelve los tipos de objeto disponibles para el hotbar."""
     types = [
         {'type': 'WORK', 'label': 'Workstation', 'icon': 'bi-tools', 'color': 'primary'},
         {'type': 'SOCIAL', 'label': 'Social Area', 'icon': 'bi-people', 'color': 'success'},
         {'type': 'REST', 'label': 'Rest Zone', 'icon': 'bi-moon', 'color': 'info'},
         {'type': 'DOOR', 'label': 'Door', 'icon': 'bi-door-open', 'color': 'warning'},
         {'type': 'EQUIPMENT', 'label': 'Equipment', 'icon': 'bi-cpu', 'color': 'secondary'},
-        {'type': 'BOX', 'label': 'Box', 'icon': 'bi-box', 'color': 'dark'},
+        {'type': 'CONTAINER', 'label': 'Contenedor', 'icon': 'bi-box', 'color': 'dark'},
+        {'type': 'ITEM', 'label': 'Item/Decor', 'icon': 'bi-box-seam', 'color': 'secondary'},
     ]
     return Response({'success': True, 'types': types})
 
 
 @login_required
 def room_object_list(request, room_id):
-    """Lista los objetos de una habitación, agrupados por tipo."""
-    room = get_object_or_404(Room, pk=room_id)
-    room_objects = room.room_objects.select_related('room').all()
-    boxes = room.boxes.all()
+    room = get_object_or_404(Cell, pk=room_id, cell_type='ROOM')
+    cells = room.children.select_related('parent').all()
 
     context = {
         'room': room,
-        'room_objects': room_objects,
-        'boxes': boxes,
+        'cells': cells,
     }
     return render(request, 'rooms/room_object_list.html', context)
 
 
 @login_required
 def box_detail(request, box_id):
-    """Detalle de una caja con acciones disponibles."""
-    box = get_object_or_404(Box.objects.select_related('room'), pk=box_id)
-    if not box.room.can_user_manage(request.user):
+    obj = get_object_or_404(Cell.objects.select_related('room'), pk=box_id, cell_type='CONTAINER')
+    if not _user_can_manage(obj.room, request.user):
         return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
 
     context = {
-        'box': box,
-        'room': box.room,
+        'box': obj,
+        'room': obj.room,
     }
     return render(request, 'rooms/box_detail.html', context)
 
 
 @login_required
 def box_action(request, box_id):
-    """Acciones sobre una caja: abrir, cerrar, agregar item, remover item."""
-    box = get_object_or_404(Box, pk=box_id)
-    if not box.room.can_user_manage(request.user):
+    obj = get_object_or_404(Cell, pk=box_id, cell_type='CONTAINER')
+    if not _user_can_manage(obj.room, request.user):
         return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
 
     action = request.POST.get('action') or request.GET.get('action')
 
     if action == 'open':
-        can_open, reason = box.can_open(None)
+        can_open, reason = obj.can_open(None)
         if not can_open:
             return JsonResponse({'success': False, 'message': reason}, status=400)
-        box.open()
-        return JsonResponse({'success': True, 'message': f'Caja "{box.name}" abierta.', 'is_open': box.is_open})
+        obj.open()
+        return JsonResponse({'success': True, 'message': f'Celda "{obj.name}" abierta.', 'is_open': obj.is_open})
 
     if action == 'close':
-        box.close()
-        return JsonResponse({'success': True, 'message': f'Caja "{box.name}" cerrada.', 'is_open': box.is_open})
+        obj.close()
+        return JsonResponse({'success': True, 'message': f'Celda "{obj.name}" cerrada.', 'is_open': obj.is_open})
 
     if action == 'add_item':
         item_name = request.POST.get('item_name')
@@ -3059,18 +3794,18 @@ def box_action(request, box_id):
         if not item_name and not item_id:
             return JsonResponse({'success': False, 'message': 'Debes enviar item_name o item_id.'}, status=400)
         item = {'id': item_id or str(uuid.uuid4()), 'name': item_name or 'Item sin nombre'}
-        added = box.add_item(item)
+        added = obj.add_item(item)
         if not added:
-            return JsonResponse({'success': False, 'message': 'La caja está llena.', 'capacity': box.capacity, 'contents_count': len(box.contents or [])}, status=400)
-        return JsonResponse({'success': True, 'message': 'Item agregado.', 'item': item, 'contents': box.contents})
+            return JsonResponse({'success': False, 'message': 'La celda está llena.', 'capacity': obj.capacity, 'contents_count': len(obj.contents or [])}, status=400)
+        return JsonResponse({'success': True, 'message': 'Item agregado.', 'item': item, 'contents': obj.contents})
 
     if action == 'remove_item':
         item_id = request.POST.get('item_id')
         if not item_id:
             return JsonResponse({'success': False, 'message': 'Debes enviar item_id.'}, status=400)
-        item = box.remove_item(item_id)
+        item = obj.remove_item(item_id)
         if item is None:
             return JsonResponse({'success': False, 'message': 'Item no encontrado.'}, status=404)
-        return JsonResponse({'success': True, 'message': 'Item removido.', 'item': item, 'contents': box.contents})
+        return JsonResponse({'success': True, 'message': 'Item removido.', 'item': item, 'contents': obj.contents})
 
     return JsonResponse({'success': False, 'message': f'Acción no soportada: {action}'}, status=400)
