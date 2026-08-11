@@ -1,0 +1,110 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+  <div class="dashboard-header">
+    <div>
+      <h1>{{ container.name }}</h1>
+      <p class="subtitle">
+        <a href="{% url 'rooms:lobby' %}">Home</a>
+        <span class="text-muted">/</span>
+        <a href="{% url 'rooms:cell_detail' container.pk %}">Celda</a>
+        <span class="text-muted">/</span>
+        <span class="text-primary">Contenedor</span>
+      </p>
+    </div>
+    <div class="header-actions">
+      <a href="{% url 'rooms:cell_detail' container.pk %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+      <a href="{% url 'rooms:add_container_item' container.pk %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle-fill"></i> Agregar item
+      </a>
+    </div>
+  </div>
+
+  <div class="section-card mb-3">
+    <div class="section-header-purple">
+      <h5><i class="bi bi-box-seam me-2"></i> Información del Contenedor</h5>
+    </div>
+    <div class="section-body">
+      <div class="flex gap-3 mb-3">
+        <div class="w-full">
+          <span class="text-muted text-sm">Tipo</span>
+          <div class="font-semibold">{{ container.get_cell_type_display }}</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Estado</span>
+          <div class="font-semibold">
+            {% if container.is_active %}
+              <span class="text-success">Activo</span>
+            {% else %}
+              <span class="text-danger">Inactivo</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Capacidad</span>
+          <div class="font-semibold">{{ container.capacity|default:"Sin límite" }}</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Items actuales</span>
+          <div class="font-semibold">{{ items.count }}</div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <span class="text-muted text-sm">Descripción</span>
+        <div>{{ container.description|default:"Sin descripción" }}</div>
+      </div>
+
+      <div class="flex gap-3">
+        <div class="w-full">
+          <span class="text-muted text-sm">Ubicación</span>
+          <div class="font-semibold">X: {{ container.position_x }}, Y: {{ container.position_y }}, Z: {{ container.position_z }}</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Dueño</span>
+          <div class="font-semibold">{{ container.owner.username|default:"Sin dueño" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header-purple">
+      <h5><i class="bi bi-diagram-3 me-2"></i> Items del Contenedor</h5>
+    </div>
+    <div class="section-body">
+      {% if items %}
+      <div class="flex flex-col gap-2">
+        {% for item in items %}
+        <a href="{% url 'rooms:cell_detail' item.pk %}" class="text-decoration-none">
+          <div class="flex justify-between items-center" style="padding: 0.75rem; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
+            <div>
+              <span class="font-semibold">{{ item.name }}</span>
+              <span class="text-muted text-sm ms-2">{{ item.get_cell_type_display }}</span>
+            </div>
+            <div class="flex gap-2">
+              <span class="badge {% if item.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                {% if item.is_active %}Activo{% else %}Inactivo{% endif %}
+              </span>
+              <span class="badge bg-light text-dark border">X: {{ item.position_x }} Y: {{ item.position_y }}</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center text-muted py-4">
+        <i class="bi bi-inbox fs-1"></i>
+        <p class="mt-2">Este contenedor está vacío</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

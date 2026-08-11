@@ -1,0 +1,175 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+  <div class="dashboard-header">
+    <div>
+      <h1>{{ cell.name }}</h1>
+      <p class="subtitle">
+        <a href="{% url 'rooms:lobby' %}">Home</a>
+        <span class="text-muted">/</span>
+        <span class="text-primary">{{ cell.get_cell_type_display }}</span>
+      </p>
+    </div>
+    <div class="header-actions">
+      <a href="{% url 'rooms:lobby' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="section-card mb-3">
+    <div class="section-header-purple">
+      <h5><i class="bi bi-info-circle-fill me-2"></i> Información General</h5>
+    </div>
+    <div class="section-body">
+      <div class="flex gap-3 mb-3">
+        <div class="w-full">
+          <span class="text-muted text-sm">Tipo</span>
+          <div class="font-semibold">{{ cell.get_cell_type_display }}</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Estado</span>
+          <div class="font-semibold">
+            {% if cell.is_active %}
+              <span class="text-success">Activa</span>
+            {% else %}
+              <span class="text-danger">Inactiva</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Dueño</span>
+          <div class="font-semibold">{{ cell.owner.username|default:"Sin dueño" }}</div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <span class="text-muted text-sm">Descripción</span>
+        <div>{{ cell.description|default:"Sin descripción" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card mb-3">
+    <div class="section-header-purple">
+      <h5><i class="bi bi-geo-alt-fill me-2"></i> Ubicación</h5>
+    </div>
+    <div class="section-body">
+      <div class="flex gap-3 mb-3">
+        <div class="w-full">
+          <span class="text-muted text-sm">Posición X</span>
+          <div class="font-semibold">{{ cell.position_x }}</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Posición Y</span>
+          <div class="font-semibold">{{ cell.position_y }}</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Posición Z</span>
+          <div class="font-semibold">{{ cell.position_z }}</div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mb-3">
+        <div class="w-full">
+          <span class="text-muted text-sm">Largo</span>
+          <div class="font-semibold">{{ cell.length }} cm</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Ancho</span>
+          <div class="font-semibold">{{ cell.width }} cm</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Alto</span>
+          <div class="font-semibold">{{ cell.height }} cm</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Profundidad</span>
+          <div class="font-semibold">{{ cell.depth }} cm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card mb-3">
+    <div class="section-header-purple">
+      <h5><i class="bi bi-palette-fill me-2"></i> Apariencia</h5>
+    </div>
+    <div class="section-body">
+      <div class="flex gap-3 mb-3">
+        <div class="w-full">
+          <span class="text-muted text-sm">Color primario</span>
+          <div class="d-flex align-items-center gap-2">
+            <span class="font-semibold">{{ cell.color_primary }}</span>
+            <span class="badge" style="background: {{ cell.color_primary }}; width: 24px; height: 24px; border-radius: 50%; display: inline-block;"></span>
+          </div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Color secundario</span>
+          <div class="d-flex align-items-center gap-2">
+            <span class="font-semibold">{{ cell.color_secondary }}</span>
+            <span class="badge" style="background: {{ cell.color_secondary }}; width: 24px; height: 24px; border-radius: 50%; display: inline-block;"></span>
+          </div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Material</span>
+          <div class="font-semibold">{{ cell.get_material_type_display|default:"N/A" }}</div>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <div class="w-full">
+          <span class="text-muted text-sm">Opacidad</span>
+          <div class="font-semibold">{{ cell.opacity }}</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Textura</span>
+          <div class="font-semibold">
+            {% if cell.texture_url %}
+              <a href="{{ cell.texture_url }}" target="_blank">Ver textura</a>
+            {% else %}
+              Sin textura
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card mb-3">
+    <div class="section-header-purple">
+      <h5><i class="bi bi-diagram-3-fill me-2"></i> Jerarquía</h5>
+    </div>
+    <div class="section-body">
+      <div class="flex gap-3 mb-3">
+        <div class="w-full">
+          <span class="text-muted text-sm">Padre</span>
+          <div class="font-semibold">
+            {% if cell.parent %}
+              <a href="{% url 'rooms:cell_detail' cell.parent.pk %}">{{ cell.parent.name }}</a>
+            {% else %}
+              Sin padre
+            {% endif %}
+          </div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Hijos</span>
+          <div class="font-semibold">
+            {% if cell.children.exists %}
+              {% for child in cell.children.all %}
+                <a href="{% url 'rooms:cell_detail' child.pk %}">{{ child.name }}</a>{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            {% else %}
+              Sin hijos
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

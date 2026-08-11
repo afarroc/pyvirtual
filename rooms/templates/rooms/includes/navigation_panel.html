@@ -1,0 +1,57 @@
+{% load static %}
+
+<div class="section-card mb-3">
+  <div class="section-header-secondary">
+    <h5><i class="bi bi-compass me-2"></i> Navegación</h5>
+  </div>
+  <div class="section-body">
+    {% if player and current_cell %}
+      <div class="d-grid gap-2 mb-3">
+        {% if back_target %}
+          <a href="{% url 'rooms:cell_detail' back_target.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Volver
+          </a>
+        {% endif %}
+      </div>
+
+      {% if exits %}
+        <h6 class="mt-2 mb-2"><i class="bi bi-door-open me-1"></i> Salidas</h6>
+        <div class="flex flex-col gap-2">
+          {% for exit in exits %}
+            <div class="flex justify-between items-center" style="padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
+              <div>
+                <span class="font-semibold">{{ exit.name }}</span>
+                <span class="text-muted text-sm ms-2">{{ exit.cell_type }}</span>
+              </div>
+              <div class="flex gap-2">
+                {% if exit.energy_cost %}
+                  <span class="badge bg-light text-dark border">Costo: {{ exit.energy_cost }}</span>
+                {% endif %}
+                <a href="{{ exit.url|default:'#' }}" class="btn btn-primary btn-sm">
+                  <i class="bi bi-box-arrow-in-right"></i> Ir
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endif %}
+
+    {% if children %}
+      <h6 class="mt-3 mb-2"><i class="bi bi-diagram-3 me-1"></i> Celdas hijas</h6>
+      <div class="flex flex-col gap-2">
+        {% for child in children %}
+          <div class="flex justify-between items-center" style="padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
+            <div>
+              <span class="font-semibold">{{ child.name }}</span>
+              <span class="text-muted text-sm ms-2">{{ child.get_cell_type_display }}</span>
+            </div>
+            <a href="{% url 'rooms:cell_detail' child.pk %}" class="btn btn-primary btn-sm">
+              <i class="bi bi-eye-fill"></i> Ver
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>

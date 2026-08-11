@@ -1,0 +1,32 @@
+{% load static %}
+
+{% if current_cell %}
+  <nav aria-label="breadcrumb" class="admin-breadcrumb">
+    <ol class="admin-breadcrumb-list">
+      <li class="admin-breadcrumb-item">
+        <a href="{% url 'rooms:lobby' %}">Home</a>
+      </li>
+      {% if breadcrumb %}
+        {% for item in breadcrumb %}
+          {% if forloop.last %}
+            <li class="admin-breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+          {% else %}
+            <li class="admin-breadcrumb-item">
+              <a href="{% url 'rooms:cell_detail' item.id %}">{{ item.name }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <li class="admin-breadcrumb-item active" aria-current="page">{{ current_cell.name }}</li>
+      {% endif %}
+    </ol>
+  </nav>
+{% endif %}
+
+{% if show_back and back_target %}
+  <div class="mb-3">
+    <a href="{% url 'rooms:cell_detail' back_target.id %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i> Volver
+    </a>
+  </div>
+{% endif %}

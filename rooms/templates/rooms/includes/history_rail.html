@@ -1,0 +1,18 @@
+{% load static %}
+
+{% if history %}
+  <div class="section-card mb-3">
+    <div class="section-header-info">
+      <h5><i class="bi bi-clock-history me-2"></i> Historial reciente</h5>
+    </div>
+    <div class="section-body">
+      <div class="flex flex-wrap gap-2">
+        {% for item in history %}
+          <a href="{% url 'rooms:cell_detail' item.id %}" class="badge bg-light text-dark border text-decoration-none">
+            {{ item.name }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endif %}

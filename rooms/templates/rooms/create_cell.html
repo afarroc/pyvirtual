@@ -1,0 +1,283 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+  <div class="dashboard-header">
+    <div>
+      <h1>Crear Celda</h1>
+      <p class="subtitle">
+        <a href="{% url 'rooms:lobby' %}">Home</a>
+        <span class="text-muted">/</span>
+        <span class="text-primary">Crear</span>
+      </p>
+    </div>
+    <div class="header-actions">
+      <a href="{% url 'rooms:lobby' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header-purple">
+      <h5><i class="bi bi-plus-circle-fill me-2"></i> Nueva Celda</h5>
+    </div>
+    <div class="section-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-error mb-3">
+          <div class="alert-content">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span class="alert-message">
+              {% for error in form.non_field_errors %}
+                {{ error }}{% if not forloop.last %}<br>{% endif %}
+              {% endfor %}
+            </span>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Información básica -->
+        <div class="flex gap-3 mb-3">
+          <div class="w-full">
+            <label for="{{ form.name.id_for_label }}" class="form-label">
+              Nombre <span class="text-danger">*</span>
+            </label>
+            {{ form.name }}
+            {% if form.name.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.name.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.cell_type.id_for_label }}" class="form-label">
+              Tipo <span class="text-danger">*</span>
+            </label>
+            {{ form.cell_type }}
+            {% if form.cell_type.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.cell_type.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ form.description.id_for_label }}" class="form-label">Descripción</label>
+          {{ form.description }}
+          {% if form.description.errors %}
+            <div class="text-danger text-xs mt-1">{{ form.description.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Dimensiones y posición -->
+        <div class="flex gap-3 mb-3">
+          <div class="w-full">
+            <label for="{{ form.length.id_for_label }}" class="form-label">Largo (cm)</label>
+            {{ form.length }}
+            {% if form.length.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.length.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.width.id_for_label }}" class="form-label">Ancho (cm)</label>
+            {{ form.width }}
+            {% if form.width.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.width.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.height.id_for_label }}" class="form-label">Alto (cm)</label>
+            {{ form.height }}
+            {% if form.height.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.height.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex gap-3 mb-3">
+          <div class="w-full">
+            <label for="{{ form.position_x.id_for_label }}" class="form-label">Posición X</label>
+            {{ form.position_x }}
+            {% if form.position_x.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.position_x.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.position_y.id_for_label }}" class="form-label">Posición Y</label>
+            {{ form.position_y }}
+            {% if form.position_y.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.position_y.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.position_z.id_for_label }}" class="form-label">Posición Z</label>
+            {{ form.position_z }}
+            {% if form.position_z.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.position_z.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Apariencia -->
+        <div class="flex gap-3 mb-3">
+          <div class="w-full">
+            <label for="{{ form.color_primary.id_for_label }}" class="form-label">Color primario</label>
+            {{ form.color_primary }}
+            {% if form.color_primary.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.color_primary.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.color_secondary.id_for_label }}" class="form-label">Color secundario</label>
+            {{ form.color_secondary }}
+            {% if form.color_secondary.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.color_secondary.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.material_type.id_for_label }}" class="form-label">Material</label>
+            {{ form.material_type }}
+            {% if form.material_type.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.material_type.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex gap-3 mb-3">
+          <div class="w-full">
+            <label for="{{ form.parent.id_for_label }}" class="form-label">Celda padre</label>
+            {{ form.parent }}
+            {% if form.parent.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.parent.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.capacity.id_for_label }}" class="form-label">Capacidad</label>
+            {{ form.capacity }}
+            {% if form.capacity.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.capacity.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.image.id_for_label }}" class="form-label">Imagen</label>
+            {{ form.image }}
+            {% if form.image.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.image.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Propiedades físicas -->
+        <div class="flex gap-3 mb-3">
+          <div class="w-full">
+            <label for="{{ form.mass.id_for_label }}" class="form-label">Masa (kg)</label>
+            {{ form.mass }}
+            {% if form.mass.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.mass.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.density.id_for_label }}" class="form-label">Densidad</label>
+            {{ form.density }}
+            {% if form.density.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.density.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.friction.id_for_label }}" class="form-label">Fricción</label>
+            {{ form.friction }}
+            {% if form.friction.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.friction.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex gap-3 mb-3">
+          <div class="w-full">
+            <label for="{{ form.restitution.id_for_label }}" class="form-label">Restitución</label>
+            {{ form.restitution }}
+            {% if form.restitution.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.restitution.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.health.id_for_label }}" class="form-label">Salud</label>
+            {{ form.health }}
+            {% if form.health.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.health.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.temperature.id_for_label }}" class="form-label">Temperatura (°C)</label>
+            {{ form.temperature }}
+            {% if form.temperature.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.temperature.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex gap-3 mb-3">
+          <div class="w-full">
+            <label for="{{ form.lighting_intensity.id_for_label }}" class="form-label">Iluminación</label>
+            {{ form.lighting_intensity }}
+            {% if form.lighting_intensity.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.lighting_intensity.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.opacity.id_for_label }}" class="form-label">Opacidad</label>
+            {{ form.opacity }}
+            {% if form.opacity.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.opacity.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="w-full">
+            <label for="{{ form.is_active.id_for_label }}" class="form-label">Activa</label>
+            {{ form.is_active }}
+            {% if form.is_active.errors %}
+              <div class="text-danger text-xs mt-1">{{ form.is_active.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ form.texture_url.id_for_label }}" class="form-label">URL de textura</label>
+          {{ form.texture_url }}
+          {% if form.texture_url.errors %}
+            <div class="text-danger text-xs mt-1">{{ form.texture_url.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ form.sound_ambient.id_for_label }}" class="form-label">Sonido ambiente</label>
+          {{ form.sound_ambient }}
+          {% if form.sound_ambient.errors %}
+            <div class="text-danger text-xs mt-1">{{ form.sound_ambient.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ form.properties.id_for_label }}" class="form-label">Propiedades (JSON)</label>
+          {{ form.properties }}
+          {% if form.properties.errors %}
+            <div class="text-danger text-xs mt-1">{{ form.properties.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex justify-between items-center mt-4" style="border-top: 1px solid var(--gray-200); padding-top: 1rem;">
+          <a href="{% url 'rooms:lobby' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg"></i> Crear Celda
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+  <div class="dashboard-header">
+    <div>
+      <h1>Mundos</h1>
+      <p class="subtitle">Explora y crea mundos</p>
+    </div>
+    <div class="header-actions">
+      <a href="{% url 'rooms:create_world' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle-fill"></i> Crear Mundo
+      </a>
+    </div>
+  </div>
+
+  <!-- Tus mundos -->
+  {% if my_worlds %}
+  <div class="section-card">
+    <div class="section-header-purple flex justify-between items-center">
+      <h5><i class="bi bi-person-fill me-2"></i> Tus Mundos</h5>
+      <a href="{% url 'rooms:create_world' %}" class="text-white text-decoration-none small fw-bold">
+        Crear nuevo <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+    <div class="section-body">
+      <div class="flex flex-col gap-3">
+        {% for world in my_worlds %}
+          <div class="section-card" style="border: 1px solid var(--gray-200);">
+            <div class="section-body">
+              <div class="flex justify-between items-center">
+                <div>
+                  <h3 class="font-semibold mb-1">{{ world.name }}</h3>
+                  <p class="text-muted text-sm mb-2">{{ world.description|default:"Sin descripción" }}</p>
+                  <div class="flex gap-3 text-sm text-muted">
+                    <span><i class="bi bi-diagram-3-fill"></i> {{ world.children.count }} celdas</span>
+                    <span><i class="bi bi-calendar-fill"></i> {{ world.created_at|date:"d M Y" }}</span>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <a href="{% url 'rooms:world_detail' world.pk %}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-eye-fill"></i> Ver
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Otros mundos disponibles -->
+  <div class="section-card mt-3">
+    <div class="section-header-success flex justify-between items-center">
+      <h5><i class="bi bi-globe me-2"></i> Mundos disponibles</h5>
+    </div>
+    <div class="section-body">
+      {% if other_worlds %}
+      <div class="flex flex-col gap-3">
+        {% for world in other_worlds %}
+          <div class="section-card" style="border: 1px solid var(--gray-200);">
+            <div class="section-body">
+              <div class="flex justify-between items-center">
+                <div>
+                  <h3 class="font-semibold mb-1">{{ world.name }}</h3>
+                  <p class="text-muted text-sm mb-2">{{ world.description|default:"Sin descripción" }}</p>
+                  <div class="flex gap-3 text-sm text-muted">
+                    <span><i class="bi bi-person-fill"></i> {{ world.owner.username }}</span>
+                    <span><i class="bi bi-diagram-3-fill"></i> {{ world.children.count }} celdas</span>
+                    <span><i class="bi bi-calendar-fill"></i> {{ world.created_at|date:"d M Y" }}</span>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <a href="{% url 'rooms:world_detail' world.pk %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-eye-fill"></i> Ver
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center text-muted py-4">
+        <i class="bi bi-inbox fs-1"></i>
+        <p class="mb-0">No hay otros mundos disponibles en este momento</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

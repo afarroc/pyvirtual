@@ -1,0 +1,121 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+  {% include 'rooms/partials/spatial_nav.html' with current_cell=current_cell breadcrumb=nav_breadcrumb back_target=nav_back_target show_back=True %}
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+  <div class="dashboard-header">
+    <div>
+      <h1>{{ universe.name }}</h1>
+      <p class="subtitle">
+        <a href="{% url 'rooms:lobby' %}">Home</a>
+        <span class="text-muted">/</span>
+        <a href="{% url 'rooms:universe_list' %}">Universos</a>
+        <span class="text-muted">/</span>
+        <span class="text-primary">{{ universe.name }}</span>
+      </p>
+    </div>
+    <div class="header-actions">
+      <a href="{% url 'rooms:universe_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+      {% if membership.role == 'owner' or membership.role == 'admin' %}
+      <a href="{% url 'rooms:create_cell' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle-fill"></i> Nueva Celda
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% include 'rooms/includes/player_status.html' with player=player|default:None current_cell=current_cell %}
+
+  <div class="section-card mb-3">
+    <div class="section-header-purple">
+      <h5><i class="bi bi-info-circle-fill me-2"></i> Información del Universo</h5>
+    </div>
+    <div class="section-body">
+      <div class="flex gap-3 mb-3">
+        <div class="w-full">
+          <span class="text-muted text-sm">Dueño</span>
+          <div class="font-semibold">{{ universe.owner.username }}</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Miembros</span>
+          <div class="font-semibold">{{ universe.memberships.count }}</div>
+        </div>
+        <div class="w-full">
+          <span class="text-muted text-sm">Celdas</span>
+          <div class="font-semibold">{{ universe.children.count }}</div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <span class="text-muted text-sm">Descripción</span>
+        <div>{{ universe.description|default:"Sin descripción" }}</div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'rooms/includes/navigation_panel.html' with current_cell=current_cell player=player|default:None exits=exits|default:None children=children %}
+
+  {% include 'rooms/includes/history_rail.html' with history=history|default:None %}
+
+  <div class="section-card">
+    <div class="section-header-purple">
+      <h5><i class="bi bi-diagram-3-fill me-2"></i> Celdas del Universo</h5>
+    </div>
+    <div class="section-body">
+      {% if children %}
+      <div class="flex flex-col gap-2">
+        {% for child in children %}
+        <div class="flex justify-between items-center" style="padding: 0.75rem; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
+          <div>
+            <span class="font-semibold">{{ child.name }}</span>
+            <span class="text-muted text-sm ml-2">{{ child.get_cell_type_display }}</span>
+          </div>
+          {% if child.cell_type == 'UNIVERSE' %}
+            <a href="{% url 'rooms:universe_detail' child.pk %}" class="btn btn-primary btn-sm">
+              <i class="bi bi-eye-fill"></i> Ver
+            </a>
+          {% elif child.cell_type == 'WORLD' %}
+            <a href="{% url 'rooms:world_detail' child.pk %}" class="btn btn-primary btn-sm">
+              <i class="bi bi-eye-fill"></i> Ver
+            </a>
+          {% elif child.cell_type == 'AREA' %}
+            <a href="{% url 'rooms:area_detail' child.pk %}" class="btn btn-primary btn-sm">
+              <i class="bi bi-eye-fill"></i> Ver
+            </a>
+          {% elif child.cell_type == 'ROOM' %}
+            <a href="{% url 'rooms:room_detail' child.pk %}" class="btn btn-primary btn-sm">
+              <i class="bi bi-eye-fill"></i> Ver
+            </a>
+          {% elif child.cell_type == 'CONTAINER' %}
+            <a href="{% url 'rooms:container_detail' child.pk %}" class="btn btn-primary btn-sm">
+              <i class="bi bi-eye-fill"></i> Ver
+            </a>
+          {% elif child.cell_type == 'ITEM' %}
+            <a href="{% url 'rooms:item_detail' child.pk %}" class="btn btn-primary btn-sm">
+              <i class="bi bi-eye-fill"></i> Ver
+            </a>
+          {% else %}
+            <a href="{% url 'rooms:cell_detail' child.pk %}" class="btn btn-primary btn-sm">
+              <i class="bi bi-eye-fill"></i> Ver
+            </a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center text-muted">
+        <i class="bi bi-box" style="font-size: 2rem;"></i>
+        <p class="mt-2">No hay celdas creadas en este universo</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
