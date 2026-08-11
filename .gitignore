@@ -110,12 +110,14 @@ informe_bitacora.html
 backup_*.json
 **/migrations/__pycache__/
 **/migrations/*.pyc
+backups/
 
 # Archivos temporales
 _raw_fixed_sprint_reporte.py
 _fix_git_ignore.py
 gtd_config.yaml
 backup_pre_migration_*.json
+test_gtd*.py
 
 # ================================
 # Archives and third-party code
