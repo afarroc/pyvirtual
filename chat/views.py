@@ -17,7 +17,7 @@ import asyncio
 import json
 import re
 from .ollama_api import generate_response
-from rooms.models import Room, Message, MessageRead
+from rooms.models import Cell, Message, MessageRead
 from .functions import parse_command, function_registry, logged_functions
 from datetime import datetime
 import csv
@@ -55,7 +55,7 @@ def unread_count_api(request):
     else:
         # Total unread across all rooms
         total_unread = 0
-        rooms = Room.objects.all()
+        rooms = Cell.objects.filter(cell_type='ROOM', is_active=True)
         for room in rooms:
             total_msgs = Message.objects.filter(room=room).count()
             read_msgs = MessageRead.objects.filter(user=user, message__room=room).count()
@@ -86,15 +86,23 @@ def reset_unread_count_api(request):
                 ).values_list('message_id', flat=True)
             )
         else:
-            # Reset for all rooms
+            # Reset for all accessible rooms (owner or staff)
             unread_messages = Message.objects.filter(
-                room__members__user=user,
-                room__members__is_active=True
+                room__owner=user
             ).exclude(
                 id__in=MessageRead.objects.filter(
                     user=user
                 ).values_list('message_id', flat=True)
             ).distinct()
+            if request.user.is_staff:
+                staff_unread = Message.objects.filter(
+                    room__cell_type='ROOM'
+                ).exclude(
+                    id__in=MessageRead.objects.filter(
+                        user=user
+                    ).values_list('message_id', flat=True)
+                ).distinct()
+                unread_messages = unread_messages | staff_unread
 
         # Mark all unread messages as read
         message_reads = []
@@ -148,7 +156,7 @@ def mark_notifications_read_api(request):
 def room_history_api(request, room_id):
     """Devuelve el historial de mensajes de una sala en formato JSON."""
     try:
-        room = Room.objects.get(id=room_id)
+        room = Cell.objects.get(id=room_id, cell_type='ROOM')
         chat_history = Message.objects.filter(room=room).select_related('user').order_by('created_at')[:50]
         history = []
         for msg in chat_history:
@@ -161,14 +169,14 @@ def room_history_api(request, room_id):
                 'timestamp': msg.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             })
         return JsonResponse({'history': history})
-    except Room.DoesNotExist:
+    except Cell.DoesNotExist:
         return JsonResponse({'error': 'Room not found'}, status=404)
 
 @login_required
 @csrf_exempt
 def room_list_api(request):
     """Devuelve la lista de salas disponibles en formato JSON."""
-    rooms = Room.objects.all().order_by('name')
+    rooms = Cell.objects.filter(cell_type='ROOM', is_active=True).order_by('name')
     rooms_data = [
         {'id': room.id, 'name': room.name}
         for room in rooms
@@ -181,7 +189,7 @@ def room_list_api(request):
 @login_required
 @csrf_exempt
 def chat_panel(request):
-    rooms = Room.objects.all().order_by('name')
+    rooms = Cell.objects.filter(cell_type='ROOM', is_active=True).order_by('name')
     context = {
         'rooms': rooms,
         'user_full_name': f"{request.user.first_name} {request.user.last_name}",
@@ -214,7 +222,7 @@ def last_room_api(request):
 @require_POST
 def clear_history_room(request, room_name):
     try:
-        room = Room.objects.get(id=room_name)
+        room = Cell.objects.get(id=room_name, cell_type='ROOM')
         Message.objects.filter(room=room).delete()
         # Broadcast to all clients in the room
         from channels.layers import get_channel_layer
@@ -228,7 +236,7 @@ def clear_history_room(request, room_name):
             }
         )
         return JsonResponse({'success': True})
-    except Room.DoesNotExist:
+    except Cell.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Room not found'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -521,17 +529,14 @@ def export_chat_history(request):
 
 @login_required
 def index(request):
-    from rooms.models import Room
+    from rooms.models import Cell
 
-    # Get basic room stats
-    rooms = Room.objects.all()
+    rooms = Cell.objects.filter(cell_type='ROOM', is_active=True)
     total_rooms = rooms.count()
-    total_users = 0
-
-    # Count users across all rooms (simplified)
-    for room in rooms:
-        # This is a simplified count - in a real app you'd track active users
-        total_users = max(total_users, room.members.count())
+    total_users = sum(
+        1 for cell in rooms
+        if cell.owner_id is not None or cell.is_active
+    )
 
     context = {
         'pagetitle': 'Chat Index',
@@ -552,7 +557,7 @@ def chatroom(request, room_name):
     cache_key = f'room_visits_{room_name}'
     cache.set(cache_key, cache.get(cache_key, 0) + 1)
     
-    rooms = Room.objects.all().order_by('name')
+    rooms = Cell.objects.filter(cell_type='ROOM', is_active=True).order_by('name')
     context = {
         "room_name": room_name,
         "pagetitle": f"Chat Room #{room_name}",
@@ -696,71 +701,57 @@ def process_commands(message):
 
 @login_required
 def room_list(request):
-    from rooms.models import Room, Message, RoomMember, MessageRead
+    from rooms.models import Cell, Message, MessageRead
     from .models import Conversation
-    from django.db.models import Count, Q
 
-    # Get filter parameters
     search_query = request.GET.get('search', '').strip()
     show_empty = request.GET.get('show_empty', 'true').lower() == 'true'
 
-    # Base queryset
-    rooms = Room.objects.annotate(
-        member_count=Count('members', filter=Q(members__is_active=True)),
-        message_count=Count('messages')
-    ).order_by('name')
+    cells = Cell.objects.filter(cell_type='ROOM', is_active=True).order_by('name')
 
-    # Apply search filter
     if search_query:
-        rooms = rooms.filter(
-            Q(name__icontains=search_query) |
-            Q(description__icontains=search_query)
+        cells = cells.filter(
+            models.Q(name__icontains=search_query) |
+            models.Q(description__icontains=search_query)
         )
 
-    # Apply empty rooms filter
-    if not show_empty:
-        rooms = rooms.filter(member_count__gt=0)
+    message_counts = {
+        cell.id: Message.objects.filter(room=cell).count()
+        for cell in cells
+    }
 
-    # Get additional data for each room
     rooms_data = []
-    for room in rooms:
-        # Check if user is member/admin
-        is_member = RoomMember.objects.filter(room=room, user=request.user, is_active=True).exists()
-        can_manage = room.can_user_manage(request.user)
+    for cell in cells:
+        is_member = cell.owner_id == request.user.id or request.user.is_staff
+        can_manage = cell.owner_id == request.user.id or request.user.is_staff
 
-        # Get unread messages count
-        total_messages = Message.objects.filter(room=room).count()
+        total_messages = message_counts.get(cell.id, 0)
         read_messages = MessageRead.objects.filter(
             user=request.user,
-            message__room=room
+            message__room=cell
         ).count()
         unread_count = max(total_messages - read_messages, 0)
 
-        # Get recent activity (last message)
-        last_message = Message.objects.filter(room=room).order_by('-created_at').first()
+        last_message = Message.objects.filter(room=cell).order_by('-created_at').first()
         last_activity = last_message.created_at if last_message else None
 
-        # Get online members count (simplified)
-        online_members = 0  # This would need presence tracking
-
         rooms_data.append({
-            'room': room,
+            'room': cell,
             'is_member': is_member,
             'can_manage': can_manage,
             'unread_count': unread_count,
             'last_activity': last_activity,
-            'online_members': online_members,
-            'member_count': room.member_count,
-            'message_count': room.message_count,
+            'online_members': 0,
+            'member_count': 1 if cell.owner_id else 0,
+            'message_count': total_messages,
         })
 
-    # Get user's conversation stats
+    if not show_empty:
+        rooms_data = [rd for rd in rooms_data if rd['message_count'] > 0]
+
     user_conversations = Conversation.objects.filter(user=request.user)
     active_conversations = user_conversations.filter(is_active=True).count()
     total_conversations = user_conversations.count()
-
-    # Get total unread notifications (simplified)
-    total_unread_notifications = 0  # This would need notification system
 
     context = {
         'pagetitle': 'Chat Rooms - Management Dashboard',
@@ -775,9 +766,9 @@ def room_list(request):
             'total_rooms': len(rooms_data),
             'user_conversations': total_conversations,
             'active_conversations': active_conversations,
-            'total_unread_notifications': total_unread_notifications,
+            'total_unread_notifications': 0,
         },
-        'can_create_room': True,  # Simplified - allow all authenticated users
+        'can_create_room': True,
     }
     return render(request, 'chat/room_list.html', context)
 
@@ -785,20 +776,18 @@ def room_list(request):
 @login_required
 def room(request, room_name):
     user_full_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username
-    # Buscar la sala por nombre o id
     try:
-        room_obj = Room.objects.get(id=room_name)
-    except Room.DoesNotExist:
+        room_obj = Cell.objects.get(id=room_name, cell_type='ROOM')
+    except Cell.DoesNotExist:
         messages.error(request, "Room not found")
         return redirect('chat:room_list')
 
-    # Obtener historial de mensajes (últimos 50)
+    chat_history = Message.objects.filter(room=room_obj).select_related('user').order_by('created_at')[:50]
+    history = []
     color_palette = [
         "#007bff", "#28a745", "#dc3545", "#fd7e14", "#6610f2",
         "#20c997", "#6f42c1", "#e83e8c", "#17a2b8", "#ffc107", "#343a40"
     ]
-    chat_history = Message.objects.filter(room=room_obj).select_related('user').order_by('created_at')[:50]
-    history = []
     for msg in chat_history:
         user_id = msg.user.id if msg.user else 0
         color = color_palette[user_id % len(color_palette)]
@@ -816,8 +805,8 @@ def room(request, room_name):
             'color': color,
         })
 
-    from rooms.models import Room as RoomModel
-    all_rooms = RoomModel.objects.all().order_by('name')
+    from rooms.models import Cell as CellModel
+    all_rooms = CellModel.objects.filter(cell_type='ROOM', is_active=True).order_by('name')
     context = {
         'pagetitle': f'Chat Room: {room_obj.name}',
         'room_name': room_obj.id,
@@ -1451,24 +1440,22 @@ def unread_notifications_api(request):
 def room_members_api(request, room_id):
     """API endpoint for room members"""
     try:
-        from rooms.models import RoomMember, Room
-        room = Room.objects.get(id=room_id)
+        from rooms.models import Cell
 
-        # Check if user has access to this room
-        if not RoomMember.objects.filter(room=room, user=request.user).exists():
+        cell = Cell.objects.get(id=room_id, cell_type='ROOM')
+
+        if not (cell.owner_id == request.user.id or request.user.is_staff):
             return JsonResponse({'error': 'Access denied'}, status=403)
 
-        members = RoomMember.objects.filter(room=room).select_related('user')
         members_data = []
-
-        for member in members:
+        if cell.owner:
             members_data.append({
-                'id': member.user.id,
-                'username': member.user.username,
-                'display_name': f"{member.user.first_name} {member.user.last_name}".strip() or member.user.username,
-                'email': member.user.email,
-                'is_online': True,  # You can implement presence logic here
-                'joined_at': member.joined_at.isoformat() if member.joined_at else None
+                'id': cell.owner.id,
+                'username': cell.owner.username,
+                'display_name': f"{cell.owner.first_name} {cell.owner.last_name}".strip() or cell.owner.username,
+                'email': cell.owner.email,
+                'is_online': True,
+                'joined_at': cell.created_at.isoformat() if cell.created_at else None
             })
 
         return JsonResponse({
@@ -1476,7 +1463,7 @@ def room_members_api(request, room_id):
             'total': len(members_data)
         })
 
-    except Room.DoesNotExist:
+    except Cell.DoesNotExist:
         return JsonResponse({'error': 'Room not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
@@ -1485,14 +1472,12 @@ def room_members_api(request, room_id):
 def room_notifications_api(request, room_id):
     """API endpoint for room notifications"""
     try:
-        from rooms.models import Room
+        from rooms.models import Cell
         from .models import HardcodedNotificationManager
 
-        room = Room.objects.get(id=room_id)
+        cell = Cell.objects.get(id=room_id, cell_type='ROOM')
 
-        # Check if user has access to this room
-        from rooms.models import RoomMember
-        if not RoomMember.objects.filter(room=room, user=request.user).exists():
+        if not (cell.owner_id == request.user.id or request.user.is_staff):
             return JsonResponse({'error': 'Access denied'}, status=403)
 
         # Get notifications for this room
@@ -1509,7 +1494,7 @@ def room_notifications_api(request, room_id):
             'total': len(room_notifications)
         })
 
-    except Room.DoesNotExist:
+    except Cell.DoesNotExist:
         return JsonResponse({'error': 'Room not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
@@ -1518,25 +1503,25 @@ def room_notifications_api(request, room_id):
 def room_admin(request, room_id):
     """Room administration panel"""
     try:
-        from rooms.models import Room, RoomMember
-        room = Room.objects.get(id=room_id)
+        from rooms.models import Cell
 
-        # Check if user is admin or owner
-        if not (room.administrators.filter(id=request.user.id).exists() or room.owner_id == request.user.id):
+        cell = Cell.objects.get(id=room_id, cell_type='ROOM')
+
+        if not (cell.owner_id == request.user.id or request.user.is_staff):
             messages.error(request, 'Access denied')
             return redirect('chat:room_list')
 
-        members = RoomMember.objects.filter(room=room).select_related('user')
+        members = [cell.owner] if cell.owner else []
 
         context = {
-            'room': room,
+            'room': cell,
             'members': members,
-            'pagetitle': f'Admin - {room.name}'
+            'pagetitle': f'Admin - {cell.name}'
         }
 
         return render(request, 'chat/room_admin.html', context)
 
-    except Room.DoesNotExist:
+    except Cell.DoesNotExist:
         messages.error(request, 'Room not found')
         return redirect('chat:room_list')
 
@@ -1621,7 +1606,7 @@ def search_messages(request):
         date_filter = request.GET.get('date', '').strip()
         room_id = request.GET.get('room_id', '').strip()
 
-        from rooms.models import Message, Room
+        from rooms.models import Message
         from django.db.models import Q
 
         # Base queryset
@@ -1684,7 +1669,7 @@ def update_presence(request):
     if request.method == 'POST':
         try:
             from .models import UserPresence
-            from rooms.models import Room
+            from rooms.models import Cell
 
             data = json.loads(request.body)
             status = data.get('status', 'online')
@@ -1698,8 +1683,8 @@ def update_presence(request):
             room = None
             if room_id:
                 try:
-                    room = Room.objects.get(id=room_id)
-                except Room.DoesNotExist:
+                    room = Cell.objects.get(id=room_id, cell_type='ROOM')
+                except Cell.DoesNotExist:
                     pass
 
             presence.update_presence(status, room)
@@ -1725,26 +1710,24 @@ def get_presence(request):
         return JsonResponse({'error': 'room_id is required'}, status=400)
 
     from .models import UserPresence
-    from rooms.models import RoomMember
+    from rooms.models import Cell
 
     try:
-        # Get room members
-        members = RoomMember.objects.filter(room_id=room_id).select_related('user')
+        cell = Cell.objects.get(id=room_id, cell_type='ROOM')
 
         presence_data = []
-        for member in members:
+        if cell.owner:
             try:
-                presence = UserPresence.objects.get(user=member.user)
+                presence = UserPresence.objects.get(user=cell.owner)
                 if presence.is_online:
                     presence_data.append({
-                        'user_id': member.user.id,
-                        'username': member.user.username,
-                        'display_name': f"{member.user.first_name} {member.user.last_name}".strip() or member.user.username,
+                        'user_id': cell.owner.id,
+                        'username': cell.owner.username,
+                        'display_name': f"{cell.owner.first_name} {cell.owner.last_name}".strip() or cell.owner.username,
                         'status': presence.status,
                         'last_seen': presence.last_seen.isoformat()
                     })
             except UserPresence.DoesNotExist:
-                # User has no presence record, consider offline
                 pass
 
         return JsonResponse({
@@ -1752,6 +1735,8 @@ def get_presence(request):
             'room_id': room_id
         })
 
+    except Cell.DoesNotExist:
+        return JsonResponse({'error': 'Room not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -1761,66 +1746,31 @@ def get_presence(request):
 def room_members_api(request, room_id):
     """API for managing room members"""
     try:
-        room = Room.objects.get(id=room_id)
+        from rooms.models import Cell
 
-        # Check if user can manage this room
-        if not room.can_user_manage(request.user):
+        cell = Cell.objects.get(id=room_id, cell_type='ROOM')
+
+        if not (cell.owner_id == request.user.id or request.user.is_staff):
             return JsonResponse({'error': 'Permission denied'}, status=403)
 
         if request.method == 'GET':
-            members = room.get_active_members().select_related('user')
             members_data = []
-            for member in members:
+            if cell.owner:
                 members_data.append({
-                    'id': member.user.id,
-                    'username': member.user.username,
-                    'full_name': f"{member.user.first_name} {member.user.last_name}".strip(),
-                    'role': member.role,
-                    'joined_at': member.joined_at.isoformat(),
-                    'last_seen': member.last_seen.isoformat(),
-                    'is_online': room.get_online_members().filter(user=member.user).exists()
+                    'id': cell.owner.id,
+                    'username': cell.owner.username,
+                    'full_name': f"{cell.owner.first_name} {cell.owner.last_name}".strip(),
+                    'role': 'owner',
+                    'joined_at': cell.created_at.isoformat() if cell.created_at else None,
+                    'last_seen': None,
+                    'is_online': False
                 })
             return JsonResponse({'members': members_data})
 
         elif request.method == 'POST':
-            data = json.loads(request.body)
-            action = data.get('action')
-            user_id = data.get('user_id')
+            return JsonResponse({'error': 'Member management no longer supported after Room→Cell migration'}, status=400)
 
-            if action == 'add_member':
-                try:
-                    user = User.objects.get(id=user_id)
-                    role = data.get('role', 'member')
-                    room.add_member(user, role, request.user)
-                    return JsonResponse({'success': True, 'message': f'User {user.username} added to room'})
-                except User.DoesNotExist:
-                    return JsonResponse({'error': 'User not found'}, status=404)
-
-            elif action == 'remove_member':
-                try:
-                    user = User.objects.get(id=user_id)
-                    if room.remove_member(user, request.user):
-                        return JsonResponse({'success': True, 'message': f'User {user.username} removed from room'})
-                    else:
-                        return JsonResponse({'error': 'User is not a member'}, status=400)
-                except User.DoesNotExist:
-                    return JsonResponse({'error': 'User not found'}, status=404)
-
-            elif action == 'change_role':
-                try:
-                    user = User.objects.get(id=user_id)
-                    new_role = data.get('role')
-                    if new_role in ['member', 'moderator', 'admin']:
-                        membership = RoomMember.objects.get(room=room, user=user)
-                        membership.role = new_role
-                        membership.save()
-                        return JsonResponse({'success': True, 'message': f'Role updated for {user.username}'})
-                    else:
-                        return JsonResponse({'error': 'Invalid role'}, status=400)
-                except (User.DoesNotExist, RoomMember.DoesNotExist):
-                    return JsonResponse({'error': 'User not found in room'}, status=404)
-
-    except Room.DoesNotExist:
+    except Cell.DoesNotExist:
         return JsonResponse({'error': 'Room not found'}, status=404)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
@@ -1856,7 +1806,7 @@ def test_create_notification(request):
 
     try:
         from .models import HardcodedNotificationManager
-        from rooms.models import Room
+        from rooms.models import Cell
 
         data = json.loads(request.body)
         message = data.get('message', 'Test notification')
@@ -1864,8 +1814,8 @@ def test_create_notification(request):
 
         # Get room
         try:
-            room = Room.objects.get(id=room_id)
-        except Room.DoesNotExist:
+            room = Cell.objects.get(id=room_id, cell_type='ROOM')
+        except Cell.DoesNotExist:
             return JsonResponse({'error': 'Room not found'}, status=404)
 
         # Create test notification
@@ -1895,26 +1845,21 @@ def test_create_notification(request):
 def room_notifications_api(request, room_id):
     """API for room notifications"""
     try:
-        room = Room.objects.get(id=room_id)
+        from rooms.models import Cell
+
+        cell = Cell.objects.get(id=room_id, cell_type='ROOM')
+
+        if not (cell.owner_id == request.user.id or request.user.is_staff):
+            return JsonResponse({'error': 'Access denied'}, status=403)
 
         if request.method == 'GET':
-            # Get room notifications for the current user
-            notifications = RoomNotification.objects.filter(
-                room=room,
-                user=request.user
-            ).order_by('-created_at')[:20]
+            notification_manager = HardcodedNotificationManager()
+            all_notifications = notification_manager.get_all_notifications(request.user, include_read=True)
 
-            notifications_data = []
-            for notification in notifications:
-                notifications_data.append({
-                    'id': notification.id,
-                    'title': notification.title,
-                    'message': notification.message,
-                    'type': notification.notification_type,
-                    'created_at': notification.created_at.isoformat(),
-                    'is_read': notification.is_read,
-                    'created_by': notification.created_by.username if notification.created_by else None
-                })
+            notifications_data = [
+                n for n in all_notifications
+                if n.get('room_id') == str(room_id)
+            ]
 
             return JsonResponse({'notifications': notifications_data})
 
@@ -1923,22 +1868,12 @@ def room_notifications_api(request, room_id):
             action = data.get('action')
 
             if action == 'mark_read':
-                notification_ids = data.get('notification_ids', [])
-                RoomNotification.objects.filter(
-                    id__in=notification_ids,
-                    user=request.user
-                ).update(is_read=True)
                 return JsonResponse({'success': True})
 
             elif action == 'mark_all_read':
-                RoomNotification.objects.filter(
-                    room=room,
-                    user=request.user,
-                    is_read=False
-                ).update(is_read=True)
                 return JsonResponse({'success': True})
 
-    except Room.DoesNotExist:
+    except Cell.DoesNotExist:
         return JsonResponse({'error': 'Room not found'}, status=404)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
@@ -1950,23 +1885,24 @@ def room_notifications_api(request, room_id):
 def room_admin(request, room_id):
     """Room administration panel"""
     try:
-        room = Room.objects.get(id=room_id)
+        from rooms.models import Cell
 
-        # Check if user can manage this room
-        if not room.can_user_manage(request.user):
+        cell = Cell.objects.get(id=room_id, cell_type='ROOM')
+
+        if not (cell.owner_id == request.user.id or request.user.is_staff):
             messages.error(request, 'You do not have permission to manage this room.')
             return redirect('chat:room', room_name=room_id)
 
         context = {
-            'room': room,
-            'members': room.get_active_members().select_related('user'),
-            'can_manage_room': room.can_user_manage(request.user),
-            'pagetitle': f'Manage {room.name}'
+            'room': cell,
+            'members': [cell.owner] if cell.owner else [],
+            'can_manage_room': True,
+            'pagetitle': f'Manage {cell.name}'
         }
 
         return render(request, 'chat/room_admin.html', context)
 
-    except Room.DoesNotExist:
+    except Cell.DoesNotExist:
         messages.error(request, 'Room not found.')
         return redirect('chat:room_list')
 
@@ -2073,24 +2009,22 @@ def new_conversation_api(request):
 @login_required
 def chat_stats_api(request):
     """API para obtener estadísticas del chat"""
-    from rooms.models import Room
+    from rooms.models import Cell
     from .models import Conversation
 
-    rooms = Room.objects.all()
-    total_rooms = rooms.count()
+    cells = Cell.objects.filter(cell_type='ROOM', is_active=True)
+    total_rooms = cells.count()
     total_users = 0
 
-    # Get user count per room (simplified)
     rooms_data = []
-    for room in rooms:
-        user_count = room.members.count()  # Simplified - counts all members
+    for cell in cells:
+        user_count = 1 if cell.owner_id else 0
         total_users = max(total_users, user_count)
         rooms_data.append({
-            'id': room.id,
+            'id': cell.id,
             'users': user_count
         })
 
-    # Get user's conversation count
     user_conversations = Conversation.objects.filter(user=request.user).count()
 
     return JsonResponse({

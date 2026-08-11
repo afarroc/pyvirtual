@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from rooms.models import Room, Message
+from rooms.models import Cell, Message
 
 @login_required
 def last_room_api(request):

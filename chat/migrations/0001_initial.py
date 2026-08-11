@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('status', models.CharField(choices=[('online', 'Online'), ('away', 'Away'), ('offline', 'Offline')], default='offline', max_length=10)),
                 ('last_seen', models.DateTimeField(default=django.utils.timezone.now)),
-                ('current_room', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='rooms.room')),
+                ('current_room', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='rooms.cell')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={

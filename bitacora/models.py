@@ -67,7 +67,7 @@ class BitacoraEntry(models.Model):
         related_name='bitacora_entries',
     )
     related_room = models.ForeignKey(
-        'rooms.Room',
+        'rooms.Cell',
         on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name='bitacora_entries',

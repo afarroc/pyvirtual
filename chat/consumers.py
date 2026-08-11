@@ -242,9 +242,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def save_message(self, room_id, user, content):
-        from rooms.models import Room, Message
+        from rooms.models import Cell, Message
         try:
-            room = Room.objects.get(id=room_id)
+            room = Cell.objects.get(id=room_id, cell_type='ROOM')
             message = Message.objects.create(room=room, user=user, content=content)
             return message
         except Exception as e:
@@ -289,52 +289,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def create_room_notifications_hardcoded(self, message, sender, room_id):
         """Create notifications for room members using hybrid system (cache + database fallback)"""
         from .models import HardcodedNotificationManager
-        from rooms.models import Room, RoomMember
+        from rooms.models import Cell
         from django.contrib.auth import get_user_model
 
         User = get_user_model()
 
         try:
-            # Get room object
-            room = Room.objects.get(id=room_id)
+            room = Cell.objects.get(id=room_id, cell_type='ROOM')
             logger.info(f"Creating notifications for room {room.name} (ID: {room_id})")
 
-            # Get all room members except the sender
-            room_members = RoomMember.objects.filter(
-                room=room,
-                is_active=True
-            ).exclude(user=sender).select_related('user')
+            recipients = []
+            if room.owner_id and room.owner_id != sender.id:
+                try:
+                    recipients.append(room.owner)
+                except User.DoesNotExist:
+                    pass
+            if sender.is_staff:
+                staff_users = User.objects.filter(is_staff=True).exclude(id=sender.id)
+                recipients.extend(staff_users)
 
-            logger.info(f"Found {room_members.count()} active room members (excluding sender)")
+            logger.info(f"Found {len(recipients)} recipients (owner + staff, excluding sender)")
 
-            # If no members found, try to add all users to the room automatically
-            if room_members.count() == 0:
-                logger.warning(f"No members found for room {room.name}, adding all users automatically")
-                from django.contrib.auth import get_user_model
-
-                User = get_user_model()
-                users = User.objects.all()
-                for user in users:
-                    if user != sender:
-                        RoomMember.objects.get_or_create(
-                            room=room,
-                            user=user,
-                            defaults={'is_active': True}
-                        )
-                # Re-query members
-                room_members = RoomMember.objects.filter(
-                    room=room,
-                    is_active=True
-                ).exclude(user=sender).select_related('user')
-                logger.info(f"After auto-adding: {room_members.count()} members found")
-
-            # Create notifications for all room members
             notification_count = 0
-            for member in room_members:
-                recipient = member.user
+            for recipient in recipients:
                 logger.info(f"Creating notification for user {recipient.username} (ID: {recipient.id})")
-
-                # Try to create notification using cache system
                 notification = HardcodedNotificationManager.create_chat_notification(
                     user=recipient,
                     room=room,
@@ -343,34 +321,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 )
                 if notification:
                     notification_count += 1
-                    logger.info(f"✅ Created notification for user {recipient.username}")
+                    logger.info(f"Created notification for user {recipient.username}")
                 else:
-                    logger.error(f"❌ Failed to create notification for user {recipient.username}")
+                    logger.error(f"Failed to create notification for user {recipient.username}")
 
             if notification_count > 0:
-                logger.info(f"✅ Created {notification_count} notifications for room {room.name}")
+                logger.info(f"Created {notification_count} notifications for room {room.name}")
             else:
-                logger.warning(f"⚠️ No notifications created for room {room.name}")
+                logger.warning(f"No notifications created for room {room.name}")
 
         except Exception as e:
-            logger.error(f"❌ Error creating room notifications: {str(e)}")
+            logger.error(f"Error creating room notifications: {str(e)}")
             import traceback
             logger.error(traceback.format_exc())
 
     @database_sync_to_async
     def verify_room_access(self):
-        """Verifica si el usuario tiene acceso a la sala (es miembro o administrador)"""
-        from rooms.models import Room, RoomMember
+        """Verifica si el usuario tiene acceso a la sala (owner o staff)"""
+        from rooms.models import Cell
         try:
-            room = Room.objects.get(id=self.room_name)
-            # El usuario debe ser miembro o administrador de la sala
-            is_member = RoomMember.objects.filter(room=room, user=self.user).exists()
-            is_admin = room.administrators.filter(id=self.user.id).exists()
-            is_owner = room.owner_id == self.user.id
-            # Las salas públicas permiten acceso a cualquier usuario autenticado
-            is_public = room.permissions == 'public'
-            return is_member or is_admin or is_owner or is_public
-        except Room.DoesNotExist:
+            cell = Cell.objects.get(id=self.room_name, cell_type='ROOM')
+            is_owner = cell.owner_id == self.user.id
+            is_staff = self.user.is_staff
+            is_public = cell.permissions == 'public'
+            return is_owner or is_staff or is_public
+        except Cell.DoesNotExist:
             return False
 
     async def process_message(self, raw_message):
@@ -382,10 +357,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def update_typing_status(self, is_typing):
         """Update user's typing status in database"""
         from .models import TypingStatus
-        from rooms.models import Room
+        from rooms.models import Cell
 
         try:
-            room = Room.objects.get(id=self.room_name)
+            room = Cell.objects.get(id=self.room_name, cell_type='ROOM')
             status, created = TypingStatus.objects.get_or_create(
                 user=self.user,
                 room=room,

@@ -309,7 +309,7 @@ class UserPresence(models.Model):
         default='offline'
     )
     last_seen = models.DateTimeField(default=timezone.now)
-    current_room = models.ForeignKey('rooms.Room', on_delete=models.SET_NULL, null=True, blank=True)
+    current_room = models.ForeignKey('rooms.Cell', on_delete=models.SET_NULL, null=True, blank=True)
 
     def is_online(self):
         """Check if user is considered online (last seen within 5 minutes)"""

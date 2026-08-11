@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='bitacoraentry',
             name='related_room',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='bitacora_entries', to='rooms.room'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='bitacora_entries', to='rooms.cell'),
         ),
         migrations.AddField(
             model_name='bitacoraentry',
