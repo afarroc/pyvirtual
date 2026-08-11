@@ -1,119 +1,52 @@
-{% load static %}
-<div class="room-objects-list">
-  <div class="dashboard-header">
-    <div>
-      <h3>Objetos en {{ room.name }}</h3>
-      <p class="subtitle">
-        <a href="{% url 'rooms:room_detail' room.pk %}">{{ room.name }}</a>
-        <span class="text-muted">/</span>
-        <span class="text-primary">Objetos</span>
-      </p>
-    </div>
-    <div class="header-actions">
-      <button type="button" class="btn btn-primary btn-sm" data-open-object-panel>
-        <i class="bi bi-plus-circle-fill"></i> Crear objeto
-      </button>
-    </div>
+{% load room_extras %}
+
+<div class="section-card mt-3">
+  <div class="section-header-info">
+    <h5><i class="bi bi-diagram-3 me-2"></i> Celdas de la habitación</h5>
   </div>
 
-  <div class="two-col">
-    <div class="col">
-      <div class="section-card">
-        <div class="section-header-purple">
-          <h5><i class="bi bi-box me-2"></i> Cajas / Contenedores</h5>
-        </div>
-        <div class="section-body">
-          {% if boxes %}
-            <div class="row">
-              {% for box in boxes %}
-              <div class="col-md-6 col-lg-4 mb-3">
-                <div class="section-card h-100">
-                  <div class="section-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                      <div>
-                        <h6 class="mb-0">{{ box.name }}</h6>
-                        <small class="text-muted">{{ box.material_type }} · {{ box.width }}×{{ box.height }}×{{ box.depth }} cm</small>
-                      </div>
-                      <div>
-                        {% if box.is_locked %}
-                          <span class="badge bg-danger">🔒 Cerrada</span>
-                        {% elif box.is_open %}
-                          <span class="badge bg-success">🟢 Abierta</span>
-                        {% else %}
-                          <span class="badge bg-secondary">🔴 Cerrada</span>
-                        {% endif %}
-                      </div>
-                    </div>
-                    <p class="text-muted mb-2">{{ box.description|default:"Sin descripción" }}</p>
-                    <div class="stat-list">
-                      <div class="stat-row"><span class="text-muted">Posición</span> <span>{{ box.position_x }}, {{ box.position_y }}</span></div>
-                      <div class="stat-row"><span class="text-muted">Masa</span> <span>{{ box.mass }} kg</span></div>
-                      <div class="stat-row"><span class="text-muted">Capacidad</span> <span>{{ box.capacity }}</span></div>
-                      <div class="stat-row"><span class="text-muted">Contenido</span> <span>{{ box.contents|length }} items</span></div>
-                    </div>
-                    <div class="mt-3">
-                      <a href="{% url 'rooms:box_detail' box.pk %}" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-eye"></i> Ver detalle
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <p class="text-muted">No hay cajas en esta habitación.</p>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="section-card mt-3">
-        <div class="section-header-green">
-          <h5><i class="bi bi-cpu me-2"></i> Objetos interactivos</h5>
-        </div>
-        <div class="section-body">
-          {% if room_objects %}
-            <div class="row">
-              {% for obj in room_objects %}
-              <div class="col-md-6 col-lg-4 mb-3">
-                <div class="section-card h-100">
-                  <div class="section-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                      <div>
-                        <h6 class="mb-0">{{ obj.name }}</h6>
-                        <small class="text-muted">{{ obj.get_object_type_display }}</small>
-                      </div>
-                      <span class="badge bg-info">{{ obj.object_type }}</span>
-                    </div>
-                    <div class="stat-list">
-                      <div class="stat-row"><span class="text-muted">Posición</span> <span>{{ obj.position_x }}, {{ obj.position_y }}</span></div>
-                      <div class="stat-row"><span class="text-muted">Efecto</span> <span>{{ obj.effect|default:"{}" }}</span></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <p class="text-muted">No hay objetos interactivos en esta habitación.</p>
-          {% endif %}
-        </div>
-      </div>
+  {% if player %}
+    <div class="mb-2 text-muted small">
+      Posición actual: {{ player.position_x }}, {{ player.position_y }}
     </div>
+  {% endif %}
 
-    <div class="col">
-      <div class="section-card">
-        <div class="section-header-purple">
-          <h5><i class="bi bi-info-circle-fill me-2"></i> Resumen</h5>
-        </div>
-        <div class="section-body">
-          <div class="stat-list">
-            <div class="stat-row"><span class="text-muted">Cajas</span> <span>{{ boxes|length }}</span></div>
-            <div class="stat-row"><span class="text-muted">Objetos</span> <span>{{ room_objects|length }}</span></div>
-            <div class="stat-row"><span class="text-muted">Total</span> <span>{{ boxes|length|add:room_objects|length }}</span></div>
+  <div class="cell-list-content">
+    {% if cells %}
+      <div class="row g-3">
+        {% for cell in cells %}
+          <div class="col-md-4">
+            <div class="card h-100 {% if cell|is_current_cell:player %}border-primary{% endif %}">
+              <div class="card-body">
+                <h6 class="card-title">
+                  <i class="bi bi-{{ cell.cell_type|lower }} me-1"></i>
+                  {{ cell.name }}
+                  {% if cell|is_current_cell:player %}<span class="badge bg-primary ms-1">Aquí</span>{% endif %}
+                </h6>
+                <p class="card-text text-muted small">
+                  Tipo: {{ cell.get_cell_type_display }}<br>
+                  Posición: {{ cell.position_x }}, {{ cell.position_y }}
+                </p>
+
+                {% if cell|is_navigable %}
+                  <form method="post" action="{% url 'rooms:navigate_to_cell' cell.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-primary" {% if cell|is_current_cell:player %}disabled{% endif %}>
+                      <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
+                    </button>
+                  </form>
+                {% endif %}
+
+                {% if cell.is_container and cell.contents %}
+                  <p class="mt-2 small text-muted">Contenido: {{ cell.contents|length }} items</p>
+                {% endif %}
+              </div>
+            </div>
           </div>
-        </div>
+        {% endfor %}
       </div>
-    </div>
+    {% else %}
+      <p class="text-muted">No hay celdas registradas en esta habitación.</p>
+    {% endif %}
   </div>
 </div>

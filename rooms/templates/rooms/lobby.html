@@ -2,197 +2,191 @@
 {% load static %}
 
 {% block content %}
-{% if messages %}
+
+  {% if messages %}
     {% include 'layouts/includes/alert.html' %}
-{% endif %}
+  {% endif %}
 
-<div class="pagetitle">
-    <h1>{{ page_title }}</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'rooms:lobby' %}">Home</a></li>
-            <li class="breadcrumb-item active">Lobby</li>
-        </ol>
-    </nav>
-</div>
-
-<section class="section dashboard">
-    <!-- Welcome Banner -->
-    <div>
-        <div class="col-12">
-            <div class="card welcome-card bg-primary text-white">
-                <div class="card-body py-4 d-flex align-items-center">
-                    <div class="avatar avatar-xl bg-white text-primary rounded-circle me-3">
-                        <i class="bi bi-person-circle fs-2"></i>
-                    </div>
-                    <div>
-                        <h2 class="mb-0">Welcome back, {{ user.username }}!</h2>
-                        <p class="mb-0 opacity-75">Here's what's happening in your spaces</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="dashboard-wrapper">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div>
+        <h1><i class="bi bi-house-door-fill"></i> {{ page_title|default:"Lobby" }}</h1>
+        <p class="subtitle">Visión general de tus espacios y actividad</p>
+      </div>
+      <div class="header-actions">
+        <a href="{% url 'rooms:register_presence' %}" class="btn btn-success btn-sm">
+          <i class="bi bi-person-check-fill"></i> Disponible
+        </a>
+        <a href="{% url 'rooms:room_create' %}" class="btn btn-primary btn-sm">
+          <i class="bi bi-plus-circle-fill"></i> Nueva Sala
+        </a>
+      </div>
     </div>
 
+    <!-- Action Navbar -->
+    <div class="header" style="border-top: 1px solid var(--gray-200); border-bottom: 1px solid var(--gray-200);">
+      <div class="header-inner" style="gap: 0.5rem; flex-wrap: wrap;">
+        <div class="header-left">
+          <span class="logo-text" style="font-weight: 700;">Acciones</span>
+        </div>
+        <div class="header-right" style="gap: 0.5rem;">
+          <a href="{% url 'rooms:create_cell' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle-fill"></i> Crear Celda
+          </a>
+          <a href="{% url 'rooms:create_universe' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-globe"></i> Crear Universo
+          </a>
+          <a href="{% url 'rooms:universe_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-diagram-3-fill"></i> Universos
+          </a>
+          <a href="{% url 'rooms:register_presence' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-person-check-fill"></i> Registrar disponibilidad
+          </a>
+          <div class="dropdown">
+            <button class="icon-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="{% url 'rooms:room_create' %}"><i class="bi bi-plus-circle-fill"></i> Crear habitación rápida</a></li>
+              <li><a class="dropdown-item" href="{% url 'rooms:basic_3d_environment' %}"><i class="bi bi-dice-3-fill"></i> Entorno 3D básico</a></li>
+              <li><a class="dropdown-item" href="{% url 'rooms:portal_create' %}"><i class="bi bi-door-open-fill"></i> Crear portal</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'rooms:room_list' %}"><i class="bi bi-grid"></i> Todas las salas</a></li>
+              <li><a class="dropdown-item" href="{% url 'rooms:portal_list' %}"><i class="bi bi-door-open"></i> Todos los portales</a></li>
+              <li><a class="dropdown-item" href="{% url 'rooms:entrance_exit_list' %}"><i class="bi bi-box-arrow-in-right"></i> Entradas/Salidas</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
     {% if stats %}
-    <div>
+      <div class="stats-grid">
         {% for stat in stats %}
-        <div class="col-md-3">
-            <div class="card info-card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ stat.title }}</h5>
-                    <div class="d-flex align-items-center">
-                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="bi {{ stat.icon }}"></i>
-                        </div>
-                        <div class="ps-3">
-                            <h6>{{ stat.value }}</h6>
-                            {% if stat.trend %}
-                                <span class="text-{{ stat.trend_color|default:'success' }} small pt-1 fw-bold">{{ stat.trend }}%</span>
-                            {% endif %}
-                            {% if stat.period %}
-                                <span class="text-muted small pt-2 ps-1">{{ stat.period }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+          <div class="stat-card {% if stat.color %}{{ stat.color }}{% endif %}">
+            <span class="stat-icon"><i class="bi {{ stat.icon }}"></i></span>
+            <div class="stat-number">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.title }}</div>
+            {% if stat.trend %}
+              <div class="stat-sub">
+                <span class="text-{{ stat.trend_color|default:'success' }}">{{ stat.trend }}%</span>
+                {{ stat.period|default:"" }}
+              </div>
+            {% endif %}
+          </div>
         {% endfor %}
-    </div>
+      </div>
     {% endif %}
 
-    <div>
-        <!-- Main Content -->
-        <div class="col-lg-8">
-            <div>
-                {% for section in sections %}
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title mb-0">{{ section.title }}</h5>
-                                {% if section.url_name %}
-                                    <a href="{% url section.url_name %}" class="btn btn-sm btn-outline-primary">View All</a>
-                                {% endif %}
-                            </div>
-                            <div class="list-group list-group-flush">
-                                {% if section.items %}
-                                    {% for item in section.items|slice:":5" %}
-                                    <a href="{% if section.detail_url_name %}{% url section.detail_url_name item.id %}{% else %}#{% endif %}"
-                                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                         <div>
-                                             {% if section.icon %}<i class="bi {{ section.icon }} me-2"></i>{% endif %}
-                                             {{ item.name|truncatechars:30 }}
-                                         </div>
-                                         {% if item.count %}
-                                             <span class="badge bg-primary rounded-pill">{{ item.count }}</span>
-                                         {% endif %}
-                                     </a>
-                                    {% endfor %}
-                                {% elif section.action_text %}
-                                    <div class="text-center py-3">
-                                        {% if section.description %}
-                                            <p class="text-muted mb-3">{{ section.description }}</p>
-                                        {% endif %}
-                                        <a href="{% url section.url_name %}" class="btn btn-primary">
-                                            <i class="bi {{ section.icon }} me-2"></i>{{ section.action_text }}
-                                        </a>
-                                    </div>
-                                {% else %}
-                                    <div class="text-center text-muted py-3">
-                                        <i class="bi bi-inbox fs-2"></i>
-                                        <p class="mb-0">No items available</p>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+    <!-- Two Column Layout: Sections + Sidebar -->
+    <div class="two-col">
+      <!-- Main content: sections -->
+      <div class="col">
+        {% for section in sections %}
+          <div class="section-card">
+            <!-- Encabezado con color dinámico -->
+            <div class="section-header-{% if section.color %}{{ section.color }}{% else %}purple{% endif %} flex justify-between items-center">
+              <h5>
+                {% if section.icon %}<i class="bi {{ section.icon }} me-2"></i>{% endif %}
+                {{ section.title }}
+              </h5>
+              {% if section.url_name %}
+                <a href="{% url section.url_name %}" class="text-white text-decoration-none small fw-bold">
+                  Ver todas <i class="bi bi-arrow-right"></i>
+                </a>
+              {% endif %}
             </div>
-        </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Quick Search</h5>
-                    <form method="get" action="{% url 'rooms:room_search' %}" class="mb-3">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="search" name="q" class="form-control" placeholder="Search rooms..." required>
-                            <button class="btn btn-primary" type="submit">Search</button>
-                        </div>
-                    </form>
-                    {% if quick_filters %}
-                    <div class="quick-filters">
-                        {% for filter in quick_filters %}
-                            <span class="badge bg-light text-dark me-1 mb-1">{{ filter }}</span>
-                        {% endfor %}
+            <!-- Cuerpo de la sección -->
+            <div class="list-group list-group-flush">
+              {% if section.items %}
+                {% for item in section.items|slice:":5" %}
+                  <a href="{% if section.detail_url_name %}{% url section.detail_url_name item.id %}{% else %}#{% endif %}"
+                     class="list-group-item list-group-item-action flex justify-between items-center" style="padding-left: 0; padding-right: 0; border-bottom: 1px solid var(--gray-200);">
+                    <div>
+                      {% if section.icon %}<i class="bi {{ section.icon }} me-2 text-muted"></i>{% endif %}
+                      {{ item.name|truncatechars:40 }}
                     </div>
+                    {% if item.count %}
+                      <span class="badge bg-light text-dark border">{{ item.count }}</span>
                     {% endif %}
+                  </a>
+                {% endfor %}
+              {% elif section.action_text %}
+                <div class="text-center py-4">
+                  {% if section.description %}
+                    <p class="text-muted mb-3">{{ section.description }}</p>
+                  {% endif %}
+                  <a href="{% url section.url_name %}" class="btn btn-primary">
+                    <i class="bi {{ section.icon }} me-2"></i>{{ section.action_text }}
+                  </a>
                 </div>
+              {% else %}
+                <div class="text-center text-muted py-4">
+                  <i class="bi bi-inbox fs-1"></i>
+                  <p class="mb-0">Sin elementos disponibles</p>
+                </div>
+              {% endif %}
             </div>
+          </div>
+        {% endfor %}
+      </div>
 
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Quick Actions</h5>
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'rooms:register_presence' %}" class="btn btn-success">
-                            <i class="bi bi-person-check-fill"></i> Register as Available
-                        </a>
-                        <a href="{% url 'rooms:room_create_complete' %}" class="btn btn-success">
-                            <i class="bi bi-plus-circle-fill"></i> Crear Habitación Completa
-                        </a>
-                        <a href="{% url 'rooms:room_create' %}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle-fill"></i> Crear Habitación Rápida
-                        </a>
-                        <a href="{% url 'rooms:basic_3d_environment' %}" class="btn btn-warning">
-                            <i class="bi bi-dice-3-fill"></i> Entorno 3D Básico
-                        </a>
-                        <a href="{% url 'rooms:portal_create' %}" class="btn btn-outline-primary">
-                            <i class="bi bi-door-open-fill"></i> Create Portal
-                        </a>
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-three-dots"></i> More Actions
-                            </button>
-                            <ul class="dropdown-menu w-100">
-                                <li><a class="dropdown-item" href="{% url 'rooms:room_list' %}"><i class="bi bi-grid"></i> All Rooms</a></li>
-                                <li><a class="dropdown-item" href="{% url 'rooms:portal_list' %}"><i class="bi bi-door-open"></i> All Portals</a></li>
-                                <li><a class="dropdown-item" href="{% url 'rooms:entrance_exit_list' %}"><i class="bi bi-box-arrow-in-right"></i> Entrance/Exits</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-question-circle"></i> Help</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Recent Activity</h5>
-                    <div class="activity">
-                        {% if recent_activities %}
-                            {% for activity in recent_activities %}
-                            <div class="activity-item d-flex mb-3">
-                                <div class="activity-icon bg-{{ activity.color }} text-white me-2">
-                                    <i class="bi {{ activity.icon }}"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <strong>{{ activity.user }}</strong> {{ activity.action }}
-                                    <div class="text-muted small">{{ activity.timestamp }}</div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-muted text-center">No recent activity</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+      <!-- Sidebar derecho -->
+      <div class="col">
+        <!-- Quick Search -->
+        <div class="section-card">
+          <div class="section-header-purple">
+            <h5><i class="bi bi-search me-2"></i> Búsqueda rápida</h5>
+          </div>
+          <div class="mt-2">
+            <form method="get" action="{% url 'rooms:room_search' %}" class="flex gap-2">
+              <div class="flex-grow-1 position-relative">
+                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"></i>
+                <input type="search" name="q" class="form-control ps-4" placeholder="Buscar salas..." required>
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="bi bi-arrow-right"></i></button>
+            </form>
+            {% if quick_filters %}
+              <div class="mt-2 flex flex-wrap gap-1">
+                {% for filter in quick_filters %}
+                  <span class="badge bg-light text-dark border">{{ filter }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
         </div>
+
+        <!-- Recent Activity -->
+        <div class="section-card">
+          <div class="section-header-info">
+            <h5><i class="bi bi-clock-history me-2"></i> Actividad reciente</h5>
+          </div>
+          <div class="activity-timeline mt-2">
+            {% if recent_activities %}
+              {% for activity in recent_activities %}
+                <div class="activity-item">
+                  <div class="activity-icon {% if activity.color %} {{ activity.color }}{% endif %}">
+                    <i class="bi {{ activity.icon }}"></i>
+                  </div>
+                  <div class="activity-content">
+                    <strong>{{ activity.user }}</strong> {{ activity.action }}
+                    <div class="activity-time">{{ activity.timestamp }}</div>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="text-center text-muted py-3">
+                <i class="bi bi-inbox fs-1"></i>
+                <p class="mb-0">Sin actividad reciente</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
     </div>
-</section>
+  </div>
+
 {% endblock %}

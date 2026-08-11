@@ -1,8 +1,12 @@
 ﻿{% extends 'layouts/base.html' %}
 {% load static %}
-{% load schedule_filters %}
+
+{% block breadcrumb %}
+  {% include 'rooms/partials/spatial_nav.html' with current_cell=current_cell breadcrumb=nav_breadcrumb back_target=nav_back_target show_back=True %}
+{% endblock %}
 
 {% block content %}
+
   {% if messages %}
     <div class="alerts-container">
       {% for message in messages %}
@@ -17,16 +21,12 @@
     </div>
   {% endif %}
 
-  <!-- ==========================================
-       ROOM DETAIL - MANAGEMENT360 STYLE
-       ========================================== -->
   <div class="dashboard-wrapper">
-    <!-- Header / Breadcrumb -->
     <div class="dashboard-header">
       <div>
         <h1><i class="bi bi-door-open-fill"></i> {{ room.name }}</h1>
         <p class="subtitle">
-          <span class="badge bg-primary me-2">{{ room.get_room_type_display }}</span>
+          <span class="badge bg-primary me-2">{{ room.get_cell_type_display }}</span>
           {% if room.is_active %}
             <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Activa</span>
           {% else %}
@@ -35,473 +35,245 @@
         </p>
       </div>
       <div class="header-actions">
-        <button type="button" class="btn btn-success btn-sm" data-open-object-panel>
-          <i class="bi bi-plus-circle-fill"></i> Crear objeto
-        </button>
         <a href="{% url 'rooms:room_3d' room.pk %}" class="btn btn-primary btn-sm">
           <i class="bi bi-box"></i> Ver en 3D
         </a>
         <a href="{% url 'rooms:room_list' %}" class="btn btn-ghost btn-sm">
           <i class="bi bi-arrow-left"></i> Volver
         </a>
-      </div>
     </div>
+  </div>
 
-    <!-- Breadcrumb -->
-    <div class="admin-breadcrumb">
-      <ul class="admin-breadcrumb-list">
-        <li class="admin-breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-        <li class="admin-breadcrumb-item"><a href="{% url 'rooms:room_list' %}">Salas</a></li>
-        <li class="admin-breadcrumb-item active">{{ room.name }}</li>
-      </ul>
-    </div>
+  {% include 'rooms/includes/player_status.html' with player=player current_cell=current_cell %}
 
-    <!-- Grid principal: Info + Sidebar -->
     <div class="two-col">
-      <!-- Columna izquierda: Información principal -->
       <div class="col">
-        <!-- Tarjeta de información general -->
         <div class="section-card">
           <div class="section-header-purple">
             <h5><i class="bi bi-info-circle-fill me-2"></i> Información general</h5>
           </div>
-          <div class="row g-4 mt-1">
-            <!-- Imagen -->
-            <div class="col-lg-3 text-center">
-              <img src="{{ room_image_url }}" alt="{{ room.name }}" class="img-fluid rounded shadow" style="max-height: 180px; width: auto;">
-            </div>
-            <!-- Descripción y detalles -->
-            <div class="col-lg-9">
-              <p class="text-muted">{{ room.description|default:"Sin descripción disponible" }}</p>
-              <div class="row g-3 mt-2">
-                <div class="col-md-6">
-                  <div class="stat-list">
-                    <div class="stat-row"><span class="text-muted">Dimensiones</span> <span>{{ room.length }}×{{ room.width }}×{{ room.height }}</span></div>
-                    <div class="stat-row"><span class="text-muted">Masa</span> <span>{{ room.mass }} kg</span></div>
-                    <div class="stat-row"><span class="text-muted">Densidad</span> <span>{{ room.density }} g/cm³</span></div>
-                    <div class="stat-row"><span class="text-muted">Material</span> <span>{{ room.get_material_type_display }}</span></div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="stat-list">
-                    <div class="stat-row"><span class="text-muted">Temperatura</span> <span>{{ room.temperature }}°C</span></div>
-                    <div class="stat-row"><span class="text-muted">Iluminación</span> <span>{{ room.lighting_intensity }}%</span></div>
-                    <div class="stat-row"><span class="text-muted">Salud</span> <span>{{ room.health }}%</span></div>
-                    <div class="stat-row"><span class="text-muted">Opacidad</span> <span>{{ room.opacity|floatformat:1 }}</span></div>
-                  </div>
-                </div>
+          <div class="section-body">
+            <p class="text-muted">{{ room.description|default:"Sin descripción disponible" }}</p>
+            <div class="flex flex-col gap-2 mt-2">
+              <div class="flex justify-between">
+                <span class="text-muted">Dimensiones</span>
+                <span class="font-semibold">{{ room.length }}×{{ room.width }}×{{ room.height }}</span>
               </div>
-            </div>
-          </div>
-
-          <!-- Colores -->
-          <div class="row mt-3 pt-2 border-top">
-            <div class="col-12">
-              <div class="d-flex flex-wrap align-items-center gap-4">
-                <div>
-                  <span class="text-muted small">Color primario</span>
-                  <div class="d-flex align-items-center gap-2">
-                    <span style="width: 24px; height: 24px; background-color: {{ room.color_primary }}; border-radius: 4px; border: 1px solid var(--gray-300);"></span>
-                    <code class="text-sm">{{ room.color_primary }}</code>
-                  </div>
-                </div>
-                <div>
-                  <span class="text-muted small">Color secundario</span>
-                  <div class="d-flex align-items-center gap-2">
-                    <span style="width: 24px; height: 24px; background-color: {{ room.color_secondary }}; border-radius: 4px; border: 1px solid var(--gray-300);"></span>
-                    <code class="text-sm">{{ room.color_secondary }}</code>
-                  </div>
-                </div>
-                <div>
-                  <span class="text-muted small">Creada</span>
-                  <div class="fw-semibold">{{ room.created_at|date:"d M Y" }}</div>
-                </div>
-                <div>
-                  <span class="text-muted small">Actualizada</span>
-                  <div class="fw-semibold">{{ room.updated_at|date:"d M Y H:i" }}</div>
-                </div>
+              <div class="flex justify-between">
+                <span class="text-muted">Material</span>
+                <span class="font-semibold">{{ room.get_material_type_display|default:"N/A" }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-muted">Temperatura</span>
+                <span class="font-semibold">{{ room.temperature }}°C</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-muted">Iluminación</span>
+                <span class="font-semibold">{{ room.lighting_intensity }}%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-muted">Salud</span>
+                <span class="font-semibold">{{ room.health }}%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-muted">Opacidad</span>
+                <span class="font-semibold">{{ room.opacity|floatformat:1 }}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Conexiones, Entradas/Salidas, Portales -->
-        <div class="section-card">
+        {% include 'rooms/includes/navigation_panel.html' with current_cell=current_cell player=player back_target=nav_back_target exits=exits children=cells %}
+
+        <div class="section-card mt-3">
           <div class="section-header-info">
             <h5><i class="bi bi-diagram-3 me-2"></i> Conexiones y accesos</h5>
-            <!-- Botón para abrir modal de creación (CORRECTO) -->
-            {% if user == room.owner or user in room.administrators.all %}
-              <button type="button" class="btn btn-sm btn-primary float-end" data-bs-toggle="modal" data-bs-target="#createEntranceExit">
-                <i class="bi bi-plus-circle"></i> Añadir entrada/salida
-              </button>
-            {% endif %}
           </div>
+          <div class="section-body">
+            {% if entrance_exits %}
+              <h6 class="mt-2 mb-2"><i class="bi bi-box-arrow-in-right me-1"></i> Entradas/Salidas</h6>
+              <div class="flex flex-col gap-2">
+                {% for entrance in entrance_exits %}
+                  {% with face=entrance.properties.face|default:"N/A" enabled=entrance.properties.enabled|default:True %}
+                    <div class="flex justify-between items-center" style="padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
+                      <div>
+                        <span class="font-semibold">{{ entrance.name }}</span>
+                        <span class="text-muted text-sm ms-2">{{ entrance.get_cell_type_display }}</span>
+                      </div>
+                      <div class="flex gap-2">
+                        <span class="badge {% if enabled %}bg-success{% else %}bg-secondary{% endif %}">
+                          {% if enabled %}Activa{% else %}Inactiva{% endif %}
+                        </span>
+                        <span class="badge bg-light text-dark border">{{ face }}</span>
+                      </div>
+                    </div>
+                  {% endwith %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center text-muted py-3">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <p class="mb-0">No hay entradas/salidas definidas</p>
+              </div>
+            {% endif %}
 
-          <!-- Tabs de navegación interna -->
-          <ul class="nav nav-tabs mb-3" id="roomTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="entrances-tab" data-bs-toggle="tab" data-bs-target="#entrances" type="button" role="tab">
-                <i class="bi bi-box-arrow-in-right"></i> Entradas/Salidas
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="portals-tab" data-bs-toggle="tab" data-bs-target="#portals" type="button" role="tab">
-                <i class="bi bi-door-open"></i> Portales
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="connections-tab" data-bs-toggle="tab" data-bs-target="#connections" type="button" role="tab">
-                <i class="bi bi-link-45deg"></i> Conexiones
-              </button>
-            </li>
-          </ul>
-
-          <div class="tab-content" id="roomTabsContent">
-            <!-- Entrances -->
-            <div class="tab-pane fade show active" id="entrances" role="tabpanel">
-              {% if entrance_exits %}
-                <div class="table-wrap">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>Nombre</th>
-                        <th>Dirección</th>
-                        <th>Estado</th>
-                        <th>Conexión</th>
-                        <th style="text-align: right;">Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for entrance in entrance_exits %}
-                        {% with has_connection=entrance.connection %}
-                        <tr class="{% if entrance.enabled and has_connection %}clickable-entrance{% endif %}" 
-                            data-entrance-id="{{ entrance.id }}" 
-                            style="{% if entrance.enabled and has_connection %}cursor: pointer;{% endif %}">
-                          <td><strong>{{ entrance.name }}</strong></td>
-                          <td><span class="status-badge secondary">{{ entrance.face }}</span></td>
-                          <td>
-                            {% if entrance.enabled %}
-                              <span class="status-badge active"><i class="bi bi-check-circle-fill"></i> Activa</span>
-                            {% else %}
-                              <span class="status-badge pending"><i class="bi bi-pause-circle-fill"></i> Inactiva</span>
-                            {% endif %}
-                          </td>
-                          <td>
-                            {% if has_connection %}
-                              <span class="status-badge active">
-                                <i class="bi bi-check-circle-fill"></i> Conectada
-                                {% if has_connection.bidirectional %}
-                                  <small class="text-muted">↔</small>
-                                {% endif %}
-                              </span>
-                            {% else %}
-                              <span class="status-badge pending"><i class="bi bi-dash-circle"></i> Sin conexión</span>
-                            {% endif %}
-                          </td>
-                          <td style="text-align: right;">
-                            {% if user == room.owner or user in room.administrators.all %}
-                              <div class="table-actions" style="justify-content: flex-end;">
-                                <button type="button" class="edit-entrance-btn"
-                                        data-entrance-id="{{ entrance.id }}"
-                                        data-entrance-name="{{ entrance.name }}"
-                                        data-entrance-face="{{ entrance.face }}"
-                                        data-entrance-description="{{ entrance.description }}"
-                                        data-entrance-enabled="{{ entrance.enabled }}"
-                                        title="Editar">
-                                  <i class="bi bi-pencil"></i>
-                                </button>
-                                {% if not has_connection %}
-                                  <button type="button" class="delete-entrance-btn text-danger"
-                                          data-entrance-id="{{ entrance.id }}"
-                                          data-entrance-name="{{ entrance.name }}"
-                                          title="Eliminar">
-                                    <i class="bi bi-trash"></i>
-                                  </button>
-                                {% endif %}
-                              </div>
-                            {% endif %}
-                          </td>
-                        </tr>
-                        {% endwith %}
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              {% else %}
-                <div class="empty-state">
-                  <i class="bi bi-box-arrow-in-right"></i>
-                  <p>No hay entradas/salidas definidas</p>
-                </div>
-              {% endif %}
-            </div>
-
-            <!-- Portales -->
-            <div class="tab-pane fade" id="portals" role="tabpanel">
-              {% if portals %}
-                <div class="table-wrap">
-                  <table class="table">
-                    <thead>
-                      <tr><th>Nombre</th><th>Conexión</th><th>Costo</th></tr>
-                    </thead>
-                    <tbody>
-                      {% for portal in portals %}
-                        <tr>
-                          <td><strong>{{ portal.name }}</strong></td>
-                          <td>{{ portal.entrance.room.name }} → {{ portal.exit.room.name }}</td>
-                          <td><span class="badge bg-warning text-dark">{{ portal.energy_cost }} energía</span></td>
-                        </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              {% else %}
-                <div class="empty-state">
-                  <i class="bi bi-door-open"></i>
-                  <p>No hay portales definidos</p>
-                </div>
-              {% endif %}
-            </div>
-
-            <!-- Conexiones -->
-            <div class="tab-pane fade" id="connections" role="tabpanel">
-              {% with room_connections=room.from_connections.all %}
-                {% if room_connections %}
-                  <div class="table-wrap">
-                    <table class="table">
-                      <thead>
-                        <tr><th>Entrada</th><th>Hacia</th><th>Costo</th><th>Bidireccional</th><th style="text-align: right;">Acciones</th></tr>
-                      </thead>
-                      <tbody>
-                        {% for connection in room_connections %}
-                          <tr>
-                            <td>{{ connection.entrance.name }}</td>
-                            <td><a href="{% url 'rooms:room_detail' connection.to_room.pk %}">{{ connection.to_room.name }}</a></td>
-                            <td><span class="badge bg-secondary">{{ connection.energy_cost }}</span></td>
-                            <td>{% if connection.bidirectional %}<span class="text-success">✓</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                            <td style="text-align: right;">
-                              {% if user == room.owner or user in room.administrators.all %}
-                                <div class="table-actions" style="justify-content: flex-end;">
-                                  <a href="{% url 'rooms:edit_room_connection' room.pk connection.pk %}" title="Editar"><i class="bi bi-pencil"></i></a>
-                                  <a href="{% url 'rooms:delete_room_connection' room.pk connection.pk %}" class="text-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
-                                </div>
-                              {% endif %}
-                            </td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
+            {% if portals %}
+              <h6 class="mt-3 mb-2"><i class="bi bi-door-open me-1"></i> Portales</h6>
+              <div class="flex flex-col gap-2">
+                {% for portal in portals %}
+                  <div class="flex justify-between items-center" style="padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
+                    <div>
+                      <span class="font-semibold">{{ portal.name }}</span>
+                      <span class="text-muted text-sm ms-2">{{ portal.get_cell_type_display }}</span>
+                    </div>
+                    <span class="badge {% if portal.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                      {% if portal.is_active %}Activo{% else %}Inactivo{% endif %}
+                    </span>
                   </div>
-                {% else %}
-                  <div class="empty-state">
-                    <i class="bi bi-link-45deg"></i>
-                    <p>No hay conexiones definidas</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if from_connections or to_connections %}
+              <h6 class="mt-3 mb-2"><i class="bi bi-link-45deg me-1"></i> Conexiones</h6>
+              <div class="flex flex-col gap-2">
+                {% for conn in from_connections %}
+                  <div class="flex justify-between items-center" style="padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
+                    <div>
+                      <span class="font-semibold">{{ room.name }}</span>
+                      <i class="bi bi-arrow-right ms-2 me-2 text-muted"></i>
+                      <span class="font-semibold">{{ conn.to_cell.name }}</span>
+                    </div>
+                    <div class="flex gap-2">
+                      <span class="badge bg-light text-dark border">Costo: {{ conn.energy_cost }}</span>
+                      {% if conn.bidirectional %}
+                        <span class="badge bg-info">Bidireccional</span>
+                      {% endif %}
+                    </div>
                   </div>
-                {% endif %}
-              {% endwith %}
-              {% if user == room.owner or user in room.administrators.all %}
-                <div class="mt-2">
-                  <a href="{% url 'rooms:create_room_connection' room.pk %}" class="btn btn-sm btn-success">
-                    <i class="bi bi-plus-circle"></i> Crear conexión
-                  </a>
-                </div>
-              {% endif %}
-            </div>
+                {% endfor %}
+                {% for conn in to_connections %}
+                  <div class="flex justify-between items-center" style="padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
+                    <div>
+                      <span class="font-semibold">{{ conn.from_cell.name }}</span>
+                      <i class="bi bi-arrow-right ms-2 me-2 text-muted"></i>
+                      <span class="font-semibold">{{ room.name }}</span>
+                    </div>
+                    <div class="flex gap-2">
+                      <span class="badge bg-light text-dark border">Costo: {{ conn.energy_cost }}</span>
+                      {% if conn.bidirectional %}
+                        <span class="badge bg-info">Bidireccional</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center text-muted py-3">
+                <i class="bi bi-link-45deg"></i>
+                <p class="mb-0">No hay conexiones definidas</p>
+                <a href="{% url 'rooms:create_room_connection' room.pk %}" class="btn btn-sm btn-success mt-2">
+                  <i class="bi bi-plus-circle"></i> Crear conexión
+                </a>
+              </div>
+            {% endif %}
           </div>
         </div>
 
-        <!-- Estructura jerárquica (padre/hijos) -->
-        {% if room.parent_room or room.child_of_rooms.all %}
-          <div class="section-card">
-            <div class="section-header-secondary">
-              <h5><i class="bi bi-diagram-2 me-2"></i> Estructura jerárquica</h5>
-            </div>
-            <div class="row g-3 mt-1">
-              {% if room.parent_room %}
-                <div class="col-md-6">
-                  <div class="alert alert-info mb-0">
-                    <i class="bi bi-arrow-up-circle-fill me-2"></i>
-                    <strong>Habitación padre:</strong>
-                    <a href="{% url 'rooms:room_detail' room.parent_room.id %}" class="fw-semibold">{{ room.parent_room.name }}</a>
-                  </div>
-                </div>
+        <div class="section-card mt-3">
+          <div class="section-header-secondary">
+            <h5><i class="bi bi-diagram-2 me-2"></i> Estructura jerárquica</h5>
+          </div>
+          <div class="section-body">
+            <div class="flex flex-col gap-2">
+              {% if room.parent %}
+                <a href="{% url 'rooms:room_detail' room.parent.id %}" class="btn btn-outline-info w-100 text-start">
+                  <i class="bi bi-arrow-up-circle"></i> {{ room.parent.name }}
+                  <span class="badge bg-info float-end">Padre</span>
+                </a>
               {% endif %}
-              {% with child_rooms=room.child_of_rooms.all %}
+              {% with child_rooms=room.children.all %}
                 {% if child_rooms %}
-                  <div class="col-md-6">
-                    <div class="alert alert-success mb-0">
-                      <i class="bi bi-arrow-down-circle-fill me-2"></i>
-                      <strong>Habitaciones hijas ({{ child_rooms|length }})</strong>
-                      <div class="mt-1">
-                        {% for child in child_rooms|slice:":3" %}
-                          <a href="{% url 'rooms:room_detail' child.id %}" class="badge bg-success me-1">{{ child.name }}</a>
-                        {% endfor %}
-                        {% if child_rooms|length > 3 %}
-                          <span class="badge bg-secondary">+{{ child_rooms|length|add:"-3" }}</span>
-                        {% endif %}
-                      </div>
+                  <div>
+                    <strong>Habitaciones hijas ({{ child_rooms|length }})</strong>
+                    <div class="mt-1">
+                      {% for child in child_rooms|slice:":3" %}
+                        <a href="{% url 'rooms:room_detail' child.id %}" class="badge bg-success me-1">{{ child.name }}</a>
+                      {% endfor %}
+                      {% if child_rooms|length > 3 %}
+                        <span class="badge bg-secondary">+{{ child_rooms|length|add:"-3" }}</span>
+                      {% endif %}
                     </div>
                   </div>
                 {% endif %}
               {% endwith %}
             </div>
           </div>
-        {% endif %}
+        </div>
       </div>
 
-      <!-- Columna derecha: Acciones rápidas, navegación y comentarios/evaluaciones -->
       <div class="col">
-        <!-- Acciones rápidas -->
         <div class="section-card">
           <div class="section-header-success">
             <h5><i class="bi bi-lightning-fill me-2"></i> Acciones rápidas</h5>
           </div>
-          <div class="d-grid gap-2 mt-2">
-            <a href="{% url 'rooms:room_3d' room.pk %}" class="btn btn-primary">
-              <i class="bi bi-box"></i> Ver en 3D
-            </a>
-            <a href="{% url 'rooms:room_comments' room.pk %}" class="btn btn-outline-secondary">
-              <i class="bi bi-chat"></i> Comentarios ({{ room.comments.count }})
-            </a>
-            <a href="{% url 'rooms:room_evaluations' room.pk %}" class="btn btn-outline-warning">
-              <i class="bi bi-star"></i> Evaluaciones ({{ room.evaluations.count }})
-            </a>
-            {% if user == room.owner or user in room.administrators.all %}
-              <a href="{% url 'rooms:room_crud' %}" class="btn btn-warning">
-                <i class="bi bi-gear"></i> Gestionar habitaciones
+          <div class="section-body">
+            <div class="d-grid gap-2">
+              <a href="{% url 'rooms:room_3d' room.pk %}" class="btn btn-primary">
+                <i class="bi bi-box"></i> Ver en 3D
               </a>
-            {% endif %}
-          </div>
-        </div>
-
-        <!-- Navegación por ID -->
-        <div class="section-card">
-          <div class="section-header-info">
-            <h5><i class="bi bi-compass me-2"></i> Navegar a sala</h5>
-          </div>
-          <form method="post" class="mt-2">
-            {% csrf_token %}
-            <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-hash"></i></span>
-              <input type="number" class="form-control" name="room_id" placeholder="ID de sala" required>
-              <button type="submit" name="enter_room" class="btn btn-primary">
-                <i class="bi bi-box-arrow-in-right"></i> Ir
-              </button>
+              <a href="{% url 'rooms:room_comments' room.pk %}" class="btn btn-outline-secondary">
+                <i class="bi bi-chat"></i> Comentarios ({{ room.comments.count }})
+              </a>
+              <a href="{% url 'rooms:room_evaluations' room.pk %}" class="btn btn-outline-warning">
+                <i class="bi bi-star"></i> Evaluaciones ({{ room.evaluations.count }})
+              </a>
             </div>
-          </form>
+          </div>
         </div>
 
-        <!-- Acceso rápido a salas relacionadas -->
-        <div class="section-card">
-          <div class="section-header-secondary">
-            <h5><i class="bi bi-link-45deg me-2"></i> Salas relacionadas</h5>
-          </div>
-          <div class="mt-2">
-            {% if room.parent_room %}
-              <a href="{% url 'rooms:room_detail' room.parent_room.id %}" class="btn btn-outline-info w-100 mb-2 text-start">
-                <i class="bi bi-arrow-up-circle"></i> {{ room.parent_room.name }}
-                <span class="badge bg-info float-end">Padre</span>
-              </a>
-            {% endif %}
-            {% with child_rooms=room.child_of_rooms.all %}
-              {% for child in child_rooms|slice:":3" %}
-                <a href="{% url 'rooms:room_detail' child.id %}" class="btn btn-outline-success w-100 mb-1 text-start">
-                  <i class="bi bi-arrow-down-circle"></i> {{ child.name }}
-                </a>
-              {% endfor %}
-              {% if child_rooms|length > 3 %}
-                <a href="#" class="btn btn-outline-secondary w-100 text-start">
-                  <i class="bi bi-plus-circle"></i> Ver más ({{ child_rooms|length|add:"-3" }})
-                </a>
-              {% endif %}
-            {% endwith %}
-          </div>
-        </div>
+        {% include 'rooms/includes/room_map.html' with player=player cells=cells nav_back_target=nav_back_target nav_breadcrumb=nav_breadcrumb %}
+
+        {% include 'rooms/includes/history_rail.html' with history=history %}
       </div>
     </div>
   </div>
 
-  <!-- Modals -->
-  {% include 'rooms/includes/entrance_exit_modal.html' %}
-  {% include 'rooms/includes/portal_modal.html' %}
-
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Entradas clickables para navegación
-      document.querySelectorAll('.clickable-entrance').forEach(function(row) {
-        row.addEventListener('click', function() {
-          const entranceId = this.getAttribute('data-entrance-id');
-          if (!entranceId) return;
+      document.querySelectorAll('.navigable-cell').forEach(function(cellEl) {
+        cellEl.addEventListener('click', function(e) {
+          e.preventDefault();
+          const cellId = this.getAttribute('data-cell-id');
+          if (!cellId) return;
 
           this.style.pointerEvents = 'none';
           this.style.opacity = '0.6';
 
-          fetch(`/rooms/api/entrance/${entranceId}/use/`, {
-            method: 'POST',
+          fetch(`/rooms/navigate/cell/${cellId}/`, {
+            method: 'GET',
             headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+              'X-Requested-With': 'XMLHttpRequest',
             },
-            body: JSON.stringify({})
           })
-          .then(response => response.json())
-          .then(data => {
+          .then(function(response) { return response.json(); })
+          .then(function(data) {
             if (data.success) {
-              window.location.href = `/rooms/rooms/${data.target_room.id}/`;
+              window.location.href = `/rooms/${data.target_room.id}/`;
             } else {
               alert('Error: ' + data.message);
-              this.style.pointerEvents = 'auto';
-              this.style.opacity = '1';
+              cellEl.style.pointerEvents = 'auto';
+              cellEl.style.opacity = '1';
             }
           })
-          .catch(error => {
-            alert('Error al usar la entrada: ' + error.message);
-            this.style.pointerEvents = 'auto';
-            this.style.opacity = '1';
+          .catch(function(error) {
+            alert('Error al navegar a la celda: ' + error.message);
+            cellEl.style.pointerEvents = 'auto';
+            cellEl.style.opacity = '1';
           });
         });
       });
-
-      // Editar entrada
-      document.querySelectorAll('.edit-entrance-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          const entranceId = this.getAttribute('data-entrance-id');
-          if (entranceId) {
-            window.location.href = `/rooms/entrance-exits/${entranceId}/edit/`;
-          }
-        });
-      });
-
-      // Eliminar entrada
-      document.querySelectorAll('.delete-entrance-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          const entranceId = this.getAttribute('data-entrance-id');
-          const entranceName = this.getAttribute('data-entrance-name');
-          if (entranceId && confirm(`¿Eliminar la entrada/salida "${entranceName}"?`)) {
-            window.location.href = `/rooms/entrance-exits/${entranceId}/delete/`;
-          }
-        });
-      });
     });
   </script>
 
-  {% include 'rooms/includes/object_action_panel.html' with room=room %}
-  {% include 'rooms/includes/room_object_list.html' %}
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const openBtn = document.querySelector('[data-open-object-panel]');
-      if (openBtn) {
-        openBtn.addEventListener('click', function() {
-          const panel = document.getElementById('objectActionPanel');
-          if (panel && window.openObjectPanel) {
-            window.openObjectPanel();
-          }
-        });
-      }
-    });
-  </script>
 {% endblock %}

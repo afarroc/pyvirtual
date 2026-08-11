@@ -133,32 +133,3 @@ function confirmSave(button) {
 }
 </script>
 {% endblock %}
-
-{% block extra_css %}
-<style>
-/* Estilos para campos con errores */
-.form-control.is-invalid,
-.form-select.is-invalid {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-}
-
-.alert-danger {
-    border-left: 4px solid #dc3545;
-}
-
-/* Campos requeridos */
-.form-label .text-danger {
-    font-weight: bold;
-}
-
-/* Mejorar apariencia de alerts de error */
-.alert-danger ul {
-    margin-bottom: 0;
-}
-
-.alert-danger li {
-    margin-bottom: 2px;
-}
-</style>
-{% endblock %}

@@ -1,0 +1,45 @@
+{% load room_extras %}
+
+<div class="section-card mt-3">
+  <div class="section-header-info">
+    <h5><i class="bi bi-map me-2"></i> Mapa de la habitación</h5>
+  </div>
+
+  <div class="mb-2 text-muted small">
+    player={{ player }} x={{ player.position_x|default:"?" }} y={{ player.position_y|default:"?" }}
+  </div>
+
+  <div class="row g-2">
+    {% for cell in cells %}
+      {% if cell|is_navigable_cell %}
+        <div class="col-6 col-md-4">
+          <a href="{% url 'rooms:navigate_to_cell' cell.id %}" class="text-decoration-none navigable-cell" data-cell-id="{{ cell.id }}">
+            <div class="card h-100 {% if cell|is_current_cell:player %}border-primary{% endif %}">
+              <div class="card-body py-2">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-{{ cell.cell_type|lower }} text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">{{ cell.name }}</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">
+                      {{ cell.get_cell_type_display }} · {{ cell.position_x }}, {{ cell.position_y }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endif %}
+    {% empty %}
+      <p class="text-muted">No hay celdas navegables en esta habitación.</p>
+    {% endfor %}
+  </div>
+
+  <div class="mt-2">
+    {% if nav_back_target %}
+      <a href="{% url 'rooms:room_detail' nav_back_target.id %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Volver a {{ nav_back_target.name }}
+      </a>
+    {% endif %}
+  </div>
+</div>

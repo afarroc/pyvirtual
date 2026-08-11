@@ -1,37 +1,36 @@
-<div class="modal fade" id="createEntranceExit" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Create Entrance/Exit</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="post" class="row g-3">
-                    {% csrf_token %}
-                    <div class="col-12">
-                        <div class="form-floating mb-3">
-                            {{ entrance_exit_form.name }}
-                            <label for="floatingName">Name</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            {{ entrance_exit_form.description }}
-                            <label for="floatingTextarea">Description</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            {{ entrance_exit_form.face }}
-                            <label for="floatingFace">Face</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            {{ entrance_exit_form.type }}
-                            <label for="floatingType">Type</label>
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" name="create_entrance_exit">Create</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+<!-- ==========================================
+     MODAL: Crear Entrada/Salida - Management360
+     ========================================== -->
+<div class="modal-overlay" id="createEntranceExit">
+  <div class="modal">
+    <div class="modal-header">
+      <h5><i class="bi bi-box-arrow-in-right me-2"></i> Crear Entrada/Salida</h5>
+      <button type="button" class="close-btn" data-bs-dismiss="modal" aria-label="Close">&times;</button>
     </div>
+    <form method="post" class="row g-3">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="floatingName">Nombre</label>
+        {{ entrance_exit_form.name }}
+      </div>
+      <div class="form-group">
+        <label for="floatingTextarea">Descripción</label>
+        {{ entrance_exit_form.description }}
+      </div>
+      <div class="form-group">
+        <label for="floatingFace">Dirección (Cara)</label>
+        {{ entrance_exit_form.face }}
+      </div>
+      <div class="form-group">
+        <label for="floatingType">Tipo</label>
+        {{ entrance_exit_form.type }}
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary" name="create_entrance_exit">
+          <i class="bi bi-plus-circle"></i> Crear
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

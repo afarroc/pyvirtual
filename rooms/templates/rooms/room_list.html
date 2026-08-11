@@ -2,84 +2,133 @@
 {% load static %}
 
 {% block content %}
-{% if messages %}
+  {% if messages %}
     {% include 'layouts/includes/alert.html' %}
-{% endif %}
+  {% endif %}
 
-<div class="pagetitle">
-    <h1>{{ page_title }}</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'rooms:lobby' %}">Home</a></li>
-            <li class="breadcrumb-item active">Rooms</li>
-        </ol>
-    </nav>
-</div>
-
-<section class="section">
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title">Available Rooms</h5>
-                        <a href="{% url 'rooms:room_create' %}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> New Room
-                        </a>
-                    </div>
-
-                    {% if rooms %}
-                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-                        {% for room in rooms %}
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">
-                                        <a href="{% url 'rooms:room_detail' room.pk %}" class="text-primary">{{ room.name }}</a>
-                                    </h5>
-                                    <p class="card-text">{{ room.description|default:"Sin descripción"|truncatechars:100 }}</p>
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="badge bg-primary">
-                                            <i class="bi bi-people"></i> {{ room.capacity }}
-                                        </span>
-                                        <div class="rating">
-                                            <i class="bi bi-star-fill text-warning"></i>
-                                            <span>{{ room.rating|default:"N/A" }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="text-muted small">
-                                        <i class="bi bi-geo-alt"></i> {{ room.address|default:"No especificada" }}
-                                    </div>
-                                    <div class="text-muted small">
-                                        <i class="bi bi-calendar"></i> {{ room.created_at|date:"d M Y" }}
-                                    </div>
-                                </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="d-flex justify-content-between">
-                                        <a href="{% url 'rooms:room_detail' room.pk %}" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-info-circle"></i> Details
-                                        </a>
-                                        <a href="{% url 'rooms:room_comments' room.pk %}" class="btn btn-sm btn-outline-secondary">
-                                            <i class="bi bi-chat"></i> Comments
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-building fs-1 text-muted"></i>
-                        <p class="text-muted mt-3">No hay salas disponibles.</p>
-                        <a href="{% url 'rooms:room_create' %}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Create First Room
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+  <!-- ==========================================
+       ROOM LIST - MANAGEMENT360 STYLE
+       ========================================== -->
+  <div class="dashboard-wrapper">
+    <!-- Header / Breadcrumb -->
+    <div class="dashboard-header">
+      <div>
+        <h1><i class="bi bi-grid-3x3-gap-fill"></i> {{ page_title|default:"Salas" }}</h1>
+        <p class="subtitle">Gestiona todas las salas y espacios disponibles</p>
+      </div>
+      <div class="header-actions">
+        <a href="{% url 'rooms:room_create' %}" class="btn btn-primary">
+          <i class="bi bi-plus-circle-fill"></i> Nueva Sala
+        </a>
+      </div>
     </div>
-</section>
+
+    <!-- Breadcrumb (estilo Management360) -->
+    <div class="admin-breadcrumb">
+      <ul class="admin-breadcrumb-list">
+        <li class="admin-breadcrumb-item"><a href="{% url 'rooms:lobby' %}">Home</a></li>
+        <li class="admin-breadcrumb-item active">Salas</li>
+      </ul>
+    </div>
+
+    <!-- Filtros rápidos / Toolbar -->
+    <div class="dashboard-toolbar">
+      <div class="toolbar-group">
+        <span class="group-label"><i class="bi bi-funnel"></i> Filtros</span>
+        <a href="#" class="toolbar-btn active">Todas</a>
+        <a href="#" class="toolbar-btn">Activas</a>
+        <a href="#" class="toolbar-btn">Privadas</a>
+        <a href="#" class="toolbar-btn">Públicas</a>
+      </div>
+      <div class="toolbar-divider"></div>
+      <div class="toolbar-group">
+        <span class="group-label"><i class="bi bi-sort-alpha-down"></i> Ordenar</span>
+        <a href="#" class="toolbar-btn">Nombre</a>
+        <a href="#" class="toolbar-btn">Capacidad</a>
+        <a href="#" class="toolbar-btn">Fecha</a>
+      </div>
+      <div class="toolbar-divider"></div>
+      <div class="toolbar-group ms-auto">
+        <span class="badge bg-light text-dark border px-3 py-2">
+          <i class="bi bi-people"></i> {{ rooms|length }} salas
+        </span>
+      </div>
+    </div>
+
+    <!-- Grid de Salas -->
+    <section class="section-card">
+      <div class="section-header-purple d-flex justify-content-between align-items-center">
+        <h5><i class="bi bi-grid-3x3-gap-fill me-2"></i> Salas disponibles</h5>
+        <a href="{% url 'rooms:room_create' %}" class="btn btn-sm btn-light text-primary">
+          <i class="bi bi-plus-circle-fill"></i> Nueva
+        </a>
+      </div>
+
+      {% if rooms %}
+        <div class="row g-4 mt-1">
+          {% for room in rooms %}
+            <div class="col-lg-4 col-md-6">
+              <div class="project-card h-100 d-flex flex-column">
+                <div class="project-header">
+                  <h6 class="mb-0">
+                    <a href="{% url 'rooms:room_detail' room.pk %}" class="text-primary text-decoration-none">
+                      {{ room.name }}
+                    </a>
+                  </h6>
+                  <span class="status-badge {% if room.is_active %}active{% else %}pending{% endif %}">
+                    {% if room.is_active %}Activa{% else %}Pendiente{% endif %}
+                  </span>
+                </div>
+                <p class="project-description flex-grow-1">
+                  {{ room.description|default:"Sin descripción"|truncatechars:90 }}
+                </p>
+                <div class="project-meta d-flex justify-content-between align-items-center">
+                  <span><i class="bi bi-people"></i> {{ room.capacity|default:"N/A" }}</span>
+                  <span><i class="bi bi-geo-alt"></i> {{ room.address|default:"Sin ubicación"|truncatechars:20 }}</span>
+                  <span><i class="bi bi-calendar3"></i> {{ room.created_at|date:"d/m/Y" }}</span>
+                </div>
+                <div class="project-actions mt-2 d-flex justify-content-between">
+                  <a href="{% url 'rooms:room_detail' room.pk %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-info-circle"></i> Detalles
+                  </a>
+                  <a href="{% url 'rooms:room_comments' room.pk %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-chat"></i> Comentarios
+                  </a>
+                  {% if room.rating %}
+                    <span class="badge bg-warning text-dark">
+                      <i class="bi bi-star-fill"></i> {{ room.rating }}
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Paginación (placeholder) -->
+        <div class="d-flex justify-content-between align-items-center mt-4 pt-2 border-top">
+          <span class="text-muted small">Mostrando {{ rooms|length }} salas</span>
+          <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
+              <li class="page-item active"><a class="page-link" href="#">1</a></li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+            </ul>
+          </nav>
+        </div>
+      {% else %}
+        <!-- Estado vacío mejorado -->
+        <div class="empty-pendientes">
+          <i class="bi bi-building"></i>
+          <h5>No hay salas disponibles</h5>
+          <p>Comienza creando tu primera sala</p>
+          <a href="{% url 'rooms:room_create' %}" class="btn btn-primary mt-2">
+            <i class="bi bi-plus-circle-fill"></i> Crear primera sala
+          </a>
+        </div>
+      {% endif %}
+    </section>
+  </div>
 {% endblock %}

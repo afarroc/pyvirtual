@@ -3,7 +3,7 @@
   <div class="modal-dialog object-action-panel">
     <div class="modal-content">
       <div class="panel-header">
-        <h3><i class="bi bi-plus-circle-fill me-2"></i>Crear objeto en {{ room.name }}</h3>
+        <h3><i class="bi bi-plus-circle-fill me-2"></i>Crear celda en {{ room.name }}</h3>
         <button type="button" class="btn-close" data-close-panel aria-label="Close"></button>
       </div>
 
@@ -77,7 +77,9 @@
       REST: 'Rest Zone',
       DOOR: 'Door',
       EQUIPMENT: 'Equipment',
-      BOX: 'Box'
+      CONTAINER: 'Contenedor',
+      ITEM: 'Item',
+      FURNITURE: 'Mobiliario',
     };
 
     function showState(state) {
@@ -145,12 +147,12 @@
       .then(function(response) { return response.json(); })
       .then(function(data) {
         if (data.success) {
-          showFeedback(true, 'Objeto creado', data.message || 'El objeto se creó correctamente.');
+          showFeedback(true, 'Celda creada', data.message || 'La celda se creó correctamente.');
           form.reset();
           slots.forEach(function(s) { s.classList.remove('active'); });
         } else {
           var detail = buildErrorDetail(data);
-          showFeedback(false, data.message || 'No se pudo crear el objeto.', detail);
+          showFeedback(false, data.message || 'No se pudo crear la celda.', detail);
         }
       })
       .catch(function() {
@@ -158,7 +160,7 @@
       })
       .finally(function() {
         button.disabled = false;
-        button.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Crear objeto';
+        button.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Crear celda';
       });
     });
 
@@ -170,8 +172,8 @@
   function updateFields(form, type) {
     const roomFields = form.querySelector('.room-object-fields');
     const boxFields = form.querySelector('.box-fields');
-    if (roomFields) roomFields.style.display = type === 'BOX' ? 'none' : 'block';
-    if (boxFields) boxFields.style.display = type === 'BOX' ? 'block' : 'none';
+    if (roomFields) roomFields.style.display = type === 'CONTAINER' ? 'none' : 'block';
+    if (boxFields) boxFields.style.display = type === 'CONTAINER' ? 'block' : 'none';
   }
 
   function buildErrorDetail(data) {
