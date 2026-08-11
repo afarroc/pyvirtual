@@ -1,9 +1,9 @@
 from django.contrib import admin
 from .models import (
-    PlayerProfile, Room, RoomConnection, RoomObject, Box,
-    EntranceExit, Portal, Comment, Evaluation,
-    RoomMember, Message, Outbox, CDC
+    PlayerProfile, Cell, CellConnection,
+    Comment, Evaluation, Message, Outbox, CDC
 )
+
 
 @admin.register(PlayerProfile)
 class PlayerProfileAdmin(admin.ModelAdmin):
@@ -16,7 +16,7 @@ class PlayerProfileAdmin(admin.ModelAdmin):
             'fields': ('user', 'current_room', 'state')
         }),
         ('Position', {
-            'fields': ('position_x', 'position_y')
+            'fields': ('position_x', 'position_y', 'position_z')
         }),
         ('Stats', {
             'fields': ('energy', 'productivity', 'social', 'skills')
@@ -27,80 +27,34 @@ class PlayerProfileAdmin(admin.ModelAdmin):
         }),
     )
 
-@admin.register(Room)
-class RoomAdmin(admin.ModelAdmin):
-    list_display = ('name', 'room_type', 'owner', 'permissions', 'rating', 'capacity', 'created_at')
-    list_filter = ('room_type', 'permissions', 'created_at')
+
+@admin.register(Cell)
+class CellAdmin(admin.ModelAdmin):
+    list_display = ('name', 'cell_type', 'owner', 'is_active', 'position_x', 'position_y', 'position_z', 'parent', 'capacity', 'is_locked')
+    list_filter = ('cell_type', 'is_active', 'is_locked', 'material_type', 'owner')
     search_fields = ('name', 'description', 'owner__username')
-    filter_horizontal = ('administrators', 'portals')
-    readonly_fields = ('created_at', 'updated_at', 'bumped_at')
-    fieldsets = (
-        (None, {
-            'fields': ('name', 'description', 'owner', 'creator', 'room_type')
-        }),
-        ('Settings', {
-            'fields': ('permissions', 'capacity', 'rating')
-        }),
-        ('Dimensions', {
-            'fields': ('x', 'y', 'z', 'length', 'width', 'height'),
-            'classes': ('collapse',)
-        }),
-        ('Orientation', {
-            'fields': ('pitch', 'yaw', 'roll'),
-            'classes': ('collapse',)
-        }),
-        ('Relations', {
-            'fields': ('administrators', 'parent_room', 'portals'),
-            'classes': ('collapse',)
-        }),
-        ('Media', {
-            'fields': ('image',),
-            'classes': ('collapse',)
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at', 'bumped_at'),
-            'classes': ('collapse',)
-        }),
-    )
-
-@admin.register(RoomConnection)
-class RoomConnectionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'from_room', 'to_room', 'entrance', 'bidirectional', 'energy_cost')
-    list_filter = ('bidirectional',)
-    search_fields = ('from_room__name', 'to_room__name', 'entrance__name')
-
-@admin.register(RoomObject)
-class RoomObjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'room', 'object_type', 'position_x', 'position_y')
-    list_filter = ('object_type', 'room')
-    search_fields = ('name', 'room__name')
-    readonly_fields = ('effect',)
-
-@admin.register(Box)
-class BoxAdmin(admin.ModelAdmin):
-    list_display = ('name', 'room', 'is_open', 'is_locked', 'mass', 'capacity', 'updated_at')
-    list_filter = ('is_open', 'is_locked', 'material_type', 'room')
-    search_fields = ('name', 'room__name', 'description')
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
         (None, {
-            'fields': ('name', 'room', 'description')
+            'fields': ('name', 'cell_type', 'owner', 'is_active', 'parent')
         }),
         ('Position', {
-            'fields': ('position_x', 'position_y')
+            'fields': ('position_x', 'position_y', 'position_z')
         }),
         ('Dimensions', {
-            'fields': ('width', 'height', 'depth', 'mass')
-        }),
-        ('Appearance', {
-            'fields': ('color', 'material_type', 'image'),
+            'fields': ('length', 'width', 'height', 'depth'),
             'classes': ('collapse',)
         }),
-        ('State', {
-            'fields': ('is_open', 'is_locked', 'required_key')
+        ('Appearance', {
+            'fields': ('color', 'color_primary', 'color_secondary', 'material_type', 'image'),
+            'classes': ('collapse',)
         }),
-        ('Inventory', {
-            'fields': ('capacity', 'contents'),
+        ('Container', {
+            'fields': ('capacity', 'contents', 'is_open', 'is_locked', 'required_key', 'mass', 'effect'),
+            'classes': ('collapse',)
+        }),
+        ('Media', {
+            'fields': ('description',),
             'classes': ('collapse',)
         }),
         ('Timestamps', {
@@ -109,45 +63,13 @@ class BoxAdmin(admin.ModelAdmin):
         }),
     )
 
-@admin.register(EntranceExit)
-class EntranceExitAdmin(admin.ModelAdmin):
-    list_display = ('name', 'room', 'face', 'position_x', 'position_y', 'enabled')
-    list_filter = ('face', 'enabled')
-    search_fields = ('name', 'room__name')
-    readonly_fields = ('connection',)
 
-@admin.register(Portal)
-class PortalAdmin(admin.ModelAdmin):
-    list_display = ('name', 'entrance', 'exit', 'energy_cost', 'cooldown')
-    search_fields = ('name', 'entrance__room__name', 'exit__room__name')
+@admin.register(CellConnection)
+class CellConnectionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'from_cell', 'to_cell', 'entrance', 'bidirectional', 'energy_cost')
+    list_filter = ('bidirectional',)
+    search_fields = ('from_cell__name', 'to_cell__name', 'entrance__name')
 
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'room', 'created_at', 'short_comment')
-    list_filter = ('room', 'created_at')
-    search_fields = ('user__username', 'room__name', 'comment')
-    date_hierarchy = 'created_at'
-    
-    def short_comment(self, obj):
-        return obj.comment[:50] + '...' if len(obj.comment) > 50 else obj.comment
-    short_comment.short_description = 'Comment Preview'
-
-@admin.register(Evaluation)
-class EvaluationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'room', 'rating', 'created_at', 'short_comment')
-    list_filter = ('rating', 'room', 'created_at')
-    search_fields = ('user__username', 'room__name', 'comment')
-    
-    def short_comment(self, obj):
-        return obj.comment[:50] + '...' if len(obj.comment) > 50 else obj.comment
-    short_comment.short_description = 'Comment Preview'
-
-@admin.register(RoomMember)
-class RoomMemberAdmin(admin.ModelAdmin):
-    list_display = ('room', 'user', 'joined_at')
-    list_filter = ('room', 'joined_at')
-    search_fields = ('room__name', 'user__username')
-    date_hierarchy = 'joined_at'
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
@@ -155,10 +77,34 @@ class MessageAdmin(admin.ModelAdmin):
     list_filter = ('room', 'created_at')
     search_fields = ('room__name', 'user__username', 'content')
     date_hierarchy = 'created_at'
-    
+
     def short_content(self, obj):
         return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
     short_content.short_description = 'Content Preview'
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('user', 'room', 'created_at', 'short_comment')
+    list_filter = ('room', 'created_at')
+    search_fields = ('user__username', 'room__name', 'comment')
+    date_hierarchy = 'created_at'
+
+    def short_comment(self, obj):
+        return obj.comment[:50] + '...' if len(obj.comment) > 50 else obj.comment
+    short_comment.short_description = 'Comment Preview'
+
+
+@admin.register(Evaluation)
+class EvaluationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'room', 'rating', 'created_at', 'short_comment')
+    list_filter = ('rating', 'room', 'created_at')
+    search_fields = ('user__username', 'room__name', 'comment')
+
+    def short_comment(self, obj):
+        return obj.comment[:50] + '...' if len(obj.comment) > 50 else obj.comment
+    short_comment.short_description = 'Comment Preview'
+
 
 @admin.register(Outbox)
 class OutboxAdmin(admin.ModelAdmin):
@@ -166,6 +112,7 @@ class OutboxAdmin(admin.ModelAdmin):
     list_filter = ('method', 'partition', 'created_at')
     search_fields = ('payload',)
     date_hierarchy = 'created_at'
+
 
 @admin.register(CDC)
 class CDCAdmin(admin.ModelAdmin):
