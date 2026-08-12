@@ -658,7 +658,7 @@ def user_schedules_panel(request):
 
     # Obtener todos los usuarios que tienen programaciones o programas
     users_with_schedules = User.objects.filter(
-        models.Q(hosted_schedules__isnull=False) |
+        models.Q(taskschedule__isnull=False) |
         models.Q(hosted_programs__isnull=False)
     ).distinct().order_by('username')
 
@@ -806,9 +806,9 @@ def schedule_admin_dashboard(request):
 
     # Usuarios activos con programaciones
     active_users = User.objects.filter(
-        models.Q(hosted_schedules__isnull=False)
+        models.Q(taskschedule__isnull=False)
     ).distinct().annotate(
-        schedule_count=models.Count('hosted_schedules')
+        schedule_count=models.Count('taskschedule')
     ).order_by('-schedule_count')[:20]
 
     context = {
