@@ -2,138 +2,146 @@
 {% load static %}
 
 {% block content %}
-<div class="events-container">
-    <div class="events-row">
-        <div class="events-col-md-10 events-col-lg-8 events-mx-auto">
-            <div class="m360-card">
-                <div class="m360-card-header">
-                    <h5 class="m360-card-title events-mb-0">
-                        <i class="bi bi-pencil" style="margin-right: var(--m360-space-2);"></i>
-                        {{ title }}
-                    </h5>
-                </div>
-                <div class="m360-card-body">
-                    <form method="post">
-                        {% csrf_token %}
+<!-- Header de página -->
+<div class="dashboard-header">
+  <div>
+    <h1>
+      <i class="fas fa-pencil" style="color: var(--amber); margin-right: 0.5rem;"></i>
+      {{ title }}
+    </h1>
+    <p class="text-muted" style="font-size: 0.875rem;">Modifica la información del recordatorio</p>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'events:reminders_dashboard' %}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left" style="margin-right: 0.25rem;"></i> Cancelar
+    </a>
+  </div>
+</div>
 
-                        <div class="events-row events-gap-4">
-                            <div class="events-col-md-6">
-                                <div class="events-mb-4">
-                                    <label for="{{ form.title.id_for_label }}" class="m360-form-label">
-                                        {{ form.title.label }}
-                                    </label>
-                                    {{ form.title }}
-                                    {% if form.title.help_text %}
-                                    <div class="m360-form-hint">{{ form.title.help_text }}</div>
-                                    {% endif %}
-                                    {% if form.title.errors %}
-                                    <div class="events-text-danger">{{ form.title.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="events-col-md-6">
-                                <div class="events-mb-4">
-                                    <label for="{{ form.reminder_type.id_for_label }}" class="m360-form-label">
-                                        {{ form.reminder_type.label }}
-                                    </label>
-                                    {{ form.reminder_type }}
-                                    {% if form.reminder_type.help_text %}
-                                    <div class="m360-form-hint">{{ form.reminder_type.help_text }}</div>
-                                    {% endif %}
-                                    {% if form.reminder_type.errors %}
-                                    <div class="events-text-danger">{{ form.reminder_type.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
+<div class="row">
+  <div class="col-md-10 col-lg-8 mx-auto">
+    <div class="section-card">
+      <div class="section-card-body">
+        <form method="post">
+          {% csrf_token %}
 
-                        <div class="events-mb-4">
-                            <label for="{{ form.description.id_for_label }}" class="m360-form-label">
-                                {{ form.description.label }}
-                            </label>
-                            {{ form.description }}
-                            {% if form.description.help_text %}
-                            <div class="m360-form-hint">{{ form.description.help_text }}</div>
-                            {% endif %}
-                            {% if form.description.errors %}
-                            <div class="events-text-danger">{{ form.description.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="events-row events-gap-4">
-                            <div class="events-col-md-6">
-                                <div class="events-mb-4">
-                                    <label for="{{ form.remind_at.id_for_label }}" class="m360-form-label">
-                                        {{ form.remind_at.label }} *
-                                    </label>
-                                    {{ form.remind_at }}
-                                    {% if form.remind_at.help_text %}
-                                    <div class="m360-form-hint">{{ form.remind_at.help_text }}</div>
-                                    {% endif %}
-                                    {% if form.remind_at.errors %}
-                                    <div class="events-text-danger">{{ form.remind_at.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="events-row events-gap-4">
-                            <div class="events-col-md-4">
-                                <div class="events-mb-4">
-                                    <label for="{{ form.task.id_for_label }}" class="m360-form-label">
-                                        {{ form.task.label }}
-                                    </label>
-                                    {{ form.task }}
-                                    {% if form.task.help_text %}
-                                    <div class="m360-form-hint">{{ form.task.help_text }}</div>
-                                    {% endif %}
-                                    {% if form.task.errors %}
-                                    <div class="events-text-danger">{{ form.task.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="events-col-md-4">
-                                <div class="events-mb-4">
-                                    <label for="{{ form.project.id_for_label }}" class="m360-form-label">
-                                        {{ form.project.label }}
-                                    </label>
-                                    {{ form.project }}
-                                    {% if form.project.help_text %}
-                                    <div class="m360-form-hint">{{ form.project.help_text }}</div>
-                                    {% endif %}
-                                    {% if form.project.errors %}
-                                    <div class="events-text-danger">{{ form.project.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="events-col-md-4">
-                                <div class="events-mb-4">
-                                    <label for="{{ form.event.id_for_label }}" class="m360-form-label">
-                                        {{ form.event.label }}
-                                    </label>
-                                    {{ form.event }}
-                                    {% if form.event.help_text %}
-                                    <div class="m360-form-hint">{{ form.event.help_text }}</div>
-                                    {% endif %}
-                                    {% if form.event.errors %}
-                                    <div class="events-text-danger">{{ form.event.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="events-d-flex events-justify-between">
-                            <a href="{% url 'events:reminders_dashboard' %}" class="m360-btn m360-btn-outline-secondary">
-                                <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>Cancelar
-                            </a>
-                            <button type="submit" class="m360-btn m360-btn-primary">
-                                <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Actualizar Recordatorio
-                            </button>
-                        </div>
-                    </form>
-                </div>
+          <div class="row" style="gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="col-md-6">
+              <div style="margin-bottom: 1rem;">
+                <label for="{{ form.title.id_for_label }}" class="fw-bold mb-1" style="display: block; font-size: 0.875rem;">
+                  {{ form.title.label }}
+                </label>
+                {{ form.title }}
+                {% if form.title.help_text %}
+                  <small class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem; display: block;">{{ form.title.help_text }}</small>
+                {% endif %}
+                {% if form.title.errors %}
+                  <div class="text-danger" style="font-size: 0.8rem; margin-top: 0.25rem;">{{ form.title.errors }}</div>
+                {% endif %}
+              </div>
             </div>
-        </div>
+            <div class="col-md-6">
+              <div style="margin-bottom: 1rem;">
+                <label for="{{ form.reminder_type.id_for_label }}" class="fw-bold mb-1" style="display: block; font-size: 0.875rem;">
+                  {{ form.reminder_type.label }}
+                </label>
+                {{ form.reminder_type }}
+                {% if form.reminder_type.help_text %}
+                  <small class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem; display: block;">{{ form.reminder_type.help_text }}</small>
+                {% endif %}
+                {% if form.reminder_type.errors %}
+                  <div class="text-danger" style="font-size: 0.8rem; margin-top: 0.25rem;">{{ form.reminder_type.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label for="{{ form.description.id_for_label }}" class="fw-bold mb-1" style="display: block; font-size: 0.875rem;">
+              {{ form.description.label }}
+            </label>
+            {{ form.description }}
+            {% if form.description.help_text %}
+              <small class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem; display: block;">{{ form.description.help_text }}</small>
+            {% endif %}
+            {% if form.description.errors %}
+              <div class="text-danger" style="font-size: 0.8rem; margin-top: 0.25rem;">{{ form.description.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="row" style="gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="col-md-6">
+              <div style="margin-bottom: 1rem;">
+                <label for="{{ form.remind_at.id_for_label }}" class="fw-bold mb-1" style="display: block; font-size: 0.875rem;">
+                  {{ form.remind_at.label }} *
+                </label>
+                {{ form.remind_at }}
+                {% if form.remind_at.help_text %}
+                  <small class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem; display: block;">{{ form.remind_at.help_text }}</small>
+                {% endif %}
+                {% if form.remind_at.errors %}
+                  <div class="text-danger" style="font-size: 0.8rem; margin-top: 0.25rem;">{{ form.remind_at.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="col-md-4">
+              <div style="margin-bottom: 1rem;">
+                <label for="{{ form.task.id_for_label }}" class="fw-bold mb-1" style="display: block; font-size: 0.875rem;">
+                  {{ form.task.label }}
+                </label>
+                {{ form.task }}
+                {% if form.task.help_text %}
+                  <small class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem; display: block;">{{ form.task.help_text }}</small>
+                {% endif %}
+                {% if form.task.errors %}
+                  <div class="text-danger" style="font-size: 0.8rem; margin-top: 0.25rem;">{{ form.task.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div style="margin-bottom: 1rem;">
+                <label for="{{ form.project.id_for_label }}" class="fw-bold mb-1" style="display: block; font-size: 0.875rem;">
+                  {{ form.project.label }}
+                </label>
+                {{ form.project }}
+                {% if form.project.help_text %}
+                  <small class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem; display: block;">{{ form.project.help_text }}</small>
+                {% endif %}
+                {% if form.project.errors %}
+                  <div class="text-danger" style="font-size: 0.8rem; margin-top: 0.25rem;">{{ form.project.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div style="margin-bottom: 1rem;">
+                <label for="{{ form.event.id_for_label }}" class="fw-bold mb-1" style="display: block; font-size: 0.875rem;">
+                  {{ form.event.label }}
+                </label>
+                {{ form.event }}
+                {% if form.event.help_text %}
+                  <small class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem; display: block;">{{ form.event.help_text }}</small>
+                {% endif %}
+                {% if form.event.errors %}
+                  <div class="text-danger" style="font-size: 0.8rem; margin-top: 0.25rem;">{{ form.event.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="border-top flex items-center justify-between flex-wrap gap-2" style="border-top: 1px solid var(--gray-200); padding-top: 1rem;">
+            <a href="{% url 'events:reminders_dashboard' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left" style="margin-right: 0.25rem;"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-check-circle" style="margin-right: 0.25rem;"></i> Actualizar Recordatorio
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

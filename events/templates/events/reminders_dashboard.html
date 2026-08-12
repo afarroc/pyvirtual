@@ -2,169 +2,154 @@
 {% load static %}
 
 {% block content %}
-<div class="events-container">
-    <div class="events-row">
-        <div class="events-col-12">
-            <div class="m360-card">
-                <div class="m360-card-header events-d-flex events-justify-between events-align-center events-flex-wrap">
-                    <h5 class="m360-card-title events-mb-0">
-                        <i class="bi bi-bell" style="margin-right: var(--m360-space-2);"></i>{{ title }}
-                    </h5>
-                    <div class="events-d-flex events-gap-2">
-                        <a href="{% url 'events:create_reminder' %}" class="m360-btn m360-btn-primary">
-                            <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Crear Recordatorio
-                        </a>
-                        <button class="m360-btn m360-btn-outline-secondary" onclick="refreshReminders()">
-                            <i class="bi bi-arrow-clockwise" style="margin-right: var(--m360-space-1);"></i>Actualizar
-                        </button>
-                    </div>
-                </div>
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-3 events-mb-4">
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-gray-50);">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-text-primary">{{ total_reminders }}</h4>
-                                    <p class="events-mb-0">Total</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-warning); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ pending_count }}</h4>
-                                    <p class="events-mb-0" style="color: inherit;">Pendientes</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-success); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ sent_count }}</h4>
-                                    <p class="events-mb-0" style="color: inherit;">Enviados</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-danger); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ overdue_count }}</h4>
-                                    <p class="events-mb-0" style="color: inherit;">Vencidos</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {% if today_reminders %}
-                    <div class="events-row events-mb-4">
-                        <div class="events-col-12">
-                            <h5 class="events-text-warning">
-                                <i class="bi bi-exclamation-triangle" style="margin-right: var(--m360-space-2);"></i>
-                                Recordatorios para Hoy ({{ today_reminders.count }})
-                            </h5>
-                            <div class="m360-panel">
-                                {% for reminder in today_reminders %}
-                                <div class="m360-panel-body events-d-flex events-justify-between events-align-center" style="border-bottom: 1px solid var(--m360-border);">
-                                    <div>
-                                        <h6 class="events-mb-1">{{ reminder.title }}</h6>
-                                        <p class="events-mb-1">{{ reminder.description|default:"Sin descripción" }}</p>
-                                        <small class="events-text-muted">
-                                            <i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i>{{ reminder.remind_at|date:"H:i" }}
-                                            {% if reminder.task %} | Tarea: {{ reminder.task.title }}{% endif %}
-                                            {% if reminder.project %} | Proyecto: {{ reminder.project.title }}{% endif %}
-                                        </small>
-                                    </div>
-                                    <div>
-                                        <button class="m360-btn m360-btn-success m360-btn-sm" onclick="markAsSent({{ reminder.id }})">
-                                            <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>Marcar Enviado
-                                        </button>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <div class="events-row">
-                        <div class="events-col-12">
-                            <h5 class="events-mb-3">Recordatorios Pendientes</h5>
-                            {% if pending_reminders %}
-                            <div class="m360-table-responsive">
-                                <table class="m360-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Título</th>
-                                            <th>Fecha</th>
-                                            <th>Relacionado con</th>
-                                            <th>Tipo</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for reminder in pending_reminders %}
-                                        <tr>
-                                            <td>
-                                                <strong>{{ reminder.title }}</strong>
-                                                {% if reminder.description %}
-                                                <br><small class="events-text-muted">{{ reminder.description }}</small>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <span class="m360-badge m360-badge-info">{{ reminder.remind_at|date:"d/m/Y H:i" }}</span>
-                                            </td>
-                                            <td>
-                                                {% if reminder.task %}
-                                                <span class="m360-badge m360-badge-info">Tarea: {{ reminder.task.title }}</span>
-                                                {% elif reminder.project %}
-                                                <span class="m360-badge m360-badge-success">Proyecto: {{ reminder.project.title }}</span>
-                                                {% elif reminder.event %}
-                                                <span class="m360-badge m360-badge-warning">Evento: {{ reminder.event.title }}</span>
-                                                {% else %}
-                                                <span class="events-text-muted">General</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if reminder.reminder_type == 'email' %}
-                                                <i class="bi bi-envelope events-text-primary"></i> Email
-                                                {% elif reminder.reminder_type == 'push' %}
-                                                <i class="bi bi-bell events-text-warning"></i> Push
-                                                {% else %}
-                                                <i class="bi bi-chat-text events-text-success"></i> Ambos
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <div class="m360-btn-group">
-                                                    <a href="{% url 'events:edit_reminder' reminder.id %}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <button class="m360-btn m360-btn-sm m360-btn-outline-success" onclick="markAsSent({{ reminder.id }})">
-                                                        <i class="bi bi-check-circle"></i>
-                                                    </button>
-                                                    <button class="m360-btn m360-btn-sm m360-btn-outline-danger" onclick="deleteReminder({{ reminder.id }})">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="m360-alert m360-alert-info">
-                                <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
-                                No hay recordatorios pendientes. ¡Excelente!
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Header de página -->
+<div class="dashboard-header">
+  <div>
+    <h1>
+      <i class="fas fa-bell" style="color: var(--red); margin-right: 0.5rem;"></i>
+      {{ title }}
+    </h1>
+    <p class="text-muted" style="font-size: 0.875rem;">Gestiona y supervisa los recordatorios del sistema</p>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'events:create_reminder' %}" class="btn btn-primary">
+      <i class="fas fa-plus-circle" style="margin-right: 0.25rem;"></i> Crear Recordatorio
+    </a>
+    <button class="btn btn-outline-secondary" onclick="refreshReminders()">
+      <i class="fas fa-arrow-clockwise" style="margin-right: 0.25rem;"></i> Actualizar
+    </button>
+  </div>
 </div>
 
+<!-- Estadísticas -->
+<div class="stats-grid" style="margin-bottom: 1.5rem;">
+  <div class="stat-card" style="border-left: 4px solid var(--gray-500);">
+    <div class="stat-number">{{ total_reminders }}</div>
+    <div class="stat-label">Total</div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--amber);">
+    <div class="stat-number">{{ pending_count }}</div>
+    <div class="stat-label">Pendientes</div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--green);">
+    <div class="stat-number">{{ sent_count }}</div>
+    <div class="stat-label">Enviados</div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--red);">
+    <div class="stat-number">{{ overdue_count }}</div>
+    <div class="stat-label">Vencidos</div>
+  </div>
+</div>
+
+<div class="section-card">
+  <div class="section-card-body">
+    {% if today_reminders %}
+    <div style="margin-bottom: 1.5rem;">
+      <h5 class="fw-bold mb-3">
+        <i class="fas fa-triangle-exclamation" style="color: var(--amber); margin-right: 0.5rem;"></i>
+        Recordatorios para Hoy ({{ today_reminders.count }})
+      </h5>
+      <div class="section-card" style="padding: 0; overflow: hidden;">
+        {% for reminder in today_reminders %}
+        <div class="flex items-center justify-between" style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--gray-200);">
+          <div>
+            <h6 class="mb-1">{{ reminder.title }}</h6>
+            <p class="mb-1">{{ reminder.description|default:"Sin descripción" }}</p>
+            <small class="text-muted">
+              <i class="fas fa-clock" style="margin-right: 0.25rem;"></i>{{ reminder.remind_at|date:"H:i" }}
+              {% if reminder.task %} | Tarea: {{ reminder.task.title }}{% endif %}
+              {% if reminder.project %} | Proyecto: {{ reminder.project.title }}{% endif %}
+            </small>
+          </div>
+          <div>
+            <button class="btn btn-success btn-sm" onclick="markAsSent({{ reminder.id }})">
+              <i class="fas fa-check-circle" style="margin-right: 0.25rem;"></i> Marcar Enviado
+            </button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div>
+      <h5 class="fw-bold mb-3">Recordatorios Pendientes</h5>
+      {% if pending_reminders %}
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: var(--gray-100);">
+                <th style="padding: 0.5rem; text-align: left; font-weight: 600;">Título</th>
+                <th style="padding: 0.5rem; text-align: left; font-weight: 600;">Fecha</th>
+                <th style="padding: 0.5rem; text-align: left; font-weight: 600;">Relacionado con</th>
+                <th style="padding: 0.5rem; text-align: left; font-weight: 600;">Tipo</th>
+                <th style="padding: 0.5rem; text-align: left; font-weight: 600;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for reminder in pending_reminders %}
+              <tr style="border-bottom: 1px solid var(--gray-200);">
+                <td style="padding: 0.5rem;">
+                  <strong>{{ reminder.title }}</strong>
+                  {% if reminder.description %}
+                    <br><small class="text-muted">{{ reminder.description }}</small>
+                  {% endif %}
+                </td>
+                <td style="padding: 0.5rem;">
+                  <span class="badge" style="background: var(--blue); color: #fff;">{{ reminder.remind_at|date:"d/m/Y H:i" }}</span>
+                </td>
+                <td style="padding: 0.5rem;">
+                  {% if reminder.task %}
+                    <span class="badge" style="background: var(--blue); color: #fff;">Tarea: {{ reminder.task.title }}</span>
+                  {% elif reminder.project %}
+                    <span class="badge" style="background: var(--green); color: #fff;">Proyecto: {{ reminder.project.title }}</span>
+                  {% elif reminder.event %}
+                    <span class="badge" style="background: var(--amber); color: var(--gray-800);">Evento: {{ reminder.event.title }}</span>
+                  {% else %}
+                    <span class="text-muted">General</span>
+                  {% endif %}
+                </td>
+                <td style="padding: 0.5rem;">
+                  {% if reminder.reminder_type == 'email' %}
+                    <i class="fas fa-envelope" style="color: var(--blue); margin-right: 0.25rem;"></i> Email
+                  {% elif reminder.reminder_type == 'push' %}
+                    <i class="fas fa-bell" style="color: var(--amber); margin-right: 0.25rem;"></i> Push
+                  {% else %}
+                    <i class="fas fa-comment" style="color: var(--green); margin-right: 0.25rem;"></i> Ambos
+                  {% endif %}
+                </td>
+                <td style="padding: 0.5rem;">
+                  <div class="btn-group">
+                    <a href="{% url 'events:edit_reminder' reminder.id %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                      <i class="fas fa-pencil"></i>
+                    </a>
+                    <button class="btn btn-sm btn-outline-success" onclick="markAsSent({{ reminder.id }})" title="Marcar enviado">
+                      <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteReminder({{ reminder.id }})" title="Eliminar">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="section-card section-info">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-circle-info" style="color: var(--blue);"></i>
+            No hay recordatorios pendientes. ¡Excelente!
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
 function refreshReminders() {
     location.reload();
@@ -204,7 +189,7 @@ function deleteReminder(reminderId) {
         csrfToken.type = 'hidden';
         csrfToken.name = 'csrfmiddlewaretoken';
         csrfToken.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        form.appendChild(crfToken);
+        form.appendChild(csrfToken);
 
         document.body.appendChild(form);
         form.submit();
