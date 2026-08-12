@@ -4,150 +4,128 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="events-container">
-    <div class="events-row">
-        <div class="events-col-12">
-            <div class="m360-card">
-                <div class="m360-card-header events-d-flex events-justify-between events-align-center events-flex-wrap">
-                    <h5 class="m360-card-title events-mb-0">
-                        <i class="bi bi-calendar-week" style="margin-right: var(--m360-space-2);"></i>{{ title }}
-                    </h5>
-                    <div class="m360-btn-group">
-                        <a href="{{ urls.today }}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
-                            <i class="bi bi-calendar-today"></i> Hoy
-                        </a>
-                        <a href="{{ urls.this_week }}" class="m360-btn m360-btn-sm m360-btn-outline-primary">
-                            <i class="bi bi-calendar-week"></i> Esta Semana
-                        </a>
-                        <a href="?start_date={{ prev_week|date:'Y-m-d' }}&weeks={{ weeks_param }}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
-                            <i class="bi bi-chevron-left"></i> Anterior
-                        </a>
-                        <a href="?start_date={{ next_week|date:'Y-m-d' }}&weeks={{ weeks_param }}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
-                            <i class="bi bi-chevron-right"></i> Siguiente
-                        </a>
-                    </div>
-                </div>
+<!-- Header de página -->
+<div class="dashboard-header">
+  <div>
+    <h1>
+      <i class="fas fa-calendar-week" style="color: var(--purple); margin-right: 0.5rem;"></i>
+      {{ title }}
+    </h1>
+    <p class="text-muted" style="font-size: 0.875rem;">Visualiza los programas generados en el calendario</p>
+  </div>
+  <div class="header-actions">
+    <a href="{{ urls.today }}" class="btn btn-outline-primary">
+      <i class="fas fa-calendar-day" style="margin-right: 0.25rem;"></i> Hoy
+    </a>
+    <a href="{{ urls.this_week }}" class="btn btn-outline-primary">
+      <i class="fas fa-calendar-week" style="margin-right: 0.25rem;"></i> Esta Semana
+    </a>
+    <a href="?start_date={{ prev_week|date:'Y-m-d' }}&weeks={{ weeks_param }}" class="btn btn-outline-secondary">
+      <i class="fas fa-chevron-left" style="margin-right: 0.25rem;"></i> Anterior
+    </a>
+    <a href="?start_date={{ next_week|date:'Y-m-d' }}&weeks={{ weeks_param }}" class="btn btn-outline-secondary">
+      Siguiente <i class="fas fa-chevron-right" style="margin-left: 0.25rem;"></i>
+    </a>
+  </div>
+</div>
 
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-3 events-mb-4">
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-primary); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ total_programs }}</h4>
-                                    <small style="color: inherit;">Programas Totales</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-success); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ total_hours|floatformat:1 }}</h4>
-                                    <small style="color: inherit;">Horas Programadas</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-info); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ calendar_data|length }}</h4>
-                                    <small style="color: inherit;">Días Mostrados</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="events-col-md-3">
-                            <div class="m360-card" style="background: var(--m360-warning); color: #fff;">
-                                <div class="m360-card-body events-text-center">
-                                    <h4 class="events-mb-0" style="color: inherit;">{{ weeks_param }}</h4>
-                                    <small style="color: inherit;">Semanas</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<!-- Estadísticas -->
+<div class="stats-grid" style="margin-bottom: 1.5rem;">
+  <div class="stat-card" style="border-left: 4px solid var(--blue);">
+    <div class="stat-number">{{ total_programs }}</div>
+    <div class="stat-label">Programas Totales</div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--green);">
+    <div class="stat-number">{{ total_hours|floatformat:1 }}</div>
+    <div class="stat-label">Horas Programadas</div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--purple);">
+    <div class="stat-number">{{ calendar_data|length }}</div>
+    <div class="stat-label">Días Mostrados</div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--amber);">
+    <div class="stat-number">{{ weeks_param }}</div>
+    <div class="stat-label">Semanas</div>
+  </div>
+</div>
 
-                    <div class="events-calendar-container">
-                        <div class="events-row events-gap-3">
-                            {% for date, day_data in calendar_data.items %}
-                            <div class="events-col-12 events-mb-3">
-                                <div class="m360-card events-h-100">
-                                    <div class="m360-card-header {% if date == today %}" style="background: var(--m360-primary); color: #fff; border: none;"{% else %}style="background: var(--m360-gray-50);"{% endif %}>
-                                        <h5 class="events-card-title events-mb-0">
-                                            <i class="bi bi-calendar-day" style="margin-right: var(--m360-space-2);"></i>
-                                            {{ date|date:"l, d/m/Y" }}
-                                            {% if date == today %}
-                                                <span class="m360-badge m360-badge-light" style="margin-left: var(--m360-space-2);">Hoy</span>
-                                            {% endif %}
-                                        </h5>
-                                    </div>
-                                    <div class="m360-card-body">
-                                        {% if day_data.programs %}
-                                            <div class="events-row events-gap-3">
-                                                {% for program_data in day_data.programs %}
-                                                <div class="events-col-md-6 events-col-lg-4 events-mb-3">
-                                                    <div class="m360-card events-h-100" style="border-left: 4px solid var(--m360-primary);">
-                                                        <div class="m360-card-body">
-                                                            <h6 class="events-card-title events-mb-1">
-                                                                <i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i>
-                                                                {{ program_data.start_time|time:"H:i" }}
-                                                                {% if program_data.end_time %}
-                                                                    - {{ program_data.end_time|time:"H:i" }}
-                                                                {% endif %}
-                                                            </h6>
-                                                            <p class="events-mb-2"><strong>{{ program_data.task_title }}</strong></p>
-                                                            {% if program_data.duration %}
-                                                            <p class="events-mb-2">
-                                                                <small class="events-text-muted">
-                                                                    <i class="bi bi-hourglass" style="margin-right: var(--m360-space-1);"></i>
-                                                                    Duración: {{ program_data.duration }}
-                                                                </small>
-                                                            </p>
-                                                            {% endif %}
-                                                            <div class="events-d-flex events-justify-between events-align-center">
-                                                                <span class="m360-badge m360-badge-secondary">{{ program_data.task_status }}</span>
-                                                                {% if program_data.program.task.schedule %}
-                                                                <a href="{% url 'events:task_schedule_detail' program_data.program.task.schedule.id %}"
-                                                                   class="m360-btn m360-btn-sm m360-btn-outline-primary">
-                                                                     <i class="bi bi-eye"></i> Ver
-                                                                </a>
-                                                                {% else %}
-                                                                <span class="events-text-muted" style="font-size: var(--m360-text-sm);">Sin programación</span>
-                                                                {% endif %}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {% endfor %}
-                                            </div>
-                                        {% else %}
-                                            <div class="events-text-center events-text-muted" style="padding: var(--m360-space-4) 0;">
-                                                <i class="bi bi-calendar-x" style="font-size: var(--m360-icon-xl);"></i>
-                                                <p class="events-mt-2">No hay programas para este día</p>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
+<!-- Calendario -->
+<div class="section-card">
+  <div class="section-card-body">
+    {% for date, day_data in calendar_data.items %}
+    <div class="section-card" style="margin-bottom: 1rem; {% if date == today %}border-left: 4px solid var(--blue);{% endif %}">
+      <div class="section-card-header" style="background: {% if date == today %}var(--blue){% else %}var(--gray-50){% endif %}; color: {% if date == today %}#fff{% else %}inherit{% endif %}; border-bottom: 1px solid var(--gray-200);">
+        <h5 class="section-card-title mb-0">
+          <i class="fas fa-calendar-day" style="margin-right: 0.5rem;"></i>
+          {{ date|date:"l, d/m/Y" }}
+          {% if date == today %}
+            <span class="badge" style="background: rgba(255,255,255,0.2); color: #fff; margin-left: 0.5rem;">Hoy</span>
+          {% endif %}
+        </h5>
+      </div>
 
-                <div class="m360-card-footer" style="background: var(--m360-gray-50);">
-                    <div class="events-row events-justify-between events-align-center">
-                        <div class="events-col-md-6">
-                            <small class="events-text-muted">
-                                <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
-                                Mostrando del {{ start_date|date:"d/m/Y" }} al {{ end_date|date:"d/m/Y" }}
-                            </small>
-                        </div>
-                        <div class="events-col-md-6 events-text-end">
-                            <a href="{% url 'events:task_schedules' %}" class="m360-btn m360-btn-sm m360-btn-outline-secondary">
-                                <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i> Volver a Programaciones
-                            </a>
-                        </div>
+      <div class="section-card-body">
+        {% if day_data.programs %}
+          <div class="row" style="gap: 1rem;">
+            {% for program_data in day_data.programs %}
+              <div class="col-md-6 col-lg-4">
+                <div class="section-card h-100" style="border-left: 4px solid var(--blue);">
+                  <div class="section-card-body">
+                    <h6 class="fw-bold mb-2">
+                      <i class="fas fa-clock" style="margin-right: 0.25rem;"></i>
+                      {{ program_data.start_time|time:"H:i" }}
+                      {% if program_data.end_time %}
+                        - {{ program_data.end_time|time:"H:i" }}
+                      {% endif %}
+                    </h6>
+                    <p class="mb-2"><strong>{{ program_data.task_title }}</strong></p>
+                    {% if program_data.duration %}
+                      <p class="mb-2">
+                        <small class="text-muted">
+                          <i class="fas fa-hourglass-half" style="margin-right: 0.25rem;"></i>
+                          Duración: {{ program_data.duration }}
+                        </small>
+                      </p>
+                    {% endif %}
+                    <div class="flex items-center justify-between">
+                      <span class="badge" style="background: var(--gray-500); color: #fff;">{{ program_data.task_status }}</span>
+                      {% if program_data.program.task.schedule %}
+                        <a href="{% url 'events:task_schedule_detail' program_data.program.task.schedule.id %}" class="btn btn-sm btn-outline-primary">
+                          <i class="fas fa-eye" style="margin-right: 0.25rem;"></i> Ver
+                        </a>
+                      {% else %}
+                        <small class="text-muted">Sin programación</small>
+                      {% endif %}
                     </div>
+                  </div>
                 </div>
-            </div>
-        </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center text-muted" style="padding: 2rem 0;">
+            <i class="fas fa-calendar-xmark" style="font-size: 2rem;"></i>
+            <p class="mt-2">No hay programas para este día</p>
+          </div>
+        {% endif %}
+      </div>
     </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="section-card">
+  <div class="section-card-body">
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <small class="text-muted">
+        <i class="fas fa-circle-info" style="margin-right: 0.25rem;"></i>
+        Mostrando del {{ start_date|date:"d/m/Y" }} al {{ end_date|date:"d/m/Y" }}
+      </small>
+      <a href="{% url 'events:task_schedules' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left" style="margin-right: 0.25rem;"></i> Volver a Programaciones
+      </a>
+    </div>
+  </div>
 </div>
 {% endblock %}

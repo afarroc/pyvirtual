@@ -4,77 +4,94 @@
 {% block title %}Eliminar Programación{% endblock %}
 
 {% block content %}
-<div class="events-container">
-    <div class="events-row">
-        <div class="events-col-md-6 events-col-lg-6 events-mx-auto">
-            <div class="m360-card" style="border-left: 4px solid var(--m360-danger);">
-                <div class="m360-card-header" style="background: var(--m360-danger); color: #fff; border: none;">
-                    <h5 class="m360-card-title events-mb-0" style="color: inherit;">
-                        <i class="bi bi-exclamation-triangle" style="margin-right: var(--m360-space-2);"></i>
-                        Confirmar Eliminación
-                    </h5>
-                </div>
+<!-- Header de página -->
+<div class="dashboard-header">
+  <div>
+    <h1>
+      <i class="fas fa-triangle-exclamation" style="color: var(--red); margin-right: 0.5rem;"></i>
+      Confirmar Eliminación
+    </h1>
+    <p class="text-muted" style="font-size: 0.875rem;">Revisa la información antes de eliminar la programación</p>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="btn btn-outline-secondary">
+      <i class="fas fa-circle-info" style="margin-right: 0.25rem;"></i>
+      Ver Detalle
+    </a>
+  </div>
+</div>
 
-                <div class="m360-card-body">
-                    <div class="m360-alert m360-alert-danger">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        <strong>¡Atención!</strong> Esta acción no se puede deshacer.
-                    </div>
+<div class="row">
+  <div class="col-md-6 col-lg-6 mx-auto">
+    <div class="section-card" style="border-left: 4px solid var(--red);">
+      <div class="section-card-header" style="background: var(--red); color: #fff; border: none;">
+        <h5 class="section-card-title mb-0">
+          <i class="fas fa-triangle-exclamation" style="margin-right: 0.5rem;"></i>
+          Confirmar Eliminación
+        </h5>
+      </div>
 
-                    <p>¿Estás seguro de que quieres eliminar la siguiente programación recurrente?</p>
-
-                    <div class="m360-card" style="background: var(--m360-gray-50);">
-                        <div class="m360-card-body">
-                            <h6 class="m360-card-title">{{ schedule.task.title }}</h6>
-                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--m360-space-2);">
-                                <li><strong>Tipo:</strong> {{ schedule.get_recurrence_type_display }}</li>
-                                <li><strong>Días:</strong> {{ schedule.get_selected_days_display }}</li>
-                                <li><strong>Hora:</strong> {{ schedule.start_time|time:"H:i" }}</li>
-                                <li><strong>Duración:</strong> {{ schedule.duration|time:"H:i" }} horas</li>
-                                <li><strong>Inicio:</strong> {{ schedule.start_date|date:"d/m/Y" }}</li>
-                                <li><strong>Fin:</strong>
-                                    {% if schedule.end_date %}
-                                        {{ schedule.end_date|date:"d/m/Y" }}
-                                    {% else %}
-                                        Indefinido
-                                    {% endif %}
-                                </li>
-                                <li><strong>Estado:</strong>
-                                    {% if schedule.is_active %}
-                                        <span class="m360-badge m360-badge-success">Activa</span>
-                                    {% else %}
-                                        <span class="m360-badge m360-badge-secondary">Inactiva</span>
-                                    {% endif %}
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="events-mt-4">
-                        <p class="events-text-muted">
-                            <small>
-                                <i class="bi bi-info-circle"></i>
-                                Al eliminar esta programación, no se eliminarán las programaciones individuales (TaskProgram)
-                                que ya hayan sido creadas. Solo se detendrá la generación automática de nuevas ocurrencias.
-                            </small>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="m360-card-footer events-d-flex events-justify-between">
-                    <form method="post" class="events-d-flex">
-                        {% csrf_token %}
-                        <button type="submit" class="m360-btn m360-btn-danger">
-                            <i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i> Sí, Eliminar Programación
-                        </button>
-                    </form>
-                    <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="m360-btn m360-btn-outline-secondary">
-                        <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i> Cancelar
-                    </a>
-                </div>
-            </div>
+      <div class="section-card-body">
+        <div class="section-card section-pendientes" style="margin-bottom: 1rem;">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-triangle-exclamation" style="color: var(--red);"></i>
+            <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+          </div>
         </div>
+
+        <p>¿Estás seguro de que quieres eliminar la siguiente programación recurrente?</p>
+
+        <div class="section-card" style="background: var(--gray-50);">
+          <div class="section-card-body">
+            <h5 class="fw-bold mb-3">{{ schedule.task.title }}</h5>
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
+              <li><strong>Tipo:</strong> {{ schedule.get_recurrence_type_display }}</li>
+              <li><strong>Días:</strong> {{ schedule.get_selected_days_display }}</li>
+              <li><strong>Hora:</strong> {{ schedule.start_time|time:"H:i" }}</li>
+              <li><strong>Duración:</strong> {{ schedule.duration|time:"H:i" }} horas</li>
+              <li><strong>Inicio:</strong> {{ schedule.start_date|date:"d/m/Y" }}</li>
+              <li><strong>Fin:</strong>
+                {% if schedule.end_date %}
+                  {{ schedule.end_date|date:"d/m/Y" }}
+                {% else %}
+                  Indefinido
+                {% endif %}
+              </li>
+              <li><strong>Estado:</strong>
+                {% if schedule.is_active %}
+                  <span class="badge" style="background: var(--green); color: #fff;">Activa</span>
+                {% else %}
+                  <span class="badge" style="background: var(--gray-500); color: #fff;">Inactiva</span>
+                {% endif %}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-card section-info" style="margin-top: 1rem;">
+          <small>
+            <i class="fas fa-circle-info" style="margin-right: 0.25rem;"></i>
+            Al eliminar esta programación, no se eliminarán las programaciones individuales (TaskProgram)
+            que ya hayan sido creadas. Solo se detendrá la generación automática de nuevas ocurrencias.
+          </small>
+        </div>
+      </div>
+
+      <div class="border-top flex items-center justify-between flex-wrap gap-2" style="border-top: 1px solid var(--gray-200); padding: 1rem;">
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash" style="margin-right: 0.25rem;"></i>
+            Sí, Eliminar Programación
+          </button>
+        </form>
+        <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="btn btn-outline-secondary">
+          <i class="fas fa-xmark" style="margin-right: 0.25rem;"></i>
+          Cancelar
+        </a>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
 

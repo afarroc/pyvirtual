@@ -4,290 +4,280 @@
 {% block title %}Programaciones Recurrentes{% endblock %}
 
 {% block content %}
-<div class="events-container">
-    <div class="events-row">
-        <div class="events-col-12">
-            <div class="m360-card events-mb-4" style="border: none;">
-                <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
-                    <div class="events-d-flex events-justify-between events-align-center events-flex-wrap">
-                        <div>
-                            <h4 class="events-mb-1">
-                                <i class="bi bi-calendar-check" style="margin-right: var(--m360-space-2);"></i>
-                                Programaciones Recurrentes
-                            </h4>
-                            <small style="opacity: .75;">Gestiona tus tareas automatizadas</small>
-                        </div>
-                        <a href="{% url 'events:create_task_schedule' %}" class="m360-btn m360-btn-light">
-                            <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>
-                            Nueva Programación
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="events-row events-gap-3 events-mb-4">
-                <div class="events-col-md-3">
-                    <div class="m360-card" style="border-left: 4px solid var(--m360-primary);">
-                        <div class="m360-card-body events-text-center">
-                            <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-primary);">Total Programaciones</div>
-                            <div class="events-h5 events-mb-0" style="font-weight: var(--m360-font-weight-bold); color: var(--m360-text);">{{ total_schedules }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="events-col-md-3">
-                    <div class="m360-card" style="border-left: 4px solid var(--m360-success);">
-                        <div class="m360-card-body events-text-center">
-                            <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-success);">Activas</div>
-                            <div class="events-h5 events-mb-0" style="font-weight: var(--m360-font-weight-bold); color: var(--m360-text);">{{ active_schedules }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="events-col-md-3">
-                    <div class="m360-card" style="border-left: 4px solid var(--m360-secondary);">
-                        <div class="m360-card-body events-text-center">
-                            <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-secondary);">Inactivas</div>
-                            <div class="events-h5 events-mb-0" style="font-weight: var(--m360-font-weight-bold); color: var(--m360-text);">{{ inactive_schedules }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="events-col-md-3">
-                    <div class="m360-card" style="border-left: 4px solid var(--m360-warning);">
-                        <div class="m360-card-body events-text-center">
-                            <div class="events-text-xs" style="font-weight: var(--m360-font-weight-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--m360-warning);">Próximas Ejecuciones</div>
-                            <div class="events-h5 events-mb-0" style="font-weight: var(--m360-font-weight-bold); color: var(--m360-text);">{{ schedules|length }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="m360-card events-mb-4">
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-3 events-align-center">
-                        <div class="events-col-md-6">
-                            <div class="events-input-group">
-                                <span class="events-input-group-text"><i class="bi bi-search"></i></span>
-                                <input type="text" class="m360-form-control" id="searchInput" placeholder="Buscar por tarea o proyecto...">
-                            </div>
-                        </div>
-                        <div class="events-col-md-6">
-                            <div class="events-d-flex events-justify-end events-gap-2">
-                                <select class="m360-form-control" id="statusFilter" style="width: auto;">
-                                    <option value="all">Todos los estados</option>
-                                    <option value="active">Solo activas</option>
-                                    <option value="inactive">Solo inactivas</option>
-                                </select>
-                                <select class="m360-form-control" id="recurrenceFilter" style="width: auto;">
-                                    <option value="all">Todos los tipos</option>
-                                    <option value="daily">Diarias</option>
-                                    <option value="weekly">Semanales</option>
-                                    <option value="custom">Personalizadas</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {% if schedules %}
-                <div class="events-row events-gap-3" id="schedulesContainer">
-                    {% for item in schedules %}
-                        <div class="events-col-xl-4 events-col-lg-6 events-col-md-6 events-mb-3 events-schedule-card"
-                             data-status="{% if item.schedule.is_active %}active{% else %}inactive{% endif %}"
-                             data-recurrence="{{ item.schedule.recurrence_type }}">
-                            <div class="m360-card events-h-100" style="border-left: 4px solid {% if item.schedule.is_active %}var(--m360-success){% else %}var(--m360-secondary){% endif %};">
-                                <div class="m360-card-header" style="background: var(--m360-gray-50); border-bottom: 1px solid var(--m360-border);">
-                                    <div class="events-d-flex events-justify-between events-align-start">
-                                        <div class="events-flex-grow">
-                                            <h6 class="events-card-title events-mb-1">
-                                                <i class="bi bi-list-task events-text-primary" style="margin-right: var(--m360-space-1);"></i>
-                                                {{ item.schedule.task.title }}
-                                            </h6>
-                                            {% if item.schedule.task.project %}
-                                                <small class="events-text-muted">
-                                                    <i class="bi bi-folder" style="margin-right: var(--m360-space-1);"></i>
-                                                    {{ item.schedule.task.project.title }}
-                                                </small>
-                                            {% endif %}
-                                        </div>
-                                        <div class="m360-dropdown">
-                                            <button class="m360-btn m360-btn-sm m360-btn-outline-secondary" data-m360-toggle="dropdown" aria-expanded="false">
-                                                <i class="bi bi-three-dots"></i>
-                                            </button>
-                                            <div class="m360-dropdown-menu m360-dropdown-menu-end">
-                                                <a class="m360-dropdown-item" href="{% url 'events:task_schedule_detail' item.schedule.id %}">
-                                                    <i class="bi bi-eye" style="margin-right: var(--m360-space-1);"></i>Ver Detalles
-                                                </a>
-                                                <a class="m360-dropdown-item" href="{% url 'events:edit_task_schedule' item.schedule.id %}">
-                                                    <i class="bi bi-pencil" style="margin-right: var(--m360-space-1);"></i>Editar
-                                                </a>
-                                                <a class="m360-dropdown-item" href="{% url 'events:generate_schedule_occurrences' item.schedule.id %}">
-                                                    <i class="bi bi-play" style="margin-right: var(--m360-space-1);"></i>Generar Ocurrencias
-                                                </a>
-                                                <div class="m360-dropdown-sep"></div>
-                                                <a class="m360-dropdown-item events-text-danger" href="{% url 'events:delete_task_schedule' item.schedule.id %}">
-                                                    <i class="bi bi-trash" style="margin-right: var(--m360-space-1);"></i>Eliminar
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="m360-card-body">
-                                    <div class="events-row events-gap-3 events-mb-3">
-                                        <div class="events-col-6">
-                                            <small class="events-text-muted" style="display: block;">Tipo</small>
-                                            <span class="m360-badge m360-badge-primary">{{ item.schedule.get_recurrence_type_display }}</span>
-                                        </div>
-                                        <div class="events-col-6">
-                                            <small class="events-text-muted" style="display: block;">Estado</small>
-                                            {% if item.schedule.is_active %}
-                                                <span class="m360-badge m360-badge-success">
-                                                    <i class="bi bi-play-fill" style="margin-right: var(--m360-space-1);"></i>Activa
-                                                </span>
-                                            {% else %}
-                                                <span class="m360-badge m360-badge-secondary">
-                                                    <i class="bi bi-pause-fill" style="margin-right: var(--m360-space-1);"></i>Inactiva
-                                                </span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                    {% if item.schedule.recurrence_type == 'weekly' %}
-                                        <div class="events-mb-3">
-                                            <small class="events-text-muted" style="display: block;">Días de la semana</small>
-                                            <div class="events-d-flex events-flex-wrap events-gap-1">
-                                                {% if item.schedule.monday %}<span class="m360-badge m360-badge-light">Lun</span>{% endif %}
-                                                {% if item.schedule.tuesday %}<span class="m360-badge m360-badge-light">Mar</span>{% endif %}
-                                                {% if item.schedule.wednesday %}<span class="m360-badge m360-badge-light">Mié</span>{% endif %}
-                                                {% if item.schedule.thursday %}<span class="m360-badge m360-badge-light">Jue</span>{% endif %}
-                                                {% if item.schedule.friday %}<span class="m360-badge m360-badge-light">Vie</span>{% endif %}
-                                                {% if item.schedule.saturday %}<span class="m360-badge m360-badge-light">Sáb</span>{% endif %}
-                                                {% if item.schedule.sunday %}<span class="m360-badge m360-badge-light">Dom</span>{% endif %}
-                                            </div>
-                                        </div>
-                                    {% endif %}
-
-                                    <div class="events-row events-gap-3 events-mb-3">
-                                        <div class="events-col-6">
-                                            <small class="events-text-muted" style="display: block;">Hora de inicio</small>
-                                            <i class="bi bi-clock" style="margin-right: var(--m360-space-1);"></i>
-                                            <strong>{{ item.schedule.start_time|time:"H:i" }}</strong>
-                                        </div>
-                                        <div class="events-col-6">
-                                            <small class="events-text-muted" style="display: block;">Duración</small>
-                                            <i class="bi bi-hourglass" style="margin-right: var(--m360-space-1);"></i>
-                                            {{ item.schedule.duration|time:"H:i" }} hs
-                                        </div>
-                                    </div>
-
-                                    <div class="events-mb-3">
-                                        <small class="events-text-muted" style="display: block;">Próxima ejecución</small>
-                                        {% if item.next_occurrence %}
-                                            <div class="events-d-flex events-align-center events-gap-2">
-                                                <i class="bi bi-calendar-event events-text-warning"></i>
-                                                <div>
-                                                    <strong>{{ item.next_occurrence.date|date:"d/m/Y" }}</strong>
-                                                    <br>
-                                                    <small class="events-text-muted">{{ item.next_occurrence.start_time|time:"H:i" }}</small>
-                                                </div>
-                                            </div>
-                                        {% else %}
-                                            <span class="events-text-muted">
-                                                <i class="bi bi-dash-circle" style="margin-right: var(--m360-space-1);"></i>
-                                                Sin próximas ejecuciones
-                                            </span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <div class="m360-card-footer events-d-flex events-justify-between events-align-center" style="background: transparent; border-top: 1px solid var(--m360-border);">
-                                    <small class="events-text-muted">
-                                        Creada: {{ item.schedule.created_at|date:"d/m/Y" }}
-                                    </small>
-                                    <div class="m360-btn-group">
-                                        <a href="{% url 'events:task_schedule_detail' item.schedule.id %}"
-                                           class="m360-btn m360-btn-sm m360-btn-outline-info"
-                                           title="Ver detalles">
-                                             <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a href="{% url 'events:edit_task_schedule' item.schedule.id %}"
-                                           class="m360-btn m360-btn-sm m360-btn-outline-warning"
-                                           title="Editar">
-                                             <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a href="{% url 'events:generate_schedule_occurrences' item.schedule.id %}"
-                                           class="m360-btn m360-btn-sm m360-btn-outline-success"
-                                           title="Generar ocurrencias">
-                                             <i class="bi bi-play"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="m360-card">
-                    <div class="m360-card-body events-text-center" style="padding: var(--m360-space-6) var(--m360-space-4);">
-                        <div style="font-size: var(--m360-icon-2xl); color: var(--m360-text-muted); margin-bottom: var(--m360-space-3);">
-                            <i class="bi bi-calendar-x"></i>
-                        </div>
-                        <h4 class="events-text-muted events-mb-3">No hay programaciones recurrentes</h4>
-                        <p class="events-text-muted events-mb-4">
-                            Crea tu primera programación para automatizar tareas recurrentes y mejorar tu productividad.
-                        </p>
-                        <a href="{% url 'events:create_task_schedule' %}" class="m360-btn m360-btn-primary">
-                            <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>
-                            Crear Primera Programación
-                        </a>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-    </div>
+<!-- Header de página -->
+<div class="dashboard-header">
+  <div>
+    <h1>
+      <i class="fas fa-calendar-check" style="color: var(--purple); margin-right: 0.5rem;"></i>
+      Programaciones Recurrentes
+    </h1>
+    <p class="text-muted" style="font-size: 0.875rem;">Gestiona tus tareas automatizadas</p>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'events:create_task_schedule' %}" class="btn btn-primary">
+      <i class="fas fa-plus-circle" style="margin-right: 0.25rem;"></i>
+      Nueva Programación
+    </a>
+  </div>
 </div>
+
+<!-- KPIs -->
+<div class="stats-grid">
+  <div class="stat-card" style="border-left: 4px solid var(--purple);">
+    <div class="stat-icon" style="color: var(--purple);"><i class="fas fa-layer-group"></i></div>
+    <div class="stat-number">{{ total_schedules }}</div>
+    <div class="stat-label">Total Programaciones</div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--green);">
+    <div class="stat-icon" style="color: var(--green);"><i class="fas fa-circle-play"></i></div>
+    <div class="stat-number">{{ active_schedules }}</div>
+    <div class="stat-label">Activas</div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--gray-400);">
+    <div class="stat-icon" style="color: var(--gray-400);"><i class="fas fa-circle-pause"></i></div>
+    <div class="stat-number">{{ inactive_schedules }}</div>
+    <div class="stat-label">Inactivas</div>
+  </div>
+  <div class="stat-card" style="border-left: 4px solid var(--amber);">
+    <div class="stat-icon" style="color: var(--amber);"><i class="fas fa-calendar-event"></i></div>
+    <div class="stat-number">{{ schedules|length }}</div>
+    <div class="stat-label">Próximas Ejecuciones</div>
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="dashboard-toolbar">
+  <div class="toolbar-group" style="flex: 1; min-width: 200px;">
+    <div class="search-bar" style="flex: 1; max-width: 400px;">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        class="form-control"
+        id="searchInput"
+        placeholder="Buscar por tarea o proyecto..."
+        style="border: none; background: none; outline: none; font-size: 0.875rem; width: 100%; font-family: var(--font); color: var(--gray-900);"
+      >
+    </div>
+  </div>
+  <div class="toolbar-group">
+    <select class="form-select" id="statusFilter" style="width: auto;">
+      <option value="all">Todos los estados</option>
+      <option value="active">Solo activas</option>
+      <option value="inactive">Solo inactivas</option>
+    </select>
+    <select class="form-select" id="recurrenceFilter" style="width: auto;">
+      <option value="all">Todos los tipos</option>
+      <option value="daily">Diarias</option>
+      <option value="weekly">Semanales</option>
+      <option value="custom">Personalizadas</option>
+    </select>
+  </div>
+</div>
+
+<!-- Grid de programaciones -->
+{% if schedules %}
+  <div class="tools-grid" id="schedulesContainer">
+    {% for item in schedules %}
+      <div class="tool-card schedule-card"
+           data-status="{% if item.schedule.is_active %}active{% else %}inactive{% endif %}"
+           data-recurrence="{{ item.schedule.recurrence_type }}">
+        <div class="flex items-center justify-between" style="margin-bottom: 0.5rem;">
+          <div style="flex: 1; min-width: 0;">
+            <h5 class="fw-bold mb-1" style="font-size: 0.875rem; margin: 0;">
+              <i class="fas fa-list-check" style="color: var(--purple); margin-right: 0.25rem;"></i>
+              {{ item.schedule.task.title }}
+            </h5>
+            {% if item.schedule.task.project %}
+              <small class="text-muted">
+                <i class="fas fa-folder" style="margin-right: 0.25rem;"></i>
+                {{ item.schedule.task.project.title }}
+              </small>
+            {% endif %}
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button">
+              <i class="fas fa-ellipsis-vertical"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end">
+              <a class="dropdown-item" href="{% url 'events:task_schedule_detail' item.schedule.id %}">
+                <i class="fas fa-eye" style="width: 1.25rem; text-align: center;"></i> Ver Detalles
+              </a>
+              <a class="dropdown-item" href="{% url 'events:edit_task_schedule' item.schedule.id %}">
+                <i class="fas fa-pen" style="width: 1.25rem; text-align: center;"></i> Editar
+              </a>
+              <a class="dropdown-item" href="{% url 'events:generate_schedule_occurrences' item.schedule.id %}">
+                <i class="fas fa-play" style="width: 1.25rem; text-align: center;"></i> Generar Ocurrencias
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{% url 'events:delete_task_schedule' item.schedule.id %}" style="color: var(--red);">
+                <i class="fas fa-trash" style="width: 1.25rem; text-align: center;"></i> Eliminar
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.75rem;">
+          <div class="flex gap-3 mb-3">
+            <div style="flex: 1;">
+              <small class="text-muted" style="display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Tipo</small>
+              <span class="mailbox-badge mailbox-badge-primary">{{ item.schedule.get_recurrence_type_display }}</span>
+            </div>
+            <div style="flex: 1;">
+              <small class="text-muted" style="display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Estado</small>
+              {% if item.schedule.is_active %}
+                <span class="mailbox-badge mailbox-badge-success">
+                  <i class="fas fa-play" style="margin-right: 0.25rem;"></i>Activa
+                </span>
+              {% else %}
+                <span class="mailbox-badge mailbox-badge-secondary">
+                  <i class="fas fa-pause" style="margin-right: 0.25rem;"></i>Inactiva
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if item.schedule.recurrence_type == 'weekly' %}
+            <div class="mb-3">
+              <small class="text-muted" style="display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Días de la semana</small>
+              <div class="flex flex-wrap gap-1">
+                {% if item.schedule.monday %}<span class="mailbox-badge mailbox-badge-secondary">Lun</span>{% endif %}
+                {% if item.schedule.tuesday %}<span class="mailbox-badge mailbox-badge-secondary">Mar</span>{% endif %}
+                {% if item.schedule.wednesday %}<span class="mailbox-badge mailbox-badge-secondary">Mié</span>{% endif %}
+                {% if item.schedule.thursday %}<span class="mailbox-badge mailbox-badge-secondary">Jue</span>{% endif %}
+                {% if item.schedule.friday %}<span class="mailbox-badge mailbox-badge-secondary">Vie</span>{% endif %}
+                {% if item.schedule.saturday %}<span class="mailbox-badge mailbox-badge-secondary">Sáb</span>{% endif %}
+                {% if item.schedule.sunday %}<span class="mailbox-badge mailbox-badge-secondary">Dom</span>{% endif %}
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="flex gap-3 mb-3">
+            <div style="flex: 1;">
+              <small class="text-muted" style="display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Hora de inicio</small>
+              <i class="fas fa-clock" style="margin-right: 0.25rem;"></i>
+              <strong>{{ item.schedule.start_time|time:"H:i" }}</strong>
+            </div>
+            <div style="flex: 1;">
+              <small class="text-muted" style="display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Duración</small>
+              <i class="fas fa-hourglass-half" style="margin-right: 0.25rem;"></i>
+              {{ item.schedule.duration|time:"H:i" }} hs
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <small class="text-muted" style="display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Próxima ejecución</small>
+            {% if item.next_occurrence %}
+              <div class="flex items-center gap-2">
+                <i class="fas fa-calendar-event" style="color: var(--amber);"></i>
+                <div>
+                  <strong>{{ item.next_occurrence.date|date:"d/m/Y" }}</strong>
+                  <br>
+                  <small class="text-muted">{{ item.next_occurrence.start_time|time:"H:i" }}</small>
+                </div>
+              </div>
+            {% else %}
+              <span class="text-muted">
+                <i class="fas fa-circle-minus" style="margin-right: 0.25rem;"></i>
+                Sin próximas ejecuciones
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="border-top flex items-center justify-between" style="border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
+          <small class="text-muted">Creada: {{ item.schedule.created_at|date:"d/m/Y" }}</small>
+          <div class="btn-group">
+            <a href="{% url 'events:task_schedule_detail' item.schedule.id %}" class="btn btn-info btn-sm" title="Ver detalles">
+              <i class="fas fa-eye"></i>
+            </a>
+            <a href="{% url 'events:edit_task_schedule' item.schedule.id %}" class="btn btn-warning btn-sm" title="Editar">
+              <i class="fas fa-pen"></i>
+            </a>
+            <a href="{% url 'events:generate_schedule_occurrences' item.schedule.id %}" class="btn btn-success btn-sm" title="Generar ocurrencias">
+              <i class="fas fa-play"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="section-card">
+    <div class="text-center" style="padding: 3rem 1.5rem;">
+      <div style="font-size: 2.5rem; color: var(--gray-400); margin-bottom: 0.75rem;">
+        <i class="fas fa-calendar-xmark"></i>
+      </div>
+      <h4 class="text-muted mb-3">No hay programaciones recurrentes</h4>
+      <p class="text-muted mb-4">
+        Crea tu primera programación para automatizar tareas recurrentes y mejorar tu productividad.
+      </p>
+      <a href="{% url 'events:create_task_schedule' %}" class="btn btn-primary">
+        <i class="fas fa-plus-circle" style="margin-right: 0.25rem;"></i> Crear Primera Programación
+      </a>
+    </div>
+  </div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter');
-    const recurrenceFilter = document.getElementById('recurrenceFilter');
-    const scheduleCards = document.querySelectorAll('.events-schedule-card');
-
-    function filterSchedules() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = statusFilter.value;
-        const recurrenceValue = recurrenceFilter.value;
-
-        scheduleCards.forEach(card => {
-            const taskTitle = card.querySelector('.events-card-title').textContent.toLowerCase();
-            const cardStatus = card.dataset.status;
-            const cardRecurrence = card.dataset.recurrence;
-
-            const matchesSearch = taskTitle.includes(searchTerm);
-            const matchesStatus = statusValue === 'all' || cardStatus === statusValue;
-            const matchesRecurrence = recurrenceValue === 'all' || cardRecurrence === recurrenceValue;
-
-            card.style.display = (matchesSearch && matchesStatus && matchesRecurrence) ? 'block' : 'none';
-        });
-    }
-
-    searchInput.addEventListener('input', filterSchedules);
-    statusFilter.addEventListener('change', filterSchedules);
-    recurrenceFilter.addEventListener('change', filterSchedules);
-
-    scheduleCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px)';
-            this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-        });
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '';
-        });
+  // Dropdowns manuales porque main.css no incluye toggle automático
+  document.querySelectorAll('.dropdown-toggle').forEach(function(toggle) {
+    toggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const menu = this.nextElementSibling;
+      if (menu && menu.classList.contains('dropdown-menu')) {
+        menu.classList.toggle('show');
+      }
     });
+  });
+
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
+      menu.classList.remove('show');
+    });
+  });
+
+  const searchInput = document.getElementById('searchInput');
+  const statusFilter = document.getElementById('statusFilter');
+  const recurrenceFilter = document.getElementById('recurrenceFilter');
+  const scheduleCards = document.querySelectorAll('#schedulesContainer .tool-card');
+
+  function filterSchedules() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const statusValue = statusFilter.value;
+    const recurrenceValue = recurrenceFilter.value;
+
+    scheduleCards.forEach(function(card) {
+      const titleEl = card.querySelector('h5');
+      const taskTitle = titleEl ? titleEl.textContent.toLowerCase() : '';
+      const cardStatus = card.dataset.status;
+      const cardRecurrence = card.dataset.recurrence;
+
+      const matchesSearch = taskTitle.includes(searchTerm);
+      const matchesStatus = statusValue === 'all' || cardStatus === statusValue;
+      const matchesRecurrence = recurrenceValue === 'all' || cardRecurrence === recurrenceValue;
+
+      card.style.display = (matchesSearch && matchesStatus && matchesRecurrence) ? '' : 'none';
+    });
+  }
+
+  searchInput.addEventListener('input', filterSchedules);
+  statusFilter.addEventListener('change', filterSchedules);
+  recurrenceFilter.addEventListener('change', filterSchedules);
+
+  scheduleCards.forEach(function(card) {
+    card.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-5px)';
+      this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+    });
+    card.addEventListener('mouseleave', function() {
+      this.style.transform = '';
+      this.style.boxShadow = '';
+    });
+  });
 });
 </script>
 {% endblock %}

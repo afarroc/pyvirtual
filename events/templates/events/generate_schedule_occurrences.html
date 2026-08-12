@@ -4,109 +4,118 @@
 {% block title %}Generar Ocurrencias - {{ schedule.task.title }}{% endblock %}
 
 {% block content %}
-<div class="events-container">
-    <div class="events-row">
-        <div class="events-col-md-10 events-col-lg-8 events-mx-auto">
-            <div class="m360-card">
-                <div class="m360-card-header">
-                    <h5 class="m360-card-title events-mb-0">
-                        <i class="bi bi-play-circle" style="margin-right: var(--m360-space-2);"></i>
-                        Generar Ocurrencias
-                    </h5>
-                    <div class="events-text-muted">
-                        Programación: <strong>{{ schedule.task.title }}</strong>
-                    </div>
-                    <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="m360-btn m360-btn-outline-secondary">
-                        <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>
-                        Volver
-                    </a>
-                </div>
-                <div class="m360-card-body">
-                    <div class="m360-alert m360-alert-info">
-                        <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
-                        <strong>Información:</strong> Esta acción creará automáticamente instancias de TaskProgram
-                        para las próximas ocurrencias basadas en la configuración de la programación recurrente.
-                    </div>
+<!-- Header de página -->
+<div class="dashboard-header">
+  <div>
+    <h1>
+      <i class="fas fa-play-circle" style="color: var(--green); margin-right: 0.5rem;"></i>
+      Generar Ocurrencias
+    </h1>
+    <p class="text-muted" style="font-size: 0.875rem;">
+      Programación: <strong>{{ schedule.task.title }}</strong>
+    </p>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left" style="margin-right: 0.25rem;"></i>
+      Volver
+    </a>
+  </div>
+</div>
 
-                    <div class="events-row events-gap-4">
-                        <div class="events-col-md-6">
-                            <h5 class="events-mb-3">Configuración Actual</h5>
-                            <div class="m360-panel">
-                                <div class="m360-panel-body">
-                                    <div class="events-d-flex events-flex-col events-gap-2">
-                                        <div><strong>Tipo:</strong> {{ schedule.get_recurrence_type_display }}</div>
-                                        <div><strong>Días:</strong> {{ schedule.get_selected_days_display }}</div>
-                                        <div><strong>Hora:</strong> {{ schedule.start_time|time:"H:i" }}</div>
-                                        <div><strong>Duración:</strong> {{ schedule.duration|time:"H:i" }} horas</div>
-                                        <div><strong>Estado:</strong>
-                                            {% if schedule.is_active %}
-                                                <span class="m360-badge m360-badge-success">Activa</span>
-                                            {% else %}
-                                                <span class="m360-badge m360-badge-secondary">Inactiva</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="events-col-md-6">
-                            <h5 class="events-mb-3">Próximas Ocurrencias a Generar</h5>
-                            {% if next_occurrences %}
-                                <div class="m360-panel">
-                                    {% for occurrence in next_occurrences %}
-                                    <div class="m360-panel-body events-d-flex events-justify-between events-align-center" style="border-bottom: 1px solid var(--m360-border);">
-                                        <div>
-                                            <h6 class="events-mb-1">{{ occurrence.date|date:"l, d/m/Y" }}</h6>
-                                            <small class="events-text-muted">
-                                                Duración: {{ schedule.duration|time:"H:i" }} horas
-                                            </small>
-                                        </div>
-                                        <small class="events-text-success">
-                                            <i class="bi bi-plus-circle"></i> Se creará
-                                        </small>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                <div class="events-mt-3">
-                                    <div class="m360-alert m360-alert-success">
-                                        <strong>{{ next_occurrences|length }}</strong> ocurrencia(s) serán creadas.
-                                    </div>
-                                </div>
-                            {% else %}
-                                <div class="m360-alert m360-alert-warning">
-                                    <i class="bi bi-exclamation-triangle" style="margin-right: var(--m360-space-1);"></i>
-                                    No hay próximas ocurrencias para generar.
-                                    Esto puede deberse a que ya se generaron todas las programaciones futuras
-                                    o la fecha de fin ya fue alcanzada.
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    {% if next_occurrences %}
-                        <div class="events-text-center events-mt-4">
-                            <form method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="m360-btn m360-btn-success" id="generateBtn">
-                                    <i class="bi bi-play" style="margin-right: var(--m360-space-1);"></i> Generar {{ next_occurrences|length }} Ocurrencia(s)
-                                </button>
-                                <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="m360-btn m360-btn-outline-secondary" style="margin-left: var(--m360-space-2);">
-                                    <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i> Cancelar
-                                </a>
-                            </form>
-                        </div>
-                    {% else %}
-                        <div class="events-text-center events-mt-4">
-                            <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="m360-btn m360-btn-primary">
-                                <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i> Volver al Detalle
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+<div class="row">
+  <div class="col-md-10 col-lg-8 mx-auto">
+    <div class="section-card" style="margin-bottom: 1.5rem;">
+      <div class="section-card-body">
+        <div class="section-card section-info" style="margin-bottom: 1rem;">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-circle-info" style="color: var(--blue);"></i>
+            <strong>Información:</strong> Esta acción creará automáticamente instancias de TaskProgram
+            para las próximas ocurrencias basadas en la configuración de la programación recurrente.
+          </div>
         </div>
+
+        <div class="row" style="gap: 1rem;">
+          <div class="col-md-6">
+            <h5 class="fw-bold mb-3">Configuración Actual</h5>
+            <div class="section-card" style="background: var(--gray-50);">
+              <div class="section-card-body">
+                <div class="d-flex flex-col gap-2">
+                  <div><strong>Tipo:</strong> {{ schedule.get_recurrence_type_display }}</div>
+                  <div><strong>Días:</strong> {{ schedule.get_selected_days_display }}</div>
+                  <div><strong>Hora:</strong> {{ schedule.start_time|time:"H:i" }}</div>
+                  <div><strong>Duración:</strong> {{ schedule.duration|time:"H:i" }} horas</div>
+                  <div><strong>Estado:</strong>
+                    {% if schedule.is_active %}
+                      <span class="badge" style="background: var(--green); color: #fff;">Activa</span>
+                    {% else %}
+                      <span class="badge" style="background: var(--gray-500); color: #fff;">Inactiva</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <h5 class="fw-bold mb-3">Próximas Ocurrencias a Generar</h5>
+            {% if next_occurrences %}
+              <div class="section-card" style="padding: 0; overflow: hidden;">
+                {% for occurrence in next_occurrences %}
+                  <div class="d-flex align-items-center justify-between" style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--gray-200);">
+                    <div>
+                      <h6 class="mb-1">{{ occurrence.date|date:"l, d/m/Y" }}</h6>
+                      <small class="text-muted">Duración: {{ schedule.duration|time:"H:i" }} horas</small>
+                    </div>
+                    <small class="text-success">
+                      <i class="fas fa-plus-circle" style="margin-right: 0.25rem;"></i> Se creará
+                    </small>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="section-card section-success" style="margin-top: 1rem;">
+                <strong>{{ next_occurrences|length }}</strong> ocurrencia(s) serán creadas.
+              </div>
+            {% else %}
+              <div class="section-card section-warning" style="background: var(--amber); color: var(--gray-800);">
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-triangle-exclamation" style="color: var(--amber);"></i>
+                  <div>
+                    <strong>Advertencia:</strong> No hay próximas ocurrencias para generar.
+                    Esto puede deberse a que ya se generaron todas las programaciones futuras
+                    o la fecha de fin ya fue alcanzada.
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if next_occurrences %}
+          <div class="text-center" style="margin-top: 1.5rem;">
+            <form method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success" id="generateBtn">
+                <i class="fas fa-play" style="margin-right: 0.25rem;"></i>
+                Generar {{ next_occurrences|length }} Ocurrencia(s)
+              </button>
+              <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="btn btn-outline-secondary" style="margin-left: 0.5rem;">
+                <i class="fas fa-xmark" style="margin-right: 0.25rem;"></i>
+                Cancelar
+              </a>
+            </form>
+          </div>
+        {% else %}
+          <div class="text-center" style="margin-top: 1.5rem;">
+            <a href="{% url 'events:task_schedule_detail' schedule.id %}" class="btn btn-primary">
+              <i class="fas fa-arrow-left" style="margin-right: 0.25rem;"></i>
+              Volver al Detalle
+            </a>
+          </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
 

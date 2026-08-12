@@ -4,317 +4,315 @@
 {% block title %}Preview: {{ original_schedule.task.title }}{% endblock %}
 
 {% block content %}
-<div class="events-container">
-    <div class="events-row">
-        <div class="events-col-12 events-col-lg-10 events-col-xl-8 events-mx-auto">
-            <!-- Header Card -->
-            <div class="m360-card m360-shadow-sm events-mb-4" style="border: none;">
-                <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
-                    <div class="events-d-flex events-justify-between events-align-center events-flex-wrap">
-                        <div>
-                            <h4 class="events-mb-1">
-                                <i class="bi bi-eye-fill" style="margin-right: var(--m360-space-2);"></i>
-                                Vista Previa de Cambios
-                            </h4>
-                            <small style="opacity: .75;">Revisa los cambios antes de guardarlos</small>
-                        </div>
-                        <div class="m360-btn-group">
-                            <a href="{% url 'events:edit_task_schedule' original_schedule.id %}" class="m360-btn m360-btn-light">
-                                <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>
-                                Volver a Editar
-                            </a>
-                            <a href="{% url 'events:task_schedule_detail' original_schedule.id %}" class="m360-btn m360-btn-outline-light">
-                                <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
-                                Ver Detalle
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- Header de página -->
+<div class="dashboard-header">
+  <div>
+    <h1>
+      <i class="fas fa-eye-fill" style="color: var(--blue); margin-right: 0.5rem;"></i>
+      Vista Previa de Cambios
+    </h1>
+    <p class="text-muted" style="font-size: 0.875rem;">Revisa los cambios antes de guardarlos</p>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'events:edit_task_schedule' original_schedule.id %}" class="btn btn-light">
+      <i class="fas fa-arrow-left" style="margin-right: 0.25rem;"></i>
+      Volver a Editar
+    </a>
+    <a href="{% url 'events:task_schedule_detail' original_schedule.id %}" class="btn btn-outline-light">
+      <i class="fas fa-circle-info" style="margin-right: 0.25rem;"></i>
+      Ver Detalle
+    </a>
+  </div>
+</div>
 
-            <!-- Changes Summary -->
-            {% if changes_detected %}
-            <div class="m360-card events-mb-4" style="border-left: 4px solid var(--m360-warning);">
-                <div class="m360-card-header" style="background: var(--m360-warning-light); color: var(--m360-warning); border: none;">
-                    <h5 class="m360-card-title events-mb-0">
-                        <i class="bi bi-exclamation-triangle-fill" style="margin-right: var(--m360-space-1);"></i>
-                        Cambios Detectados
-                    </h5>
-                </div>
-                <div class="m360-card-body">
-                    <div class="m360-alert m360-alert-warning">
-                        <strong>¡Atención!</strong> Se han detectado cambios en la configuración.
-                        Revisa la información a continuación antes de confirmar los cambios.
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="m360-card events-mb-4" style="border-left: 4px solid var(--m360-primary);">
-                <div class="m360-card-header" style="background: var(--m360-primary-light); color: var(--m360-primary); border: none;">
-                    <h5 class="m360-card-title events-mb-0">
-                        <i class="bi bi-info-circle-fill" style="margin-right: var(--m360-space-1);"></i>
-                        Vista Previa Actual
-                    </h5>
-                </div>
-                <div class="m360-card-body">
-                    <div class="m360-alert m360-alert-info">
-                        <strong>Información:</strong> Esta es la configuración actual de la programación.
-                        No se han detectado cambios pendientes.
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Comparison Cards -->
-            <div class="events-row events-gap-4 events-mb-4">
-                <!-- Original Configuration -->
-                <div class="events-col-md-6">
-                    <div class="m360-card events-h-100">
-                        <div class="m360-card-header" style="background: var(--m360-text-muted); color: #fff; border: none;">
-                            <h5 class="m360-card-title events-mb-0">
-                                <i class="bi bi-clock-history" style="margin-right: var(--m360-space-1);"></i>
-                                Configuración Actual
-                            </h5>
-                        </div>
-                        <div class="m360-card-body">
-                            <div class="events-row events-gap-3">
-                                <div class="events-col-sm-5"><strong>Tipo de recurrencia:</strong></div>
-                                <div class="events-col-sm-7">{{ original_schedule.get_recurrence_type_display }}</div>
-
-                                <div class="events-col-sm-5"><strong>Hora de inicio:</strong></div>
-                                <div class="events-col-sm-7">{{ original_schedule.start_time|time:"H:i" }}</div>
-
-                                <div class="events-col-sm-5"><strong>Duración:</strong></div>
-                                <div class="events-col-sm-7">{% widthratio original_schedule.duration.total_seconds 3600 1 %} horas</div>
-
-                                <div class="events-col-sm-5"><strong>Fecha de inicio:</strong></div>
-                                <div class="events-col-sm-7">{{ original_schedule.start_date|date:"d/m/Y" }}</div>
-
-                                <div class="events-col-sm-5"><strong>Fecha de fin:</strong></div>
-                                <div class="events-col-sm-7">
-                                    {% if original_schedule.end_date %}
-                                        {{ original_schedule.end_date|date:"d/m/Y" }}
-                                    {% else %}
-                                        <em>Sin fecha de fin</em>
-                                    {% endif %}
-                                </div>
-
-                                <div class="events-col-sm-5"><strong>Días programados:</strong></div>
-                                <div class="events-col-sm-7">{{ original_schedule.get_selected_days_display }}</div>
-
-                                <div class="events-col-sm-5"><strong>Estado:</strong></div>
-                                <div class="events-col-sm-7">
-                                    {% if original_schedule.is_active %}
-                                        <span class="m360-badge m360-badge-success">Activa</span>
-                                    {% else %}
-                                        <span class="m360-badge m360-badge-secondary">Pausada</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Preview Configuration -->
-                <div class="events-col-md-6">
-                    <div class="m360-card events-h-100">
-                        <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
-                            <h5 class="m360-card-title events-mb-0">
-                                <i class="bi bi-eye" style="margin-right: var(--m360-space-1);"></i>
-                                {% if changes_detected %}Nueva Configuración{% else %}Configuración Actual{% endif %}
-                            </h5>
-                        </div>
-                        <div class="m360-card-body">
-                            <div class="events-row events-gap-3">
-                                <div class="events-col-sm-5"><strong>Tipo de recurrencia:</strong></div>
-                                <div class="events-col-sm-7">
-                                    {% if preview_schedule.get_recurrence_type_display != original_schedule.get_recurrence_type_display %}
-                                        <span class="events-text-warning">{{ preview_schedule.get_recurrence_type_display }}</span>
-                                        <small class="events-text-muted">(cambiado)</small>
-                                    {% else %}
-                                        {{ preview_schedule.get_recurrence_type_display }}
-                                    {% endif %}
-                                </div>
-
-                                <div class="events-col-sm-5"><strong>Hora de inicio:</strong></div>
-                                <div class="events-col-sm-7">
-                                    {% if preview_schedule.start_time != original_schedule.start_time %}
-                                        <span class="events-text-warning">{{ preview_schedule.start_time|time:"H:i" }}</span>
-                                        <small class="events-text-muted">(cambiado)</small>
-                                    {% else %}
-                                        {{ preview_schedule.start_time|time:"H:i" }}
-                                    {% endif %}
-                                </div>
-
-                                <div class="events-col-sm-5"><strong>Duración:</strong></div>
-                                <div class="events-col-sm-7">
-                                    {% if preview_schedule.duration != original_schedule.duration %}
-                                        <span class="events-text-warning">{% widthratio preview_schedule.duration.total_seconds 3600 1 %} horas</span>
-                                        <small class="events-text-muted">(cambiado)</small>
-                                    {% else %}
-                                        {% widthratio preview_schedule.duration.total_seconds 3600 1 %} horas
-                                    {% endif %}
-                                </div>
-
-                                <div class="events-col-sm-5"><strong>Fecha de inicio:</strong></div>
-                                <div class="events-col-sm-7">
-                                    {% if preview_schedule.start_date != original_schedule.start_date %}
-                                        <span class="events-text-warning">{{ preview_schedule.start_date|date:"d/m/Y" }}</span>
-                                        <small class="events-text-muted">(cambiado)</small>
-                                    {% else %}
-                                        {{ preview_schedule.start_date|date:"d/m/Y" }}
-                                    {% endif %}
-                                </div>
-
-                                <div class="events-col-sm-5"><strong>Fecha de fin:</strong></div>
-                                <div class="events-col-sm-7">
-                                    {% if preview_schedule.end_date != original_schedule.end_date %}
-                                        {% if preview_schedule.end_date %}
-                                            <span class="events-text-warning">{{ preview_schedule.end_date|date:"d/m/Y" }}</span>
-                                            <small class="events-text-muted">(cambiado)</small>
-                                        {% else %}
-                                            <span class="events-text-warning"><em>Sin fecha de fin</em></span>
-                                            <small class="events-text-muted">(cambiado)</small>
-                                        {% endif %}
-                                    {% else %}
-                                        {% if preview_schedule.end_date %}
-                                            {{ preview_schedule.end_date|date:"d/m/Y" }}
-                                        {% else %}
-                                            <em>Sin fecha de fin</em>
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
-
-                                <div class="events-col-sm-5"><strong>Días programados:</strong></div>
-                                <div class="events-col-sm-7">
-                                    {% if preview_schedule.get_selected_days_display != original_schedule.get_selected_days_display %}
-                                        <span class="events-text-warning">{{ preview_schedule.get_selected_days_display }}</span>
-                                        <small class="events-text-muted">(cambiado)</small>
-                                    {% else %}
-                                        {{ preview_schedule.get_selected_days_display }}
-                                    {% endif %}
-                                </div>
-
-                                <div class="events-col-sm-5"><strong>Estado:</strong></div>
-                                <div class="events-col-sm-7">
-                                    {% if preview_schedule.is_active != original_schedule.is_active %}
-                                        <span class="m360-badge m360-badge-{% if preview_schedule.is_active %}success{% else %}secondary{% endif %}">
-                                            {% if preview_schedule.is_active %}Activa{% else %}Pausada{% endif %}
-                                        </span>
-                                        <small class="events-text-muted">(cambiado)</small>
-                                    {% else %}
-                                        <span class="m360-badge m360-badge-{% if preview_schedule.is_active %}success{% else %}secondary{% endif %}">
-                                            {% if preview_schedule.is_active %}Activa{% else %}Pausada{% endif %}
-                                        </span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Next Occurrences Preview -->
-            <div class="m360-card events-mb-4">
-                <div class="m360-card-header" style="background: var(--m360-success); color: #fff; border: none;">
-                    <h5 class="m360-card-title events-mb-0">
-                        <i class="bi bi-calendar-check" style="margin-right: var(--m360-space-1);"></i>
-                        Próximas Ocurrencias
-                    </h5>
-                </div>
-                <div class="m360-card-body">
-                    {% if preview_occurrences %}
-                        <div class="m360-table-responsive">
-                            <table class="m360-table">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Fecha</th>
-                                        <th>Día</th>
-                                        <th>Hora de Inicio</th>
-                                        <th>Hora de Fin</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for occurrence in preview_occurrences %}
-                                    <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <td>{{ occurrence.date|date:"l, d/m/Y" }}</td>
-                                        <td>
-                                            <span class="m360-badge m360-badge-info">{{ occurrence.date|date:"D" }}</span>
-                                        </td>
-                                        <td>{{ occurrence.start_time|time:"H:i" }}</td>
-                                        <td>{{ occurrence.end_time|time:"H:i" }}</td>
-                                        <td>
-                                            <span class="m360-badge m360-badge-warning">Pendiente</span>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="m360-alert m360-alert-success events-mt-3">
-                            <i class="bi bi-check-circle-fill" style="margin-right: var(--m360-space-1);"></i>
-                            <strong>¡Perfecto!</strong> Se generarán {{ preview_occurrences|length }} nuevas programaciones
-                            basadas en la configuración actual.
-                        </div>
-                    {% else %}
-                        <div class="m360-alert m360-alert-warning">
-                            <i class="bi bi-exclamation-triangle-fill" style="margin-right: var(--m360-space-1);"></i>
-                            <strong>Advertencia:</strong> No se generarán nuevas ocurrencias con la configuración actual.
-                            Verifica las fechas y días seleccionados.
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="m360-card">
-                <div class="m360-card-body">
-                    <div class="events-row events-gap-4">
-                        <div class="events-col-md-6">
-                            <a href="{% url 'events:edit_task_schedule' original_schedule.id %}" class="m360-btn m360-btn-outline-secondary events-w-100">
-                                <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i>
-                                Volver a Editar
-                            </a>
-                        </div>
-                        <div class="events-col-md-6">
-                            {% if changes_detected %}
-                            <form method="post" action="{% url 'events:edit_task_schedule' original_schedule.id %}">
-                                {% csrf_token %}
-                                {% for key, value in form_data.items %}
-                                    {% if key != 'csrfmiddlewaretoken' %}
-                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
-                                    {% endif %}
-                                {% endfor %}
-                                <button type="submit" class="m360-btn m360-btn-success events-w-100">
-                                    <i class="bi bi-check-circle-fill" style="margin-right: var(--m360-space-1);"></i>
-                                    Confirmar Cambios
-                                </button>
-                            </form>
-                            {% else %}
-                            <button class="m360-btn m360-btn-outline-secondary events-w-100" disabled>
-                                <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i>
-                                Sin Cambios Pendientes
-                            </button>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    {% if changes_detected %}
-                    <div class="m360-alert m360-alert-info events-mt-3">
-                        <small>
-                            <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
-                            Al confirmar los cambios, se actualizará la programación y se generarán las nuevas ocurrencias
-                            según la configuración mostrada arriba.
-                        </small>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+<div class="row">
+  <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+    <!-- Changes Summary -->
+    {% if changes_detected %}
+    <div class="section-card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--amber);">
+      <div class="section-card-header" style="background: var(--amber); color: var(--gray-800); border: none;">
+        <h5 class="section-card-title mb-0">
+          <i class="fas fa-triangle-exclamation" style="margin-right: 0.5rem;"></i>
+          Cambios Detectados
+        </h5>
+      </div>
+      <div class="section-card-body">
+        <div class="section-card section-warning" style="background: var(--amber); color: var(--gray-800);">
+          <strong>¡Atención!</strong> Se han detectado cambios en la configuración.
+          Revisa la información a continuación antes de confirmar los cambios.
         </div>
+      </div>
     </div>
+    {% else %}
+    <div class="section-card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--blue);">
+      <div class="section-card-header" style="background: var(--blue); color: #fff; border: none;">
+        <h5 class="section-card-title mb-0">
+          <i class="fas fa-circle-info" style="margin-right: 0.5rem;"></i>
+          Vista Previa Actual
+        </h5>
+      </div>
+      <div class="section-card-body">
+        <div class="section-card section-info" style="background: var(--blue); color: #fff;">
+          <strong>Información:</strong> Esta es la configuración actual de la programación.
+          No se han detectado cambios pendientes.
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Comparison Cards -->
+    <div class="row" style="gap: 1rem; margin-bottom: 1.5rem;">
+      <!-- Original Configuration -->
+      <div class="col-md-6">
+        <div class="section-card h-100">
+          <div class="section-card-header" style="background: var(--gray-500); color: #fff; border: none;">
+            <h5 class="section-card-title mb-0">
+              <i class="fas fa-clock-history" style="margin-right: 0.5rem;"></i>
+              Configuración Actual
+            </h5>
+          </div>
+          <div class="section-card-body">
+            <div class="row" style="gap: 0.5rem;">
+              <div class="col-sm-5"><strong>Tipo de recurrencia:</strong></div>
+              <div class="col-sm-7">{{ original_schedule.get_recurrence_type_display }}</div>
+
+              <div class="col-sm-5"><strong>Hora de inicio:</strong></div>
+              <div class="col-sm-7">{{ original_schedule.start_time|time:"H:i" }}</div>
+
+              <div class="col-sm-5"><strong>Duración:</strong></div>
+              <div class="col-sm-7">{% widthratio original_schedule.duration.total_seconds 3600 1 %} horas</div>
+
+              <div class="col-sm-5"><strong>Fecha de inicio:</strong></div>
+              <div class="col-sm-7">{{ original_schedule.start_date|date:"d/m/Y" }}</div>
+
+              <div class="col-sm-5"><strong>Fecha de fin:</strong></div>
+              <div class="col-sm-7">
+                {% if original_schedule.end_date %}
+                  {{ original_schedule.end_date|date:"d/m/Y" }}
+                {% else %}
+                  <em>Sin fecha de fin</em>
+                {% endif %}
+              </div>
+
+              <div class="col-sm-5"><strong>Días programados:</strong></div>
+              <div class="col-sm-7">{{ original_schedule.get_selected_days_display }}</div>
+
+              <div class="col-sm-5"><strong>Estado:</strong></div>
+              <div class="col-sm-7">
+                {% if original_schedule.is_active %}
+                  <span class="badge" style="background: var(--green); color: #fff;">Activa</span>
+                {% else %}
+                  <span class="badge" style="background: var(--gray-500); color: #fff;">Pausada</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview Configuration -->
+      <div class="col-md-6">
+        <div class="section-card h-100">
+          <div class="section-card-header" style="background: var(--blue); color: #fff; border: none;">
+            <h5 class="section-card-title mb-0">
+              <i class="fas fa-eye" style="margin-right: 0.5rem;"></i>
+              {% if changes_detected %}Nueva Configuración{% else %}Configuración Actual{% endif %}
+            </h5>
+          </div>
+          <div class="section-card-body">
+            <div class="row" style="gap: 0.5rem;">
+              <div class="col-sm-5"><strong>Tipo de recurrencia:</strong></div>
+              <div class="col-sm-7">
+                {% if preview_schedule.get_recurrence_type_display != original_schedule.get_recurrence_type_display %}
+                  <span class="text-warning">{{ preview_schedule.get_recurrence_type_display }}</span>
+                  <small class="text-muted">(cambiado)</small>
+                {% else %}
+                  {{ preview_schedule.get_recurrence_type_display }}
+                {% endif %}
+              </div>
+
+              <div class="col-sm-5"><strong>Hora de inicio:</strong></div>
+              <div class="col-sm-7">
+                {% if preview_schedule.start_time != original_schedule.start_time %}
+                  <span class="text-warning">{{ preview_schedule.start_time|time:"H:i" }}</span>
+                  <small class="text-muted">(cambiado)</small>
+                {% else %}
+                  {{ preview_schedule.start_time|time:"H:i" }}
+                {% endif %}
+              </div>
+
+              <div class="col-sm-5"><strong>Duración:</strong></div>
+              <div class="col-sm-7">
+                {% if preview_schedule.duration != original_schedule.duration %}
+                  <span class="text-warning">{% widthratio preview_schedule.duration.total_seconds 3600 1 %} horas</span>
+                  <small class="text-muted">(cambiado)</small>
+                {% else %}
+                  {% widthratio preview_schedule.duration.total_seconds 3600 1 %} horas
+                {% endif %}
+              </div>
+
+              <div class="col-sm-5"><strong>Fecha de inicio:</strong></div>
+              <div class="col-sm-7">
+                {% if preview_schedule.start_date != original_schedule.start_date %}
+                  <span class="text-warning">{{ preview_schedule.start_date|date:"d/m/Y" }}</span>
+                  <small class="text-muted">(cambiado)</small>
+                {% else %}
+                  {{ preview_schedule.start_date|date:"d/m/Y" }}
+                {% endif %}
+              </div>
+
+              <div class="col-sm-5"><strong>Fecha de fin:</strong></div>
+              <div class="col-sm-7">
+                {% if preview_schedule.end_date != original_schedule.end_date %}
+                  {% if preview_schedule.end_date %}
+                    <span class="text-warning">{{ preview_schedule.end_date|date:"d/m/Y" }}</span>
+                    <small class="text-muted">(cambiado)</small>
+                  {% else %}
+                    <span class="text-warning"><em>Sin fecha de fin</em></span>
+                    <small class="text-muted">(cambiado)</small>
+                  {% endif %}
+                {% else %}
+                  {% if preview_schedule.end_date %}
+                    {{ preview_schedule.end_date|date:"d/m/Y" }}
+                  {% else %}
+                    <em>Sin fecha de fin</em>
+                  {% endif %}
+                {% endif %}
+              </div>
+
+              <div class="col-sm-5"><strong>Días programados:</strong></div>
+              <div class="col-sm-7">
+                {% if preview_schedule.get_selected_days_display != original_schedule.get_selected_days_display %}
+                  <span class="text-warning">{{ preview_schedule.get_selected_days_display }}</span>
+                  <small class="text-muted">(cambiado)</small>
+                {% else %}
+                  {{ preview_schedule.get_selected_days_display }}
+                {% endif %}
+              </div>
+
+              <div class="col-sm-5"><strong>Estado:</strong></div>
+              <div class="col-sm-7">
+                {% if preview_schedule.is_active != original_schedule.is_active %}
+                  <span class="badge" style="background: {% if preview_schedule.is_active %}var(--green){% else %}var(--gray-500){% endif %}; color: #fff;">
+                    {% if preview_schedule.is_active %}Activa{% else %}Pausada{% endif %}
+                  </span>
+                  <small class="text-muted">(cambiado)</small>
+                {% else %}
+                  <span class="badge" style="background: {% if preview_schedule.is_active %}var(--green){% else %}var(--gray-500){% endif %}; color: #fff;">
+                    {% if preview_schedule.is_active %}Activa{% else %}Pausada{% endif %}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Occurrences Preview -->
+    <div class="section-card" style="margin-bottom: 1.5rem;">
+      <div class="section-card-header" style="background: var(--green); color: #fff; border: none;">
+        <h5 class="section-card-title mb-0">
+          <i class="fas fa-calendar-check" style="margin-right: 0.5rem;"></i>
+          Próximas Ocurrencias
+        </h5>
+      </div>
+      <div class="section-card-body">
+        {% if preview_occurrences %}
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: var(--gray-100);">
+                  <th style="padding: 0.5rem; text-align: left; font-weight: 600;">#</th>
+                  <th style="padding: 0.5rem; text-align: left; font-weight: 600;">Fecha</th>
+                  <th style="padding: 0.5rem; text-align: left; font-weight: 600;">Día</th>
+                  <th style="padding: 0.5rem; text-align: left; font-weight: 600;">Hora de Inicio</th>
+                  <th style="padding: 0.5rem; text-align: left; font-weight: 600;">Hora de Fin</th>
+                  <th style="padding: 0.5rem; text-align: left; font-weight: 600;">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for occurrence in preview_occurrences %}
+                <tr style="border-bottom: 1px solid var(--gray-200);">
+                  <td style="padding: 0.5rem;">{{ forloop.counter }}</td>
+                  <td style="padding: 0.5rem;">{{ occurrence.date|date:"l, d/m/Y" }}</td>
+                  <td style="padding: 0.5rem;">
+                    <span class="badge" style="background: var(--blue); color: #fff;">{{ occurrence.date|date:"D" }}</span>
+                  </td>
+                  <td style="padding: 0.5rem;">{{ occurrence.start_time|time:"H:i" }}</td>
+                  <td style="padding: 0.5rem;">{{ occurrence.end_time|time:"H:i" }}</td>
+                  <td style="padding: 0.5rem;">
+                    <span class="badge" style="background: var(--amber); color: var(--gray-800);">Pendiente</span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-card section-success" style="margin-top: 1rem;">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-check-circle-fill" style="color: var(--green);"></i>
+              <strong>¡Perfecto!</strong> Se generarán {{ preview_occurrences|length }} nuevas programaciones
+              basadas en la configuración actual.
+            </div>
+          </div>
+        {% else %}
+          <div class="section-card section-warning" style="background: var(--amber); color: var(--gray-800);">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-triangle-exclamation" style="color: var(--amber);"></i>
+              <strong>Advertencia:</strong> No se generarán nuevas ocurrencias con la configuración actual.
+              Verifica las fechas y días seleccionados.
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="section-card">
+      <div class="section-card-body">
+        <div class="row" style="gap: 1rem;">
+          <div class="col-md-6">
+            <a href="{% url 'events:edit_task_schedule' original_schedule.id %}" class="btn btn-outline-secondary" style="width: 100%;">
+              <i class="fas fa-arrow-left" style="margin-right: 0.25rem;"></i>
+              Volver a Editar
+            </a>
+          </div>
+          <div class="col-md-6">
+            {% if changes_detected %}
+            <form method="post" action="{% url 'events:edit_task_schedule' original_schedule.id %}">
+              {% csrf_token %}
+              {% for key, value in form_data.items %}
+                {% if key != 'csrfmiddlewaretoken' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+              {% endfor %}
+              <button type="submit" class="btn btn-success" style="width: 100%;">
+                <i class="fas fa-check-circle-fill" style="margin-right: 0.25rem;"></i>
+                Confirmar Cambios
+              </button>
+            </form>
+            {% else %}
+            <button class="btn btn-outline-secondary" style="width: 100%;" disabled>
+              <i class="fas fa-check-circle" style="margin-right: 0.25rem;"></i>
+              Sin Cambios Pendientes
+            </button>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if changes_detected %}
+        <div class="section-card section-info" style="margin-top: 1rem;">
+          <small>
+            <i class="fas fa-circle-info" style="margin-right: 0.25rem;"></i>
+            Al confirmar los cambios, se actualizará la programación y se generarán las nuevas ocurrencias
+            según la configuración mostrada arriba.
+          </small>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
