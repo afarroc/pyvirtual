@@ -146,28 +146,11 @@ def find_similar_projects(user, title, description=None, threshold=0.6):
 
 def _create_event_for_inbox_item(inbox_item, user, context_type="inbox"):
     """
-    Crea un evento asociado a un item del inbox
+    Crea un evento asociado a un item del inbox solo cuando el flujo
+    GTD decide explícitamente generar un evento de calendario.
+    Ahora retorna None por defecto; el llamador debe decidir si create.
     """
-    try:
-        # Obtener estado 'Created' por defecto
-        created_status = Status.objects.get(status_name='Created')
-        
-        event = Event.objects.create(
-            title=inbox_item.title,
-            description=inbox_item.description or f"Evento creado desde inbox: {inbox_item.title}",
-            event_status=created_status,
-            venue="Por definir",
-            host=user,
-            assigned_to=user,
-            event_category=f"inbox_{context_type}",
-            max_attendees=1,
-            ticket_price=0.07
-        )
-        
-        return event
-    except Exception as e:
-        logging.getLogger(__name__).error(f"Error creando evento para inbox: {e}")
-        return None
+    return None
 
 # gtd_views.py - en la función _create_project_with_event
 
@@ -202,11 +185,10 @@ def _create_task_with_context(inbox_item, user, project=None, event=None, assign
         # Determinar asignación
         task_assigned_to = assigned_to or user
         
-        # Crear evento si no existe
-        if not event and not project:
-            event = _create_event_for_inbox_item(inbox_item, user, "task")
+        # No crear eventos automáticamente. El evento debe ser provisto
+        # explícitamente por el flujo o por el usuario.
         
-        # Si hay proyecto pero no evento, usar evento del proyecto
+        # Si hay proyecto pero no evento, usar evento del proyecto si existe
         if project and not event and hasattr(project, 'event'):
             event = project.event
         

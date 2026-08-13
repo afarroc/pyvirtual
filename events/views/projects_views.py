@@ -773,24 +773,6 @@ def project_create(request):
                 assigned_to = form.cleaned_data.get('assigned_to', request.user)
                 event = form.cleaned_data.get('event')
                 
-                # Si no hay evento, crear uno nuevo
-                if not event:
-                    from ..models import Status, Event
-                    from django.utils import timezone
-                    
-                    created_status = Status.objects.get(status_name='Created')
-                    event = Event.objects.create(
-                        title=title,
-                        description=description or f"Evento para proyecto: {title}",
-                        event_status=created_status,
-                        venue="Por definir",
-                        host=request.user,
-                        assigned_to=assigned_to,
-                        event_category="project",
-                        max_attendees=1,
-                        ticket_price=0.07
-                    )
-                
                 # Crear proyecto usando ProjectManager
                 project = project_manager.create_project(
                     title=title,
@@ -877,7 +859,7 @@ def project_edit(request, project_id=None):
 
             # Estamos manejando una solicitud GET sin argumentos
             # Verificar el rol del usuario
-            if hasattr(request.user, 'profile') and hasattr(request.user.cv, 'role') and request.user.cv.role == 'SU':
+            if request.user.is_superuser or (hasattr(request.user, 'cv') and getattr(request.user.cv, 'role', None) == 'SU'):
                 # Si el usuario es un 'SU', puede ver todos los proyectos
                 projects = Project.objects.all().order_by('-updated_at')
             else:
@@ -1012,7 +994,7 @@ def project_bulk_action(request):
         projects = Project.objects.filter(id__in=selected_projects)
 
         if action == 'delete':
-            if not (hasattr(request.user, 'profile') and hasattr(request.user.cv, 'role') and request.user.cv.role == 'SU'):
+            if not (request.user.is_superuser or (hasattr(request.user, 'cv') and getattr(request.user.cv, 'role', None) == 'SU')):
                 messages.error(request, 'No tienes permiso para eliminar proyectos.')
                 return redirect('events:project_panel')
 

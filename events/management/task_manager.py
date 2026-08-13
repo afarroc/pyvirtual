@@ -118,7 +118,7 @@ class TaskManager:
         """
         Crear una nueva tarea usando el TaskManager con procedimientos correctos
         """
-        from ..models import Task, TaskStatus, TaskState, Event, Status
+        from ..models import Task, TaskStatus, TaskState
         from django.utils import timezone
         from django.db import transaction, IntegrityError
 
@@ -146,34 +146,12 @@ class TaskManager:
         else:
             logger.debug(f"create_task: Usando assigned_to proporcionado (ID: {assigned_to.id})")
 
-        # Si no hay evento, crear uno automáticamente (igual que en event_create)
-        if not event:
-            logger.debug("create_task: event no proporcionado, creando evento automáticamente")
-            try:
-                status = Status.objects.get(status_name='Created')
-                logger.debug(f"create_task: Estado 'Created' encontrado para evento (ID: {status.id})")
-                with transaction.atomic():
-                    logger.debug("create_task: Iniciando transacción para crear evento")
-                    new_event = Event.objects.create(
-                        title=title,
-                        event_status=status,
-                        host=self.user,
-                        assigned_to=self.user,
-                    )
-                    event = new_event
-                    logger.info(f"Created event '{title}' for task '{title}' (ID: {new_event.id})")
-                    logger.debug("create_task: Evento creado exitosamente")
-            except Status.DoesNotExist:
-                logger.error("create_task: Status 'Created' not found when creating task")
-                raise ValueError("Estado 'Created' no encontrado")
-            except IntegrityError as e:
-                logger.error(f"create_task: Error de integridad al crear evento: {e}")
-                raise ValueError(f"Error al crear el evento para la tarea: {e}")
-            except Exception as e:
-                logger.exception(f"create_task: Error inesperado al crear evento: {e}")
-                raise
+        # No crear Event automáticamente. El campo event es opcional.
+        # Si se desea asociar un Event, debe pasarse explícitamente.
+        if event:
+            logger.debug(f"create_task: Usando evento proporcionado (ID: {event.id})")
         else:
-            logger.debug(f"create_task: Usando evento existente (ID: {event.id})")
+            logger.debug("create_task: Sin evento asociado")
 
         # Crear la tarea
         logger.debug("create_task: Creando objeto Task en base de datos")

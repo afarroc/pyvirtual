@@ -707,47 +707,23 @@ def task_create(request, project_id=None):
             task = form.save(commit=False)
             task.host = request.user
             task.assigned_to = form.cleaned_data.get('assigned_to') or request.user
-            task.event = form.cleaned_data['event']
+            task.event = form.cleaned_data.get('event')
 
-            if not task.event:
-                status = get_object_or_404(Status, status_name='Created')
-                try:
-                    with transaction.atomic():
-                        new_event = Event.objects.create(
-                            title=form.cleaned_data['title'],
-                            event_status=status,
-                            host=request.user,
-                            assigned_to=request.user,
-                        )
-                        task.event = new_event
-                        task.save()
-                        form.save_m2m()
-                        messages.success(request, 'Tarea creada exitosamente!')
-                        
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({'success': True, 'message': 'Tarea creada exitosamente!', 'task_id': task.id})
-                        return redirect('events:task_panel')
+            try:
+                with transaction.atomic():
+                    task.save()
+                    form.save_m2m()
+                    messages.success(request, 'Tarea creada exitosamente!')
                     
-                except IntegrityError as e:
-                    error_msg = f'Hubo un problema al guardar la tarea o crear el evento: {e}'
-                    messages.error(request, error_msg)
                     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                        return JsonResponse({'success': False, 'error': error_msg}, status=400)
-            else:
-                try:
-                    with transaction.atomic():
-                        task.save()
-                        form.save_m2m()
-                        messages.success(request, 'Tarea creada exitosamente!')
-                        
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({'success': True, 'message': 'Tarea creada exitosamente!', 'task_id': task.id})
-                        return redirect('events:task_panel')
-                except IntegrityError:
-                    error_msg = 'Hubo un problema al guardar la Tarea.'
-                    messages.error(request, error_msg)
-                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                        return JsonResponse({'success': False, 'error': error_msg}, status=400)
+                        return JsonResponse({'success': True, 'message': 'Tarea creada exitosamente!', 'task_id': task.id})
+                    return redirect('events:task_panel')
+                
+            except IntegrityError as e:
+                error_msg = f'Hubo un problema al guardar la tarea: {e}'
+                messages.error(request, error_msg)
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': error_msg}, status=400)
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST':
         return JsonResponse({'success': False, 'error': 'Error de validación del formulario'}, status=400)
@@ -795,15 +771,15 @@ def task_edit(request, task_id=None):
             else:
                 form = CreateNewTask(instance=task)
             
-            return render(request, 'tasks/task_edit.html', {'form': form})
+            return render(request, 'tasks/task_edit.html', {'form': form, 'task': task})
         
         else:
-            if hasattr(request.user, 'profile') and hasattr(request.user.cv, 'role') and request.user.cv.role == 'SU':
+            if request.user.is_superuser or (hasattr(request.user, 'cv') and getattr(request.user.cv, 'role', None) == 'SU'):
                 tasks = Task.objects.all().order_by('-created_at')
             else:
-                tasks = Task.objects.filter(Q(assigned_to=request.user) | Q(attendees=request.user)).distinct().order_by('-created_at')
+                tasks = Task.objects.filter(Q(assigned_to=request.user) | Q(project__attendees=request.user)).distinct().order_by('-created_at')
             
-            return render(request, 'tasks/task_panel.html', {'tasks': tasks})
+            return render(request, 'tasks/task_list.html', {'tasks': tasks})
     
     except Exception as e:
         messages.error(request, 'Ha ocurrido un error: {}'.format(e))
@@ -817,7 +793,7 @@ def task_delete(request, task_id):
     """
     if request.method == 'POST':
         task = get_object_or_404(Task, pk=task_id)
-        if not (hasattr(request.user, 'profile') and hasattr(request.user.cv, 'role') and request.user.cv.role == 'SU'):
+        if not (request.user.is_superuser or (hasattr(request.user, 'cv') and getattr(request.user.cv, 'role', None) == 'SU')):
             messages.error(request, 'No tienes permiso para eliminar esta tarea.')
             return redirect('events:tasks')
         

@@ -291,19 +291,10 @@ def _create_from_inbox(item, target_type, user):
             result = task
             
         elif target_type == 'project':
-            # Crear evento automático para el proyecto
-            default_status = get_default_status('event')
-            event = Event.objects.create(
-                title=f"Proyecto: {item.title}",
-                event_status=default_status,
-                host=user,
-                assigned_to=user
-            )
-            
             project = managers['project_manager'].create_project(
                 title=item.title,
                 description=item.description or item.content,
-                event=event
+                event=None
             )
             item.processed_to = project
             result = project

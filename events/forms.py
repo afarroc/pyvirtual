@@ -54,7 +54,9 @@ class CreateNewTask(forms.ModelForm):
         }
 
 class CreateNewProject(forms.ModelForm):
-    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['event'].required = False
 
     class Meta:
         model = Project
@@ -66,10 +68,10 @@ class CreateNewProject(forms.ModelForm):
             'assigned_to': forms.Select(attrs={'class': 'form-select'}),
             'attendees': forms.SelectMultiple(attrs={'class': 'form-select'}),
             'project_status': forms.Select(attrs={'class': 'form-select'}),
-            'ticket_price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'ticket_price': forms.TextInput(attrs={'class': 'form-control'}),
 
         }
-       
+        
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event

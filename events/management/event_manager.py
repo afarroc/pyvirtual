@@ -10,7 +10,7 @@ class EventManager:
         self.active_status = self.get_active_status()
 
     def get_user_events(self):
-        if hasattr(self.user, 'profile') and hasattr(self.user.profile, 'role') and self.user.profile.role == 'SU':
+        if self.user.is_superuser or (hasattr(self.user, 'cv') and getattr(self.user.cv, 'role', None) == 'SU'):
             return Event.objects.all().order_by('-updated_at')
         else:
             return Event.objects.filter(

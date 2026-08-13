@@ -48,35 +48,11 @@ def create_consistent_project(user, title, description='', assigned_to=None,
         assigned_to = user
         logger.debug(f"Using user {user.username} as assigned_to")
     
-    # Si no hay evento, crear uno por defecto
+    # Si no hay evento, NO crear uno por defecto.
+    # El campo `event` en Project/Task es opcional y solo se asigna
+    # cuando el flujo de creación lo solicita explícitamente.
     if event is None:
-        logger.debug("No event provided, creating default event")
-        try:
-            created_status = get_default_status('event', 'Created')
-            
-            if not created_status:
-                # Fallback: crear o buscar status
-                created_status, _ = Status.objects.get_or_create(
-                    status_name='Created',
-                    defaults={'description': 'Created status'}
-                )
-            
-            event = Event.objects.create(
-                title=title,
-                description=description or f"Evento para proyecto: {title}",
-                event_status=created_status,
-                venue="Por definir",
-                host=user,
-                assigned_to=assigned_to,
-                event_category="project",
-                max_attendees=1,
-                ticket_price=kwargs.get('ticket_price', 0.07)
-            )
-            logger.info(f"Created default event for project (ID: {event.id})")
-            
-        except Exception as e:
-            logger.exception(f"Error creating default event: {e}")
-            raise Exception(f"Error creando evento por defecto: {e}")
+        logger.debug("No event provided, leaving event=None")
     else:
         logger.debug(f"Using provided event (ID: {event.id})")
     

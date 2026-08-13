@@ -256,18 +256,7 @@ def use_project_template(request, template_id):
                         # Crear el proyecto
                         project = project_form.save(commit=False)
                         project.host = request.user
-                        project.event = project_form.cleaned_data['event']
-
-                        # Si no hay evento, crear uno
-                        if not project.event:
-                            status = Status.objects.get(status_name='Created')
-                            new_event = Event.objects.create(
-                                title=project_form.cleaned_data['title'],
-                                event_status=status,
-                                host=request.user,
-                                assigned_to=request.user,
-                            )
-                            project.event = new_event
+                        project.event = project_form.cleaned_data.get('event')
 
                         project.save()
                         project_form.save_m2m()
