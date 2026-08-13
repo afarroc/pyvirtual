@@ -4378,6 +4378,19 @@ img {
   color: var(--blue);
 }
 
+.alert-primary {
+  border-left-color: var(--purple);
+  background: var(--purple-light);
+}
+
+.alert-primary i {
+  color: var(--purple);
+}
+
+.alert-dismissible {
+  padding-right: 2.5rem;
+}
+
 .alert-dismiss {
   background: none;
   border: none;
@@ -8349,18 +8362,6 @@ teY(0);
 
 .alert-info i {
   color: var(--blue);
-}
-
-.alert-dismiss {
-  background: none;
-  border: none;
-  color: var(--gray-400);
-  padding: 0.25rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all var(--transition);
-  flex-shrink: 0;
-  font-size: 0.875rem;
 }
 
 .alert-dismiss:hover {
