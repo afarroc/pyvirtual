@@ -167,6 +167,21 @@
             <p class="text-muted text-sm">No hay eventos recientes</p>
             {% endfor %}
           </div>
+
+          <!-- System Events -->
+          <div class="unified-recent-col">
+            <h6 class="unified-recent-title amber">
+              <i class="fas fa-bolt" aria-hidden="true"></i> Actividad del Sistema
+            </h6>
+            {% for se in recent_system_events|slice:":5" %}
+            <div class="unified-recent-item">
+              <span class="status status-pending unified-status-sm">{{ se.action_type|default:'system' }}</span>
+              <span class="text-muted text-sm">{{ se.summary|truncatechars:25|default:se.action_type }}</span>
+            </div>
+            {% empty %}
+            <p class="text-muted text-sm">No hay eventos de sistema recientes</p>
+            {% endfor %}
+          </div>
         </div>
       </div>
 

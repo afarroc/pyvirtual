@@ -21,7 +21,7 @@ from django.utils import timezone
 
 from ..models import (
     Task, Project, Event, InboxItem, Reminder, 
-    InboxItemHistory
+    InboxItemHistory, SystemEvent
 )
 from ..services.dashboard_service import RootDashboardService
 from ..utils import check_root_access, get_responsive_grid_classes, log_dashboard_access
@@ -96,6 +96,11 @@ def unified_dashboard(request):
     recent_projects = user_projects.filter(updated_at__gte=this_week)[:5]
     recent_events = user_events.filter(updated_at__gte=this_week)[:5]
 
+    # System events recientes (últimos 20)
+    recent_system_events = SystemEvent.objects.filter(
+        timestamp__gte=this_week
+    ).select_related('user', 'content_type').order_by('-timestamp')[:20]
+
     # Items del inbox GTD
     inbox_items = InboxItem.objects.filter(created_by=user, is_processed=False)[:5]
 
@@ -149,6 +154,7 @@ def unified_dashboard(request):
         'recent_tasks': recent_tasks,
         'recent_projects': recent_projects,
         'recent_events': recent_events,
+        'recent_system_events': recent_system_events,
 
         # Herramientas específicas
         'inbox_items': inbox_items,
