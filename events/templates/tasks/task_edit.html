@@ -1,190 +1,365 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
-
 {% block content %}
 
-<!-- Mensajes de confirmación y éxito -->
+<!-- ==========================================
+     TASK EDIT
+     ========================================== -->
+
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="bi bi-pencil-square"></i>
+            {{ title|default:"Edit Task" }}
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <a href="{% url 'events:task_panel' %}" class="text-decoration-none">
+                Tasks
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">{{ title|default:"Edit" }}</span>
+        </div>
+    </div>
+    <div class="header-actions">
+        {% if task %}
+        <a href="{% url 'events:tasks_with_id' task.id %}" class="btn btn-info">
+            <i class="bi bi-eye"></i> View
+        </a>
+        {% endif %}
+        <a href="{% url 'events:task_panel' %}" class="btn btn-ghost">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<!-- Messages -->
 {% if messages %}
-<div class="alert alert-info" role="alert">
+<div class="alerts-container">
     {% for message in messages %}
-    <p{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
-        {% endfor %}
+    <div class="alert alert-{{ message.tags|default:'info' }}">
+        <div class="alert-content">
+            <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            <span class="alert-message">{{ message }}</span>
+        </div>
+        <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    {% endfor %}
 </div>
 {% endif %}
 
-<div class="pagetitle">
-    <h1>{{title}}</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'events:task_panel' %}">Panel de Tareas</a></li>
-            <li class="breadcrumb-item active">{{title}}</li>
-        </ol>
-    </nav>
-</div><!-- End Page Title -->
-
-<section class="section dashboard">
-    <div class="row">
-
-        <!-- Left side columns -->
-        <div class="col-lg-8">
-            <div class="row">
-
-                <!-- Task Edit Form Card -->
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-pencil-square me-2"></i>
-                                {{title}}
-                            </h5>
-
-                            <form method="POST" class="row g-3">
-                                {% csrf_token %}
-
-                                <!-- Title Field -->
-                                <div class="col-md-12">
-                                    <label for="{{ form.title.id_for_label }}" class="form-label">
-                                        <i class="bi bi-tag me-1"></i>Título de la Tarea
-                                    </label>
-                                    {{ form.title }}
-                                    {% if form.title.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.title.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                    {% if form.title.help_text %}
-                                        <div class="form-text">{{ form.title.help_text }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Description Field -->
-                                <div class="col-12">
-                                    <label for="{{ form.description.id_for_label }}" class="form-label">
-                                        <i class="bi bi-textarea-resize me-1"></i>Descripción
-                                    </label>
-                                    {{ form.description }}
-                                    {% if form.description.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.description.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                    {% if form.description.help_text %}
-                                        <div class="form-text">{{ form.description.help_text }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Project and Status Row -->
-                                <div class="col-md-6">
-                                    <label for="{{ form.project.id_for_label }}" class="form-label">
-                                        <i class="bi bi-folder me-1"></i>Proyecto
-                                    </label>
-                                    {{ form.project }}
-                                    {% if form.project.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.project.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="{{ form.task_status.id_for_label }}" class="form-label">
-                                        <i class="bi bi-flag me-1"></i>Estado de la Tarea
-                                    </label>
-                                    {{ form.task_status }}
-                                    {% if form.task_status.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.task_status.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Event and Assigned To Row -->
-                                <div class="col-md-6">
-                                    <label for="{{ form.event.id_for_label }}" class="form-label">
-                                        <i class="bi bi-calendar-event me-1"></i>Evento
-                                    </label>
-                                    {{ form.event }}
-                                    {% if form.event.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.event.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="{{ form.assigned_to.id_for_label }}" class="form-label">
-                                        <i class="bi bi-person me-1"></i>Asignado a
-                                    </label>
-                                    {{ form.assigned_to }}
-                                    {% if form.assigned_to.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.assigned_to.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Ticket Price and Important Row -->
-                                <div class="col-md-6">
-                                    <label for="{{ form.ticket_price.id_for_label }}" class="form-label">
-                                        <i class="bi bi-cash me-1"></i>Precio del Ticket
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        {{ form.ticket_price }}
-                                    </div>
-                                    {% if form.ticket_price.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.ticket_price.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6 d-flex align-items-center">
-                                    <div class="form-check">
-                                        {{ form.important }}
-                                        <label class="form-check-label" for="{{ form.important.id_for_label }}">
-                                            <i class="bi bi-star me-1"></i>Tarea Importante
-                                        </label>
-                                    </div>
-                                    {% if form.important.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.important.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Submit Button -->
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-check-circle me-2"></i>Guardar Cambios
-                                    </button>
-                                    <a href="{% url 'events:task_panel' %}" class="btn btn-secondary ms-2">
-                                        <i class="bi bi-arrow-left me-2"></i>Cancelar
-                                    </a>
-                                </div>
-                            </form>
-
-                        </div>
-                    </div>
-                </div><!-- End Task Edit Form Card -->
+<!-- Main Content -->
+<div class="two-col">
+    <!-- Form Column -->
+    <div class="col">
+        <div class="section-card">
+            <div class="section-header section-header-primary">
+                <div class="section-title">
+                    <i class="bi bi-pencil-square"></i>
+                    <h5 style="color: #fff;">Edit Task</h5>
+                </div>
+                {% if task %}
+                <span class="status-badge" style="background: rgba(255,255,255,0.2); color: #fff; font-size: 0.7rem;">
+                    <i class="bi bi-hash"></i> #{{ task.id }}
+                </span>
+                {% endif %}
             </div>
-        </div><!-- End Left side columns -->
+            <div class="section-body" style="padding: 1.25rem;">
+                <form method="POST" id="taskEditForm" novalidate>
+                    {% csrf_token %}
 
-        <!-- Right side columns -->
-        <div class="col-lg-4">
+                    <!-- Title -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="bi bi-tag"></i> Task Title <span class="text-danger">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
 
-            {% if instructions %}
-            {% include 'includes/information/info_links_card.html' %}
-            {% endif %}
+                    <!-- Description -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            <i class="bi bi-text-paragraph"></i> Description
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
 
-            {% include 'includes/information/info_acordeon.html' %}
+                    <!-- Project -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.project.id_for_label }}" class="form-label">
+                            <i class="bi bi-folder"></i> Project
+                        </label>
+                        {{ form.project }}
+                        {% if form.project.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.project.errors }}</div>
+                        {% endif %}
+                    </div>
 
-        </div><!-- End Right side columns -->
+                    <!-- Task Status -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.task_status.id_for_label }}" class="form-label">
+                            <i class="bi bi-flag"></i> Task Status
+                        </label>
+                        {{ form.task_status }}
+                        {% if form.task_status.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.task_status.errors }}</div>
+                        {% endif %}
+                    </div>
 
+                    <!-- Event -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.event.id_for_label }}" class="form-label">
+                            <i class="bi bi-calendar-event"></i> Event
+                        </label>
+                        {{ form.event }}
+                        {% if form.event.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.event.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Assigned To -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.assigned_to.id_for_label }}" class="form-label">
+                            <i class="bi bi-person-check"></i> Assigned To
+                        </label>
+                        {{ form.assigned_to }}
+                        {% if form.assigned_to.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.assigned_to.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Ticket Price -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.ticket_price.id_for_label }}" class="form-label">
+                            <i class="bi bi-cash"></i> Ticket Price
+                        </label>
+                        <div style="display: flex; align-items: center;">
+                            <span style="background: var(--gray-200); padding: 0.35rem 0.75rem; border-radius: var(--radius-sm) 0 0 var(--radius-sm); font-weight: 600; color: var(--gray-600); border: 1px solid var(--gray-200); border-right: none;">$</span>
+                            {{ form.ticket_price }}
+                        </div>
+                        {% if form.ticket_price.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.ticket_price.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Important -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <div class="form-check" style="display: flex; align-items: center; gap: 0.5rem;">
+                            {{ form.important }}
+                            <label for="{{ form.important.id_for_label }}" class="form-check-label">
+                                <i class="bi bi-star" style="color: var(--amber);"></i> Mark as Important
+                            </label>
+                        </div>
+                        {% if form.important.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.important.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Last Updated Info -->
+                    {% if task %}
+                    <div style="display: flex; gap: 1.5rem; font-size: 0.8rem; color: var(--gray-400); padding: 0.5rem 0; border-top: 1px solid var(--gray-200); margin-top: 0.5rem; flex-wrap: wrap;">
+                        <span><i class="bi bi-clock"></i> Created: {{ task.created_at|date:"M d, Y H:i" }}</span>
+                        <span><i class="bi bi-arrow-repeat"></i> Updated: {{ task.updated_at|date:"M d, Y H:i" }}</span>
+                        <span><i class="bi bi-person"></i> Host: {{ task.host.username }}</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Form Actions -->
+                    <div class="form-actions" style="display: flex; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-200); flex-wrap: wrap;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                        <a href="{% url 'events:task_panel' %}" class="btn btn-ghost">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        {% if task %}
+                        <a href="{% url 'events:tasks_with_id' task.id %}" class="btn btn-info">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-</section>
+
+    <!-- Sidebar -->
+    <div class="col">
+        <!-- Quick Links -->
+        <div class="section-card">
+            <div class="section-header section-header-info">
+                <div class="section-title">
+                    <i class="bi bi-link-45deg"></i>
+                    <h6 style="color: #fff;">Quick Links</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="{% url 'events:project_create' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-folder-plus"></i> Create Project
+                    </a>
+                    <a href="{% url 'events:event_create' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-calendar-plus"></i> Create Event
+                    </a>
+                    <a href="{% url 'events:tasks' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-list-ul"></i> Task List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="section-card">
+            <div class="section-header section-header-success">
+                <div class="section-title">
+                    <i class="bi bi-lightbulb"></i>
+                    <h6 style="color: #fff;">Quick Tips</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                        <i class="bi bi-check-circle text-success"></i>
+                        <span style="font-size: 0.875rem;">Update status to track progress</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                        <i class="bi bi-check-circle text-success"></i>
+                        <span style="font-size: 0.875rem;">Reassign tasks to team members</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                        <i class="bi bi-check-circle text-success"></i>
+                        <span style="font-size: 0.875rem;">Mark important tasks for priority</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        {% if task %}
+        <div class="section-card" style="border-left: 4px solid var(--red);">
+            <div class="section-body" style="padding: 1rem;">
+                <h6 style="color: var(--red); font-size: 0.8rem; margin-bottom: 0.5rem;">
+                    <i class="bi bi-exclamation-triangle"></i> Danger Zone
+                </h6>
+                <p style="font-size: 0.8rem; color: var(--gray-500); margin-bottom: 0.75rem;">
+                    Once you delete this task, there is no going back.
+                </p>
+                <button onclick="deleteTask({{ task.id }}, '{{ task.title|escapejs }}')" class="btn btn-danger" style="width: 100%; justify-content: center;">
+                    <i class="bi bi-trash"></i> Delete Task
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h5><i class="bi bi-exclamation-triangle" style="color: var(--red);"></i> Confirm Deletion</h5>
+            <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete the task <strong id="deleteTaskTitle"></strong>?</p>
+            <p style="font-size: 0.8rem; color: var(--gray-500);">
+                <i class="bi bi-info-circle"></i> This action cannot be undone.
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+            <form method="POST" id="deleteTaskForm" action="{% url 'events:task_delete' task.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Task</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-dismiss alerts
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('dismissing');
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
+
+    // Form validation
+    const form = document.getElementById('taskEditForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const title = document.getElementById('{{ form.title.id_for_label }}');
+            if (title && !title.value.trim()) {
+                e.preventDefault();
+                title.focus();
+                title.style.borderColor = 'var(--red)';
+                alert('Please enter a task title.');
+                return false;
+            }
+        });
+
+        form.querySelectorAll('input, textarea, select').forEach(field => {
+            field.addEventListener('focus', function() {
+                this.style.borderColor = '';
+            });
+        });
+    }
+});
+
+// Delete task
+function deleteTask(taskId, taskTitle) {
+    document.getElementById('deleteTaskTitle').textContent = `"${taskTitle}" (ID: ${taskId})`;
+    document.getElementById('deleteTaskForm').action = `/events/tasks/${taskId}/delete/`;
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+}
+
+document.getElementById('deleteModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDeleteModal();
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        const form = document.getElementById('taskEditForm');
+        if (form) {
+            const btn = form.querySelector('button[type="submit"]');
+            if (btn) btn.click();
+        }
+    }
+});
+</script>
+
+<style>
+@media (max-width: 768px) {
+    .two-col {
+        grid-template-columns: 1fr !important;
+    }
+    .form-actions {
+        flex-direction: column;
+    }
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+</style>
 
 {% endblock %}
-
-

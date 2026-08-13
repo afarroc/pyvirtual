@@ -1,229 +1,1061 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
 
-<!-- ============================================================
-     ESTILOS GLOBALES Y DEL PANEL
-     ============================================================ -->
-<link rel="stylesheet" href="{% static 'assets/css/alerts-styles.css' %}">
-<link rel="stylesheet" href="{% static 'events/css/task-panel.css' %}?v={{ now|date:'U' }}">
-
 {% block content %}
 
-<!-- ============================================================
-     ENCABEZADO DE PÁGINA
-     ============================================================ -->
-<div class="pagetitle">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-        <div class="w-100 w-md-auto">
-            <h1 class="h2 h1-md mb-1">
-                <i class="bi bi-list-check me-2"></i>{{ title|truncatechars:30 }}
-            </h1>
-            <nav>
-                <ol class="breadcrumb mb-0 flex-wrap">
-                    <li class="breadcrumb-item"><a href="{% url 'index' %}"><i class="bi bi-house-door"></i><span class="d-none d-sm-inline ms-1">Home</span></a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'events:tasks' %}">Tasks</a></li>
-                    <li class="breadcrumb-item active text-truncate" style="max-width: 150px;">{{ title }}</li>
-                </ol>
-            </nav>
-        </div>
-        <div class="d-flex flex-wrap gap-2 w-100 w-md-auto">
-            <button type="button" class="btn btn-outline-primary btn-sm flex-fill flex-md-grow-0" id="toggleViewBtn">
-                <i class="bi bi-grid"></i> <span class="d-none d-sm-inline">Board View</span>
-            </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm flex-fill flex-md-grow-0" id="exportBtn">
-                <i class="bi bi-download"></i> <span class="d-none d-sm-inline">Export</span>
-            </button>
+<!-- ==========================================
+     TASK PANEL
+     ========================================== -->
+
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="bi bi-list-check"></i>
+            {{ title|default:"Task Panel" }}
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <a href="{% url 'events:tasks' %}" class="text-decoration-none">
+                Tasks
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">{{ title|default:"Panel" }}</span>
         </div>
     </div>
-</div><!-- Fin Encabezado -->
+    <div class="header-actions">
+        <button class="btn btn-ghost" id="toggleViewBtn">
+            <i class="bi bi-grid"></i> <span>Board View</span>
+        </button>
+        <button class="btn btn-ghost" id="exportBtn">
+            <i class="bi bi-download"></i> Export
+        </button>
+        <a href="{% url 'events:task_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Task
+        </a>
+    </div>
+</div>
 
-<section class="section dashboard">
-    <div class="row g-3 g-lg-4">
+<!-- Messages -->
+{% if messages %}
+<div class="alerts-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }}">
+        <div class="alert-content">
+            <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            <span class="alert-message">{{ message }}</span>
+        </div>
+        <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
-        <!-- ============================================================
-             COLUMNA PRINCIPAL (CONTENIDO)
-             ============================================================ -->
-        <div class="col-12 col-lg-9">
-            <div class="row g-3 g-lg-4">
+<!-- Main Content -->
+<div class="two-col">
+    <!-- Main Content Area -->
+    <div class="col">
 
-                {% if tasks_data %}
-                    <!-- ------------------------------------------------------------
-                         TARJETAS DE ESTADÍSTICAS
-                         ------------------------------------------------------------ -->
-                    <div class="col-12 mb-4">
-                        {% include 'tasks/includes/task_stats_cards.html' %}
-                    </div>
-
-                    <!-- ------------------------------------------------------------
-                         FILTROS AVANZADOS Y BÚSQUEDA
-                         ------------------------------------------------------------ -->
-                    <div class="col-12 mb-4">
-                        {% include 'tasks/includes/task_filters.html' %}
-                    </div>
-
-                    <!-- ------------------------------------------------------------
-                         PANEL DE ACCIONES RÁPIDAS
-                         ------------------------------------------------------------ -->
-                    <div class="col-12 mb-4">
-                        {% include 'tasks/includes/task_quick_actions.html' %}
-                    </div>
-
-                    <!-- ------------------------------------------------------------
-                         SELECTOR DE VISTAS
-                         ------------------------------------------------------------ -->
-                    <div class="col-12 mb-4">
-                        {% include 'tasks/includes/task_view_selector.html' %}
-                    </div>
-
-                    <!-- ------------------------------------------------------------
-                         CONTENEDORES DE VISTAS
-                         ------------------------------------------------------------ -->
-                    <!-- Vista Tabla -->
-                    <div id="tableView" class="view-container">
-                        <div class="card">
-                            <div class="card-body p-0">
-                                {% include 'tasks/includes/task_table_optimized.html' %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Vista Kanban -->
-                    <div id="kanbanView" class="view-container" style="display: none;">
-                        <div class="kanban-container">
-                            {% include 'tasks/includes/task_kanban_board.html' %}
-                        </div>
-                    </div>
-
-                    <!-- Vista Tarjetas -->
-                    <div id="cardsView" class="view-container" style="display: none;">
-                        <div class="row" id="cardsContainer">
-                            {% include 'tasks/includes/task_cards_view.html' %}
-                        </div>
-                    </div>
-
-                {% elif task_data %}
-                    <!-- ------------------------------------------------------------
-                         VISTA DETALLADA DE UNA TAREA INDIVIDUAL
-                         ------------------------------------------------------------ -->
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0"><i class="bi bi-eye me-2"></i>Task Details</h5>
-                            </div>
-                            <div class="card-body">
-                                {% include 'tasks/includes/task_card.html' %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Proyecto relacionado -->
-                    {% if task_data.task.project %}
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0"><i class="bi bi-diagram-3 me-2"></i>Related Project</h5>
-                            </div>
-                            <div class="card-body">
-                                {% include 'projects/includes/project_card.html' %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <!-- Evento relacionado -->
-                    {% if task_data.task.event %}
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0"><i class="bi bi-calendar-event me-2"></i>Related Event</h5>
-                            </div>
-                            <div class="card-body">
-                                {% with event=task_data.task.event %}
-                                    {% include 'events/includes/event_card.html' %}
-                                {% endwith %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                {% elif task %}
-                    <!-- ------------------------------------------------------------
-                         VISTA LEGACY (SOPORTE PARA TARJETAS ANTIGUAS)
-                         ------------------------------------------------------------ -->
-                    {% include 'tasks/includes/task_card.html' %}
-                    {% include 'projects/includes/project_card.html' %}
-                    {% include 'events/includes/event_card.html' %}
-
-                {% else %}
-                    <!-- ------------------------------------------------------------
-                         ESTADO VACÍO (SIN TAREAS)
-                         ------------------------------------------------------------ -->
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-body text-center py-5">
-                                <i class="bi bi-list-check display-1 text-muted mb-3"></i>
-                                <h4 class="text-muted">No Tasks Found</h4>
-                                <p class="text-muted mb-4">Get started by creating your first task or adjusting your filters.</p>
-                                <a href="{% url 'events:task_create' %}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle me-1"></i> Create First Task
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-
-            </div><!-- .row -->
-        </div><!-- .col-lg-9 -->
-
-        <!-- ============================================================
-             BARRA LATERAL (SIDEBAR)
-             ============================================================ -->
-        <div class="col-lg-3">
-
-            <!-- Estadísticas rápidas (solo en vista de lista) -->
-            {% if tasks_data %}
-                {% include 'tasks/includes/task_sidebar_stats.html' %}
-            {% endif %}
-
-            <!-- Actividad reciente -->
-            {% include 'tasks/includes/task_recent_activity.html' %}
-
-            <!-- Ayuda y recursos -->
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-question-circle me-2"></i>Help & Resources</h6>
+        {% if tasks_data %}
+        <!-- Statistics Cards -->
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+            <div class="stat-card purple">
+                <div class="stat-content">
+                    <span class="stat-number">{{ total_tasks|default:0 }}</span>
+                    <span class="stat-label">Total Tasks</span>
+                    <span class="stat-sub">All tasks</span>
                 </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="#" class="btn btn-outline-info btn-sm">
-                            <i class="bi bi-book me-1"></i> Task Management Guide
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-content">
+                    <span class="stat-number">{{ in_progress_count|default:0 }}</span>
+                    <span class="stat-label">In Progress</span>
+                    <span class="stat-sub">Currently working</span>
+                </div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-content">
+                    <span class="stat-number">{{ completed_count|default:0 }}</span>
+                    <span class="stat-label">Completed</span>
+                    <span class="stat-sub">Successfully done</span>
+                </div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-content">
+                    <span class="stat-number">{{ high_priority_count|default:0 }}</span>
+                    <span class="stat-label">High Priority</span>
+                    <span class="stat-sub">Important tasks</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section-card" style="margin-bottom: 1.5rem;">
+            <div class="section-header section-header-success" style="margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0;">
+                <div class="section-title">
+                    <i class="bi bi-gear-fill"></i>
+                    <h6 style="color: #fff; margin: 0;">Quick Actions</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 0.5rem 0;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+                    <a href="{% url 'events:task_create' %}" class="btn btn-primary" style="justify-content: center;">
+                        <i class="bi bi-plus-circle"></i> New Task
+                    </a>
+                    <button class="btn btn-ghost" id="bulkEditBtn" style="justify-content: center;">
+                        <i class="bi bi-pencil"></i> Bulk Edit
+                    </button>
+                    <button class="btn btn-ghost" id="exportTasksBtn" style="justify-content: center;">
+                        <i class="bi bi-download"></i> Export
+                    </button>
+                    <button class="btn btn-ghost" id="filterTasksBtn" style="justify-content: center;">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Selector -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 0.5rem 1rem;">
+            <div style="display: flex; gap: 0.25rem;">
+                <button class="btn btn-sm btn-primary active" data-view="table">
+                    <i class="bi bi-table"></i> Table
+                </button>
+                <button class="btn btn-sm btn-ghost" data-view="kanban">
+                    <i class="bi bi-kanban"></i> Kanban
+                </button>
+                <button class="btn btn-sm btn-ghost" data-view="cards">
+                    <i class="bi bi-card-text"></i> Cards
+                </button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="text-muted text-sm" id="taskCount">{{ tasks_data|length }} tasks</span>
+                <div class="dropdown">
+                    <button class="icon-btn" data-dropdown="viewOptions">
+                        <i class="bi bi-gear"></i>
+                    </button>
+                    <div class="dropdown-menu" id="viewOptions">
+                        <a href="#" class="dropdown-item" id="compactViewToggle">
+                            <i class="bi bi-layout-text-sidebar"></i> Compact View
                         </a>
-                        <a href="#" class="btn btn-outline-info btn-sm">
-                            <i class="bi bi-play-circle me-1"></i> Video Tutorials
+                        <hr class="dropdown-divider">
+                        <a href="{% url 'events:task_export' %}" class="dropdown-item">
+                            <i class="bi bi-download"></i> Export Tasks
                         </a>
-                        <a href="#" class="btn btn-outline-info btn-sm">
-                            <i class="bi bi-chat-dots me-1"></i> Support Chat
+                        <a href="{% url 'events:task_create' %}" class="dropdown-item">
+                            <i class="bi bi-plus-circle"></i> Create Task
                         </a>
                     </div>
                 </div>
             </div>
+        </div>
 
-        </div><!-- .col-lg-3 -->
+        <!-- Table View -->
+        <div id="tableView" class="view-container">
+            <div class="section-card">
+                <div class="section-body" style="padding: 0;">
+                    <div class="table-wrap">
+                        <table class="table" id="taskTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30px;">
+                                        <input type="checkbox" id="selectAllTasks" class="form-check-input">
+                                    </th>
+                                    <th data-sort="id">ID</th>
+                                    <th data-sort="title">Title</th>
+                                    <th data-sort="status">Status</th>
+                                    <th data-sort="project">Project</th>
+                                    <th data-sort="assigned">Assigned To</th>
+                                    <th data-sort="priority">Priority</th>
+                                    <th style="text-align: center;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task_data in tasks_data %}
+                                <tr class="task-row" 
+                                    data-id="{{ task_data.task.id }}"
+                                    data-status="{{ task_data.task.task_status.status_name|lower }}"
+                                    data-title="{{ task_data.task.title|lower }}"
+                                    data-project="{{ task_data.task.project.title|lower|default:'none' }}"
+                                    data-assigned="{{ task_data.task.assigned_to.username|lower|default:'unassigned' }}"
+                                    data-priority="{% if task_data.task.important %}high{% else %}normal{% endif %}">
+                                    <td>
+                                        <input type="checkbox" class="task-checkbox form-check-input" value="{{ task_data.task.id }}">
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="text-decoration-none" style="color: var(--purple); font-weight: 500;">
+                                            #{{ task_data.task.id }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="text-decoration-none">
+                                            {{ task_data.task.title|truncatechars:35 }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge {% if task_data.task.task_status.status_name == 'Completed' %}active{% elif task_data.task.task_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
+                                            {{ task_data.task.task_status.status_name }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if task_data.task.project %}
+                                        <a href="{% url 'events:projects_with_id' task_data.task.project.id %}" class="text-decoration-none" style="color: var(--gray-700); font-size: 0.8rem;">
+                                            <i class="bi bi-folder"></i> {{ task_data.task.project.title|truncatechars:20 }}
+                                        </a>
+                                        {% else %}
+                                        <span class="text-muted" style="font-size: 0.75rem;">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if task_data.task.assigned_to %}
+                                        <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                            <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--purple-light); color: var(--purple); text-align: center; font-size: 0.6rem; font-weight: 700; line-height: 24px;">
+                                                {{ task_data.task.assigned_to.username|first|upper }}
+                                            </span>
+                                            {{ task_data.task.assigned_to.username }}
+                                        </span>
+                                        {% else %}
+                                        <span class="text-muted" style="font-size: 0.75rem;">Unassigned</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if task_data.task.important %}
+                                        <span class="status-badge" style="background: var(--red-light); color: var(--red);">
+                                            <i class="bi bi-star-fill"></i> High
+                                        </span>
+                                        {% else %}
+                                        <span class="status-badge" style="background: var(--gray-100); color: var(--gray-500);">
+                                            Normal
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div class="table-actions" style="justify-content: center;">
+                                            <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="btn btn-sm btn-ghost" title="View">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{% url 'events:task_edit' task_data.task.id %}" class="btn btn-sm btn-ghost" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button onclick="confirmDelete({{ task_data.task.id }}, '{{ task_data.task.title|escapejs }}')" class="btn btn-sm btn-ghost" style="color: var(--red);" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-top: 1px solid var(--gray-200);">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-sm btn-danger" id="deleteSelected" disabled>
+                                <i class="bi bi-trash"></i> Delete Selected
+                            </button>
+                            <button class="btn btn-sm btn-ghost" id="exportSelected" disabled>
+                                <i class="bi bi-download"></i> Export Selected
+                            </button>
+                        </div>
+                        <span class="text-muted text-xs" id="visibleTasks">{{ tasks_data|length }} tasks</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    </div><!-- .row -->
-</section>
+        <!-- Kanban View -->
+        <div id="kanbanView" class="view-container" style="display: none;">
+            <div class="kanban-board">
+                {% for status in task_statuses %}
+                <div class="kanban-column" data-status="{{ status.id }}">
+                    <div class="kanban-column-header">
+                        <div class="kanban-column-title">
+                            <span class="status-dot" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {{ status.color|default:'var(--gray-400)' }}; margin-right: 0.5rem;"></span>
+                            {{ status.status_name }}
+                        </div>
+                        <span class="kanban-task-count">{{ status.task_count|default:0 }}</span>
+                    </div>
+                    <div class="kanban-column-tasks">
+                        {% for task_data in tasks_data %}
+                        {% if task_data.task.task_status.id == status.id %}
+                        <div class="kanban-task-card {% if task_data.task.important %}important{% endif %}" draggable="true" data-task-id="{{ task_data.task.id }}">
+                            <div class="kanban-task-title {% if task_data.task.important %}important{% endif %}">
+                                {{ task_data.task.title|truncatechars:40 }}
+                                {% if task_data.task.important %}
+                                <i class="bi bi-star-fill" style="color: var(--red); font-size: 0.7rem;"></i>
+                                {% endif %}
+                            </div>
+                            {% if task_data.task.description %}
+                            <div class="kanban-task-description">{{ task_data.task.description|truncatechars:60 }}</div>
+                            {% endif %}
+                            <div class="kanban-task-project">
+                                <i class="bi bi-folder"></i>
+                                {{ task_data.task.project.title|default:"No project"|truncatechars:20 }}
+                            </div>
+                            <div class="kanban-task-actions">
+                                <span style="font-size: 0.7rem; color: var(--gray-400);">
+                                    <i class="bi bi-person"></i> {{ task_data.task.assigned_to.username|default:"Unassigned" }}
+                                </span>
+                                <div class="kanban-task-buttons">
+                                    <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="btn btn-sm btn-ghost" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'events:task_edit' task_data.task.id %}" class="btn btn-sm btn-ghost" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% if status.task_count == 0 %}
+                        <div class="kanban-empty">
+                            <div class="kanban-empty-icon"><i class="bi bi-inbox"></i></div>
+                            <div class="kanban-empty-text">No tasks</div>
+                            <div class="kanban-empty-subtext">Drop tasks here</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
-<!-- ============================================================
-     CONFIGURACIÓN Y SCRIPTS
-     ============================================================ -->
+        <!-- Cards View -->
+        <div id="cardsView" class="view-container" style="display: none;">
+            <div class="project-grid" id="cardsContainer">
+                {% for task_data in tasks_data %}
+                <div class="project-card">
+                    <div class="project-header">
+                        <h6>
+                            <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="text-decoration-none">
+                                {{ task_data.task.title|truncatechars:25 }}
+                            </a>
+                        </h6>
+                        <span class="status-badge {% if task_data.task.task_status.status_name == 'Completed' %}active{% elif task_data.task.task_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}" style="font-size: 0.6rem;">
+                            {{ task_data.task.task_status.status_name }}
+                        </span>
+                    </div>
+                    <p class="project-description">{{ task_data.task.description|truncatechars:80|default:"No description" }}</p>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                        <span style="font-size: 0.65rem; color: var(--gray-400);">
+                            <i class="bi bi-folder"></i> {{ task_data.task.project.title|default:"No project"|truncatechars:15 }}
+                        </span>
+                        {% if task_data.task.important %}
+                        <span class="status-badge" style="background: var(--red-light); color: var(--red); font-size: 0.6rem;">
+                            <i class="bi bi-star-fill"></i> High
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="project-meta" style="font-size: 0.7rem;">
+                        <span><i class="bi bi-person"></i> {{ task_data.task.assigned_to.username|default:"Unassigned" }}</span>
+                        <span><i class="bi bi-calendar"></i> {{ task_data.task.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--gray-200);">
+                        <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="btn btn-sm btn-primary" style="flex: 1; justify-content: center;">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                        <a href="{% url 'events:task_edit' task_data.task.id %}" class="btn btn-sm btn-ghost" style="flex: 1; justify-content: center;">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state full-width">
+                    <i class="bi bi-list-check"></i>
+                    <h5>No tasks found</h5>
+                    <p>Create your first task to get started.</p>
+                    <a href="{% url 'events:task_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create First Task
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Single Task View -->
+        {% elif task_data %}
+        <div class="section-card">
+            <div class="section-header section-header-primary">
+                <div class="section-title">
+                    <i class="bi bi-eye"></i>
+                    <h5 style="color: #fff;">Task Details</h5>
+                </div>
+            </div>
+            <div class="section-body">
+                {% include 'tasks/includes/task_card.html' %}
+            </div>
+        </div>
+
+        {% if task_data.task.project %}
+        <div class="section-card" style="margin-top: 1.5rem;">
+            <div class="section-header section-header-info">
+                <div class="section-title">
+                    <i class="bi bi-diagram-3"></i>
+                    <h5 style="color: #fff;">Related Project</h5>
+                </div>
+            </div>
+            <div class="section-body">
+                {% include 'projects/includes/project_card.html' %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if task_data.task.event %}
+        <div class="section-card" style="margin-top: 1.5rem;">
+            <div class="section-header section-header-purple">
+                <div class="section-title">
+                    <i class="bi bi-calendar-event"></i>
+                    <h5 style="color: #fff;">Related Event</h5>
+                </div>
+            </div>
+            <div class="section-body">
+                {% with event=task_data.task.event %}
+                    {% include 'events/includes/event_card.html' %}
+                {% endwith %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="section-card">
+            <div class="empty-state" style="padding: 3rem 1.5rem;">
+                <i class="bi bi-list-check" style="font-size: 2.5rem; color: var(--gray-400);"></i>
+                <h5>No Tasks Found</h5>
+                <p style="color: var(--gray-400);">Get started by creating your first task.</p>
+                <a href="{% url 'events:task_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create First Task
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col">
+        <!-- Quick Stats -->
+        {% if tasks_data %}
+        <div class="section-card">
+            <div class="section-header section-header-info">
+                <div class="section-title">
+                    <i class="bi bi-bar-chart"></i>
+                    <h6 style="color: #fff;">Quick Stats</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="font-size: 0.8rem; color: var(--gray-500);">Completion Rate</span>
+                        <span style="font-weight: 700; font-size: 0.875rem;">
+                            {% if total_tasks > 0 %}{% widthratio completed_count total_tasks 100 %}%{% else %}0%{% endif %}
+                        </span>
+                    </div>
+                    <div class="progress-bar" style="height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                        <div class="progress-fill" style="width: {% if total_tasks > 0 %}{% widthratio completed_count total_tasks 100 %}{% else %}0{% endif %}%; background: var(--green);"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="font-size: 0.8rem; color: var(--gray-500);">In Progress</span>
+                        <span style="font-weight: 700; font-size: 0.875rem;">{{ in_progress_count|default:0 }}</span>
+                    </div>
+                    <div class="progress-bar" style="height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                        <div class="progress-fill" style="width: {% if total_tasks > 0 %}{% widthratio in_progress_count total_tasks 100 %}{% else %}0{% endif %}%; background: var(--amber);"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="font-size: 0.8rem; color: var(--gray-500);">High Priority</span>
+                        <span style="font-weight: 700; font-size: 0.875rem;">{{ high_priority_count|default:0 }}</span>
+                    </div>
+                    <div class="progress-bar" style="height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                        <div class="progress-fill" style="width: {% if total_tasks > 0 %}{% widthratio high_priority_count total_tasks 100 %}{% else %}0{% endif %}%; background: var(--red);"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-200);">
+                    <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">Status Distribution</h6>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        {% for status in task_statuses %}
+                        <span class="status-badge {% if status.status_name == 'Completed' %}active{% elif status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}" style="font-size: 0.65rem;">
+                            {{ status.status_name }}: {{ status.task_count|default:0 }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Activity -->
+        <div class="section-card">
+            <div class="section-header section-header-purple">
+                <div class="section-title">
+                    <i class="bi bi-activity"></i>
+                    <h6 style="color: #fff;">Recent Activity</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div class="activity-timeline">
+                    {% for task_data in tasks_data|slice:":5" %}
+                    <div class="activity-item">
+                        <div class="activity-icon {% if task_data.task.task_status.status_name == 'Completed' %}green{% elif task_data.task.task_status.status_name == 'In Progress' %}amber{% else %}blue{% endif %}">
+                            <i class="bi bi-{% if task_data.task.task_status.status_name == 'Completed' %}check-circle{% elif task_data.task.task_status.status_name == 'In Progress' %}play-circle{% else %}pause-circle{% endif %}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <strong>{{ task_data.task.title|truncatechars:25 }}</strong>
+                            <p class="activity-text">Status: {{ task_data.task.task_status.status_name }}</p>
+                            <span class="activity-time">{{ task_data.task.updated_at|timesince }} ago</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="bi bi-clock-history"></i>
+                        <p style="color: var(--gray-400); font-size: 0.875rem;">No recent activity</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Help & Resources -->
+        <div class="section-card">
+            <div class="section-header section-header-dark">
+                <div class="section-title">
+                    <i class="bi bi-question-circle"></i>
+                    <h6 style="color: #fff;">Help & Resources</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="#" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-book"></i> Task Management Guide
+                    </a>
+                    <a href="#" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-play-circle"></i> Video Tutorials
+                    </a>
+                    <a href="#" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-chat-dots"></i> Support Chat
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h5><i class="bi bi-exclamation-triangle" style="color: var(--red);"></i> Confirm Deletion</h5>
+            <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete the task <strong id="deleteTaskTitle"></strong>?</p>
+            <p style="font-size: 0.8rem; color: var(--gray-500);">
+                <i class="bi bi-info-circle"></i> This action cannot be undone.
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+            <form method="POST" id="deleteTaskForm">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Task</button>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script>
-    window.taskPanelConfig = {
-        changeStatusUrl: "{% url 'events:task_change_status_ajax' %}"
+document.addEventListener('DOMContentLoaded', function() {
+    // ============================================================
+    // DROPDOWN TOGGLE
+    // ============================================================
+    document.querySelectorAll('[data-dropdown]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdownId = this.dataset.dropdown;
+            const menu = document.getElementById(dropdownId);
+            const isOpen = menu.classList.contains('show');
+            
+            document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+            
+            if (!isOpen) {
+                menu.classList.add('show');
+            }
+        });
+    });
+
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+    });
+
+    // ============================================================
+    // VIEW TOGGLE
+    // ============================================================
+    const viewButtons = document.querySelectorAll('[data-view]');
+    const viewContainers = {
+        'table': document.getElementById('tableView'),
+        'kanban': document.getElementById('kanbanView'),
+        'cards': document.getElementById('cardsView')
     };
+
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const view = this.dataset.view;
+            
+            viewButtons.forEach(btn => {
+                btn.classList.remove('active', 'btn-primary');
+                btn.classList.add('btn-ghost');
+            });
+            this.classList.add('active', 'btn-primary');
+            this.classList.remove('btn-ghost');
+            
+            Object.keys(viewContainers).forEach(key => {
+                if (viewContainers[key]) {
+                    viewContainers[key].style.display = key === view ? 'block' : 'none';
+                }
+            });
+            
+            localStorage.setItem('taskViewPreference', view);
+        });
+    });
+
+    // Restore view preference
+    const savedView = localStorage.getItem('taskViewPreference') || 'table';
+    const savedButton = document.querySelector(`[data-view="${savedView}"]`);
+    if (savedButton) savedButton.click();
+
+    // ============================================================
+    // COMPACT VIEW TOGGLE
+    // ============================================================
+    const compactToggle = document.getElementById('compactViewToggle');
+    if (compactToggle) {
+        compactToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.body.classList.toggle('compact-view');
+            localStorage.setItem('compactView', document.body.classList.contains('compact-view'));
+        });
+        
+        if (localStorage.getItem('compactView') === 'true') {
+            document.body.classList.add('compact-view');
+        }
+    }
+
+    // ============================================================
+    // SEARCH AND FILTER
+    // ============================================================
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const priorityFilter = document.getElementById('priorityFilter');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+
+    function filterTasks() {
+        const query = searchInput ? searchInput.value.toLowerCase() : '';
+        const status = statusFilter ? statusFilter.value : '';
+        const priority = priorityFilter ? priorityFilter.value : '';
+        
+        let visibleCount = 0;
+        
+        document.querySelectorAll('.task-row').forEach(row => {
+            const rowStatus = row.dataset.status || '';
+            const rowPriority = row.dataset.priority || '';
+            const rowText = row.textContent.toLowerCase();
+            
+            const statusMatch = !status || rowStatus === status;
+            const priorityMatch = !priority || rowPriority === priority;
+            const searchMatch = !query || rowText.includes(query);
+            
+            if (statusMatch && priorityMatch && searchMatch) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        const taskCountEl = document.getElementById('taskCount');
+        const visibleTasksEl = document.getElementById('visibleTasks');
+        if (taskCountEl) taskCountEl.textContent = visibleCount + ' tasks';
+        if (visibleTasksEl) visibleTasksEl.textContent = visibleCount;
+    }
+
+    if (searchInput) searchInput.addEventListener('input', filterTasks);
+    if (statusFilter) statusFilter.addEventListener('change', filterTasks);
+    if (priorityFilter) priorityFilter.addEventListener('change', filterTasks);
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+            if (searchInput) searchInput.value = '';
+            if (statusFilter) statusFilter.value = '';
+            if (priorityFilter) priorityFilter.value = '';
+            filterTasks();
+        });
+    }
+
+    // ============================================================
+    // SELECT ALL / BULK ACTIONS
+    // ============================================================
+    const selectAllCheckbox = document.getElementById('selectAllTasks');
+    const taskCheckboxes = document.querySelectorAll('.task-checkbox');
+    const deleteSelectedBtn = document.getElementById('deleteSelected');
+    const exportSelectedBtn = document.getElementById('exportSelected');
+
+    function updateSelectedCount() {
+        const checked = document.querySelectorAll('.task-checkbox:checked');
+        const count = checked.length;
+        if (deleteSelectedBtn) deleteSelectedBtn.disabled = count === 0;
+        if (exportSelectedBtn) exportSelectedBtn.disabled = count === 0;
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = count > 0 && count === taskCheckboxes.length;
+            selectAllCheckbox.indeterminate = count > 0 && count < taskCheckboxes.length;
+        }
+    }
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            taskCheckboxes.forEach(cb => cb.checked = this.checked);
+            updateSelectedCount();
+        });
+    }
+
+    taskCheckboxes.forEach(cb => cb.addEventListener('change', updateSelectedCount));
+
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.addEventListener('click', function() {
+            const checked = document.querySelectorAll('.task-checkbox:checked');
+            if (checked.length === 0) return;
+            if (confirm(`Delete ${checked.length} task(s)?`)) {
+                const ids = Array.from(checked).map(cb => cb.value);
+                console.log('Bulk delete:', ids);
+            }
+        });
+    }
+
+    if (exportSelectedBtn) {
+        exportSelectedBtn.addEventListener('click', function() {
+            const checked = document.querySelectorAll('.task-checkbox:checked');
+            if (checked.length === 0) return;
+            const ids = Array.from(checked).map(cb => cb.value);
+            console.log('Export selected:', ids);
+        });
+    }
+
+    // ============================================================
+    // TOGGLE VIEW BUTTON
+    // ============================================================
+    const toggleViewBtn = document.getElementById('toggleViewBtn');
+    if (toggleViewBtn) {
+        toggleViewBtn.addEventListener('click', function() {
+            const isBoardView = this.querySelector('i').classList.contains('bi-grid');
+            const targetView = isBoardView ? 'kanban' : 'table';
+            const targetBtn = document.querySelector(`[data-view="${targetView}"]`);
+            if (targetBtn) targetBtn.click();
+            
+            if (isBoardView) {
+                this.innerHTML = '<i class="bi bi-table"></i> <span>Table View</span>';
+            } else {
+                this.innerHTML = '<i class="bi bi-grid"></i> <span>Board View</span>';
+            }
+        });
+    }
+
+    // ============================================================
+    // EXPORT BUTTON
+    // ============================================================
+    document.getElementById('exportBtn')?.addEventListener('click', function() {
+        window.location.href = "{% url 'events:task_export' %}";
+    });
+
+    // ============================================================
+    // KEYBOARD SHORTCUTS
+    // ============================================================
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            const search = document.getElementById('searchInput');
+            if (search) search.focus();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '3') {
+            e.preventDefault();
+            const views = ['table', 'kanban', 'cards'];
+            const btn = document.querySelector(`[data-view="${views[parseInt(e.key) - 1]}"]`);
+            if (btn) btn.click();
+        }
+        if (e.key === 'Escape') {
+            const search = document.getElementById('searchInput');
+            if (search && document.activeElement === search) {
+                search.value = '';
+                search.dispatchEvent(new Event('input'));
+                search.blur();
+            }
+            closeDeleteModal();
+        }
+    });
+
+    // ============================================================
+    // AUTO-DISMISS ALERTS
+    // ============================================================
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('dismissing');
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
+
+    // ============================================================
+    // SORT TABLE
+    // ============================================================
+    document.querySelectorAll('[data-sort]').forEach(th => {
+        th.addEventListener('click', function() {
+            const sortKey = this.dataset.sort;
+            const tbody = this.closest('table').querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('.task-row'));
+            
+            const isAsc = this.classList.toggle('asc');
+            this.classList.toggle('desc', !isAsc);
+            
+            rows.sort((a, b) => {
+                let aVal = a.dataset[sortKey] || a.textContent.trim();
+                let bVal = b.dataset[sortKey] || b.textContent.trim();
+                if (sortKey === 'id') { aVal = parseInt(aVal); bVal = parseInt(bVal); }
+                return isAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
+});
+
+// ============================================================
+// DELETE FUNCTIONS
+// ============================================================
+function confirmDelete(taskId, taskTitle) {
+    document.getElementById('deleteTaskTitle').textContent = `"${taskTitle}" (ID: ${taskId})`;
+    document.getElementById('deleteTaskForm').action = `/events/tasks/${taskId}/delete/`;
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+}
+
+document.getElementById('deleteModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
 </script>
 
-<!-- Script específico del panel de tareas -->
-<script src="{% static 'events/js/task-panel.js' %}?v={{ now|date:'U' }}"></script>
+<!-- Styles -->
+<style>
+.compact-view .section-card {
+    padding: 0.75rem;
+}
+.compact-view .table td,
+.compact-view .table th {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+.compact-view .btn-sm {
+    padding: 0.1rem 0.4rem;
+    font-size: 0.7rem;
+}
+.compact-view .stat-card {
+    padding: 0.75rem 1rem;
+}
+.compact-view .stat-number {
+    font-size: 1.25rem;
+}
+
+.task-row:hover {
+    background: var(--gray-50);
+    cursor: pointer;
+}
+
+.view-container {
+    animation: fadeIn 0.3s ease;
+}
+
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    padding: 1rem 0;
+    min-height: 50vh;
+    overflow-x: auto;
+}
+
+.kanban-column {
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    padding: 1rem;
+    border: 2px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+}
+
+.kanban-column.drag-over {
+    border-color: var(--purple);
+    background: var(--purple-light);
+}
+
+.kanban-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--gray-300);
+}
+
+.kanban-column-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.kanban-task-count {
+    background: rgba(0,0,0,0.08);
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.kanban-column-tasks {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.kanban-task-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.kanban-task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.kanban-task-card.important {
+    border-left: 4px solid var(--amber);
+}
+
+.kanban-task-title {
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.kanban-task-title.important {
+    color: var(--red);
+}
+
+.kanban-task-description {
+    font-size: 0.8rem;
+    color: var(--gray-500);
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.kanban-task-project {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin-bottom: 0.25rem;
+}
+
+.kanban-task-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--gray-200);
+}
+
+.kanban-task-buttons {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.kanban-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--gray-400);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.kanban-empty-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.kanban-empty-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.kanban-empty-subtext {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .kanban-board {
+        grid-template-columns: 1fr;
+    }
+    .kanban-column {
+        min-height: 200px;
+    }
+    [data-view] .bi-table,
+    [data-view] .bi-kanban,
+    [data-view] .bi-card-text {
+        margin-right: 0.25rem;
+    }
+    [data-view] span {
+        display: none;
+    }
+    .two-col {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
 
 {% endblock %}

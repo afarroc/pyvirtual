@@ -2,78 +2,320 @@
 {% load static %}
 {% block content %}
 
-<!-- Mensajes de confirmación y éxito -->
+<!-- ==========================================
+     PROJECT CREATE
+     ========================================== -->
+
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="bi bi-plus-circle"></i>
+            {{ title|default:"Create New Project" }}
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <a href="{% url 'events:project_panel' %}" class="text-decoration-none">
+                Project Panel
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">{{ title|default:"Create" }}</span>
+        </div>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'events:project_panel' %}" class="btn btn-ghost">
+            <i class="bi bi-arrow-left"></i> Back to Projects
+        </a>
+    </div>
+</div>
+
+<!-- Messages -->
 {% if messages %}
-<div class="alert alert-info" role="alert">
+<div class="alerts-container">
     {% for message in messages %}
-    <p{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
-        {% endfor %}
+    <div class="alert alert-{{ message.tags|default:'info' }}">
+        <div class="alert-content">
+            <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            <span class="alert-message">{{ message }}</span>
+        </div>
+        <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    {% endfor %}
 </div>
 {% endif %}
 
-<div class="pagetitle">
-    <h1>Dashboard</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'events:project_panel' %}">Project Panel</a></li>
-            <li class="breadcrumb-item active">{{title}}</li>
-        </ol>
-    </nav>
-</div><!-- End Page Title -->
-
-<section class="section dashboard">
-    <div class="row">
-
-        <!-- Left side columns -->
-        <div class="col-lg-8">
-            <div class="row">
-         
-                <!-- Customers Card -->
-                <div class="col-xxl-12 col-xl-12">
-                    <div class="card info-card customers-card">
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-
-                                <li><a class="dropdown-item" href="#">Today</a></li>
-                                <li><a class="dropdown-item" href="#">This Month</a></li>
-                                <li><a class="dropdown-item" href="#">This Year</a></li>
-                            </ul>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">Form <span>| {{title}}</span></h5>
-
-                                    <form method="POST">
-                                        {% csrf_token %}
-                                        {{ form.as_p }}
-                                        <button type="submit">Save Changes</button>
-                                    </form>
-
-                        </div>
+<!-- Main Content -->
+<section class="section">
+    <div class="two-col">
+        <!-- Form Column -->
+        <div class="col">
+            <div class="section-card">
+                <div class="section-header section-header-primary">
+                    <div class="section-title">
+                        <i class="bi bi-pencil-square"></i>
+                        <h5>Project Information</h5>
                     </div>
-                </div><!-- End Customers Card -->
+                </div>
+                <div class="section-body" style="padding: 1.25rem;">
+                    <form method="POST" id="projectCreateForm" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Title -->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                <i class="bi bi-tag"></i> Project Title <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                            <div class="text-danger text-sm" style="margin-top: 0.25rem;">
+                                {{ form.title.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="bi bi-text-paragraph"></i> Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="text-danger text-sm" style="margin-top: 0.25rem;">
+                                {{ form.description.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="text-muted text-xs" style="margin-top: 0.25rem;">
+                                Provide a detailed description of the project.
+                            </div>
+                        </div>
+
+                        <!-- Event -->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="{{ form.event.id_for_label }}" class="form-label">
+                                <i class="bi bi-calendar-event"></i> Related Event
+                            </label>
+                            {{ form.event }}
+                            {% if form.event.errors %}
+                            <div class="text-danger text-sm" style="margin-top: 0.25rem;">
+                                {{ form.event.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="text-muted text-xs" style="margin-top: 0.25rem;">
+                                Select an existing event or leave empty to create a new one automatically.
+                            </div>
+                        </div>
+
+                        <!-- Assigned To -->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="{{ form.assigned_to.id_for_label }}" class="form-label">
+                                <i class="bi bi-person"></i> Assigned To
+                            </label>
+                            {{ form.assigned_to }}
+                            {% if form.assigned_to.errors %}
+                            <div class="text-danger text-sm" style="margin-top: 0.25rem;">
+                                {{ form.assigned_to.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Attendees -->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="{{ form.attendees.id_for_label }}" class="form-label">
+                                <i class="bi bi-people"></i> Attendees
+                            </label>
+                            {{ form.attendees }}
+                            {% if form.attendees.errors %}
+                            <div class="text-danger text-sm" style="margin-top: 0.25rem;">
+                                {{ form.attendees.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="text-muted text-xs" style="margin-top: 0.25rem;">
+                                Hold Ctrl/Cmd to select multiple users.
+                            </div>
+                        </div>
+
+                        <!-- Project Status (hidden or optional) -->
+                        {% if form.project_status %}
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="{{ form.project_status.id_for_label }}" class="form-label">
+                                <i class="bi bi-circle"></i> Project Status
+                            </label>
+                            {{ form.project_status }}
+                            {% if form.project_status.errors %}
+                            <div class="text-danger text-sm" style="margin-top: 0.25rem;">
+                                {{ form.project_status.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Ticket Price (hidden or optional) -->
+                        {% if form.ticket_price %}
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="{{ form.ticket_price.id_for_label }}" class="form-label">
+                                <i class="bi bi-cash"></i> Ticket Price
+                            </label>
+                            {{ form.ticket_price }}
+                            {% if form.ticket_price.errors %}
+                            <div class="text-danger text-sm" style="margin-top: 0.25rem;">
+                                {{ form.ticket_price.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Form Actions -->
+                        <div class="form-actions" style="display: flex; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                                <i class="bi bi-check-circle"></i> Create Project
+                            </button>
+                            <a href="{% url 'events:project_panel' %}" class="btn btn-ghost" style="flex: 0 0 auto;">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div><!-- End Left side columns -->
+        </div>
 
-        <!-- Right side columns -->
-        <div class="col-lg-4">
-
-            {% if instructions %} 
-            {% include 'includes/information/info_links_card.html' %}
+        <!-- Sidebar Column -->
+        <div class="col">
+            <!-- Instructions / Info Links -->
+            {% if instructions %}
+            <div class="section-card">
+                <div class="section-header section-header-info">
+                    <div class="section-title">
+                        <i class="bi bi-info-circle"></i>
+                        <h6>Instructions</h6>
+                    </div>
+                </div>
+                <div class="section-body" style="padding: 1rem;">
+                    <div class="instruction-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        {% for instruction in instructions %}
+                        <div class="instruction-item" style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); background: var(--gray-50);">
+                            <span class="instruction-badge" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--purple-light); color: var(--purple); font-size: 0.7rem; font-weight: 700; flex-shrink: 0;">{{ forloop.counter }}</span>
+                            <div>
+                                <strong style="font-size: 0.875rem;">{{ instruction.name }}</strong>
+                                <p style="font-size: 0.8rem; color: var(--gray-500); margin: 0;">{{ instruction.instruction }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
             {% endif %}
 
-            {% include 'includes/information/info_acordeon.html' %}
+            <!-- Quick Tips -->
+            <div class="section-card">
+                <div class="section-header section-header-success">
+                    <div class="section-title">
+                        <i class="bi bi-lightbulb"></i>
+                        <h6>Quick Tips</h6>
+                    </div>
+                </div>
+                <div class="section-body" style="padding: 1rem;">
+                    <div class="tips-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div class="tip-item" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                            <i class="bi bi-check-circle text-success"></i>
+                            <span style="font-size: 0.875rem;">A project can have multiple tasks</span>
+                        </div>
+                        <div class="tip-item" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                            <i class="bi bi-check-circle text-success"></i>
+                            <span style="font-size: 0.875rem;">Assign team members to collaborate</span>
+                        </div>
+                        <div class="tip-item" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                            <i class="bi bi-check-circle text-success"></i>
+                            <span style="font-size: 0.875rem;">Link events for better organization</span>
+                        </div>
+                        <div class="tip-item" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                            <i class="bi bi-check-circle text-success"></i>
+                            <span style="font-size: 0.875rem;">All fields marked with * are required</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        </div><!-- End Right side columns -->
+            <!-- Related Links -->
+            {% if other_urls %}
+            <div class="section-card">
+                <div class="section-header section-header-purple">
+                    <div class="section-title">
+                        <i class="bi bi-link-45deg"></i>
+                        <h6>Related Pages</h6>
+                    </div>
+                </div>
+                <div class="section-body" style="padding: 1rem;">
+                    <div class="related-links" style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        {% for url in other_urls %}
+                        <a href="{% if url.id %}{% url url.url_name url.id %}{% else %}{% url url.url_name %}{% endif %}" class="dropdown-item" style="padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);">
+                            <i class="bi bi-chevron-right"></i> {{ url.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
+            <!-- Need Help -->
+            <div class="section-card">
+                <div class="section-header section-header-dark">
+                    <div class="section-title">
+                        <i class="bi bi-question-circle"></i>
+                        <h6 style="color: #fff;">Need Help?</h6>
+                    </div>
+                </div>
+                <div class="section-body" style="padding: 1rem;">
+                    <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.75rem;">
+                        Having trouble creating a project? Contact support or check the documentation.
+                    </p>
+                    <a href="#" class="btn btn-ghost" style="width: 100%; justify-content: center;">
+                        <i class="bi bi-envelope"></i> Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-dismiss alerts after 5 seconds
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(function() {
+            alert.classList.add('dismissing');
+            setTimeout(function() {
+                alert.remove();
+            }, 300);
+        }, 5000);
+    });
+
+    // Form validation enhancement
+    const form = document.getElementById('projectCreateForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const title = document.getElementById('{{ form.title.id_for_label }}');
+            if (title && !title.value.trim()) {
+                e.preventDefault();
+                title.focus();
+                title.style.borderColor = 'var(--red)';
+                alert('Please enter a project title.');
+                return false;
+            }
+        });
+
+        // Reset border color on focus
+        form.querySelectorAll('input, textarea, select').forEach(field => {
+            field.addEventListener('focus', function() {
+                this.style.borderColor = '';
+            });
+        });
+    }
+});
+</script>
+
 {% endblock %}
-
-
-

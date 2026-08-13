@@ -4,242 +4,254 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="events-container">
-    <!-- Header del Evento -->
-    <div class="events-row events-mb-4">
-        <div class="events-col-12">
-            <div class="m360-card m360-shadow-sm">
-                <div class="m360-card-header events-justify-between events-align-center" style="background: var(--m360-primary); color: #fff;">
-                    <h2 class="m360-card-title" style="color: inherit; margin: 0;">
-                        <i class="bi bi-calendar-event" style="margin-right: var(--m360-space-2);"></i>
-                        {{ event.title }}
-                    </h2>
-                    <div>
-                        <span class="m360-badge m360-badge-{% if event.event_status.status_name == 'Completed' %}success{% elif event.event_status.status_name == 'In Progress' %}warning{% else %}secondary{% endif %}" style="font-size: var(--m360-text-base);">
-                            {{ event.event_status.status_name }}
-                        </span>
-                    </div>
+
+<!-- ==========================================
+     EVENT DETAIL
+     ========================================== -->
+
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="bi bi-calendar-event"></i>
+            {{ event.title }}
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <a href="{% url 'events:event_panel' %}" class="text-decoration-none">
+                Events
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">{{ event.title|truncatechars:40 }}</span>
+        </div>
+    </div>
+    <div class="header-actions">
+        <span class="status-badge {% if event.event_status.status_name == 'Completed' %}active{% elif event.event_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}" style="font-size: 0.8rem; padding: 0.3rem 0.8rem;">
+            <i class="bi bi-circle-fill" style="font-size: 0.5rem; margin-right: 0.25rem;"></i>
+            {{ event.event_status.status_name }}
+        </span>
+        <a href="{% url 'events:event_edit' event.id %}" class="btn btn-ghost">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'events:event_panel' %}" class="btn btn-ghost">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+    <div class="stat-card purple">
+        <div class="stat-content">
+            <span class="stat-number">{{ total_projects|default:0 }}</span>
+            <span class="stat-label">Projects</span>
+            <span class="stat-sub">Associated projects</span>
+        </div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-content">
+            <span class="stat-number">{{ completed_tasks|default:0 }}</span>
+            <span class="stat-label">Tasks Completed</span>
+            <span class="stat-sub">Done</span>
+        </div>
+    </div>
+    <div class="stat-card amber">
+        <div class="stat-content">
+            <span class="stat-number">{{ in_progress_tasks|default:0 }}</span>
+            <span class="stat-label">In Progress</span>
+            <span class="stat-sub">Active tasks</span>
+        </div>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-content">
+            <span class="stat-number">{{ progress_percentage|floatformat:0 }}%</span>
+            <span class="stat-label">Overall Progress</span>
+            <span class="stat-sub">Completion rate</span>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="two-col">
+    <!-- Left Column -->
+    <div class="col">
+        <!-- Event Info Card -->
+        <div class="section-card">
+            <div class="section-header section-header-primary">
+                <div class="section-title">
+                    <i class="bi bi-info-circle"></i>
+                    <h5 style="color: #fff;">Event Details</h5>
                 </div>
-                <div class="m360-card-body">
-                    <div class="events-row">
-                        <!-- Información principal -->
-                        <div class="events-col-md-6">
-                            <h4 class="events-mb-3">Descripción</h4>
-                            <p class="m360-card-text">{{ event.description|linebreaks|default:"Sin descripción" }}</p>
-                            
-                            <div class="events-row events-mt-4">
-                                <div class="events-col-md-6">
-                                    <h5><i class="bi bi-geo-alt"></i> Ubicación</h5>
-                                    <p>{{ event.venue|default:"Por definir" }}</p>
-                                </div>
-                                <div class="events-col-md-6">
-                                    <h5><i class="bi bi-people"></i> Capacidad</h5>
-                                    <p>{{ attendees.count }} asistentes / Máx: {{ event.max_attendees }}</p>
-                                </div>
-                            </div>
-                            
-                            {% if event.event_category %}
-                            <div class="events-mt-3">
-                                <span class="m360-badge m360-badge-info">{{ event.event_category }}</span>
-                            </div>
+            </div>
+            <div class="section-body" style="padding: 1.25rem;">
+                <!-- Description -->
+                <div style="margin-bottom: 1rem;">
+                    <h6 style="font-size: 0.8rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem;">Description</h6>
+                    <p style="font-size: 0.875rem; color: var(--gray-700); line-height: 1.6;">
+                        {{ event.description|linebreaks|default:"No description provided." }}
+                    </p>
+                </div>
+
+                <!-- Details Grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Venue</h6>
+                        <p style="font-size: 0.875rem;">{{ event.venue|default:"Not specified" }}</p>
+                    </div>
+                    <div>
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Capacity</h6>
+                        <p style="font-size: 0.875rem;">
+                            <i class="bi bi-people"></i>
+                            {{ attendees.count }} / {{ event.max_attendees|default:"∞" }} attendees
+                        </p>
+                    </div>
+                    <div>
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Host</h6>
+                        <p style="font-size: 0.875rem;">
+                            <i class="bi bi-person"></i> {{ event.host.username }}
+                        </p>
+                    </div>
+                    <div>
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Assigned To</h6>
+                        <p style="font-size: 0.875rem;">
+                            <i class="bi bi-person-check"></i> {{ event.assigned_to.username|default:"Not assigned" }}
+                        </p>
+                    </div>
+                    <div>
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Ticket Price</h6>
+                        <p style="font-size: 0.875rem;">
+                            {% if event.ticket_price %}
+                            <i class="bi bi-cash"></i> ${{ event.ticket_price }}
+                            {% else %}
+                            <i class="bi bi-gift"></i> Free
                             {% endif %}
-                        </div>
-                        
-                        <!-- Información secundaria -->
-                        <div class="events-col-md-6 events-border-start" style="padding-left: var(--m360-space-4);">
-                            <h5 class="events-mb-3">Información del Evento</h5>
-                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--m360-space-2);">
-                                <li class="events-mb-2">
-                                    <strong><i class="bi bi-person"></i> Organizador:</strong>
-                                    {{ event.host.username }}
-                                </li>
-                                <li class="events-mb-2">
-                                    <strong><i class="bi bi-person-check"></i> Asignado a:</strong>
-                                    {{ event.assigned_to.username|default:"No asignado" }}
-                                </li>
-                                <li class="events-mb-2">
-                                    <strong><i class="bi bi-cash"></i> Precio:</strong>
-                                    ${{ event.ticket_price|default:"0.00" }}
-                                </li>
-                                <li class="events-mb-2">
-                                    <strong><i class="bi bi-calendar-plus"></i> Creado:</strong>
-                                    {{ event.created_at|date:"d/m/Y H:i" }}
-                                </li>
-                                <li class="events-mb-2">
-                                    <strong><i class="bi bi-calendar-check"></i> Actualizado:</strong>
-                                    {{ event.updated_at|date:"d/m/Y H:i" }}
-                                    <small class="events-text-muted">(Hace {{ updated_time_ago.days }} días)</small>
-                                </li>
-                            </ul>
-                            
-                            <!-- Botones de acción -->
-                            <div class="events-d-flex events-flex-col events-gap-2 events-mt-4">
-                                <a href="{% url 'events:event_edit' event.id %}" class="m360-btn m360-btn-warning events-w-100">
-                                    <i class="bi bi-pencil"></i> Editar Evento
-                                </a>
-                                <a href="{% url 'events:event_assign' event.id %}" class="m360-btn m360-btn-info events-w-100">
-                                    <i class="bi bi-link"></i> Asignar Recursos
-                                </a>
-                                {% if not is_completed %}
-                                <form method="POST" action="{% url 'events:event_status_change' event.id %}" class="events-d-flex">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="new_status_id" value="{{ completed_status_id }}">
-                                    <button type="submit" class="m360-btn m360-btn-success events-w-100">
-                                        <i class="bi bi-check-circle"></i> Marcar como Completado
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
-                        </div>
+                        </p>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Estadísticas -->
-    <div class="events-row events-mb-4">
-        <div class="events-col-md-3">
-            <div class="m360-card" style="background: var(--m360-primary); color: #fff; border: none;">
-                <div class="m360-card-body events-d-flex events-justify-between events-align-center">
                     <div>
-                        <h6 class="m360-card-title" style="color: inherit;">Proyectos</h6>
-                        <h2 class="events-mb-0">{{ total_projects }}</h2>
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Category</h6>
+                        <p style="font-size: 0.875rem;">
+                            {% if event.event_category %}
+                            <span class="status-badge" style="background: var(--purple-light); color: var(--purple);">{{ event.event_category }}</span>
+                            {% else %}
+                            <span class="text-muted">Not categorized</span>
+                            {% endif %}
+                        </p>
                     </div>
-                    <i class="bi bi-folder2-open" style="font-size: var(--m360-icon-xl);"></i>
                 </div>
-            </div>
-        </div>
-        <div class="events-col-md-3">
-            <div class="m360-card" style="background: var(--m360-success); color: #fff; border: none;">
-                <div class="m360-card-body events-d-flex events-justify-between events-align-center">
+
+                <!-- Dates -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
                     <div>
-                        <h6 class="m360-card-title" style="color: inherit;">Tareas Completadas</h6>
-                        <h2 class="events-mb-0">{{ completed_tasks }}</h2>
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Created</h6>
+                        <p style="font-size: 0.875rem;">
+                            <i class="bi bi-calendar-plus"></i> {{ event.created_at|date:"M d, Y H:i" }}
+                        </p>
                     </div>
-                    <i class="bi bi-check-circle" style="font-size: var(--m360-icon-xl);"></i>
-                </div>
-            </div>
-        </div>
-        <div class="events-col-md-3">
-            <div class="m360-card" style="background: var(--m360-warning); color: #fff; border: none;">
-                <div class="m360-card-body events-d-flex events-justify-between events-align-center">
                     <div>
-                        <h6 class="m360-card-title" style="color: inherit;">Tareas en Progreso</h6>
-                        <h2 class="events-mb-0">{{ in_progress_tasks }}</h2>
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Updated</h6>
+                        <p style="font-size: 0.875rem;">
+                            <i class="bi bi-arrow-clockwise"></i> {{ event.updated_at|date:"M d, Y H:i" }}
+                        </p>
                     </div>
-                    <i class="bi bi-clock-history" style="font-size: var(--m360-icon-xl);"></i>
-                </div>
-            </div>
-        </div>
-        <div class="events-col-md-3">
-            <div class="m360-card" style="background: var(--m360-primary); color: #fff; border: none;">
-                <div class="m360-card-body events-d-flex events-justify-between events-align-center">
                     <div>
-                        <h6 class="m360-card-title" style="color: inherit;">Progreso Total</h6>
-                        <h2 class="events-mb-0">{{ progress_percentage|floatformat:0 }}%</h2>
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Status</h6>
+                        <p style="font-size: 0.875rem;">
+                            <span class="status-badge {% if event.event_status.status_name == 'Completed' %}active{% elif event.event_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
+                                {{ event.event_status.status_name }}
+                            </span>
+                        </p>
                     </div>
-                    <i class="bi bi-graph-up" style="font-size: var(--m360-icon-xl);"></i>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Pestañas de contenido -->
-    <div class="events-row">
-        <div class="events-col-12">
-            <div class="m360-tabs" role="tablist">
-                <button class="m360-tab m360-active" data-m360-toggle="tab" data-m360-target="#projects" role="tab" aria-selected="true">
-                    <i class="bi bi-folder2"></i> Proyectos ({{ total_projects }})
+
+        <!-- Tabs -->
+        <div class="section-card" style="margin-top: 1.5rem;">
+            <div class="dashboard-tabs" style="margin-bottom: 1rem;">
+                <button class="tab-btn active" data-tab="projects">
+                    <i class="bi bi-folder2"></i> Projects ({{ total_projects|default:0 }})
                 </button>
-                <button class="m360-tab" data-m360-toggle="tab" data-m360-target="#tasks" role="tab" aria-selected="false">
-                    <i class="bi bi-list-task"></i> Tareas ({{ total_tasks }})
+                <button class="tab-btn" data-tab="tasks">
+                    <i class="bi bi-list-task"></i> Tasks ({{ total_tasks|default:0 }})
                 </button>
-                <button class="m360-tab" data-m360-toggle="tab" data-m360-target="#attendees" role="tab" aria-selected="false">
-                    <i class="bi bi-people"></i> Asistentes ({{ attendees.count }})
+                <button class="tab-btn" data-tab="attendees">
+                    <i class="bi bi-people"></i> Attendees ({{ attendees.count }})
                 </button>
-                <button class="m360-tab" data-m360-toggle="tab" data-m360-target="#timeline" role="tab" aria-selected="false">
-                    <i class="bi bi-clock-history"></i> Línea de Tiempo
+                <button class="tab-btn" data-tab="timeline">
+                    <i class="bi bi-clock-history"></i> Timeline
                 </button>
             </div>
-            
-            <div class="m360-tab-pane m360-active" id="projects" role="tabpanel">
+
+            <!-- Projects Tab -->
+            <div class="tab-content active" id="tab-projects">
                 {% if projects %}
-                <div class="events-row">
+                <div class="project-grid">
                     {% for project in projects %}
-                    <div class="events-col-md-6 events-mb-4">
-                        <div class="m360-card events-h-100">
-                            <div class="m360-card-header events-justify-between events-align-center">
-                                <h5 class="m360-card-title">{{ project.title }}</h5>
-                                <span class="m360-badge m360-badge-{% if project.project_status.status_name == 'Completed' %}success{% elif project.project_status.status_name == 'In Progress' %}warning{% else %}secondary{% endif %}">
-                                    {{ project.project_status.status_name }}
-                                </span>
-                            </div>
-                            <div class="m360-card-body">
-                                <p class="m360-card-text">{{ project.description|truncatechars:150 }}</p>
-                                <div class="events-d-flex events-justify-between events-align-center">
-                                    <small class="events-text-muted">
-                                        <i class="bi bi-person"></i> {{ project.host.username }}
-                                    </small>
-                                    <a href="{% url 'events:project_detail' project.id %}" class="m360-btn m360-btn-outline-primary">
-                                        Ver Detalles
-                                    </a>
-                                </div>
-                            </div>
+                    <div class="project-card">
+                        <div class="project-header">
+                            <h6>{{ project.title|truncatechars:30 }}</h6>
+                            <span class="status-badge {% if project.project_status.status_name == 'Completed' %}active{% elif project.project_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}" style="font-size: 0.6rem;">
+                                {{ project.project_status.status_name }}
+                            </span>
                         </div>
+                        <p class="project-description">{{ project.description|truncatechars:80|default:"No description" }}</p>
+                        <div class="project-meta">
+                            <span><i class="bi bi-person"></i> {{ project.host.username }}</span>
+                            <span><i class="bi bi-calendar"></i> {{ project.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <a href="{% url 'events:project_detail' project.id %}" class="btn btn-sm btn-ghost" style="width: 100%; justify-content: center; margin-top: 0.5rem;">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="m360-alert m360-alert-info">
-                    <i class="bi bi-info-circle"></i> No hay proyectos asociados a este evento.
-                    <a href="{% url 'events:event_assign' event.id %}" class="m360-alert m360-alert-info" style="text-decoration: underline;">Asignar proyectos</a>
+                <div class="empty-state">
+                    <i class="bi bi-folder-x"></i>
+                    <p style="color: var(--gray-400);">No projects associated with this event.</p>
+                    <a href="{% url 'events:event_assign' event.id %}" class="btn btn-sm btn-ghost">
+                        <i class="bi bi-link"></i> Assign Projects
+                    </a>
                 </div>
                 {% endif %}
             </div>
-            
-            <div class="m360-tab-pane" id="tasks" role="tabpanel">
+
+            <!-- Tasks Tab -->
+            <div class="tab-content" id="tab-tasks">
                 {% if tasks %}
-                <div class="m360-table-responsive">
-                    <table class="m360-table">
+                <div class="table-wrap">
+                    <table class="table">
                         <thead>
                             <tr>
-                                <th>Título</th>
-                                <th>Estado</th>
-                                <th>Asignado a</th>
-                                <th>Proyecto</th>
-                                <th>Prioridad</th>
-                                <th>Acciones</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Assigned To</th>
+                                <th>Priority</th>
+                                <th style="text-align: center;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for task in tasks %}
                             <tr>
-                                <td>{{ task.title|truncatechars:50 }}</td>
+                                <td>{{ task.title|truncatechars:40 }}</td>
                                 <td>
-                                    <span class="m360-badge m360-badge-{% if task.task_status.status_name == 'Completed' %}success{% elif task.task_status.status_name == 'In Progress' %}warning{% else %}secondary{% endif %}">
+                                    <span class="status-badge {% if task.task_status.status_name == 'Completed' %}active{% elif task.task_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}" style="font-size: 0.6rem;">
                                         {{ task.task_status.status_name }}
                                     </span>
                                 </td>
-                                <td>{{ task.assigned_to.username|default:"No asignado" }}</td>
-                                <td>
-                                    {% if task.project %}
-                                    <a href="{% url 'events:project_detail' task.project.id %}" style="text-decoration: none; color: var(--m360-text);">
-                                        {{ task.title|truncatechars:30 }}
-                                    </a>
-                                    {% else %}
-                                    <span class="events-text-muted">Sin proyecto</span>
-                                    {% endif %}
-                                </td>
+                                <td>{{ task.assigned_to.username|default:"Unassigned" }}</td>
                                 <td>
                                     {% if task.important %}
-                                    <span class="m360-badge m360-badge-danger">Alta</span>
+                                    <span class="status-badge" style="background: var(--red-light); color: var(--red);">High</span>
                                     {% else %}
-                                    <span class="m360-badge m360-badge-secondary">Normal</span>
+                                    <span class="status-badge" style="background: var(--gray-100); color: var(--gray-500);">Normal</span>
                                     {% endif %}
                                 </td>
-                                <td>
-                                    <a href="{% url 'events:tasks_with_id' task.id %}" class="m360-btn m360-btn-outline-info">
+                                <td style="text-align: center;">
+                                    <a href="{% url 'events:tasks_with_id' task.id %}" class="btn btn-sm btn-ghost">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                 </td>
@@ -249,72 +261,237 @@
                     </table>
                 </div>
                 {% else %}
-                <div class="m360-alert m360-alert-info">
-                    <i class="bi bi-info-circle"></i> No hay tareas asociadas a este evento.
-                    <a href="{% url 'events:event_assign' event.id %}" style="text-decoration: underline;">Asignar tareas</a>
+                <div class="empty-state">
+                    <i class="bi bi-list-check"></i>
+                    <p style="color: var(--gray-400);">No tasks associated with this event.</p>
+                    <a href="{% url 'events:event_assign' event.id %}" class="btn btn-sm btn-ghost">
+                        <i class="bi bi-link"></i> Assign Tasks
+                    </a>
                 </div>
                 {% endif %}
             </div>
-            
-            <div class="m360-tab-pane" id="attendees" role="tabpanel">
+
+            <!-- Attendees Tab -->
+            <div class="tab-content" id="tab-attendees">
                 {% if attendees %}
-                <div class="events-row">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;">
                     {% for attendee in attendees %}
-                    <div class="events-col-md-4 events-col-lg-3 events-mb-4">
-                        <div class="m360-card" style="text-align: center;">
-                            <div class="m360-card-body">
-                                <div class="events-mb-3">
-                                    <i class="bi bi-person-circle" style="font-size: var(--m360-icon-2xl); color: var(--m360-primary);"></i>
-                                </div>
-                                <h6 class="m360-card-title">{{ attendee.username }}</h6>
-                                <p class="m360-card-text events-text-muted" style="font-size: var(--m360-text-sm);">{{ attendee.email }}</p>
-                                {% if attendee.first_name or attendee.last_name %}
-                                <p class="m360-card-text">{{ attendee.first_name }} {{ attendee.last_name }}</p>
-                                {% endif %}
-                            </div>
+                    <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 1rem; text-align: center;">
+                        <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--purple-light); color: var(--purple); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; margin: 0 auto 0.5rem;">
+                            {{ attendee.username|first|upper }}
                         </div>
+                        <h6 style="font-size: 0.875rem; margin: 0;">{{ attendee.username }}</h6>
+                        <p style="font-size: 0.75rem; color: var(--gray-400); margin: 0;">{{ attendee.email }}</p>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="m360-alert m360-alert-info">
-                    <i class="bi bi-info-circle"></i> No hay asistentes registrados para este evento.
+                <div class="empty-state">
+                    <i class="bi bi-people-x"></i>
+                    <p style="color: var(--gray-400);">No attendees registered for this event.</p>
                 </div>
                 {% endif %}
             </div>
-            
-            <div class="m360-tab-pane" id="timeline" role="tabpanel">
+
+            <!-- Timeline Tab -->
+            <div class="tab-content" id="tab-timeline">
                 {% if event_states %}
-                <div class="events-timeline">
+                <div class="activity-timeline">
                     {% for state in event_states %}
-                    <div class="events-timeline-item {% if state.end_time %}events-timeline-item--completed{% elif state.start_time %}events-timeline-item--active{% endif %}">
-                        <div class="events-timeline-marker"></div>
-                        <div class="events-timeline-content">
-                            <h6 class="events-mb-1">{{ state.event_status.status_name }}</h6>
-                            <small class="events-text-muted">
+                    <div class="activity-item">
+                        <div class="activity-icon {% if state.end_time %}green{% else %}amber{% endif %}">
+                            <i class="bi bi-{% if state.end_time %}check-circle{% else %}clock{% endif %}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <strong>{{ state.event_status.status_name }}</strong>
+                            <p class="activity-text">
                                 {% if state.start_time %}
-                                Inicio: {{ state.start_time|date:"d/m/Y H:i" }}
+                                Started: {{ state.start_time|date:"M d, Y H:i" }}
                                 {% endif %}
                                 {% if state.end_time %}
-                                - Fin: {{ state.end_time|date:"d/m/Y H:i" }}
+                                - Ended: {{ state.end_time|date:"M d, Y H:i" }}
                                 {% endif %}
-                            </small>
+                            </p>
                             {% if state.duration_minutes %}
-                            <div class="events-mt-1">
-                                <span class="m360-badge m360-badge-info">Duración: {{ state.duration_minutes }} min</span>
-                            </div>
+                            <span class="activity-time">Duration: {{ state.duration_minutes }} minutes</span>
                             {% endif %}
                         </div>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="m360-alert m360-alert-info">
-                    <i class="bi bi-info-circle"></i> No hay historial de estados para este evento.
+                <div class="empty-state">
+                    <i class="bi bi-clock-history"></i>
+                    <p style="color: var(--gray-400);">No timeline history available for this event.</p>
                 </div>
                 {% endif %}
             </div>
         </div>
     </div>
+
+    <!-- Right Column - Sidebar -->
+    <div class="col">
+        <!-- Quick Actions -->
+        <div class="section-card">
+            <div class="section-header section-header-success">
+                <div class="section-title">
+                    <i class="bi bi-lightning-charge"></i>
+                    <h6 style="color: #fff;">Quick Actions</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="{% url 'events:event_edit' event.id %}" class="btn btn-primary" style="justify-content: center;">
+                        <i class="bi bi-pencil"></i> Edit Event
+                    </a>
+                    <a href="{% url 'events:event_assign' event.id %}" class="btn btn-info" style="justify-content: center;">
+                        <i class="bi bi-link"></i> Assign Resources
+                    </a>
+                    <a href="{% url 'events:event_panel' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-arrow-left"></i> Back to Panel
+                    </a>
+                    {% if not is_completed %}
+                    <form method="POST" action="{% url 'events:event_status_change' event.id %}" style="margin: 0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="new_status_id" value="{{ completed_status_id }}">
+                        <button type="submit" class="btn btn-success" style="width: 100%; justify-content: center;">
+                            <i class="bi bi-check-circle"></i> Mark as Completed
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Metadata -->
+        <div class="section-card">
+            <div class="section-header section-header-info">
+                <div class="section-title">
+                    <i class="bi bi-info-circle"></i>
+                    <h6 style="color: #fff;">Metadata</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem;">
+                    <div style="display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px solid var(--gray-200);">
+                        <span style="color: var(--gray-500);">Event ID</span>
+                        <span style="font-weight: 600;">#{{ event.id }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px solid var(--gray-200);">
+                        <span style="color: var(--gray-500);">Created By</span>
+                        <span>{{ event.host.username }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px solid var(--gray-200);">
+                        <span style="color: var(--gray-500);">Created At</span>
+                        <span>{{ event.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.25rem 0;">
+                        <span style="color: var(--gray-500);">Last Updated</span>
+                        <span>{{ event.updated_at|timesince }} ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        {% if can_delete and event.deletable %}
+        <div class="section-card" style="border-left: 4px solid var(--red);">
+            <div class="section-body" style="padding: 1rem;">
+                <h6 style="color: var(--red); font-size: 0.8rem; margin-bottom: 0.5rem;">
+                    <i class="bi bi-exclamation-triangle"></i> Danger Zone
+                </h6>
+                <p style="font-size: 0.8rem; color: var(--gray-500); margin-bottom: 0.75rem;">
+                    Once you delete this event, there is no going back.
+                </p>
+                <button onclick="confirmDelete({{ event.id }}, '{{ event.title|escapejs }}')" class="btn btn-danger" style="width: 100%; justify-content: center;">
+                    <i class="bi bi-trash"></i> Delete Event
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h5><i class="bi bi-exclamation-triangle" style="color: var(--red);"></i> Confirm Deletion</h5>
+            <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete the event <strong id="deleteEventTitle"></strong>?</p>
+            <p style="font-size: 0.8rem; color: var(--gray-500);">
+                <i class="bi bi-info-circle"></i> This action cannot be undone.
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+            <form method="POST" id="deleteEventForm">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Event</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const target = document.getElementById('tab-' + tabId);
+            if (target) target.classList.add('active');
+        });
+    });
+
+    // Animate progress bars
+    document.querySelectorAll('.progress-fill').forEach(bar => {
+        const targetWidth = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.transition = 'width 1s ease-in-out';
+            bar.style.width = targetWidth;
+        }, 300);
+    });
+});
+
+// Delete confirmation
+function confirmDelete(eventId, eventTitle) {
+    document.getElementById('deleteEventTitle').textContent = `"${eventTitle}" (ID: ${eventId})`;
+    document.getElementById('deleteEventForm').action = `/events/${eventId}/delete/`;
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+}
+
+document.getElementById('deleteModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDeleteModal();
+});
+</script>
+
+<style>
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .two-col {
+        grid-template-columns: 1fr !important;
+    }
+    [style*="grid-template-columns: 1fr 1fr;"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
 {% endblock %}

@@ -1,677 +1,413 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
 
-<!-- Load global panel styles -->
-<link rel="stylesheet" href="{% static 'assets/css/alerts-styles.css' %}">
-
-<style>
-/* Project Panel specific styles */
-
-/* Enhanced card styles specific to project panel */
-.project-card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.project-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-}
-
-.project-card .card-header {
-    border-radius: 12px 12px 0 0 !important;
-    border: none;
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-}
-
-/* Statistics cards enhancement */
-.info-card {
-    background: linear-gradient(135deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(0,0,0,0.05);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-bottom: 0;
-}
-
-.info-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.info-card .card-body {
-    padding: 1.25rem;
-}
-
-.info-card .card-icon {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.info-card:hover .card-icon {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-
-/* Enhanced progress bars */
-.progress {
-    border-radius: 10px;
-    background-color: rgba(0,0,0,0.05);
-    overflow: hidden;
-}
-
-.progress-bar {
-    border-radius: 10px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Task status indicators */
-.task-status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 4px;
-}
-
-.task-status-completed {
-    background-color: #28a745;
-}
-
-.task-status-in-progress {
-    background-color: #007bff;
-    animation: pulse 2s infinite;
-}
-
-.task-status-todo {
-    background-color: #6c757d;
-}
-
-.task-status-blocked {
-    background-color: #dc3545;
-}
-
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-
-/* Project status badges */
-.project-status-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.project-status-active {
-    background-color: rgba(0, 123, 255, 0.1);
-    color: #007bff;
-    border: 1px solid rgba(0, 123, 255, 0.2);
-}
-
-.project-status-completed {
-    background-color: rgba(40, 167, 69, 0.1);
-    color: #28a745;
-    border: 1px solid rgba(40, 167, 69, 0.2);
-}
-
-.project-status-blocked {
-    background-color: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
-    border: 1px solid rgba(220, 53, 69, 0.2);
-}
-
-/* Table enhancements */
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.02);
-}
-
-/* Compact view styles */
-.compact-view .card {
-    margin-bottom: 0.5rem;
-}
-
-.compact-view .table td,
-.compact-view .table th {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-}
-
-/* Loading animations */
-.loading-shimmer {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .project-card {
-        background-color: #2d3748;
-        color: #e2e8f0;
-    }
-
-    .project-card .card-header {
-        background: linear-gradient(135deg, #4a5568, #2d3748);
-    }
-    
-    .info-card {
-        background: linear-gradient(135deg, #2d3748, #1a202c);
-        border-color: #4a5568;
-    }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .info-card .card-body {
-        padding: 1rem;
-    }
-    
-    .table-responsive {
-        font-size: 0.875rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .info-card .card-body {
-        padding: 0.75rem;
-    }
-    
-    .col-xxl-3.col-md-6 {
-        margin-bottom: 1rem;
-    }
-}
-</style>
-
 {% block content %}
 
-<!-- Enhanced Page Header -->
-<div class="pagetitle">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1><i class="bi bi-folder-fill me-2"></i>{{ title }}</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'index' %}"><i class="bi bi-house-door"></i></a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'events:projects' %}">Projects</a></li>
-                    <li class="breadcrumb-item active">{{ title }}</li>
-                </ol>
-            </nav>
-        </div>
-        <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-primary btn-sm" id="toggleViewBtn">
-                <i class="bi bi-grid"></i> <span>Board View</span>
-            </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm" id="exportBtn">
-                <i class="bi bi-download"></i> Export
-            </button>
-            <a href="{% url 'events:project_create' %}" class="btn btn-success btn-sm">
-                <i class="bi bi-plus-circle"></i> Create Project
+<!-- ==========================================
+     PROJECT PANEL
+     ========================================== -->
+
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="bi bi-folder-fill"></i>
+            {{ title|default:"Project Panel" }}
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="bi bi-house-door"></i> Home
             </a>
+            <span class="text-muted"> / </span>
+            <a href="{% url 'events:projects' %}" class="text-decoration-none">
+                Projects
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">{{ title|default:"Panel" }}</span>
         </div>
     </div>
-</div><!-- End Enhanced Page Title -->
+    <div class="header-actions">
+        <button class="btn btn-ghost" id="toggleViewBtn">
+            <i class="bi bi-grid"></i> <span>Board View</span>
+        </button>
+        <button class="btn btn-ghost" id="exportBtn">
+            <i class="bi bi-download"></i> Export
+        </button>
+        <a href="{% url 'events:project_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create Project
+        </a>
+    </div>
+</div>
 
-<section class="section dashboard">
-    <div class="row">
+<!-- Alerts -->
+{% if alerts %}
+<div class="alerts-container">
+    {% for alert in alerts %}
+    <div class="alert alert-{{ alert.type }}">
+        <div class="alert-content">
+            <i class="{{ alert.icon }}"></i>
+            <div style="flex: 1;">
+                <strong style="display: block; font-size: 0.875rem;">{{ alert.title }}</strong>
+                <span class="alert-message" style="font-weight: 400;">{{ alert.message }}</span>
+            </div>
+            {% if alert.action_url %}
+            <a href="{{ alert.action_url }}" class="btn btn-sm btn-{{ alert.type }}">
+                {{ alert.action_text }}
+            </a>
+            {% endif %}
+        </div>
+        <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
+<!-- Main Content -->
+<section class="section">
+    <div class="two-col">
         <!-- Main Content Area -->
-        <div class="col-lg-9">
-            <div class="row">
+        <div class="col">
+            <!-- Statistics Cards -->
+            <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+                <div class="stat-card purple">
+                    <div class="stat-content">
+                        <span class="stat-number">{{ total_projects|default:0 }}</span>
+                        <span class="stat-label">Total Projects</span>
+                        <span class="stat-sub">Active: {{ in_progress_count|default:0 }}</span>
+                    </div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-content">
+                        <span class="stat-number">{{ in_progress_count|default:0 }}</span>
+                        <span class="stat-label">In Progress</span>
+                        <span class="stat-sub">Currently working</span>
+                    </div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-content">
+                        <span class="stat-number">{{ completed_count|default:0 }}</span>
+                        <span class="stat-label">Completed</span>
+                        <span class="stat-sub">Successfully done</span>
+                    </div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-content">
+                        <span class="stat-number">{{ total_tasks|default:0 }}</span>
+                        <span class="stat-label">Total Tasks</span>
+                        <span class="stat-sub">Across all projects</span>
+                    </div>
+                </div>
+            </div>
 
-                {% if projects_data %}
-                <!-- Advanced Filters & Search -->
-                <div class="col-12 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12 col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                        <input type="text" class="form-control" id="searchInput" placeholder="Search projects...">
-                                    </div>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <select class="form-select" id="statusFilter">
-                                        <option value="">All Status</option>
-                                        {% for status in project_statuses %}
-                                        <option value="{{ status.status_name }}">{{ status.status_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <select class="form-select" id="completionFilter">
-                                        <option value="">Completion Rate</option>
-                                        <option value="high">High (&gt;80%)</option>
-                                        <option value="medium">Medium (30-80%)</option>
-                                        <option value="low">Low (&lt;30%)</option>
-                                    </select>
-                                </div>
-                                <div class="col-12 col-md-2">
-                                    <button type="button" class="btn btn-outline-secondary w-100" id="clearFilters">
-                                        <i class="bi bi-x-circle"></i> Clear
-                                    </button>
-                                </div>
-                            </div>
+            <!-- Quick Actions Panel -->
+            <div class="section-card" style="margin-bottom: 1.5rem;">
+                <div class="section-header section-header-success" style="margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0;">
+                    <div class="section-title">
+                        <i class="bi bi-gear-fill"></i>
+                        <h6 style="color: #fff; margin: 0;">Quick Actions</h6>
+                    </div>
+                </div>
+                <div class="section-body" style="padding: 0.5rem 0;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+                        <a href="{% url 'events:project_create' %}" class="btn btn-primary" style="justify-content: center;">
+                            <i class="bi bi-plus-circle"></i> Create Project
+                        </a>
+                        <button class="btn btn-ghost" id="bulkEditBtn" style="justify-content: center;">
+                            <i class="bi bi-pencil"></i> Bulk Edit
+                        </button>
+                        <button class="btn btn-ghost" id="exportProjectsBtn" style="justify-content: center;">
+                            <i class="bi bi-download"></i> Export
+                        </button>
+                        <button class="btn btn-ghost" id="filterProjectsBtn" style="justify-content: center;">
+                            <i class="bi bi-funnel"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Selector -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 0.5rem 1rem;">
+                <div style="display: flex; gap: 0.25rem;">
+                    <button class="btn btn-sm btn-primary active" data-view="table">
+                        <i class="bi bi-table"></i> Table
+                    </button>
+                    <button class="btn btn-sm btn-ghost" data-view="cards">
+                        <i class="bi bi-card-text"></i> Cards
+                    </button>
+                    <button class="btn btn-sm btn-ghost" data-view="grid">
+                        <i class="bi bi-grid-3x3-gap"></i> Grid
+                    </button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="text-muted text-sm" id="projectCount">{{ projects_data|length }} projects</span>
+                    <div class="dropdown">
+                        <button class="icon-btn" data-dropdown="viewOptions">
+                            <i class="bi bi-gear"></i>
+                        </button>
+                        <div class="dropdown-menu" id="viewOptions">
+                            <a href="#" class="dropdown-item" id="compactViewToggle">
+                                <i class="bi bi-layout-text-sidebar"></i> Compact View
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="{% url 'events:project_export' %}" class="dropdown-item">
+                                <i class="bi bi-download"></i> Export Projects
+                            </a>
+                            <a href="{% url 'events:project_create' %}" class="dropdown-item">
+                                <i class="bi bi-plus-circle"></i> Create Project
+                            </a>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Enhanced Statistics Cards -->
-                <div class="col-12 mb-4">
-                    <div class="row">
-                        <!-- Total Projects -->
-                        <div class="col-xxl-3 col-md-6">
-                            <div class="card info-card sales-card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Projects <span>| Overview</span></h5>
-                                    <div class="d-flex align-items-center">
-                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-folder-fill"></i>
-                                        </div>
-                                        <div class="ps-3">
-                                            <h6>{{ total_projects }}</h6>
-                                            <span class="text-primary small pt-1 fw-bold">Active Projects</span>
-                                            <div class="progress mt-2" style="height: 4px;">
-                                                <div class="progress-bar bg-primary" style="width: 100%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- In Progress -->
-                        <div class="col-xxl-3 col-md-6">
-                            <div class="card info-card revenue-card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">In Progress <span>| Active</span></h5>
-                                    <div class="d-flex align-items-center">
-                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-gear-fill"></i>
-                                        </div>
-                                        <div class="ps-3">
-                                            <h6>{{ in_progress_count }}</h6>
-                                            <span class="text-warning small pt-1 fw-bold">Working On</span>
-                                            <div class="progress mt-2" style="height: 4px;">
-                                                <div class="progress-bar bg-warning" style="width: {% widthratio in_progress_count total_projects 100 %}%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Completed -->
-                        <div class="col-xxl-3 col-md-6">
-                            <div class="card info-card customers-card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">Completed <span>| Done</span></h5>
-                                    <div class="d-flex align-items-center">
-                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-check-circle-fill"></i>
-                                        </div>
-                                        <div class="ps-3">
-                                            <h6>{{ completed_count }}</h6>
-                                            <span class="text-success small pt-1 fw-bold">Finished</span>
-                                            <div class="progress mt-2" style="height: 4px;">
-                                                <div class="progress-bar bg-success" style="width: {% widthratio completed_count total_projects 100 %}%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Total Tasks -->
-                        <div class="col-xxl-3 col-md-6">
-                            <div class="card info-card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Tasks <span>| All Projects</span></h5>
-                                    <div class="d-flex align-items-center">
-                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-info-light">
-                                            <i class="bi bi-list-check text-info"></i>
-                                        </div>
-                                        <div class="ps-3">
-                                            <h6>{{ total_tasks }}</h6>
-                                            <span class="text-info small pt-1 fw-bold">Tasks</span>
-                                            <div class="progress mt-2" style="height: 4px;">
-                                                <div class="progress-bar bg-info" style="width: {% if total_projects %}{% widthratio total_tasks total_projects|add:0 10 %}{% else %}0{% endif %}%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Actions Panel -->
-                <div class="col-12 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0"><i class="bi bi-gear-fill me-2"></i>Quick Actions</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-2">
-                                <div class="col-md-3">
-                                    <a href="{% url 'events:project_create' %}" class="btn btn-success w-100">
-                                        <i class="bi bi-plus-circle me-1"></i>
-                                        <span class="d-block">Create Project</span>
-                                    </a>
-                                </div>
-                                <div class="col-md-3">
-                                    <button type="button" class="btn btn-primary w-100" id="bulkEditBtn">
-                                        <i class="bi bi-pencil me-1"></i>
-                                        <span class="d-block">Bulk Edit</span>
-                                    </button>
-                                </div>
-                                <div class="col-md-3">
-                                    <button type="button" class="btn btn-info w-100" id="exportProjectsBtn">
-                                        <i class="bi bi-download me-1"></i>
-                                        <span class="d-block">Export</span>
-                                    </button>
-                                </div>
-                                <div class="col-md-3">
-                                    <button type="button" class="btn btn-warning w-100" id="filterProjectsBtn">
-                                        <i class="bi bi-funnel me-1"></i>
-                                        <span class="d-block">Advanced Filter</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Projects Display Area -->
-                <div class="col-12">
-                    <!-- View Selector -->
-                    <div class="card mb-3">
-                        <div class="card-body py-2">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-outline-primary active" data-view="table">
-                                        <i class="bi bi-table me-1"></i> Table
-                                    </button>
-                                    <button type="button" class="btn btn-outline-primary" data-view="cards">
-                                        <i class="bi bi-card-text me-1"></i> Cards
-                                    </button>
-                                    <button type="button" class="btn btn-outline-primary" data-view="grid">
-                                        <i class="bi bi-grid-3x3-gap me-1"></i> Grid
-                                    </button>
-                                </div>
-                                <div class="d-flex gap-2 align-items-center">
-                                    <span class="text-muted small" id="projectCount">{{ projects_data|length }} projects</span>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
-                                                data-bs-toggle="dropdown">
-                                            <i class="bi bi-gear"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><h6 class="dropdown-header">View Options</h6></li>
-                                            <li>
-                                                <a class="dropdown-item" href="#" id="compactViewToggle">
-                                                    <i class="bi bi-layout-text-sidebar me-2"></i>
-                                                    <span>Compact View</span>
-                                                    <i class="bi bi-check2 ms-auto" style="display: none;"></i>
-                                                </a>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><h6 class="dropdown-header">Actions</h6></li>
-                                            <li>
-                                                <a class="dropdown-item" href="{% url 'events:project_export' %}">
-                                                    <i class="bi bi-download me-2"></i> Export Projects
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="{% url 'events:project_create' %}">
-                                                    <i class="bi bi-plus-circle me-2"></i> Create Project
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Table View -->
-                    <div id="tableView" class="view-container">
-                        <div class="card">
-                            <div class="card-body p-0">
-                                <!-- projects/includes/project_table_optimized.html -->
-                                {% if projects_data %}
-                                    {% include 'projects/includes/project_table_optimized.html' %}
-                                {% else %}
-                                    <div class="text-center py-4">
-                                        <i class="bi bi-folder display-1 text-muted mb-3"></i>
-                                        <h5 class="text-muted">No projects found</h5>
-                                        <a href="{% url 'events:project_create' %}" class="btn btn-primary btn-sm mt-2">
-                                            Create Your First Project
-                                        </a>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cards View -->
-                    <div id="cardsView" class="view-container" style="display: none;">
-                        <div class="row" id="cardsContainer">
-                            {% for project_data in projects_data %}
-                            <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
-                                <!-- Project Card -->
-                                <div class="card h-100 project-card">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="mb-0">{{ project_data.project.title|truncatechars:25 }}</h6>
-                                            <small class="text-muted">
-                                                {{ project_data.project.created_at|date:"M d, Y" }}
-                                            </small>
-                                        </div>
-                                        <div>
-                                            <span class="badge project-status-badge project-status-{{ project_data.project.project_status.status_name|lower|cut:' ' }}">
+            <!-- Table View -->
+            <div id="tableView" class="view-container">
+                <div class="section-card">
+                    <div class="section-body" style="padding: 0;">
+                        {% if projects_data %}
+                        <div class="table-wrap">
+                            <table class="table" id="projectTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 30px;">
+                                            <input type="checkbox" id="selectAllProjects" class="form-check-input">
+                                        </th>
+                                        <th data-sort="id">ID</th>
+                                        <th data-sort="title">Title</th>
+                                        <th data-sort="assigned">Assigned To</th>
+                                        <th data-sort="status">Status</th>
+                                        <th data-sort="progress">Progress</th>
+                                        <th data-sort="tasks">Tasks</th>
+                                        <th style="text-align: center;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for project_data in projects_data %}
+                                    <tr class="project-row" 
+                                        data-id="{{ project_data.project.id }}"
+                                        data-status="{{ project_data.project.project_status.status_name|lower }}"
+                                        data-completion="{{ project_data.completion_rate|floatformat:0 }}"
+                                        data-title="{{ project_data.project.title|lower }}"
+                                        data-assigned="{{ project_data.project.assigned_to.username|lower }}">
+                                        <td>
+                                            <input type="checkbox" class="project-checkbox form-check-input" value="{{ project_data.project.id }}">
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="text-decoration-none" style="color: var(--purple); font-weight: 500;">
+                                                #{{ project_data.project.id }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="text-decoration-none">
+                                                {{ project_data.project.title|truncatechars:35 }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                                <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--purple-light); color: var(--purple); text-align: center; font-size: 0.6rem; font-weight: 700; line-height: 24px;">
+                                                    {{ project_data.project.assigned_to.username|first|upper }}
+                                                </span>
+                                                {{ project_data.project.assigned_to.username }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge {% if project_data.project.project_status.status_name == 'Completed' %}active{% elif project_data.project.project_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
                                                 {{ project_data.project.project_status.status_name }}
                                             </span>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="small text-muted mb-3">
-                                            {{ project_data.project.description|truncatechars:80|default:"No description" }}
-                                        </p>
-                                        
-                                        <!-- Project Stats -->
-                                        <div class="mb-3">
-                                            <div class="row text-center">
-                                                <div class="col-4">
-                                                    <small class="text-muted d-block">Tasks</small>
-                                                    <span class="fw-bold">{{ project_data.count_tasks }}</span>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 100px;">
+                                                <div class="progress-bar" style="flex: 1; height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                                                    <div class="progress-fill" style="width: {{ project_data.completion_rate|floatformat:0 }}%; background: {% if project_data.completion_rate > 80 %}var(--green){% elif project_data.completion_rate > 30 %}var(--blue){% else %}var(--amber){% endif %};"></div>
                                                 </div>
-                                                <div class="col-4">
-                                                    <small class="text-muted d-block">Done</small>
-                                                    <span class="fw-bold text-success">{{ project_data.completed_tasks }}</span>
-                                                </div>
-                                                <div class="col-4">
-                                                    <small class="text-muted d-block">Progress</small>
-                                                    <span class="fw-bold">{{ project_data.completion_rate|floatformat:0 }}%</span>
-                                                </div>
+                                                <span style="font-size: 0.75rem; font-weight: 600; min-width: 35px; text-align: right;">{{ project_data.completion_rate|floatformat:0 }}%</span>
                                             </div>
-                                        </div>
-                                        
-                                        <!-- Progress Bar -->
-                                        <div class="mb-3">
-                                            <div class="d-flex justify-content-between mb-1">
-                                                <small class="text-muted">Completion</small>
-                                                <small class="text-muted">{{ project_data.completion_rate|floatformat:0 }}%</small>
+                                        </td>
+                                        <td style="font-size: 0.8rem; color: var(--gray-500);">
+                                            {{ project_data.count_tasks }}
+                                            <span style="color: var(--green);">({{ project_data.completed_tasks }} done)</span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <div class="table-actions" style="justify-content: center;">
+                                                <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="btn btn-sm btn-ghost" title="View">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{% url 'events:project_edit' project_data.project.id %}" class="btn btn-sm btn-ghost" title="Edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button onclick="confirmDelete({{ project_data.project.id }})" class="btn btn-sm btn-ghost" style="color: var(--red);" title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
                                             </div>
-                                            <div class="progress" style="height: 6px;">
-                                                <div class="progress-bar 
-                                                    {% if project_data.completion_rate > 80 %}bg-success
-                                                    {% elif project_data.completion_rate > 30 %}bg-primary
-                                                    {% else %}bg-warning{% endif %}" 
-                                                    style="width: {{ project_data.completion_rate }}%">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Project Info -->
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <small class="text-muted">
-                                                <i class="bi bi-person"></i> {{ project_data.project.host.username }}
-                                            </small>
-                                            {% if project_data.project.ticket_price > 0 %}
-                                            <small class="text-success fw-bold">
-                                                <i class="bi bi-coin"></i> ${{ project_data.project.ticket_price }}
-                                            </small>
-                                            {% endif %}
-                                        </div>
-                                        
-                                        <!-- Task Status Overview -->
-                                        <div class="small text-muted mb-3">
-                                            <div class="d-flex flex-wrap gap-1">
-                                                {% if project_data.completed_tasks %}
-                                                <span class="badge bg-success bg-opacity-10 text-success">
-                                                    <span class="task-status-indicator task-status-completed"></span>
-                                                    {{ project_data.completed_tasks }} done
-                                                </span>
-                                                {% endif %}
-                                                {% if project_data.in_progress_tasks %}
-                                                <span class="badge bg-primary bg-opacity-10 text-primary">
-                                                    <span class="task-status-indicator task-status-in-progress"></span>
-                                                    {{ project_data.in_progress_tasks }} active
-                                                </span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer bg-transparent">
-                                        <div class="d-flex justify-content-between">
-                                            <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" 
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-eye"></i> View
-                                            </a>
-                                            <a href="{% url 'events:project_edit' project_data.project.id %}" 
-                                               class="btn btn-sm btn-outline-secondary">
-                                                <i class="bi bi-pencil"></i> Edit
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
-
-                    <!-- Grid View -->
-                    <div id="gridView" class="view-container" style="display: none;">
-                        <div class="row">
-                            {% for project_data in projects_data %}
-                            <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
-                                <!-- Mini Project Card -->
-                                <div class="card h-100">
-                                    <div class="card-body text-center p-3">
-                                        <div class="mb-3">
-                                            <i class="bi bi-folder display-6 text-primary"></i>
-                                        </div>
-                                        <h6 class="mb-2">{{ project_data.project.title|truncatechars:20 }}</h6>
-                                        
-                                        <div class="mb-3">
-                                            <span class="badge bg-light text-dark">
-                                                {{ project_data.count_tasks }} tasks
-                                            </span>
-                                        </div>
-                                        
-                                        <div class="progress mb-3" style="height: 4px;">
-                                            <div class="progress-bar 
-                                                {% if project_data.completion_rate > 80 %}bg-success
-                                                {% elif project_data.completion_rate > 30 %}bg-primary
-                                                {% else %}bg-warning{% endif %}" 
-                                                style="width: {{ project_data.completion_rate }}%">
-                                            </div>
-                                        </div>
-                                        
-                                        <small class="text-muted d-block mb-2">
-                                            {{ project_data.completion_rate|floatformat:0 }}% complete
-                                        </small>
-                                        
-                                        <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" 
-                                           class="btn btn-sm btn-outline-primary w-100">
-                                            <i class="bi bi-box-arrow-in-right"></i> Open
-                                        </a>
-                                    </div>
-                                </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-top: 1px solid var(--gray-200);">
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-sm btn-danger" id="deleteSelected" disabled>
+                                    <i class="bi bi-trash"></i> Delete Selected
+                                </button>
+                                <button class="btn btn-sm btn-ghost" id="exportSelected" disabled>
+                                    <i class="bi bi-download"></i> Export Selected
+                                </button>
                             </div>
-                            {% endfor %}
+                            <span class="text-muted text-xs" id="visibleProjects">{{ projects_data|length }} projects</span>
                         </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-folder-x"></i>
+                            <h5>No projects found</h5>
+                            <p>Create your first project to get started.</p>
+                            <a href="{% url 'events:project_create' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Create First Project
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
-
-                {% elif project_data %}
-                    <!-- Single Project Detail View -->
-                    <div class="col-12">
-                        <div class="card project-card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0"><i class="bi bi-eye me-2"></i>Project Details</h5>
-                            </div>
-                            <div class="card-body">
-                                {% include 'projects/includes/project_card.html' %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Project Tasks -->
-                    <div class="col-12">
-                        <div class="card project-card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0"><i class="bi bi-list-task me-2"></i>Project Tasks</h5>
-                            </div>
-                            <div class="card-body">
-                                {% include 'projects/includes/project_tasks.html' %}
-                            </div>
-                        </div>
-                    </div>
-
-                {% else %}
-                    <!-- Empty State -->
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-body text-center py-5">
-                                <i class="bi bi-folder display-1 text-muted mb-3"></i>
-                                <h4 class="text-muted">No Projects Found</h4>
-                                <p class="text-muted mb-4">Get started by creating your first project or adjusting your filters.</p>
-                                <a href="{% url 'events:project_create' %}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle me-1"></i> Create First Project
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-
             </div>
-        </div><!-- End Main Content Area -->
 
-        <!-- Enhanced Sidebar -->
-        <div class="col-lg-3">
-
-            <!-- Quick Stats Sidebar -->
-            {% if projects_data %}
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Quick Stats</h6>
+            <!-- Cards View -->
+            <div id="cardsView" class="view-container" style="display: none;">
+                <div class="project-grid" id="cardsContainer">
+                    {% for project_data in projects_data %}
+                    <div class="project-card">
+                        <div class="project-header">
+                            <h6>{{ project_data.project.title|truncatechars:25 }}</h6>
+                            <span class="status-badge {% if project_data.project.project_status.status_name == 'Completed' %}active{% elif project_data.project.project_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
+                                {{ project_data.project.project_status.status_name }}
+                            </span>
+                        </div>
+                        <p class="project-description">{{ project_data.project.description|truncatechars:80|default:"No description" }}</p>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; margin-bottom: 0.5rem; padding: 0.5rem; background: var(--gray-50); border-radius: var(--radius-sm);">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem;">{{ project_data.count_tasks }}</div>
+                                <small style="color: var(--gray-400); font-size: 0.65rem;">Tasks</small>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem; color: var(--green);">{{ project_data.completed_tasks }}</div>
+                                <small style="color: var(--gray-400); font-size: 0.65rem;">Done</small>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem;">{{ project_data.completion_rate|floatformat:0 }}%</div>
+                                <small style="color: var(--gray-400); font-size: 0.65rem;">Progress</small>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <div class="progress-bar" style="height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                                <div class="progress-fill" style="width: {{ project_data.completion_rate|floatformat:0 }}%; background: {% if project_data.completion_rate > 80 %}var(--green){% elif project_data.completion_rate > 30 %}var(--blue){% else %}var(--amber){% endif %};"></div>
+                            </div>
+                        </div>
+                        <div class="project-meta" style="font-size: 0.75rem;">
+                            <span><i class="bi bi-person"></i> {{ project_data.project.host.username }}</span>
+                            <span><i class="bi bi-calendar"></i> {{ project_data.project.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--gray-200);">
+                            <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="btn btn-sm btn-primary" style="flex: 1; justify-content: center;">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            <a href="{% url 'events:project_edit' project_data.project.id %}" class="btn btn-sm btn-ghost" style="flex: 1; justify-content: center;">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state full-width">
+                        <i class="bi bi-folder-x"></i>
+                        <h5>No projects found</h5>
+                        <p>Create your first project to get started.</p>
+                        <a href="{% url 'events:project_create' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create First Project
+                        </a>
+                    </div>
+                    {% endfor %}
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span class="small">Overall Progress</span>
-                            <span class="small fw-bold">
+            </div>
+
+            <!-- Grid View -->
+            <div id="gridView" class="view-container" style="display: none;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem;">
+                    {% for project_data in projects_data %}
+                    <div style="background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 1rem; text-align: center; transition: all var(--transition);">
+                        <div style="font-size: 2rem; color: var(--purple); margin-bottom: 0.5rem;">
+                            <i class="bi bi-folder"></i>
+                        </div>
+                        <h6 style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">{{ project_data.project.title|truncatechars:20 }}</h6>
+                        <div style="font-size: 0.65rem; color: var(--gray-400); margin-bottom: 0.5rem;">
+                            {{ project_data.count_tasks }} tasks
+                        </div>
+                        <div class="progress-bar" style="height: 4px; background: var(--gray-200); border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem;">
+                            <div class="progress-fill" style="width: {{ project_data.completion_rate|floatformat:0 }}%; background: {% if project_data.completion_rate > 80 %}var(--green){% elif project_data.completion_rate > 30 %}var(--blue){% else %}var(--amber){% endif %};"></div>
+                        </div>
+                        <div style="font-size: 0.65rem; color: var(--gray-500); margin-bottom: 0.5rem;">
+                            {{ project_data.completion_rate|floatformat:0 }}% complete
+                        </div>
+                        <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="btn btn-sm btn-primary" style="width: 100%; justify-content: center;">
+                            <i class="bi bi-box-arrow-in-right"></i> Open
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state full-width">
+                        <i class="bi bi-folder-x"></i>
+                        <h5>No projects found</h5>
+                        <p>Create your first project to get started.</p>
+                        <a href="{% url 'events:project_create' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create First Project
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Single Project View -->
+            {% if project_data and not projects_data %}
+            <div class="section-card">
+                <div class="section-header section-header-primary">
+                    <div class="section-title">
+                        <i class="bi bi-eye"></i>
+                        <h5 style="color: #fff;">Project Details</h5>
+                    </div>
+                </div>
+                <div class="section-body">
+                    {% include 'projects/includes/project_card.html' %}
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-header section-header-info">
+                    <div class="section-title">
+                        <i class="bi bi-list-task"></i>
+                        <h5 style="color: #fff;">Project Tasks</h5>
+                    </div>
+                </div>
+                <div class="section-body">
+                    {% include 'projects/includes/project_tasks.html' %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col">
+            <!-- Quick Stats -->
+            {% if projects_data %}
+            <div class="section-card">
+                <div class="section-header section-header-info">
+                    <div class="section-title">
+                        <i class="bi bi-bar-chart"></i>
+                        <h6 style="color: #fff;">Quick Stats</h6>
+                    </div>
+                </div>
+                <div class="section-body" style="padding: 1rem;">
+                    <div style="margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.8rem; color: var(--gray-500);">Overall Progress</span>
+                            <span style="font-weight: 700; font-size: 0.875rem;">
                                 {% if total_projects and total_tasks %}
                                     {% widthratio completed_tasks_sum total_tasks 100 %}%
                                 {% else %}
@@ -679,31 +415,25 @@
                                 {% endif %}
                             </span>
                         </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-success" style="width: 
-                                {% if total_projects and total_tasks %}
-                                    {% widthratio completed_tasks_sum total_tasks 100 %}%
-                                {% else %}
-                                    0
-                                {% endif %}%">
-                            </div>
+                        <div class="progress-bar" style="height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                            <div class="progress-fill" style="width: {% if total_projects and total_tasks %}{% widthratio completed_tasks_sum total_tasks 100 %}{% else %}0{% endif %}%; background: var(--green);"></div>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span class="small">Active Rate</span>
-                            <span class="small fw-bold">{% widthratio in_progress_count total_projects 100 %}%</span>
+
+                    <div style="margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.8rem; color: var(--gray-500);">Active Rate</span>
+                            <span style="font-weight: 700; font-size: 0.875rem;">{% widthratio in_progress_count total_projects 100 %}%</span>
                         </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-primary" style="width: {% widthratio in_progress_count total_projects 100 %}%"></div>
+                        <div class="progress-bar" style="height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                            <div class="progress-fill" style="width: {% widthratio in_progress_count total_projects 100 %}%; background: var(--blue);"></div>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span class="small">Task Distribution</span>
-                            <span class="small fw-bold">
+
+                    <div style="margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.8rem; color: var(--gray-500);">Avg Tasks/Project</span>
+                            <span style="font-weight: 700; font-size: 0.875rem;">
                                 {% if total_projects %}
                                     {{ avg_tasks_per_project|floatformat:1 }}
                                 {% else %}
@@ -711,29 +441,22 @@
                                 {% endif %}
                             </span>
                         </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-info" style="width: 
-                                {% if total_projects %}
-                                    {% widthratio avg_tasks_per_project 20 100 %}
-                                {% else %}
-                                    0
-                                {% endif %}%">
-                            </div>
+                        <div class="progress-bar" style="height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                            <div class="progress-fill" style="width: {% if total_projects %}{% widthratio avg_tasks_per_project 20 100 %}{% else %}0{% endif %}%; background: var(--amber);"></div>
                         </div>
                     </div>
-                    
-                    <!-- Status Distribution -->
-                    <div class="mt-4">
-                        <h6 class="small fw-bold mb-2">Status Distribution</h6>
-                        <div class="d-flex flex-wrap gap-1">
-                            <span class="badge bg-primary bg-opacity-10 text-primary small">
-                                {{ in_progress_count }} In Progress
+
+                    <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-200);">
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">Status Distribution</h6>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            <span class="status-badge pending">
+                                <i class="bi bi-play-circle"></i> {{ in_progress_count|default:0 }} In Progress
                             </span>
-                            <span class="badge bg-success bg-opacity-10 text-success small">
-                                {{ completed_count }} Completed
+                            <span class="status-badge active">
+                                <i class="bi bi-check-circle"></i> {{ completed_count|default:0 }} Completed
                             </span>
-                            <span class="badge bg-secondary bg-opacity-10 text-secondary small">
-                                {{ pending_count }} Pending
+                            <span class="status-badge completed">
+                                <i class="bi bi-pause-circle"></i> {{ pending_count|default:0 }} Pending
                             </span>
                         </div>
                     </div>
@@ -742,45 +465,39 @@
             {% endif %}
 
             <!-- Recent Activity -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-activity me-2"></i>Recent Activity</h6>
+            <div class="section-card">
+                <div class="section-header section-header-purple">
+                    <div class="section-title">
+                        <i class="bi bi-activity"></i>
+                        <h6 style="color: #fff;">Recent Activity</h6>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="activity">
+                <div class="section-body" style="padding: 1rem;">
+                    <div class="activity-timeline">
                         {% for project_data in projects_data|slice:":5" %}
-                        <div class="activity-item d-flex mb-2">
-                            <div class="activity-label me-2">
-                                <span class="badge bg-{% if project_data.project.project_status.status_name == 'Completed' %}success{% elif project_data.project.project_status.status_name == 'In Progress' %}warning{% else %}secondary{% endif %}">
-                                    <i class="bi bi-{% if project_data.project.project_status.status_name == 'Completed' %}check-circle{% elif project_data.project.project_status.status_name == 'In Progress' %}play-circle{% else %}pause-circle{% endif %} me-1"></i>
-                                </span>
+                        <div class="activity-item">
+                            <div class="activity-icon {% if project_data.project.project_status.status_name == 'Completed' %}green{% elif project_data.project.project_status.status_name == 'In Progress' %}amber{% else %}blue{% endif %}">
+                                <i class="bi bi-{% if project_data.project.project_status.status_name == 'Completed' %}check-circle{% elif project_data.project.project_status.status_name == 'In Progress' %}play-circle{% else %}pause-circle{% endif %}"></i>
                             </div>
-                            <div class="activity-content flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <strong class="text-truncate" style="max-width: 150px;" title="{{ project_data.project.title }}">
-                                            {{ project_data.project.title|truncatechars:20 }}
-                                        </strong>
-                                        <div class="text-muted small">
-                                            <i class="bi bi-list-check me-1"></i>{{ project_data.count_tasks }} tasks
-                                            • {{ project_data.completion_rate|floatformat:0 }}%
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">{{ project_data.project.updated_at|timesince }}</small>
-                                </div>
+                            <div class="activity-content">
+                                <strong>{{ project_data.project.title|truncatechars:25 }}</strong>
+                                <p class="activity-text">
+                                    {{ project_data.count_tasks }} tasks • {{ project_data.completion_rate|floatformat:0 }}% complete
+                                </p>
+                                <span class="activity-time">{{ project_data.project.updated_at|timesince }} ago</span>
                             </div>
                         </div>
                         {% empty %}
-                        <div class="text-center py-3">
-                            <i class="bi bi-clock-history text-muted mb-2" style="font-size: 2rem;"></i>
-                            <p class="text-muted small mb-0">No recent activity</p>
+                        <div class="empty-state">
+                            <i class="bi bi-clock-history"></i>
+                            <p style="color: var(--gray-400); font-size: 0.875rem;">No recent activity</p>
                         </div>
                         {% endfor %}
                     </div>
                     {% if projects_data|length > 5 %}
-                    <div class="text-center mt-2">
-                        <a href="{% url 'events:projects' %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-eye me-1"></i>View All Projects
+                    <div style="text-align: center; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-200);">
+                        <a href="{% url 'events:projects' %}" class="btn btn-sm btn-ghost">
+                            <i class="bi bi-eye"></i> View All Projects
                         </a>
                     </div>
                     {% endif %}
@@ -788,41 +505,58 @@
             </div>
 
             <!-- Help & Resources -->
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-question-circle me-2"></i>Help & Resources</h6>
+            <div class="section-card">
+                <div class="section-header section-header-dark">
+                    <div class="section-title">
+                        <i class="bi bi-question-circle"></i>
+                        <h6 style="color: #fff;">Help & Resources</h6>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="#" class="btn btn-outline-info btn-sm">
-                            <i class="bi bi-book me-1"></i> Project Management Guide
+                <div class="section-body" style="padding: 1rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="#" class="btn btn-ghost" style="justify-content: center;">
+                            <i class="bi bi-book"></i> Project Management Guide
                         </a>
-                        <a href="#" class="btn btn-outline-info btn-sm">
-                            <i class="bi bi-play-circle me-1"></i> Video Tutorials
+                        <a href="#" class="btn btn-ghost" style="justify-content: center;">
+                            <i class="bi bi-play-circle"></i> Video Tutorials
                         </a>
-                        <a href="#" class="btn btn-outline-info btn-sm">
-                            <i class="bi bi-chat-dots me-1"></i> Support Chat
+                        <a href="#" class="btn btn-ghost" style="justify-content: center;">
+                            <i class="bi bi-chat-dots"></i> Support Chat
                         </a>
                     </div>
                 </div>
             </div>
-
-        </div><!-- End Enhanced Sidebar -->
-
+        </div>
     </div>
 </section>
 
-<!-- Enhanced Scripts -->
-<script src="{% static 'assets/js/project-panel.js' %}?v={{ now|date:'U' }}"></script>
-
-<!-- Project Panel Specific JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
-    // FUNCIONALIDAD DE VISTAS Y FILTROS
+    // DROPDOWN TOGGLE
     // ============================================================
+    document.querySelectorAll('[data-dropdown]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdownId = this.dataset.dropdown;
+            const menu = document.getElementById(dropdownId);
+            const isOpen = menu.classList.contains('show');
+            
+            document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+            
+            if (!isOpen) {
+                menu.classList.add('show');
+            }
+        });
+    });
 
-    // View Toggle Functionality
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+    });
+
+    // ============================================================
+    // VIEW TOGGLE
+    // ============================================================
     const viewButtons = document.querySelectorAll('[data-view]');
     const viewContainers = {
         'table': document.getElementById('tableView'),
@@ -832,10 +566,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
-            const view = this.getAttribute('data-view');
+            const view = this.dataset.view;
             
-            viewButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
+            viewButtons.forEach(btn => {
+                btn.classList.remove('active', 'btn-primary');
+                btn.classList.add('btn-ghost');
+            });
+            this.classList.add('active', 'btn-primary');
+            this.classList.remove('btn-ghost');
             
             Object.keys(viewContainers).forEach(key => {
                 if (viewContainers[key]) {
@@ -852,64 +590,69 @@ document.addEventListener('DOMContentLoaded', function() {
     const savedButton = document.querySelector(`[data-view="${savedView}"]`);
     if (savedButton) savedButton.click();
 
-    // Compact view toggle
+    // ============================================================
+    // COMPACT VIEW TOGGLE
+    // ============================================================
     const compactToggle = document.getElementById('compactViewToggle');
     if (compactToggle) {
-        const checkIcon = compactToggle.querySelector('.bi-check2');
-        
         compactToggle.addEventListener('click', function(e) {
             e.preventDefault();
-            const isActive = checkIcon.style.display !== 'none';
-            
-            if (isActive) {
-                checkIcon.style.display = 'none';
-                document.body.classList.remove('compact-view');
-            } else {
-                checkIcon.style.display = 'block';
-                document.body.classList.add('compact-view');
-            }
-            
-            localStorage.setItem('compactView', !isActive);
+            document.body.classList.toggle('compact-view');
+            localStorage.setItem('compactView', document.body.classList.contains('compact-view'));
         });
         
-        // Restore compact view preference
         if (localStorage.getItem('compactView') === 'true') {
-            compactToggle.click();
+            document.body.classList.add('compact-view');
         }
     }
 
-    // Enhanced Search with Debounce
+    // ============================================================
+    // SEARCH AND FILTER
+    // ============================================================
     const searchInput = document.getElementById('searchInput');
-    let searchTimeout;
-
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                const query = this.value.toLowerCase();
-                filterProjects(query);
-            }, 300);
-        });
-    }
-
-    // Status Filter
     const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter) {
-        statusFilter.addEventListener('change', function() {
-            filterProjects();
-        });
-    }
-
-    // Completion Filter
     const completionFilter = document.getElementById('completionFilter');
-    if (completionFilter) {
-        completionFilter.addEventListener('change', function() {
-            filterProjects();
+    const clearFiltersBtn = document.getElementById('clearFilters');
+
+    function filterProjects() {
+        const query = searchInput ? searchInput.value.toLowerCase() : '';
+        const status = statusFilter ? statusFilter.value : '';
+        const completion = completionFilter ? completionFilter.value : '';
+        
+        let visibleCount = 0;
+        
+        // Filter table rows
+        document.querySelectorAll('.project-row').forEach(row => {
+            const rowStatus = row.dataset.status || '';
+            const rowCompletion = parseFloat(row.dataset.completion || 0);
+            const rowText = row.textContent.toLowerCase();
+            
+            const statusMatch = !status || rowStatus === status;
+            const completionMatch = !completion || (
+                (completion === 'high' && rowCompletion > 80) ||
+                (completion === 'medium' && rowCompletion >= 30 && rowCompletion <= 80) ||
+                (completion === 'low' && rowCompletion < 30)
+            );
+            const searchMatch = !query || rowText.includes(query);
+            
+            if (statusMatch && completionMatch && searchMatch) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
         });
+        
+        // Update counter
+        const projectCountEl = document.getElementById('projectCount');
+        const visibleProjectsEl = document.getElementById('visibleProjects');
+        if (projectCountEl) projectCountEl.textContent = visibleCount + ' projects';
+        if (visibleProjectsEl) visibleProjectsEl.textContent = visibleCount;
     }
 
-    // Clear Filters
-    const clearFiltersBtn = document.getElementById('clearFilters');
+    if (searchInput) searchInput.addEventListener('input', filterProjects);
+    if (statusFilter) statusFilter.addEventListener('change', filterProjects);
+    if (completionFilter) completionFilter.addEventListener('change', filterProjects);
     if (clearFiltersBtn) {
         clearFiltersBtn.addEventListener('click', function() {
             if (searchInput) searchInput.value = '';
@@ -919,266 +662,248 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function filterProjects(searchQuery = null) {
-        if (!searchInput && !searchQuery) return;
-        
-        const status = statusFilter ? statusFilter.value : '';
-        const completion = completionFilter ? completionFilter.value : '';
-        const query = searchQuery || (searchInput ? searchInput.value.toLowerCase() : '');
-        
-        let visibleCount = 0;
-        
-        // Filter table rows
-        const tableRows = document.querySelectorAll('.project-row');
-        if (tableRows.length > 0) {
-            tableRows.forEach(row => {
-                const rowStatus = row.getAttribute('data-status');
-                const rowCompletion = parseFloat(row.getAttribute('data-completion') || 0);
-                const rowText = row.textContent.toLowerCase();
-                
-                const statusMatch = !status || rowStatus === status;
-                const completionMatch = !completion || (
-                    (completion === 'high' && rowCompletion > 80) ||
-                    (completion === 'medium' && rowCompletion >= 30 && rowCompletion <= 80) ||
-                    (completion === 'low' && rowCompletion < 30)
-                );
-                const searchMatch = !query || rowText.includes(query);
-                
-                if (statusMatch && completionMatch && searchMatch) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-        
-        // Filter cards
-        const cards = document.querySelectorAll('#cardsContainer .col-xl-4');
-        if (cards.length > 0) {
-            cards.forEach(card => {
-                const cardText = card.textContent.toLowerCase();
-                const cardMatch = !query || cardText.includes(query);
-                
-                if (cardMatch) {
-                    card.style.display = '';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-        
-        // Update counters
-        const projectCountEl = document.getElementById('projectCount');
-        const visibleProjectsEl = document.getElementById('visibleProjects');
-        
-        if (projectCountEl) projectCountEl.textContent = `${visibleCount} projects`;
-        if (visibleProjectsEl) visibleProjectsEl.textContent = visibleCount;
-    }
-
     // ============================================================
-    // SELECCIÓN MASIVA
+    // SELECT ALL / BULK ACTIONS
     // ============================================================
-
     const selectAllCheckbox = document.getElementById('selectAllProjects');
     const projectCheckboxes = document.querySelectorAll('.project-checkbox');
     const deleteSelectedBtn = document.getElementById('deleteSelected');
     const exportSelectedBtn = document.getElementById('exportSelected');
 
+    function updateSelectedCount() {
+        const checked = document.querySelectorAll('.project-checkbox:checked');
+        const count = checked.length;
+        if (deleteSelectedBtn) deleteSelectedBtn.disabled = count === 0;
+        if (exportSelectedBtn) exportSelectedBtn.disabled = count === 0;
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = count > 0 && count === projectCheckboxes.length;
+            selectAllCheckbox.indeterminate = count > 0 && count < projectCheckboxes.length;
+        }
+    }
+
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', function() {
-            const isChecked = this.checked;
-            projectCheckboxes.forEach(checkbox => checkbox.checked = isChecked);
+            projectCheckboxes.forEach(cb => cb.checked = this.checked);
             updateSelectedCount();
         });
     }
 
-    function updateSelectedCount() {
-        if (!deleteSelectedBtn || !exportSelectedBtn || !selectAllCheckbox) return;
-        
-        const checkedBoxes = document.querySelectorAll('.project-checkbox:checked');
-        const count = checkedBoxes.length;
-        
-        deleteSelectedBtn.disabled = count === 0;
-        exportSelectedBtn.disabled = count === 0;
-        selectAllCheckbox.checked = count > 0 && count === projectCheckboxes.length;
-        selectAllCheckbox.indeterminate = count > 0 && count < projectCheckboxes.length;
-    }
-
-    if (projectCheckboxes.length > 0) {
-        projectCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateSelectedCount);
-        });
-    }
+    projectCheckboxes.forEach(cb => cb.addEventListener('change', updateSelectedCount));
 
     if (deleteSelectedBtn) {
         deleteSelectedBtn.addEventListener('click', function() {
-            const checkedBoxes = document.querySelectorAll('.project-checkbox:checked');
-            if (checkedBoxes.length === 0) return;
-
-            if (confirm(`Are you sure you want to delete ${checkedBoxes.length} project(s)?`)) {
-                const ids = Array.from(checkedBoxes).map(cb => cb.value);
-                // Implement bulk delete logic here
-                console.log('Bulk delete project IDs:', ids);
+            const checked = document.querySelectorAll('.project-checkbox:checked');
+            if (checked.length === 0) return;
+            if (confirm(`Delete ${checked.length} project(s)?`)) {
+                const ids = Array.from(checked).map(cb => cb.value);
+                console.log('Bulk delete:', ids);
             }
         });
     }
 
     if (exportSelectedBtn) {
         exportSelectedBtn.addEventListener('click', function() {
-            const checkedBoxes = document.querySelectorAll('.project-checkbox:checked');
-            if (checkedBoxes.length === 0) return;
-
-            const ids = Array.from(checkedBoxes).map(cb => cb.value);
-            console.log('Export selected project IDs:', ids);
-            // Implement export logic here
+            const checked = document.querySelectorAll('.project-checkbox:checked');
+            if (checked.length === 0) return;
+            const ids = Array.from(checked).map(cb => cb.value);
+            console.log('Export selected:', ids);
         });
     }
 
     // ============================================================
-    // FUNCIONALIDADES ADICIONALES
-    // ============================================================
-
-    // Toggle View Button
+    // TOGGLE VIEW BUTTON    // ============================================================
     const toggleViewBtn = document.getElementById('toggleViewBtn');
     if (toggleViewBtn) {
         toggleViewBtn.addEventListener('click', function() {
             const isGridView = this.querySelector('i').classList.contains('bi-grid');
+            const targetView = isGridView ? 'grid' : 'table';
+            const targetBtn = document.querySelector(`[data-view="${targetView}"]`);
+            if (targetBtn) targetBtn.click();
             
             if (isGridView) {
                 this.innerHTML = '<i class="bi bi-table"></i> <span>Table View</span>';
-                // Switch to board/grid view
-                const gridButton = document.querySelector('[data-view="grid"]');
-                if (gridButton) gridButton.click();
             } else {
                 this.innerHTML = '<i class="bi bi-grid"></i> <span>Board View</span>';
-                // Switch to table view
-                const tableButton = document.querySelector('[data-view="table"]');
-                if (tableButton) tableButton.click();
             }
         });
     }
 
-    // Export Button
-    const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', function() {
-            // Implement export functionality
-            console.log('Export all projects');
-        });
-    }
+    // ============================================================
+    // EXPORT BUTTON
+    // ============================================================
+    document.getElementById('exportBtn')?.addEventListener('click', function() {
+        window.location.href = "{% url 'events:project_export' %}";
+    });
 
-    // Quick Action Buttons
-    const bulkEditBtn = document.getElementById('bulkEditBtn');
-    const exportProjectsBtn = document.getElementById('exportProjectsBtn');
-    const filterProjectsBtn = document.getElementById('filterProjectsBtn');
-
-    if (bulkEditBtn) {
-        bulkEditBtn.addEventListener('click', function() {
-            const checkedBoxes = document.querySelectorAll('.project-checkbox:checked');
-            if (checkedBoxes.length === 0) {
-                alert('Please select at least one project to edit.');
-                return;
-            }
-            console.log('Bulk edit projects');
-        });
-    }
-
-    if (exportProjectsBtn) {
-        exportProjectsBtn.addEventListener('click', function() {
-            window.location.href = "{% url 'events:project_export' %}";
-        });
-    }
-
-    if (filterProjectsBtn) {
-        filterProjectsBtn.addEventListener('click', function() {
-            // Show advanced filter modal or panel
-            console.log('Show advanced filters');
-        });
-    }
-
-    // Keyboard Shortcuts
-    document.addEventListener('keydown', function(e) {
-        // Ctrl/Cmd + F for search focus
-        if ((e.ctrlKey || e.metaKey) && e.key === 'f' && searchInput) {
-            e.preventDefault();
-            searchInput.focus();
+    // ============================================================
+    // BULK EDIT
+    // ============================================================
+    document.getElementById('bulkEditBtn')?.addEventListener('click', function() {
+        const checked = document.querySelectorAll('.project-checkbox:checked');
+        if (checked.length === 0) {
+            alert('Please select at least one project to edit.');
+            return;
         }
+        console.log('Bulk edit:', Array.from(checked).map(cb => cb.value));
+    });
 
-        // Ctrl/Cmd + 1,2,3 for view switching
+    // ============================================================
+    // FILTER PROJECTS
+    // ============================================================
+    document.getElementById('filterProjectsBtn')?.addEventListener('click', function() {
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) statusFilter.focus();
+    });
+
+    // ============================================================
+    // KEYBOARD SHORTCUTS
+    // ============================================================
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            const search = document.getElementById('searchInput');
+            if (search) search.focus();
+        }
         if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '3') {
             e.preventDefault();
-            const viewIndex = parseInt(e.key) - 1;
             const views = ['table', 'cards', 'grid'];
-            const button = document.querySelector(`[data-view="${views[viewIndex]}"]`);
-            if (button) button.click();
+            const btn = document.querySelector(`[data-view="${views[parseInt(e.key) - 1]}"]`);
+            if (btn) btn.click();
         }
     });
 
-    // Auto-refresh for real-time updates (optional)
-    setInterval(function() {
-        console.log('Checking for project updates...');
-        // Implement real-time update logic here
-    }, 30000);
+    // ============================================================
+    // AUTO-DISMISS ALERTS
+    // ============================================================
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('dismissing');
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
 
-    // Initialize filters on page load
-    filterProjects();
+    // ============================================================
+    // ANIMATE PROGRESS BARS
+    // ============================================================
+    document.querySelectorAll('.progress-fill').forEach(bar => {
+        const targetWidth = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.transition = 'width 1s ease-in-out';
+            bar.style.width = targetWidth;
+        }, 300);
+    });
+
+    // ============================================================
+    // SORT TABLE
+    // ============================================================
+    document.querySelectorAll('[data-sort]').forEach(th => {
+        th.addEventListener('click', function() {
+            const sortKey = this.dataset.sort;
+            const tbody = this.closest('table').querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('.project-row'));
+            
+            const isAsc = this.classList.toggle('asc');
+            this.classList.toggle('desc', !isAsc);
+            
+            rows.sort((a, b) => {
+                let aVal = a.dataset[sortKey] || a.textContent.trim();
+                let bVal = b.dataset[sortKey] || b.textContent.trim();
+                if (sortKey === 'id') { aVal = parseInt(aVal); bVal = parseInt(bVal); }
+                return isAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
 });
+
+// ============================================================
+// CONFIRM DELETE
+// ============================================================
+function confirmDelete(projectId) {
+    if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{% url 'events:project_delete' 0 %}".replace('0', projectId);
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'csrfmiddlewaretoken';
+            input.value = csrfToken.value;
+            form.appendChild(input);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
 </script>
 
-<!-- Compact View CSS -->
+<!-- Compact View Styles -->
 <style>
-.compact-view .card {
-    margin-bottom: 0.5rem;
+.compact-view .section-card {
+    padding: 0.75rem;
 }
 
 .compact-view .table td,
 .compact-view .table th {
     padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
 }
 
 .compact-view .btn-sm {
-    padding: 0.125rem 0.25rem;
-    font-size: 0.75rem;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.7rem;
 }
 
-/* Hover effects for interactive elements */
+.compact-view .stat-card {
+    padding: 0.75rem 1rem;
+}
+
+.compact-view .stat-number {
+    font-size: 1.25rem;
+}
+
 .project-row:hover {
-    background-color: rgba(0, 123, 255, 0.02) !important;
+    background: var(--gray-50);
     cursor: pointer;
 }
 
-.project-card:hover {
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+.view-container {
+    animation: fadeIn 0.3s ease;
 }
 
-/* Animation for status changes */
-@keyframes statusChange {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.status-updated {
-    animation: statusChange 0.5s ease;
-}
-
-/* Responsive table adjustments */
 @media (max-width: 768px) {
-    .table td:nth-child(3),
-    .table th:nth-child(3) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    [data-view] .bi-table,
+    [data-view] .bi-card-text,
+    [data-view] .bi-grid-3x3-gap {
+        margin-right: 0.25rem;
+    }
+    [data-view] span {
         display: none;
+    }
+    #quickActionsGrid {
+        grid-template-columns: 1fr 1fr !important;
     }
 }
 
-@media (max-width: 576px) {
-    .table td:nth-child(4),
-    .table th:nth-child(4),
-    .table td:nth-child(6),
-    .table th:nth-child(6) {
-        display: none;
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+    #quickActionsGrid {
+        grid-template-columns: 1fr !important;
     }
 }
 </style>

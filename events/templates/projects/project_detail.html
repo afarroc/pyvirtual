@@ -1,505 +1,239 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
 
-<!-- Load global panel styles -->
-<link rel="stylesheet" href="{% static 'assets/css/alerts-styles.css' %}">
-
-<style>
-/* Project Detail specific styles */
-.project-detail-card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: linear-gradient(135deg, #ffffff, #f8f9fa);
-}
-
-.project-detail-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-}
-
-.project-detail-card .card-header {
-    border-radius: 12px 12px 0 0 !important;
-    border: none;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-}
-
-/* Task cards in detail view */
-.task-card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transition: all 0.3s ease;
-    background: white;
-}
-
-.task-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-/* Enhanced Status badges */
-.status-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.status-badge i {
-    font-size: 1rem;
-}
-
-/* Progress indicators */
-.progress {
-    border-radius: 10px;
-    background-color: rgba(0,0,0,0.05);
-    height: 10px;
-    overflow: hidden;
-}
-
-.progress-bar {
-    border-radius: 10px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-}
-
-.progress-bar::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-/* Info boxes */
-.info-box {
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    border-radius: 10px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.info-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-/* Task status indicators */
-.task-status-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 0.5rem;
-}
-
-.task-status-completed {
-    background-color: #28a745;
-    box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
-}
-
-.task-status-in-progress {
-    background-color: #007bff;
-    animation: pulse 2s infinite;
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-}
-
-.task-status-todo {
-    background-color: #6c757d;
-    box-shadow: 0 0 10px rgba(108, 117, 125, 0.5);
-}
-
-.task-status-blocked {
-    background-color: #dc3545;
-    animation: pulse 1.5s infinite;
-    box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
-}
-
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
-
-/* Metric cards */
-.metric-card {
-    background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
-    border: 1px solid rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
-}
-
-.metric-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-}
-
-.metric-card .metric-value {
-    font-size: 2rem;
-    font-weight: bold;
-    line-height: 1;
-}
-
-.metric-card .metric-label {
-    font-size: 0.875rem;
-    color: #6c757d;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .project-detail-card .card-body {
-        padding: 1.5rem;
-    }
-
-    .task-card .card-body {
-        padding: 1rem;
-    }
-    
-    .metric-card {
-        margin-bottom: 1rem;
-    }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .project-detail-card {
-        background: linear-gradient(135deg, #2d3748, #1a202c);
-        color: #e2e8f0;
-    }
-    
-    .task-card {
-        background-color: #2d3748;
-        color: #e2e8f0;
-    }
-    
-    .info-box {
-        background: linear-gradient(135deg, #4a5568, #2d3748);
-        color: #e2e8f0;
-    }
-}
-
-/* Tab navigation styles */
-.nav-tabs .nav-link {
-    border: none;
-    color: #6c757d;
-    font-weight: 500;
-    padding: 0.75rem 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.nav-tabs .nav-link.active {
-    color: #007bff;
-    border-bottom: 3px solid #007bff;
-    background: transparent;
-}
-
-.nav-tabs .nav-link:hover {
-    color: #0056b3;
-    background: rgba(0, 123, 255, 0.05);
-}
-
-/* Timeline for project activity */
-.timeline {
-    position: relative;
-    padding-left: 2rem;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 0.5rem;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(to bottom, #007bff, #28a745);
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 1.5rem;
-    padding-left: 1.5rem;
-}
-
-.timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -0.5rem;
-    top: 0.5rem;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    background: #007bff;
-    border: 3px solid white;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
-}
-
-.timeline-item.completed::before {
-    background: #28a745;
-    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
-}
-
-.timeline-item.blocked::before {
-    background: #dc3545;
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
-}
-</style>
-
 {% block content %}
 
-<!-- Enhanced Page Header -->
-<div class="pagetitle">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1><i class="bi bi-folder-fill me-2"></i>{{ project.title }}</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'index' %}"><i class="bi bi-house-door"></i></a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'events:projects' %}">Projects</a></li>
-                    <li class="breadcrumb-item active">{{ project.title|truncatechars:40 }}</li>
-                </ol>
-            </nav>
+<!-- ==========================================
+     PROJECT DETAIL
+     ========================================== -->
+
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="bi bi-folder-fill"></i>
+            {{ project.title }}
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <a href="{% url 'events:projects' %}" class="text-decoration-none">
+                Projects
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">{{ project.title|truncatechars:40 }}</span>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'events:project_edit' project.id %}" class="btn btn-outline-primary btn-sm">
-                <i class="bi bi-pencil"></i> Edit
-            </a>
-            <a href="{% url 'events:task_create_with_project' project.id %}" class="btn btn-success btn-sm">
-                <i class="bi bi-plus-circle"></i> Add Task
-            </a>
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" 
-                        data-bs-toggle="dropdown">
-                    <i class="bi bi-gear"></i> Options
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{% url 'events:projects' %}">
-                        <i class="bi bi-arrow-left me-2"></i>Back to Projects
-                    </a></li>
-                    <li><a class="dropdown-item" href="{% url 'events:project_panel_with_id' project.id %}">
-                        <i class="bi bi-eye me-2"></i>View in Panel
-                    </a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#">
-                        <i class="bi bi-trash me-2"></i>Delete Project
-                    </a></li>
-                </ul>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'events:project_edit' project.id %}" class="btn btn-ghost">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'events:task_create_with_project' project.id %}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Add Task
+        </a>
+        <div class="dropdown">
+            <button class="btn btn-ghost" data-dropdown="optionsDropdown">
+                <i class="bi bi-gear"></i>
+            </button>
+            <div class="dropdown-menu" id="optionsDropdown">
+                <a href="{% url 'events:projects' %}" class="dropdown-item">
+                    <i class="bi bi-arrow-left"></i> Back to Projects
+                </a>
+                <a href="{% url 'events:project_panel_with_id' project.id %}" class="dropdown-item">
+                    <i class="bi bi-eye"></i> View in Panel
+                </a>
+                <hr class="dropdown-divider">
+                <a href="#" class="dropdown-item text-danger" onclick="confirmDelete({{ project.id }})">
+                    <i class="bi bi-trash"></i> Delete Project
+                </a>
             </div>
         </div>
     </div>
-</div><!-- End Page Title -->
+</div>
 
 <!-- Alerts Section -->
 {% if alerts %}
-<div class="row mb-4">
-    <div class="col-12">
-        {% for alert in alerts %}
-        <div class="alert alert-{{ alert.type }} alert-dismissible fade show" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="{{ alert.icon }} me-2" style="font-size: 1.2rem;"></i>
-                <div class="flex-grow-1">
-                    <h6 class="alert-heading mb-1">{{ alert.title }}</h6>
-                    <p class="mb-0">{{ alert.message }}</p>
-                </div>
-                {% if alert.action_url %}
-                <a href="{{ alert.action_url }}" class="btn btn-sm btn-outline-{{ alert.type }} ms-3">
-                    {{ alert.action_text }}
-                </a>
-                {% endif %}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="alerts-container">
+    {% for alert in alerts %}
+    <div class="alert alert-{{ alert.type }}">
+        <div class="alert-content">
+            <i class="{{ alert.icon }}"></i>
+            <div style="flex: 1;">
+                <strong style="display: block; font-size: 0.875rem;">{{ alert.title }}</strong>
+                <span class="alert-message" style="font-weight: 400;">{{ alert.message }}</span>
             </div>
+            {% if alert.action_url %}
+            <a href="{{ alert.action_url }}" class="btn btn-sm btn-{{ alert.type }}">
+                {{ alert.action_text }}
+            </a>
+            {% endif %}
         </div>
-        {% endfor %}
+        <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
+            <i class="bi bi-x"></i>
+        </button>
     </div>
+    {% endfor %}
 </div>
 {% endif %}
 
-<section class="section dashboard">
-    <div class="row">
+<!-- Main Content -->
+<section class="section">
+    <div class="two-col">
         <!-- Main Content Area -->
-        <div class="col-lg-8">
+        <div class="col">
             <!-- Project Metrics Overview -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="metric-card">
-                        <div class="metric-value text-primary">{{ total_tasks }}</div>
-                        <div class="metric-label">Total Tasks</div>
-                        <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar bg-primary" style="width: 100%"></div>
+            <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+                <div class="stat-card purple">
+                    <div class="stat-content">
+                        <span class="stat-number">{{ total_tasks|default:0 }}</span>
+                        <span class="stat-label">Total Tasks</span>
+                    </div>
+                    <div class="stat-progress" style="margin-top: 0.5rem;">
+                        <div class="progress-bar" style="height: 4px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                            <div class="progress-fill" style="width: 100%; background: var(--purple);"></div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="metric-card">
-                        <div class="metric-value text-success">{{ completed_tasks }}</div>
-                        <div class="metric-label">Completed</div>
-                        <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar bg-success" style="width: {% widthratio completed_tasks total_tasks 100 %}%"></div>
+                <div class="stat-card green">
+                    <div class="stat-content">
+                        <span class="stat-number">{{ completed_tasks|default:0 }}</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                    <div class="stat-progress" style="margin-top: 0.5rem;">
+                        <div class="progress-bar" style="height: 4px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                            <div class="progress-fill" style="width: {% widthratio completed_tasks total_tasks 100 %}%; background: var(--green);"></div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="metric-card">
-                        <div class="metric-value text-warning">{{ in_progress_tasks }}</div>
-                        <div class="metric-label">In Progress</div>
-                        <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar bg-warning" style="width: {% widthratio in_progress_tasks total_tasks 100 %}%"></div>
+                <div class="stat-card amber">
+                    <div class="stat-content">
+                        <span class="stat-number">{{ in_progress_tasks|default:0 }}</span>
+                        <span class="stat-label">In Progress</span>
+                    </div>
+                    <div class="stat-progress" style="margin-top: 0.5rem;">
+                        <div class="progress-bar" style="height: 4px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                            <div class="progress-fill" style="width: {% widthratio in_progress_tasks total_tasks 100 %}%; background: var(--amber);"></div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="metric-card">
-                        <div class="metric-value text-info">{{ pending_tasks }}</div>
-                        <div class="metric-label">Pending</div>
-                        <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar bg-info" style="width: {% widthratio pending_tasks total_tasks 100 %}%"></div>
+                <div class="stat-card blue">
+                    <div class="stat-content">
+                        <span class="stat-number">{{ pending_tasks|default:0 }}</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                    <div class="stat-progress" style="margin-top: 0.5rem;">
+                        <div class="progress-bar" style="height: 4px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                            <div class="progress-fill" style="width: {% widthratio pending_tasks total_tasks 100 %}%; background: var(--blue);"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Project Information Tabs -->
-            <div class="card project-detail-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-info-circle me-2"></i>Project Information
-                    </h5>
+            <div class="section-card">
+                <div class="section-header section-header-primary">
+                    <div class="section-title">
+                        <i class="bi bi-info-circle"></i>
+                        <h5 style="color: #fff;">Project Information</h5>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="section-body">
                     <!-- Tab Navigation -->
-                    <ul class="nav nav-tabs mb-4" id="projectTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" 
-                                    data-bs-target="#overview" type="button" role="tab">
-                                <i class="bi bi-eye me-1"></i> Overview
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="details-tab" data-bs-toggle="tab" 
-                                    data-bs-target="#details" type="button" role="tab">
-                                <i class="bi bi-card-text me-1"></i> Details
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" 
-                                    data-bs-target="#tasks" type="button" role="tab">
-                                <i class="bi bi-list-check me-1"></i> Tasks
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="activity-tab" data-bs-toggle="tab" 
-                                    data-bs-target="#activity" type="button" role="tab">
-                                <i class="bi bi-activity me-1"></i> Activity
-                            </button>
-                        </li>
-                    </ul>
+                    <div class="dashboard-tabs" style="margin-bottom: 1.5rem;">
+                        <button class="tab-btn active" data-tab="overview">
+                            <i class="bi bi-eye"></i> Overview
+                        </button>
+                        <button class="tab-btn" data-tab="details">
+                            <i class="bi bi-card-text"></i> Details
+                        </button>
+                        <button class="tab-btn" data-tab="tasks">
+                            <i class="bi bi-list-check"></i> Tasks
+                        </button>
+                        <button class="tab-btn" data-tab="activity">
+                            <i class="bi bi-activity"></i> Activity
+                        </button>
+                    </div>
 
                     <!-- Tab Content -->
-                    <div class="tab-content" id="projectTabContent">
+                    <div class="tab-content-wrapper">
                         <!-- Overview Tab -->
-                        <div class="tab-pane fade show active" id="overview" role="tabpanel">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="info-box mb-3">
-                                        <h6 class="fw-bold text-primary mb-3">Project Status</h6>
-                                        <div class="d-flex align-items-center mb-3">
-                                            <span class="status-badge bg-{% if project.project_status.status_name == 'Completed' %}success{% elif project.project_status.status_name == 'In Progress' %}warning{% else %}secondary{% endif %} me-3">
+                        <div class="tab-content active" id="tab-overview">
+                            <div class="two-col" style="gap: 1.5rem;">
+                                <div class="col">
+                                    <div style="background: var(--gray-50); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem;">
+                                        <h6 style="font-size: 0.8rem; font-weight: 600; color: var(--purple); margin-bottom: 0.75rem;">Project Status</h6>
+                                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
+                                            <span class="status-badge {% if project.project_status.status_name == 'Completed' %}active{% elif project.project_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
                                                 <i class="bi bi-{% if project.project_status.status_name == 'Completed' %}check-circle{% elif project.project_status.status_name == 'In Progress' %}play-circle{% else %}pause-circle{% endif %}"></i>
                                                 {{ project.project_status.status_name }}
                                             </span>
-                                            <div class="ms-auto">
-                                                <span class="badge bg-light text-dark">{{ progress_percentage }}%</span>
-                                            </div>
+                                            <span style="font-size: 0.8rem; color: var(--gray-500);">
+                                                {{ progress_percentage|default:0 }}% complete
+                                            </span>
                                         </div>
-                                        <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar bg-success" style="width: {{ progress_percentage }}%"></div>
+                                        <div class="progress-bar" style="height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                                            <div class="progress-fill" style="width: {{ progress_percentage|default:0 }}%; background: var(--green);"></div>
                                         </div>
                                     </div>
 
-                                    <div class="info-box mb-3">
-                                        <h6 class="fw-bold text-primary mb-3">Key Dates</h6>
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span class="text-muted">Created:</span>
+                                    <div style="background: var(--gray-50); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem;">
+                                        <h6 style="font-size: 0.8rem; font-weight: 600; color: var(--purple); margin-bottom: 0.75rem;">Key Dates</h6>
+                                        <div style="display: flex; justify-content: space-between; font-size: 0.875rem; padding: 0.25rem 0; border-bottom: 1px solid var(--gray-200);">
+                                            <span style="color: var(--gray-500);">Created:</span>
                                             <strong>{{ project.created_at|date:"M d, Y" }}</strong>
                                         </div>
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span class="text-muted">Updated:</span>
+                                        <div style="display: flex; justify-content: space-between; font-size: 0.875rem; padding: 0.25rem 0; border-bottom: 1px solid var(--gray-200);">
+                                            <span style="color: var(--gray-500);">Updated:</span>
                                             <strong>{{ project.updated_at|date:"M d, Y" }}</strong>
                                         </div>
                                         {% if project.due_date %}
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-muted">Due Date:</span>
-                                            <strong class="text-warning">{{ project.due_date|date:"M d, Y" }}</strong>
+                                        <div style="display: flex; justify-content: space-between; font-size: 0.875rem; padding: 0.25rem 0;">
+                                            <span style="color: var(--gray-500);">Due Date:</span>
+                                            <strong style="color: var(--amber);">{{ project.due_date|date:"M d, Y" }}</strong>
                                         </div>
                                         {% endif %}
                                     </div>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <div class="info-box mb-3">
-                                        <h6 class="fw-bold text-primary mb-3">Team</h6>
-                                        <div class="d-flex align-items-center mb-3">
-                                            <div class="avatar-sm me-3">
-                                                <div class="avatar-title bg-primary rounded-circle">
-                                                    <i class="bi bi-person"></i>
-                                                </div>
+                                <div class="col">
+                                    <div style="background: var(--gray-50); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem;">
+                                        <h6 style="font-size: 0.8rem; font-weight: 600; color: var(--purple); margin-bottom: 0.75rem;">Team</h6>
+                                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--purple-light); color: var(--purple); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0;">
+                                                {{ project.host.username|first|upper }}
                                             </div>
                                             <div>
-                                                <h6 class="mb-0">Host</h6>
-                                                <p class="text-muted mb-0">{{ project.host.username }}</p>
+                                                <strong style="display: block; font-size: 0.875rem;">Host</strong>
+                                                <span style="font-size: 0.8rem; color: var(--gray-500);">{{ project.host.username }}</span>
                                             </div>
                                         </div>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm me-3">
-                                                <div class="avatar-title bg-info rounded-circle">
-                                                    <i class="bi bi-person-check"></i>
-                                                </div>
+                                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--blue-light); color: var(--blue); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0;">
+                                                {{ project.assigned_to.username|first|upper }}
                                             </div>
                                             <div>
-                                                <h6 class="mb-0">Assigned To</h6>
-                                                <p class="text-muted mb-0">{{ project.assigned_to.username }}</p>
+                                                <strong style="display: block; font-size: 0.875rem;">Assigned To</strong>
+                                                <span style="font-size: 0.8rem; color: var(--gray-500);">{{ project.assigned_to.username }}</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="info-box">
-                                        <h6 class="fw-bold text-primary mb-3">Quick Stats</h6>
-                                        <div class="row text-center">
-                                            <div class="col-4">
-                                                <div class="mb-2">
-                                                    <div class="text-primary fw-bold">{{ total_tasks }}</div>
-                                                    <small class="text-muted">Tasks</small>
-                                                </div>
+                                    <div style="background: var(--gray-50); border-radius: var(--radius-sm); padding: 1rem;">
+                                        <h6 style="font-size: 0.8rem; font-weight: 600; color: var(--purple); margin-bottom: 0.75rem;">Quick Stats</h6>
+                                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); text-align: center;">
+                                            <div>
+                                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--purple);">{{ total_tasks|default:0 }}</div>
+                                                <small style="color: var(--gray-400); font-size: 0.7rem;">Tasks</small>
                                             </div>
-                                            <div class="col-4">
-                                                <div class="mb-2">
-                                                    <div class="text-success fw-bold">{{ completed_tasks }}</div>
-                                                    <small class="text-muted">Done</small>
-                                                </div>
+                                            <div>
+                                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--green);">{{ completed_tasks|default:0 }}</div>
+                                                <small style="color: var(--gray-400); font-size: 0.7rem;">Done</small>
                                             </div>
-                                            <div class="col-4">
-                                                <div class="mb-2">
-                                                    <div class="text-warning fw-bold">{{ project.attendees.count }}</div>
-                                                    <small class="text-muted">Members</small>
-                                                </div>
+                                            <div>
+                                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--amber);">{{ project.attendees.count }}</div>
+                                                <small style="color: var(--gray-400); font-size: 0.7rem;">Members</small>
                                             </div>
                                         </div>
                                     </div>
@@ -507,9 +241,9 @@
                             </div>
 
                             {% if project.description %}
-                            <div class="mt-4">
-                                <h6 class="fw-bold text-primary mb-3">Description</h6>
-                                <div class="p-3 bg-light rounded">
+                            <div style="margin-top: 1.5rem;">
+                                <h6 style="font-size: 0.8rem; font-weight: 600; color: var(--purple); margin-bottom: 0.5rem;">Description</h6>
+                                <div style="background: var(--gray-50); border-radius: var(--radius-sm); padding: 1rem; font-size: 0.875rem; color: var(--gray-700);">
                                     {{ project.description|linebreaks }}
                                 </div>
                             </div>
@@ -517,96 +251,92 @@
                         </div>
 
                         <!-- Details Tab -->
-                        <div class="tab-pane fade" id="details" role="tabpanel">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6 class="fw-bold text-primary mb-3">Project Metadata</h6>
-                                    <table class="table table-borderless">
-                                        <tbody>
-                                            <tr>
-                                                <th width="40%">Project ID:</th>
-                                                <td>#{{ project.id }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Ticket Price:</th>
-                                                <td>
-                                                    {% if project.ticket_price > 0 %}
-                                                    <span class="badge bg-success">${{ project.ticket_price }}</span>
-                                                    {% else %}
-                                                    <span class="badge bg-secondary">Free</span>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>Event:</th>
-                                                <td>
-                                                    {% if project.event %}
-                                                    <a href="{% url 'events:event_detail' project.event.id %}" class="text-decoration-none">
-                                                        <i class="bi bi-calendar-event me-1"></i>
-                                                        {{ project.event.title }}
-                                                    </a>
-                                                    {% else %}
-                                                    <span class="text-muted">No associated event</span>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>Completion:</th>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="flex-grow-1 me-3">
-                                                            <div class="progress" style="height: 6px;">
-                                                                <div class="progress-bar bg-success" style="width: {{ progress_percentage }}%"></div>
-                                                            </div>
-                                                        </div>
-                                                        <span class="fw-bold">{{ progress_percentage }}%</span>
+                        <div class="tab-content" id="tab-details">
+                            <div class="two-col" style="gap: 1.5rem;">
+                                <div class="col">
+                                    <h6 style="font-size: 0.8rem; font-weight: 600; color: var(--purple); margin-bottom: 0.75rem;">Project Metadata</h6>
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                        <div style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid var(--gray-200);">
+                                            <span style="color: var(--gray-500); font-size: 0.875rem;">Project ID:</span>
+                                            <strong style="font-size: 0.875rem;">#{{ project.id }}</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid var(--gray-200);">
+                                            <span style="color: var(--gray-500); font-size: 0.875rem;">Ticket Price:</span>
+                                            <span>
+                                                {% if project.ticket_price > 0 %}
+                                                <span class="status-badge active">${{ project.ticket_price }}</span>
+                                                {% else %}
+                                                <span class="status-badge completed">Free</span>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid var(--gray-200);">
+                                            <span style="color: var(--gray-500); font-size: 0.875rem;">Event:</span>
+                                            <span>
+                                                {% if project.event %}
+                                                <a href="{% url 'events:event_detail' project.event.id %}" class="text-decoration-none" style="color: var(--purple);">
+                                                    <i class="bi bi-calendar-event"></i>
+                                                    {{ project.event.title }}
+                                                </a>
+                                                {% else %}
+                                                <span style="color: var(--gray-400);">No associated event</span>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; padding: 0.5rem;">
+                                            <span style="color: var(--gray-500); font-size: 0.875rem;">Completion:</span>
+                                            <span>
+                                                <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 120px;">
+                                                    <div class="progress-bar" style="flex: 1; height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                                                        <div class="progress-fill" style="width: {{ progress_percentage|default:0 }}%; background: var(--green);"></div>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                                    <strong style="font-size: 0.875rem;">{{ progress_percentage|default:0 }}%</strong>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <h6 class="fw-bold text-primary mb-3">Team Information</h6>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Attendees ({{ project.attendees.count }})</label>
-                                        <div class="d-flex flex-wrap gap-2">
+                                <div class="col">
+                                    <h6 style="font-size: 0.8rem; font-weight: 600; color: var(--purple); margin-bottom: 0.75rem;">Team Information</h6>
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="font-size: 0.8rem; font-weight: 600; color: var(--gray-700);">Attendees ({{ project.attendees.count }})</label>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem;">
                                             {% for attendee in project.attendees.all %}
-                                            <span class="badge bg-light text-dark">
-                                                <i class="bi bi-person me-1"></i>{{ attendee.username }}
+                                            <span style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.6rem; border-radius: 100px; background: var(--gray-100); font-size: 0.75rem; color: var(--gray-700);">
+                                                <i class="bi bi-person"></i> {{ attendee.username }}
                                             </span>
                                             {% empty %}
-                                            <span class="text-muted">No attendees</span>
+                                            <span style="color: var(--gray-400); font-size: 0.875rem;">No attendees</span>
                                             {% endfor %}
                                         </div>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Project Duration</label>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-muted">Created:</span>
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="font-size: 0.8rem; font-weight: 600; color: var(--gray-700);">Project Duration</label>
+                                        <div style="display: flex; justify-content: space-between; font-size: 0.875rem; padding: 0.25rem 0; border-bottom: 1px solid var(--gray-200);">
+                                            <span style="color: var(--gray-500);">Created:</span>
                                             <span>{{ project.created_at|date:"M d, Y" }}</span>
                                         </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-muted">Last Updated:</span>
+                                        <div style="display: flex; justify-content: space-between; font-size: 0.875rem; padding: 0.25rem 0;">
+                                            <span style="color: var(--gray-500);">Last Updated:</span>
                                             <span>{{ project.updated_at|date:"M d, Y" }}</span>
                                         </div>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Project Status History</label>
+                                    <div>
+                                        <label style="font-size: 0.8rem; font-weight: 600; color: var(--gray-700);">Status History</label>
                                         {% if project.projectstate_set.all %}
-                                        <div class="timeline">
+                                        <div style="margin-top: 0.25rem;">
                                             {% for state in project.projectstate_set.all|slice:":3" %}
-                                            <div class="timeline-item {{ state.status.status_name|lower }}">
-                                                <small class="text-muted">{{ state.start_time|date:"M d, Y" }}</small>
-                                                <p class="mb-0">{{ state.status.status_name }}</p>
+                                            <div style="display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px solid var(--gray-100); font-size: 0.875rem;">
+                                                <span style="color: var(--gray-600);">{{ state.status.status_name }}</span>
+                                                <span style="color: var(--gray-400); font-size: 0.75rem;">{{ state.start_time|date:"M d, Y" }}</span>
                                             </div>
                                             {% endfor %}
                                         </div>
                                         {% else %}
-                                        <p class="text-muted mb-0">No status history available</p>
+                                        <p style="color: var(--gray-400); font-size: 0.875rem; margin: 0.25rem 0;">No status history available</p>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -614,196 +344,189 @@
                         </div>
 
                         <!-- Tasks Tab -->
-                        <div class="tab-pane fade" id="tasks" role="tabpanel">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h6 class="fw-bold text-primary mb-0">Project Tasks ({{ tasks|length }})</h6>
+                        <div class="tab-content" id="tab-tasks">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h6 style="font-size: 0.9rem; font-weight: 600; color: var(--purple); margin: 0;">Project Tasks ({{ tasks|length }})</h6>
                                 <a href="{% url 'events:task_create_with_project' project.id %}" class="btn btn-primary btn-sm">
-                                    <i class="bi bi-plus-circle me-1"></i> Add Task
+                                    <i class="bi bi-plus-circle"></i> Add Task
                                 </a>
                             </div>
 
                             {% if tasks %}
-                            <div class="row">
+                            <div class="project-grid">
                                 {% for task in tasks %}
-                                <div class="col-md-6 mb-3">
-                                    <div class="card task-card h-100">
-                                        <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                                <h6 class="card-title mb-0">{{ task.title|truncatechars:40 }}</h6>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-link text-muted" type="button" 
-                                                            data-bs-toggle="dropdown">
-                                                        <i class="bi bi-three-dots"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="{% url 'events:tasks_with_id' task.id %}">
-                                                            <i class="bi bi-eye me-2"></i>View
-                                                        </a></li>
-                                                        <li><a class="dropdown-item" href="{% url 'events:task_edit' task.id %}">
-                                                            <i class="bi bi-pencil me-2"></i>Edit
-                                                        </a></li>
-                                                        <li><hr class="dropdown-divider"></li>
-                                                        <li><a class="dropdown-item text-danger" href="#">
-                                                            <i class="bi bi-trash me-2"></i>Delete
-                                                        </a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-
-                                            {% if task.description %}
-                                            <p class="card-text small text-muted mb-3">{{ task.description|truncatechars:100 }}</p>
-                                            {% endif %}
-
-                                            <div class="mb-3">
-                                                <span class="badge bg-{% if task.task_status.status_name == 'Completed' %}success{% elif task.task_status.status_name == 'In Progress' %}warning{% else %}secondary{% endif %}">
-                                                    <span class="task-status-indicator task-status-{{ task.task_status.status_name|lower|cut:' ' }}"></span>
-                                                    {{ task.task_status.status_name }}
-                                                </span>
-                                                {% if task.important %}
-                                                <span class="badge bg-danger ms-2">
-                                                    <i class="bi bi-star-fill me-1"></i>High Priority
-                                                </span>
-                                                {% endif %}
-                                            </div>
-
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="text-muted">
-                                                    <i class="bi bi-person me-1"></i>{{ task.assigned_to.username }}
-                                                </small>
-                                                <small class="text-muted">
-                                                    {{ task.updated_at|timesince }} ago
-                                                </small>
+                                <div class="project-card">
+                                    <div class="project-header">
+                                        <h6>{{ task.title|truncatechars:40 }}</h6>
+                                        <div class="dropdown">
+                                            <button class="icon-btn" data-dropdown="taskMenu{{ task.id }}">
+                                                <i class="bi bi-three-dots"></i>
+                                            </button>
+                                            <div class="dropdown-menu" id="taskMenu{{ task.id }}">
+                                                <a href="{% url 'events:tasks_with_id' task.id %}" class="dropdown-item">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+                                                <a href="{% url 'events:task_edit' task.id %}" class="dropdown-item">
+                                                    <i class="bi bi-pencil"></i> Edit
+                                                </a>
+                                                <hr class="dropdown-divider">
+                                                <a href="#" class="dropdown-item text-danger" onclick="confirmDeleteTask({{ task.id }})">
+                                                    <i class="bi bi-trash"></i> Delete
+                                                </a>
                                             </div>
                                         </div>
+                                    </div>
+                                    {% if task.description %}
+                                    <p class="project-description">{{ task.description|truncatechars:100 }}</p>
+                                    {% endif %}
+                                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                                        <span class="status-badge {% if task.task_status.status_name == 'Completed' %}active{% elif task.task_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
+                                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.25rem; background: {% if task.task_status.status_name == 'Completed' %}var(--green){% elif task.task_status.status_name == 'In Progress' %}var(--amber){% else %}var(--gray-400){% endif %};"></span>
+                                            {{ task.task_status.status_name }}
+                                        </span>
+                                        {% if task.important %}
+                                        <span class="status-badge" style="background: var(--red-light); color: var(--red);">
+                                            <i class="bi bi-star-fill"></i> High Priority
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="project-meta" style="font-size: 0.7rem; color: var(--gray-400);">
+                                        <span>
+                                            <i class="bi bi-person"></i> {{ task.assigned_to.username }}
+                                        </span>
+                                        <span>
+                                            <i class="bi bi-clock"></i> {{ task.updated_at|timesince }} ago
+                                        </span>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
                             {% else %}
-                            <div class="text-center py-5">
-                                <i class="bi bi-list-check display-1 text-muted mb-3"></i>
-                                <h6 class="text-muted">No tasks found</h6>
-                                <p class="text-muted small mb-4">This project doesn't have any tasks yet.</p>
+                            <div class="empty-state">
+                                <i class="bi bi-list-check"></i>
+                                <h5>No tasks found</h5>
+                                <p>This project doesn't have any tasks yet.</p>
                                 <a href="{% url 'events:task_create_with_project' project.id %}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle me-1"></i>Create First Task
+                                    <i class="bi bi-plus-circle"></i> Create First Task
                                 </a>
                             </div>
                             {% endif %}
                         </div>
 
                         <!-- Activity Tab -->
-                        <div class="tab-pane fade" id="activity" role="tabpanel">
-                            <h6 class="fw-bold text-primary mb-3">Recent Activity</h6>
+                        <div class="tab-content" id="tab-activity">
+                            <h6 style="font-size: 0.9rem; font-weight: 600; color: var(--purple); margin-bottom: 1rem;">Recent Activity</h6>
                             {% if project.projecthistory_set.all %}
-                            <div class="list-group">
+                            <div class="activity-timeline">
                                 {% for history in project.projecthistory_set.all|slice:":10" %}
-                                <div class="list-group-item border-0 mb-2">
-                                    <div class="d-flex align-items-start">
-                                        <div class="avatar-sm me-3">
-                                            <div class="avatar-title bg-light rounded-circle text-primary">
-                                                <i class="bi bi-pencil"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between">
-                                                <h6 class="mb-1">{{ history.editor.username }}</h6>
-                                                <small class="text-muted">{{ history.edited_at|timesince }} ago</small>
-                                            </div>
-                                            <p class="mb-1">
-                                                Changed <strong>{{ history.field_name }}</strong> from 
-                                                <span class="text-muted">"{{ history.old_value|default:"Empty" }}"</span> to 
-                                                <span class="text-success">"{{ history.new_value|default:"Empty" }}"</span>
-                                            </p>
-                                        </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon purple">
+                                        <i class="bi bi-pencil"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <strong>{{ history.editor.username }}</strong>
+                                        <p class="activity-text">
+                                            Changed <strong>{{ history.field_name }}</strong> from
+                                            <span style="color: var(--gray-400);">"{{ history.old_value|default:"Empty" }}"</span>
+                                            to
+                                            <span style="color: var(--green);">"{{ history.new_value|default:"Empty" }}"</span>
+                                        </p>
+                                        <span class="activity-time">{{ history.edited_at|timesince }} ago</span>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
                             {% else %}
-                            <div class="text-center py-5">
-                                <i class="bi bi-clock-history display-1 text-muted mb-3"></i>
-                                <h6 class="text-muted">No activity recorded</h6>
-                                <p class="text-muted small">Activity will appear here when changes are made to the project.</p>
+                            <div class="empty-state">
+                                <i class="bi bi-clock-history"></i>
+                                <h5>No activity recorded</h5>
+                                <p style="color: var(--gray-400);">Activity will appear here when changes are made to the project.</p>
                             </div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
-        </div><!-- End Main Content Area -->
+        </div>
 
         <!-- Sidebar -->
-        <div class="col-lg-4">
+        <div class="col">
             <!-- Quick Actions -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h6>
+            <div class="section-card">
+                <div class="section-header section-header-success">
+                    <div class="section-title">
+                        <i class="bi bi-lightning-charge"></i>
+                        <h6 style="color: #fff;">Quick Actions</h6>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'events:task_create_with_project' project.id %}" class="btn btn-success">
-                            <i class="bi bi-plus-circle me-2"></i>Add Task
+                <div class="section-body" style="padding: 1rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="{% url 'events:task_create_with_project' project.id %}" class="btn btn-success" style="justify-content: center;">
+                            <i class="bi bi-plus-circle"></i> Add Task
                         </a>
-                        <a href="{% url 'events:project_edit' project.id %}" class="btn btn-primary">
-                            <i class="bi bi-pencil me-2"></i>Edit Project
+                        <a href="{% url 'events:project_edit' project.id %}" class="btn btn-primary" style="justify-content: center;">
+                            <i class="bi bi-pencil"></i> Edit Project
                         </a>
-                        <a href="{% url 'events:tasks' %}?project_id={{ project.id }}" class="btn btn-info">
-                            <i class="bi bi-list-task me-2"></i>View All Tasks
+                        <a href="{% url 'events:tasks' %}?project_id={{ project.id }}" class="btn btn-info" style="justify-content: center;">
+                            <i class="bi bi-list-task"></i> View All Tasks
                         </a>
-                        <a href="{% url 'events:projects' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-2"></i>Back to Projects
+                        <a href="{% url 'events:projects' %}" class="btn btn-ghost" style="justify-content: center;">
+                            <i class="bi bi-arrow-left"></i> Back to Projects
                         </a>
                     </div>
                 </div>
             </div>
 
             <!-- Project Statistics -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Statistics</h6>
+            <div class="section-card">
+                <div class="section-header section-header-info">
+                    <div class="section-title">
+                        <i class="bi bi-bar-chart"></i>
+                        <h6 style="color: #fff;">Statistics</h6>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="small text-muted">Overall Progress</span>
-                            <span class="fw-bold">{{ progress_percentage }}%</span>
+                <div class="section-body" style="padding: 1rem;">
+                    <div style="margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.8rem; color: var(--gray-500);">Overall Progress</span>
+                            <span style="font-weight: 700; font-size: 0.875rem;">{{ progress_percentage|default:0 }}%</span>
                         </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-success" style="width: {{ progress_percentage }}%"></div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="small text-muted">Task Completion</span>
-                            <span class="badge bg-success">{{ completed_tasks }}/{{ total_tasks }}</span>
-                        </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-primary" style="width: {% widthratio completed_tasks total_tasks 100 %}%"></div>
+                        <div class="progress-bar" style="height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                            <div class="progress-fill" style="width: {{ progress_percentage|default:0 }}%; background: var(--green);"></div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="small text-muted">Active Tasks</span>
-                            <span class="badge bg-warning">{{ in_progress_tasks }}</span>
+                    <div style="margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.8rem; color: var(--gray-500);">Task Completion</span>
+                            <span class="status-badge active">{{ completed_tasks|default:0 }}/{{ total_tasks|default:0 }}</span>
                         </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-warning" style="width: {% widthratio in_progress_tasks total_tasks 100 %}%"></div>
+                        <div class="progress-bar" style="height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                            <div class="progress-fill" style="width: {% widthratio completed_tasks total_tasks 100 %}%; background: var(--purple);"></div>
                         </div>
                     </div>
 
-                    <div class="mt-4">
-                        <h6 class="small fw-bold mb-2">Task Distribution</h6>
-                        <div class="d-flex justify-content-between">
-                            <span class="badge bg-success bg-opacity-10 text-success">
-                                {{ completed_tasks }} Completed
+                    <div style="margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.8rem; color: var(--gray-500);">Active Tasks</span>
+                            <span class="status-badge pending">{{ in_progress_tasks|default:0 }}</span>
+                        </div>
+                        <div class="progress-bar" style="height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                            <div class="progress-fill" style="width: {% widthratio in_progress_tasks total_tasks 100 %}%; background: var(--amber);"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-200);">
+                        <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">Task Distribution</h6>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span class="status-badge active">
+                                <i class="bi bi-check-circle"></i> {{ completed_tasks|default:0 }} Completed
                             </span>
-                            <span class="badge bg-warning bg-opacity-10 text-warning">
-                                {{ in_progress_tasks }} In Progress
+                            <span class="status-badge pending">
+                                <i class="bi bi-play-circle"></i> {{ in_progress_tasks|default:0 }} In Progress
                             </span>
-                            <span class="badge bg-secondary bg-opacity-10 text-secondary">
-                                {{ pending_tasks }} Pending
+                            <span class="status-badge completed">
+                                <i class="bi bi-pause-circle"></i> {{ pending_tasks|default:0 }} Pending
                             </span>
                         </div>
                     </div>
@@ -811,48 +534,47 @@
             </div>
 
             <!-- Project Team -->
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0"><i class="bi bi-people me-2"></i>Project Team</h6>
+            <div class="section-card">
+                <div class="section-header section-header-purple">
+                    <div class="section-title">
+                        <i class="bi bi-people"></i>
+                        <h6 style="color: #fff;">Project Team</h6>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Host</label>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm me-3">
-                                <div class="avatar-title bg-primary rounded-circle">
-                                    {{ project.host.username|first|upper }}
-                                </div>
+                <div class="section-body" style="padding: 1rem;">
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Host</label>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.25rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--purple-light); color: var(--purple); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0;">
+                                {{ project.host.username|first|upper }}
                             </div>
                             <div>
-                                <h6 class="mb-0">{{ project.host.username }}</h6>
-                                <small class="text-muted">Project Host</small>
+                                <strong style="display: block; font-size: 0.875rem;">{{ project.host.username }}</strong>
+                                <span style="font-size: 0.75rem; color: var(--gray-400);">Project Host</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Assigned To</label>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm me-3">
-                                <div class="avatar-title bg-info rounded-circle">
-                                    {{ project.assigned_to.username|first|upper }}
-                                </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Assigned To</label>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.25rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--blue-light); color: var(--blue); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0;">
+                                {{ project.assigned_to.username|first|upper }}
                             </div>
                             <div>
-                                <h6 class="mb-0">{{ project.assigned_to.username }}</h6>
-                                <small class="text-muted">Primary Assignee</small>
+                                <strong style="display: block; font-size: 0.875rem;">{{ project.assigned_to.username }}</strong>
+                                <span style="font-size: 0.75rem; color: var(--gray-400);">Primary Assignee</span>
                             </div>
                         </div>
                     </div>
 
                     {% if project.attendees.count > 0 %}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Team Members ({{ project.attendees.count }})</label>
-                        <div class="d-flex flex-wrap gap-2">
+                    <div>
+                        <label style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em;">Team Members ({{ project.attendees.count }})</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem;">
                             {% for attendee in project.attendees.all %}
-                            <span class="badge bg-light text-dark">
-                                <i class="bi bi-person me-1"></i>{{ attendee.username }}
+                            <span style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.6rem; border-radius: 100px; background: var(--gray-100); font-size: 0.75rem; color: var(--gray-700);">
+                                <i class="bi bi-person"></i> {{ attendee.username }}
                             </span>
                             {% endfor %}
                         </div>
@@ -860,130 +582,122 @@
                     {% endif %}
                 </div>
             </div>
-        </div><!-- End Sidebar -->
+        </div>
     </div>
 </section>
 
-<!-- JavaScript for dynamic features -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tab functionality
-    const triggerTabList = [].slice.call(document.querySelectorAll('#projectTab button'))
-    triggerTabList.forEach(function (triggerEl) {
-        const tabTrigger = new bootstrap.Tab(triggerEl)
-        
-        triggerEl.addEventListener('click', function (event) {
-            event.preventDefault()
-            tabTrigger.show()
-        })
-    })
-
-    // Set progress bar widths dynamically
-    const progressBars = document.querySelectorAll('.progress-bar[style*="width:"]');
-    progressBars.forEach(function(bar) {
-        const style = bar.getAttribute('style');
-        const widthMatch = style.match(/width:\s*([0-9.]+)%/);
-        if (widthMatch) {
-            const targetWidth = parseFloat(widthMatch[1]);
-            bar.style.width = '0%';
+    // Dropdown toggle
+    document.querySelectorAll('[data-dropdown]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdownId = this.dataset.dropdown;
+            const menu = document.getElementById(dropdownId);
+            const isOpen = menu.classList.contains('show');
             
-            // Animate progress bar
-            setTimeout(() => {
-                bar.style.transition = 'width 1.5s ease-in-out';
-                bar.style.width = targetWidth + '%';
-            }, 300);
-        }
-    });
-
-    // Add hover effects to task cards
-    const taskCards = document.querySelectorAll('.task-card');
-    taskCards.forEach(card => {
-        card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-5px)';
-            card.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
-        });
-        
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'translateY(0)';
-            card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)';
-        });
-    });
-
-    // Add click functionality to status badges
-    const statusBadges = document.querySelectorAll('.status-badge');
-    statusBadges.forEach(badge => {
-        badge.addEventListener('click', function() {
-            const status = this.textContent.trim();
-            alert('Current status: ' + status);
-        });
-    });
-
-    // Update timestamp every minute
-    function updateTimeAgo() {
-        const timeElements = document.querySelectorAll('[data-timestamp]');
-        timeElements.forEach(el => {
-            const timestamp = new Date(el.getAttribute('data-timestamp'));
-            const now = new Date();
-            const diff = Math.floor((now - timestamp) / 1000); // difference in seconds
+            document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
             
-            let timeAgo;
-            if (diff < 60) {
-                timeAgo = 'just now';
-            } else if (diff < 3600) {
-                const minutes = Math.floor(diff / 60);
-                timeAgo = `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-            } else if (diff < 86400) {
-                const hours = Math.floor(diff / 3600);
-                timeAgo = `${hours} hour${hours > 1 ? 's' : ''} ago`;
-            } else {
-                const days = Math.floor(diff / 86400);
-                timeAgo = `${days} day${days > 1 ? 's' : ''} ago`;
+            if (!isOpen) {
+                menu.classList.add('show');
             }
-            
-            el.textContent = timeAgo;
         });
-    }
-
-    // Initialize time ago updates
-    updateTimeAgo();
-    setInterval(updateTimeAgo, 60000); // Update every minute
-
-    // Add keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        // Ctrl/Cmd + E to edit project
-        if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-            e.preventDefault();
-            window.location.href = "{% url 'events:project_edit' project.id %}";
-        }
-        
-        // Ctrl/Cmd + T to add task
-        if ((e.ctrlKey || e.metaKey) && e.key === 't') {
-            e.preventDefault();
-            window.location.href = "{% url 'events:task_create_with_project' project.id %}";
-        }
-        
-        // Ctrl/Cmd + B to go back
-        if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-            e.preventDefault();
-            window.location.href = "{% url 'events:projects' %}";
-        }
     });
 
-    // Print project details
-    const printBtn = document.querySelector('[data-action="print"]');
-    if (printBtn) {
-        printBtn.addEventListener('click', function() {
-            window.print();
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+    });
+
+    // Tab functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            const target = document.getElementById('tab-' + tabId);
+            if (target) target.classList.add('active');
+        });
+    });
+
+    // Auto-dismiss alerts after 5 seconds
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(function() {
+            alert.classList.add('dismissing');
+            setTimeout(function() {
+                alert.remove();
+            }, 300);
+        }, 5000);
+    });
+
+    // Animate progress bars
+    document.querySelectorAll('.progress-fill').forEach(bar => {
+        const targetWidth = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.transition = 'width 1.5s ease-in-out';
+            bar.style.width = targetWidth;
+        }, 300);
+    });
+});
+
+// Confirm delete project
+function confirmDelete(projectId) {
+    if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+        fetch(`/events/projects/${projectId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+            },
+        }).then(response => {
+            if (response.ok) {
+                window.location.href = "{% url 'events:projects' %}";
+            } else {
+                alert('Failed to delete project.');
+            }
+        }).catch(error => {
+            alert('An error occurred.');
         });
     }
+}
 
-    // Export project data
-    const exportBtn = document.querySelector('[data-action="export"]');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', function() {
-            // Implement export functionality
-            alert('Export functionality would be implemented here');
+// Confirm delete task
+function confirmDeleteTask(taskId) {
+    if (confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+        fetch(`/events/tasks/${taskId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+            },
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Failed to delete task.');
+            }
+        }).catch(error => {
+            alert('An error occurred.');
         });
+    }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        window.location.href = "{% url 'events:project_edit' project.id %}";
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+        e.preventDefault();
+        window.location.href = "{% url 'events:task_create_with_project' project.id %}";
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        window.location.href = "{% url 'events:projects' %}";
     }
 });
 </script>

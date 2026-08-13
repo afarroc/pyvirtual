@@ -5,188 +5,417 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="events-container">
-    <!-- ============================================= -->
-    <!-- ENCABEZADO Y MIGAS DE PAN                    -->
-    <!-- ============================================= -->
-    <div class="m360-page-header">
-        <h1 class="m360-page-header__title">
-            <i class="bi bi-pencil-square" style="margin-right: var(--m360-space-2);"></i>
-            {{ title }}
+
+<!-- ==========================================
+     EVENT EDIT
+     ========================================== -->
+
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="bi bi-pencil-square"></i>
+            {{ title|default:"Edit Event" }}
         </h1>
-        <nav aria-label="breadcrumb">
-            <ol class="events-d-flex events-flex-wrap events-align-center events-gap-2" style="list-style: none; padding: 0; margin: 0; font-size: var(--m360-text-sm);">
-                <li><a href="{% url 'index' %}" style="text-decoration: none; color: var(--m360-text-muted);"><i class="bi bi-house-door"></i> Home</a></li>
-                <li style="color: var(--m360-text-muted);">/</li>
-                <li><a href="{% url 'events:event_panel' %}" style="text-decoration: none; color: var(--m360-text-muted);">Eventos</a></li>
-                <li style="color: var(--m360-text-muted);">/</li>
-                <li style="color: var(--m360-text);">{{ title }}</li>
-            </ol>
-        </nav>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <a href="{% url 'events:event_panel' %}" class="text-decoration-none">
+                Events
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">{{ title|default:"Edit" }}</span>
+        </div>
+    </div>
+    <div class="header-actions">
+        {% if event %}
+        <a href="{% url 'events:event_detail' event.id %}" class="btn btn-info">
+            <i class="bi bi-eye"></i> View
+        </a>
+        {% endif %}
+        <a href="{% url 'events:event_panel' %}" class="btn btn-ghost">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<!-- Messages -->
+{% include 'events/includes/messages.html' %}
+
+<!-- Main Content -->
+<div class="two-col">
+    <!-- Form Column -->
+    <div class="col">
+        {% if event %}
+        <div class="section-card">
+            <div class="section-header section-header-primary">
+                <div class="section-title">
+                    <i class="bi bi-pencil-square"></i>
+                    <h5 style="color: #fff;">Edit Event</h5>
+                </div>
+                <span class="status-badge" style="background: rgba(255,255,255,0.2); color: #fff; font-size: 0.7rem;">
+                    <i class="bi bi-hash"></i> #{{ event.id }}
+                </span>
+            </div>
+            <div class="section-body" style="padding: 1.25rem;">
+                <form method="POST" id="eventEditForm" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Title -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="bi bi-tag"></i> Event Title <span class="text-danger">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            <i class="bi bi-text-paragraph"></i> Description
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Venue -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.venue.id_for_label }}" class="form-label">
+                            <i class="bi bi-geo-alt"></i> Venue
+                        </label>
+                        {{ form.venue }}
+                        {% if form.venue.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.venue.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Event Status -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.event_status.id_for_label }}" class="form-label">
+                            <i class="bi bi-circle"></i> Event Status
+                        </label>
+                        {{ form.event_status }}
+                        {% if form.event_status.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.event_status.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Max Attendees -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.max_attendees.id_for_label }}" class="form-label">
+                            <i class="bi bi-people"></i> Max Attendees
+                        </label>
+                        {{ form.max_attendees }}
+                        {% if form.max_attendees.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.max_attendees.errors }}</div>
+                        {% endif %}
+                        <div class="text-muted text-xs" style="margin-top: 0.25rem;">
+                            Current attendees: {{ event.attendees.count }}
+                        </div>
+                    </div>
+
+                    <!-- Ticket Price -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.ticket_price.id_for_label }}" class="form-label">
+                            <i class="bi bi-cash"></i> Ticket Price
+                        </label>
+                        {{ form.ticket_price }}
+                        {% if form.ticket_price.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.ticket_price.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Event Category -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.event_category.id_for_label }}" class="form-label">
+                            <i class="bi bi-tags"></i> Category
+                        </label>
+                        {{ form.event_category }}
+                        {% if form.event_category.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.event_category.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Assigned To -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.assigned_to.id_for_label }}" class="form-label">
+                            <i class="bi bi-person-check"></i> Assigned To
+                        </label>
+                        {{ form.assigned_to }}
+                        {% if form.assigned_to.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.assigned_to.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Attendees -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.attendees.id_for_label }}" class="form-label">
+                            <i class="bi bi-people-fill"></i> Attendees
+                        </label>
+                        {{ form.attendees }}
+                        {% if form.attendees.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.attendees.errors }}</div>
+                        {% endif %}
+                        <div class="text-muted text-xs" style="margin-top: 0.25rem;">
+                            Hold Ctrl/Cmd to select multiple users.
+                        </div>
+                    </div>
+
+                    <!-- Host (hidden or optional) -->
+                    {% if form.host %}
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.host.id_for_label }}" class="form-label">
+                            <i class="bi bi-person"></i> Host
+                        </label>
+                        {{ form.host }}
+                        {% if form.host.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.host.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Last Updated Info -->
+                    {% if event %}
+                    <div style="display: flex; gap: 1.5rem; font-size: 0.8rem; color: var(--gray-400); padding: 0.5rem 0; border-top: 1px solid var(--gray-200); margin-top: 0.5rem; flex-wrap: wrap;">
+                        <span><i class="bi bi-clock"></i> Created: {{ event.created_at|date:"M d, Y H:i" }}</span>
+                        <span><i class="bi bi-arrow-repeat"></i> Updated: {{ event.updated_at|date:"M d, Y H:i" }}</span>
+                        <span><i class="bi bi-person"></i> Host: {{ event.host.username }}</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Form Actions -->
+                    <div class="form-actions" style="display: flex; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-200); flex-wrap: wrap;">
+                        <button type="submit" name="save_and_continue" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                        <button type="submit" name="save_and_view" class="btn btn-success" style="flex: 1; justify-content: center;">
+                            <i class="bi bi-check-circle"></i> Save & View
+                        </button>
+                        <a href="{% url 'events:event_detail' event.id %}" class="btn btn-ghost">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            No event data found.
+        </div>
+        {% endif %}
     </div>
 
-    <!-- ============================================= -->
-    <!-- MENSAJES DEL SISTEMA                         -->
-    <!-- ============================================= -->
-    {% include 'events/includes/messages.html' %}
-
-    <!-- ============================================= -->
-    <!-- CONTENIDO PRINCIPAL                         -->
-    <!-- ============================================= -->
-    <div class="events-row">
-        <!-- ======================================== -->
-        <!-- COLUMNA IZQUIERDA (8) - FORMULARIO      -->
-        <!-- ======================================== -->
-        <div class="events-col-lg-8">
-            <div class="events-row">
-                {% if event %}
-                    <form method="POST" action="{% url 'events:event_edit' event.id %}">
-                        {% csrf_token %}
-                        {% include 'events/includes/event_form.html' %}
-                        <div class="m360-card events-mb-4">
-                            <div class="m360-card-body">
-                                <div class="events-d-flex events-flex-col events-gap-2">
-                                    <button type="submit" name="save_and_continue" class="m360-btn m360-btn-primary events-w-100">
-                                        <i class="bi bi-save" style="margin-right: var(--m360-space-2);"></i>Guardar cambios
-                                    </button>
-                                    <div class="events-d-flex events-flex-wrap events-gap-2">
-                                        <a href="{% url 'events:event_detail' event.id %}" class="m360-btn m360-btn-outline-secondary events-flex-grow">
-                                            <i class="bi bi-x-circle" style="margin-right: var(--m360-space-2);"></i>Cancelar
-                                        </a>
-                                        <button type="submit" name="save_and_view" class="m360-btn m360-btn-success events-flex-grow">
-                                            <i class="bi bi-check-circle" style="margin-right: var(--m360-space-2);"></i>Guardar y ver
-                                        </button>
-                                    </div>
+    <!-- Sidebar -->
+    <div class="col">
+        <!-- Event History -->
+        {% if event %}
+        <div class="section-card">
+            <div class="section-header section-header-info">
+                <div class="section-title">
+                    <i class="bi bi-activity"></i>
+                    <h6 style="color: #fff;">Event History</h6>
+                </div>
+                <span class="badge" style="background: rgba(255,255,255,0.2); color: #fff;">{{ event.eventstate_set.count }}</span>
+            </div>
+            <div class="section-body" style="padding: 1rem; max-height: 350px; overflow-y: auto;">
+                {% with event_states=event.eventstate_set.all|dictsortreversed:"start_time"|slice:":10" %}
+                    {% if event_states %}
+                        <div class="activity-timeline">
+                            {% for state in event_states %}
+                            <div class="activity-item">
+                                <div class="activity-icon" style="background: {{ state.status.color|default:'var(--gray-200)' }}20; color: {{ state.status.color|default:'var(--gray-500)' }};">
+                                    <i class="bi bi-circle-fill"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <strong>Status changed to {{ state.status.status_name }}</strong>
+                                    <p class="activity-text">
+                                        <i class="bi bi-clock"></i>
+                                        {% if state.start_time %}{{ state.start_time|date:"M d, Y H:i" }}{% endif %}
+                                        {% if state.end_time %} - {{ state.end_time|date:"H:i" }}{% endif %}
+                                    </p>
+                                    {% if state.duration_minutes %}
+                                    <span class="activity-time">Duration: {{ state.duration_minutes }} min</span>
+                                    {% endif %}
                                 </div>
                             </div>
+                            {% endfor %}
                         </div>
-                    </form>
-                {% else %}
-                <div class="m360-alert m360-alert-warning">
-                    <i class="bi bi-exclamation-triangle"></i> No se encontraron datos del evento.
+                    {% else %}
+                    <div class="empty-state" style="padding: 1rem 0;">
+                        <i class="bi bi-clock-history"></i>
+                        <p style="color: var(--gray-400); font-size: 0.875rem;">No history available</p>
+                    </div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Links -->
+        <div class="section-card">
+            <div class="section-header section-header-success">
+                <div class="section-title">
+                    <i class="bi bi-link-45deg"></i>
+                    <h6 style="color: #fff;">Quick Actions</h6>
                 </div>
-                {% endif %}
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    {% if event %}
+                    <a href="{% url 'events:event_detail' event.id %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-eye"></i> View Details
+                    </a>
+                    <a href="{% url 'events:event_assign' event.id %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-link"></i> Assign Resources
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'events:event_panel' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-arrow-left"></i> Back to Panel
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- ======================================== -->
-        <!-- COLUMNA DERECHA (4) - SIDEBAR          -->
-        <!-- ======================================== -->
-        <div class="events-col-lg-4">
-            <div class="events-row events-flex-col events-gap-4">
-                <!-- ACORDEÓN DE INFORMACIÓN -->
-                <div class="events-col-12">
-                    <div class="m360-accordion">
-                        <div class="m360-accordion-item">
-                            <button class="m360-accordion-header" data-m360-toggle="collapse" data-m360-target="#infoAccordion" aria-expanded="true">
-                                <span>
-                                    <i class="bi bi-info-circle me-2"></i>Links
-                                </span>
-                                <i class="bi bi-chevron-down m360-accordion-icon"></i>
-                            </button>
-                            <div class="m360-accordion-body m360-open" id="infoAccordion">
-                                <div class="events-d-flex events-flex-col events-gap-2">
-                                    <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-outline-secondary events-w-100">
-                                        <i class="bi bi-grid-3x3-gap"></i> Panel
-                                    </a>
-                                    <a href="{% url 'events:events' %}" class="m360-btn m360-btn-outline-info events-w-100">
-                                        <i class="bi bi-search"></i> Buscar
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Need Help -->
+        <div class="section-card">
+            <div class="section-header section-header-dark">
+                <div class="section-title">
+                    <i class="bi bi-question-circle"></i>
+                    <h6 style="color: #fff;">Need Help?</h6>
                 </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.75rem;">
+                    Having trouble editing this event? Contact support.
+                </p>
+                <a href="#" class="btn btn-ghost" style="width: 100%; justify-content: center;">
+                    <i class="bi bi-envelope"></i> Contact Support
+                </a>
+            </div>
+        </div>
 
-                <!-- ACTIVIDAD RECIENTE DEL EVENTO -->
-                {% if event %}
-                <div class="events-col-12">
-                    <div class="m360-card">
-                        <div class="m360-card-body">
-                            <h5 class="m360-card-title events-d-flex events-justify-between events-align-center">
-                                <span>
-                                    <i class="bi bi-activity" style="margin-right: var(--m360-space-2);"></i>Historial del evento
-                                </span>
-                                <span class="m360-badge m360-badge-info">{{ event.eventstate_set.count }}</span>
-                            </h5>
-                            
-                            <div style="max-height: 400px; overflow-y: auto;">
-                                {% with event_states=event.eventstate_set.all|dictsortreversed:"start_time"|slice:":15" %}
-                                    {% if event_states %}
-                                        {% for state in event_states %}
-                                        <div class="events-d-flex events-align-start events-gap-2 events-mb-3" style="padding-bottom: var(--m360-space-2); border-bottom: 1px solid var(--m360-border);">
-                                            <div style="flex-shrink: 0;">
-                                                <div style="font-weight: var(--m360-font-weight-semibold); font-size: var(--m360-text-sm);">
-                                                    {{ state.start_time|duration:state.end_time }}
-                                                </div>
-                                                <small class="events-text-muted" style="display: block;">
-                                                    {{ state.start_time|date:"H:i" }}
-                                                    {% if state.end_time %} - {{ state.end_time|date:"H:i" }}{% endif %}
-                                                </small>
-                                            </div>
-                                            <i class="bi bi-circle-fill" style="color: {{ state.status.color|default:'#6c757d' }}; font-size: 0.8rem; margin: 2px var(--m360-space-2) 0 0;"></i>
-                                            <div class="events-flex-grow">
-                                                <div>
-                                                    <span style="font-weight: var(--m360-font-weight-semibold);">
-                                                        Estado cambiado a 
-                                                        <span class="m360-badge" style="background: var(--m360-gray-100);">{{ state.status.status_name }}</span>
-                                                    </span>
-                                                    <small class="events-text-muted" style="display: block; margin-top: var(--m360-space-1);">
-                                                        <i class="bi bi-person"></i> {{ event.host.username|default:"Sistema" }}
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    {% else %}
-                                    <div class="events-empty-state" style="padding: var(--m360-space-6) var(--m360-space-4);">
-                                        <div class="events-empty-state-icon">
-                                            <i class="bi bi-clock-history"></i>
-                                        </div>
-                                        <div class="events-empty-state-title">Sin cambios registrados</div>
-                                        <p class="events-empty-state-text">Los cambios de estado aparecerán aquí</p>
-                                    </div>
-                                    {% endif %}
-                                {% endwith %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- ACCIONES RÁPIDAS (opcional) -->
-                {% if user.is_authenticated %}
-                <div class="events-col-12">
-                    <div class="m360-card">
-                        <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
-                            <h5 class="m360-card-title" style="color: inherit;">
-                                <i class="bi bi-lightning" style="margin-right: var(--m360-space-2);"></i>Acciones
-                            </h5>
-                        </div>
-                        <div class="m360-card-body">
-                            <div class="events-d-flex events-flex-col events-gap-2">
-                                <a href="{% url 'events:event_detail' event.id %}" class="m360-btn m360-btn-outline-primary events-w-100">
-                                    <i class="bi bi-eye" style="margin-right: var(--m360-space-2);"></i>Ver detalle
-                                </a>
-                                <a href="{% url 'events:event_assign' event.id %}" class="m360-btn m360-btn-outline-info events-w-100">
-                                    <i class="bi bi-link" style="margin-right: var(--m360-space-2);"></i>Asignar recursos
-                                </a>
-                                <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-outline-secondary events-w-100">
-                                    <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-2);"></i>Volver al panel
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-            </div><!-- End row sidebar -->
-        </div><!-- End col-lg-4 -->
-
-    </div><!-- End row principal -->
+        <!-- Danger Zone -->
+        {% if event and can_delete and event.deletable %}
+        <div class="section-card" style="border-left: 4px solid var(--red);">
+            <div class="section-body" style="padding: 1rem;">
+                <h6 style="color: var(--red); font-size: 0.8rem; margin-bottom: 0.5rem;">
+                    <i class="bi bi-exclamation-triangle"></i> Danger Zone
+                </h6>
+                <p style="font-size: 0.8rem; color: var(--gray-500); margin-bottom: 0.75rem;">
+                    Once you delete this event, there is no going back.
+                </p>
+                <button onclick="confirmDelete({{ event.id }}, '{{ event.title|escapejs }}')" class="btn btn-danger" style="width: 100%; justify-content: center;">
+                    <i class="bi bi-trash"></i> Delete Event
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'events/js/components.js' %}?v={{ now|date:'U' }}"></script>
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h5><i class="bi bi-exclamation-triangle" style="color: var(--red);"></i> Confirm Deletion</h5>
+            <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete the event <strong id="deleteEventTitle"></strong>?</p>
+            <p style="font-size: 0.8rem; color: var(--gray-500);">
+                <i class="bi bi-info-circle"></i> This action cannot be undone.
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+            <form method="POST" id="deleteEventForm" action="{% url 'events:event_delete' event.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Event</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-dismiss alerts
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('dismissing');
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
+
+    // Form validation
+    const form = document.getElementById('eventEditForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const title = document.getElementById('{{ form.title.id_for_label }}');
+            if (title && !title.value.trim()) {
+                e.preventDefault();
+                title.focus();
+                title.style.borderColor = 'var(--red)';
+                alert('Please enter an event title.');
+                return false;
+            }
+        });
+
+        form.querySelectorAll('input, textarea, select').forEach(field => {
+            field.addEventListener('focus', function() {
+                this.style.borderColor = '';
+            });
+        });
+    }
+});
+
+// Delete confirmation
+function confirmDelete(eventId, eventTitle) {
+    document.getElementById('deleteEventTitle').textContent = `"${eventTitle}" (ID: ${eventId})`;
+    document.getElementById('deleteEventForm').action = `/events/${eventId}/delete/`;
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+}
+
+document.getElementById('deleteModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDeleteModal();
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        const form = document.getElementById('eventEditForm');
+        if (form) {
+            const btn = form.querySelector('button[name="save_and_continue"]');
+            if (btn) btn.click();
+        }
+    }
+});
+</script>
+
+<style>
+@media (max-width: 768px) {
+    .two-col {
+        grid-template-columns: 1fr !important;
+    }
+    .form-actions {
+        flex-direction: column;
+    }
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+
 {% endblock %}

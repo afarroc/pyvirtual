@@ -1,102 +1,338 @@
 {% extends 'layouts/base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="pagetitle">
-    <h1>{{title}}</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'blank' %}">Blank</a></li>
-            <li class="breadcrumb-item active">{{title}}</li>
-        </ol>
-    </nav>
-</div><!-- End Page Title -->
-<!-- Mensajes de confirmación y éxito -->
+
+<!-- ==========================================
+     TASK LIST
+     ========================================== -->
+
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="bi bi-list-ul"></i>
+            {{ title|default:"Task List" }}
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <a href="{% url 'events:task_panel' %}" class="text-decoration-none">
+                Tasks
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">{{ title|default:"List" }}</span>
+        </div>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'events:task_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Task
+        </a>
+        <a href="{% url 'events:task_panel' %}" class="btn btn-ghost">
+            <i class="bi bi-grid-3x3-gap-fill"></i> Panel View
+        </a>
+    </div>
+</div>
+
+<!-- Messages -->
 {% if messages %}
-<div id="message-container" class="alert alert-info" role="alert">
+<div class="alerts-container">
     {% for message in messages %}
-    <p{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
-        {% endfor %}
+    <div class="alert alert-{{ message.tags|default:'info' }}">
+        <div class="alert-content">
+            <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            <span class="alert-message">{{ message }}</span>
+        </div>
+        <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    {% endfor %}
 </div>
 {% endif %}
-<section class="section">
-    <div class="row">
-        <div class="col-lg-6">
 
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Example Card</h5>
-                    <p>This is an examle page with no contrnt. You can use it as a starter for your custom pages.</p>
-                </div>
-            </div>
-
+<!-- Main Content -->
+<div class="section-card">
+    <div class="section-header">
+        <div class="section-title">
+            <i class="bi bi-table"></i>
+            <h5>Tasks</h5>
         </div>
-
-        <div class="col-lg-6">
-
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Example Card</h5>
-                    <p>This is an examle page with no contrnt. You can use it as a starter for your custom pages.</p>
-                </div>
+        <div class="header-actions">
+            <div class="search-bar" style="width: 200px;">
+                <i class="bi bi-search"></i>
+                <input type="text" placeholder="Search tasks..." id="searchInput">
             </div>
-
+            <span class="text-muted text-xs" id="taskCount">{{ tasks|length }} tasks</span>
         </div>
-
-        <div class="col-lg-12" style="overflow-x: auto; overflow-y: auto; max-height: 50vh;">
-
-            <table class="table table-hover table-striped">
+    </div>
+    <div class="section-body" style="padding: 0;">
+        <div class="table-wrap" style="max-height: 65vh; overflow-y: auto;">
+            <table class="table" id="taskTable">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Título</th>
-                        <th>Acciones</th>
+                        <th data-sort="id">ID</th>
+                        <th data-sort="title">Title</th>
+                        <th data-sort="status">Status</th>
+                        <th data-sort="project">Project</th>
+                        <th data-sort="assigned">Assigned To</th>
+                        <th data-sort="priority">Priority</th>
+                        <th style="text-align: center;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for task in tasks %}
-                    <tr>
-                        <td><a href="{% url 'events:tasks_with_id' task.id %}">{{ task.id }} </a></td>
-                        <td><a data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{{task.description}}" href="{% url 'events:tasks_with_id' task.id %}">{{ task.title }}</a></td>
-                        <td>{{ tasks.host.username }}</td>
+                    <tr class="task-row" 
+                        data-id="{{ task.id }}"
+                        data-title="{{ task.title|lower }}"
+                        data-status="{{ task.task_status.status_name|lower }}"
+                        data-project="{{ task.project.title|lower|default:'none' }}"
+                        data-assigned="{{ task.assigned_to.username|lower|default:'unassigned' }}"
+                        data-priority="{% if task.important %}high{% else %}normal{% endif %}">
                         <td>
-                            <a href="{% url 'events:task_edit' task.id %}" class="btn btn-primary">
-                                <i class="bi bi-pencil-fill"></i>
+                            <a href="{% url 'events:tasks_with_id' task.id %}" class="text-decoration-none" style="color: var(--purple); font-weight: 500;">
+                                #{{ task.id }}
                             </a>
-                            <!-- Formulario de eliminación -->
-                            <form method="post" action="{% url 'events:task_delete' task.id %}" style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger">
-                                    <i class="bi bi-trash-fill"></i>
+                        </td>
+                        <td>
+                            <a href="{% url 'events:tasks_with_id' task.id %}" class="text-decoration-none" title="{{ task.description|default:'No description' }}">
+                                {{ task.title|truncatechars:50 }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="status-badge {% if task.task_status.status_name == 'Completed' %}active{% elif task.task_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
+                                {{ task.task_status.status_name }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if task.project %}
+                            <a href="{% url 'events:projects_with_id' task.project.id %}" class="text-decoration-none" style="color: var(--gray-700);">
+                                <i class="bi bi-folder"></i> {{ task.project.title|truncatechars:20 }}
+                            </a>
+                            {% else %}
+                            <span class="text-muted" style="font-size: 0.75rem;">No project</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.assigned_to %}
+                            <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--purple-light); color: var(--purple); text-align: center; font-size: 0.6rem; font-weight: 700; line-height: 24px;">
+                                    {{ task.assigned_to.username|first|upper }}
+                                </span>
+                                {{ task.assigned_to.username }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted" style="font-size: 0.75rem;">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.important %}
+                            <span class="status-badge" style="background: var(--red-light); color: var(--red);">
+                                <i class="bi bi-star-fill"></i> High
+                            </span>
+                            {% else %}
+                            <span class="status-badge" style="background: var(--gray-100); color: var(--gray-500);">
+                                Normal
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <div class="table-actions" style="justify-content: center;">
+                                <a href="{% url 'events:tasks_with_id' task.id %}" class="btn btn-sm btn-ghost" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'events:task_edit' task.id %}" class="btn btn-sm btn-ghost" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button onclick="confirmDelete({{ task.id }}, '{{ task.title|escapejs }}')" class="btn btn-sm btn-ghost" style="color: var(--red);" title="Delete">
+                                    <i class="bi bi-trash"></i>
                                 </button>
-                            </form>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="11">No hay tareas disponibles.</td>
+                        <td colspan="7">
+                            <div class="empty-state" style="padding: 2rem 0;">
+                                <i class="bi bi-list-check" style="font-size: 2.5rem; color: var(--gray-400);"></i>
+                                <h5 style="margin-top: 0.5rem;">No tasks available</h5>
+                                <p style="color: var(--gray-400);">Create your first task to get started.</p>
+                                <a href="{% url 'events:task_create' %}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Create Task
+                                </a>
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        </div> <!-- Fin del contenedor independiente para la tabla -->
+        </div>
 
+        <!-- Footer -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-top: 1px solid var(--gray-200);">
+            <span class="text-muted text-xs" id="visibleTasks">{{ tasks|length }} tasks</span>
+            {% if tasks.has_other_pages %}
+            <div style="display: flex; gap: 0.25rem;">
+                {% if tasks.has_previous %}
+                <a href="?page={{ tasks.previous_page_number }}" class="btn btn-sm btn-ghost">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                {% endif %}
+                {% for num in tasks.paginator.page_range %}
+                {% if tasks.number == num %}
+                <span class="btn btn-sm btn-primary">{{ num }}</span>
+                {% elif num > tasks.number|add:'-3' and num < tasks.number|add:'3' %}
+                <a href="?page={{ num }}" class="btn btn-sm btn-ghost">{{ num }}</a>
+                {% endif %}
+                {% endfor %}
+                {% if tasks.has_next %}
+                <a href="?page={{ tasks.next_page_number }}" class="btn btn-sm btn-ghost">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
     </div>
-</section>
+</div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h5><i class="bi bi-exclamation-triangle" style="color: var(--red);"></i> Confirm Deletion</h5>
+            <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete the task <strong id="deleteTaskTitle"></strong>?</p>
+            <p style="font-size: 0.8rem; color: var(--gray-500);">
+                <i class="bi bi-info-circle"></i> This action cannot be undone.
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+            <form method="POST" id="deleteTaskForm">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Task</button>
+            </form>
+        </div>
+    </div>
+</div>
 
-{% endblock %}
-
-
-
-<!-- Código de jQuery para desvanecer los mensajes de alerta -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script type="text/javascript">
-
-    $(document).ready(function () {
-        // Oculta los mensajes de alerta después de 5 segundos (5000 milisegundos)
-        setTimeout(function () {
-            $('.alert').fadeOut('slow');
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-dismiss alerts
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('dismissing');
+            setTimeout(() => alert.remove(), 300);
         }, 5000);
     });
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const rows = document.querySelectorAll('.task-row');
+    const visibleTasks = document.getElementById('visibleTasks');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const title = row.dataset.title || '';
+                const project = row.dataset.project || '';
+                const assigned = row.dataset.assigned || '';
+                const matches = title.includes(query) || project.includes(query) || assigned.includes(query);
+                row.style.display = matches ? '' : 'none';
+                if (matches) visibleCount++;
+            });
+
+            if (visibleTasks) visibleTasks.textContent = visibleCount + ' tasks';
+            if (document.getElementById('taskCount')) {
+                document.getElementById('taskCount').textContent = visibleCount + ' tasks';
+            }
+        });
+    }
+
+    // Sort functionality
+    document.querySelectorAll('[data-sort]').forEach(th => {
+        th.addEventListener('click', function() {
+            const sortKey = this.dataset.sort;
+            const tbody = this.closest('table').querySelector('tbody');
+            const rowsArray = Array.from(tbody.querySelectorAll('.task-row'));
+
+            const isAsc = this.classList.toggle('asc');
+            this.classList.toggle('desc', !isAsc);
+
+            rowsArray.sort((a, b) => {
+                let aVal = a.dataset[sortKey] || a.textContent.trim();
+                let bVal = b.dataset[sortKey] || b.textContent.trim();
+                if (sortKey === 'id') { aVal = parseInt(aVal); bVal = parseInt(bVal); }
+                return isAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+            });
+
+            rowsArray.forEach(row => tbody.appendChild(row));
+        });
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+            e.preventDefault();
+            window.location.href = "{% url 'events:task_create' %}";
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            const search = document.getElementById('searchInput');
+            if (search) search.focus();
+        }
+        if (e.key === 'Escape') {
+            const search = document.getElementById('searchInput');
+            if (search && document.activeElement === search) {
+                search.value = '';
+                search.dispatchEvent(new Event('input'));
+                search.blur();
+            }
+            closeDeleteModal();
+        }
+    });
+});
+
+// Delete confirmation
+function confirmDelete(taskId, taskTitle) {
+    document.getElementById('deleteTaskTitle').textContent = `"${taskTitle}" (ID: ${taskId})`;
+    document.getElementById('deleteTaskForm').action = `/events/tasks/${taskId}/delete/`;
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+}
+
+document.getElementById('deleteModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
 </script>
+
+<style>
+@media (max-width: 768px) {
+    .table-wrap {
+        overflow-x: auto;
+    }
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        display: none;
+    }
+}
+
+@media print {
+    .header-actions, .search-bar, .table-actions, .btn {
+        display: none !important;
+    }
+}
+</style>
+
+{% endblock %}

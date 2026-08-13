@@ -3,182 +3,339 @@
 
 {% block content %}
 
-<div class="events-container">
-    <div class="events-page-header">
-        <h1 class="events-page-title">{{ title }}</h1>
-        <nav aria-label="breadcrumb">
-            <ol class="events-breadcrumb">
-                <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Home</a></li>
-                <li style="color: var(--m360-text-muted);">/</li>
-                <li><a href="{% url 'events:event_panel' %}"><i class="bi bi-calendar-event"></i> Events</a></li>
-                <li style="color: var(--m360-text-muted);">/</li>
-                <li style="color: var(--m360-text);">{{ title }}</li>
-            </ol>
-        </nav>
-    </div>
+<!-- ==========================================
+     EVENT CREATE
+     ========================================== -->
 
-    {% if messages %}
-    <div class="m360-alert m360-alert-info events-mb-4" role="alert">
-        {% for message in messages %}
-        <div{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</div>
-        {% endfor %}
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="bi bi-plus-circle"></i>
+            {{ title|default:"Create New Event" }}
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <a href="{% url 'events:event_panel' %}" class="text-decoration-none">
+                Events
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">{{ title|default:"Create" }}</span>
+        </div>
     </div>
-    {% endif %}
+    <div class="header-actions">
+        <a href="{% url 'events:event_panel' %}" class="btn btn-ghost">
+            <i class="bi bi-arrow-left"></i> Back to Panel
+        </a>
+    </div>
+</div>
 
-    <div class="events-row events-gap-4">
-        <div class="events-col-lg-6">
-            <div class="m360-card">
-                <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
-                    <h5 class="m360-card-title events-mb-0">
-                        <i class="bi bi-info-circle" style="margin-right: var(--m360-space-2);"></i>Aviso Importante
-                    </h5>
+<!-- Messages -->
+{% if messages %}
+<div class="alerts-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }}">
+        <div class="alert-content">
+            <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            <span class="alert-message">{{ message }}</span>
+        </div>
+        <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Main Content -->
+<div class="two-col">
+    <!-- Form Column -->
+    <div class="col">
+        <div class="section-card">
+            <div class="section-header section-header-primary">
+                <div class="section-title">
+                    <i class="bi bi-pencil-square"></i>
+                    <h5 style="color: #fff;">Event Information</h5>
                 </div>
-                <div class="m360-card-body">
-                    <h5 class="events-text-primary events-mb-3">Creando un Nuevo Evento</h5>
-                    <p class="events-mb-3">Complete cuidadosamente todos los campos del formulario para crear un evento exitoso.</p>
-                    <div class="m360-alert m360-alert-warning">
-                        <h6 class="events-mb-2">
-                            <i class="bi bi-exclamation-triangle" style="margin-right: var(--m360-space-1);"></i>
-                            Consideraciones:
-                        </h6>
-                        <ul class="events-mb-0">
-                            <li>Verifique que la información sea precisa antes de guardar</li>
-                            <li>Asigne los responsables correspondientes</li>
-                            <li>Establezca fechas y tiempos realistas</li>
-                            <li>Revise el estado inicial del evento</li>
-                        </ul>
+            </div>
+            <div class="section-body" style="padding: 1.25rem;">
+                <form method="POST" id="eventCreateForm" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Title -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="bi bi-tag"></i> Event Title <span class="text-danger">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            <i class="bi bi-text-paragraph"></i> Description
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.description.errors }}</div>
+                        {% endif %}
+                        <div class="text-muted text-xs" style="margin-top: 0.25rem;">
+                            Provide a detailed description of the event.
+                        </div>
+                    </div>
+
+                    <!-- Venue -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.venue.id_for_label }}" class="form-label">
+                            <i class="bi bi-geo-alt"></i> Venue
+                        </label>
+                        {{ form.venue }}
+                        {% if form.venue.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.venue.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Event Status -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.event_status.id_for_label }}" class="form-label">
+                            <i class="bi bi-circle"></i> Event Status
+                        </label>
+                        {{ form.event_status }}
+                        {% if form.event_status.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.event_status.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Max Attendees -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.max_attendees.id_for_label }}" class="form-label">
+                            <i class="bi bi-people"></i> Max Attendees
+                        </label>
+                        {{ form.max_attendees }}
+                        {% if form.max_attendees.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.max_attendees.errors }}</div>
+                        {% endif %}
+                        <div class="text-muted text-xs" style="margin-top: 0.25rem;">
+                            Leave empty for unlimited capacity.
+                        </div>
+                    </div>
+
+                    <!-- Ticket Price -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.ticket_price.id_for_label }}" class="form-label">
+                            <i class="bi bi-cash"></i> Ticket Price
+                        </label>
+                        {{ form.ticket_price }}
+                        {% if form.ticket_price.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.ticket_price.errors }}</div>
+                        {% endif %}
+                        <div class="text-muted text-xs" style="margin-top: 0.25rem;">
+                            Set 0 for free events.
+                        </div>
+                    </div>
+
+                    <!-- Event Category -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.event_category.id_for_label }}" class="form-label">
+                            <i class="bi bi-tags"></i> Category
+                        </label>
+                        {{ form.event_category }}
+                        {% if form.event_category.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.event_category.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Assigned To -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.assigned_to.id_for_label }}" class="form-label">
+                            <i class="bi bi-person-check"></i> Assigned To
+                        </label>
+                        {{ form.assigned_to }}
+                        {% if form.assigned_to.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.assigned_to.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Attendees -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.attendees.id_for_label }}" class="form-label">
+                            <i class="bi bi-people-fill"></i> Attendees
+                        </label>
+                        {{ form.attendees }}
+                        {% if form.attendees.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.attendees.errors }}</div>
+                        {% endif %}
+                        <div class="text-muted text-xs" style="margin-top: 0.25rem;">
+                            Hold Ctrl/Cmd to select multiple users.
+                        </div>
+                    </div>
+
+                    <!-- Host (hidden or optional) -->
+                    {% if form.host %}
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="{{ form.host.id_for_label }}" class="form-label">
+                            <i class="bi bi-person"></i> Host
+                        </label>
+                        {{ form.host }}
+                        {% if form.host.errors %}
+                        <div class="text-danger text-sm" style="margin-top: 0.25rem;">{{ form.host.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Form Actions -->
+                    <div class="form-actions" style="display: flex; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-200); flex-wrap: wrap;">
+                        <button type="submit" name="save" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                            <i class="bi bi-check-circle"></i> Create Event
+                        </button>
+                        <button type="submit" name="save_and_add" class="btn btn-success" style="flex: 1; justify-content: center;">
+                            <i class="bi bi-plus-circle"></i> Save & Add Another
+                        </button>
+                        <a href="{% url 'events:event_panel' %}" class="btn btn-ghost">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+            <div class="section-footer" style="padding: 0.75rem 1.25rem; border-top: 1px solid var(--gray-200); background: var(--gray-50); border-radius: 0 0 var(--radius) var(--radius);">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle"></i> Fields marked with <span class="text-danger">*</span> are required.
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col">
+        <!-- Quick Links -->
+        <div class="section-card">
+            <div class="section-header section-header-info">
+                <div class="section-title">
+                    <i class="bi bi-link-45deg"></i>
+                    <h6 style="color: #fff;">Quick Links</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="{% url 'events:project_create' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-folder-plus"></i> Create Project
+                    </a>
+                    <a href="{% url 'events:task_create' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-check-square"></i> Create Task
+                    </a>
+                    <a href="{% url 'events:events' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-list-ul"></i> Event List
+                    </a>
+                    <a href="{% url 'events:projects' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-list-ul"></i> Project List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="section-card">
+            <div class="section-header section-header-success">
+                <div class="section-title">
+                    <i class="bi bi-lightbulb"></i>
+                    <h6 style="color: #fff;">Quick Tips</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                        <i class="bi bi-check-circle text-success"></i>
+                        <span style="font-size: 0.875rem;">Verify all information before saving</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                        <i class="bi bi-check-circle text-success"></i>
+                        <span style="font-size: 0.875rem;">Assign responsible team members</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                        <i class="bi bi-check-circle text-success"></i>
+                        <span style="font-size: 0.875rem;">Set realistic dates and times</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                        <i class="bi bi-check-circle text-success"></i>
+                        <span style="font-size: 0.875rem;">Review the initial event status</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="events-col-lg-6">
-            <div class="m360-card">
-                <div class="m360-card-header" style="background: var(--m360-secondary); color: #fff; border: none;">
-                    <h5 class="m360-card-title events-mb-0">
-                        <i class="bi bi-link-45deg" style="margin-right: var(--m360-space-2);"></i>Enlaces Rápidos
-                    </h5>
-                </div>
-                <div class="m360-card-body">
-                    <h5 class="events-mb-3">Continue Navegando</h5>
-                    <p class="events-text-muted events-mb-3">Acceda rápidamente a otras secciones relacionadas:</p>
-                    <div class="events-d-grid events-gap-2">
-                        <a href="{% url 'events:project_create' %}" class="m360-btn m360-btn-outline-success">
-                            <i class="bi bi-folder-plus" style="margin-right: var(--m360-space-1);"></i> Crear Proyecto
-                        </a>
-                        <a href="{% url 'events:task_create' %}" class="m360-btn m360-btn-outline-success">
-                            <i class="bi bi-check-square" style="margin-right: var(--m360-space-1);"></i> Crear Tarea
-                        </a>
-                        <a href="{% url 'events:events' %}" class="m360-btn m360-btn-outline-primary">
-                            <i class="bi bi-list-ul" style="margin-right: var(--m360-space-1);"></i> Lista de Eventos
-                        </a>
-                        <a href="{% url 'events:projects' %}" class="m360-btn m360-btn-outline-primary">
-                            <i class="bi bi-list-ul" style="margin-right: var(--m360-space-1);"></i> Lista de Proyectos
-                        </a>
-                        <a href="{% url 'events:events' %}" class="m360-btn m360-btn-outline-info">
-                            <i class="bi bi-arrow-left" style="margin-right: var(--m360-space-1);"></i> Volver a Eventos
-                        </a>
-                    </div>
+        <!-- Need Help -->
+        <div class="section-card">
+            <div class="section-header section-header-dark">
+                <div class="section-title">
+                    <i class="bi bi-question-circle"></i>
+                    <h6 style="color: #fff;">Need Help?</h6>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="events-row events-mt-4">
-        <div class="events-col-12">
-            <div class="m360-card">
-                <div class="m360-card-header" style="background: var(--m360-text); color: #fff; border: none;">
-                    <h5 class="m360-card-title events-mb-0">
-                        <i class="bi bi-pencil-square" style="margin-right: var(--m360-space-2);"></i>Formulario de Evento
-                    </h5>
-                </div>
-                <div class="m360-card-body">
-                    <form method="POST" novalidate>
-                        {% csrf_token %}
-
-                        <div class="events-row events-gap-4">
-                            {% for field in form %}
-                            <div class="events-col-md-6 events-mb-4">
-                                <div class="events-mb-3">
-                                    <label for="{{ field.id_for_label }}" class="m360-form-label" style="font-weight: var(--m360-font-weight-bold);">
-                                        {{ field.label }}
-                                        {% if field.field.required %}
-                                            <span class="events-text-danger">*</span>
-                                        {% endif %}
-                                    </label>
-                                    {{ field }}
-                                    {% if field.help_text %}
-                                        <div class="m360-form-hint">{{ field.help_text }}</div>
-                                    {% endif %}
-                                    {% if field.errors %}
-                                        <div class="events-invalid-feedback events-d-block">
-                                            {% for error in field.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="events-row events-mt-4">
-                            <div class="events-col-12">
-                                <div class="events-d-flex events-justify-between events-align-center">
-                                    <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-outline-secondary">
-                                        <i class="bi bi-x-circle" style="margin-right: var(--m360-space-1);"></i> Cancelar
-                                    </a>
-                                    <div class="m360-btn-group">
-                                        <button type="submit" name="save" class="m360-btn m360-btn-success">
-                                            <i class="bi bi-check-circle" style="margin-right: var(--m360-space-1);"></i> Guardar Evento
-                                        </button>
-                                        <button type="submit" name="save_and_add" class="m360-btn m360-btn-primary">
-                                            <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i> Guardar y Crear Otro
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="m360-card-footer" style="background: var(--m360-gray-50);">
-                    <small class="events-text-muted">
-                        <i class="bi bi-info-circle" style="margin-right: var(--m360-space-1);"></i>
-                        Los campos marcados con * son obligatorios
-                    </small>
-                </div>
+            <div class="section-body" style="padding: 1rem;">
+                <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.75rem;">
+                    Having trouble creating an event? Contact support or check the documentation.
+                </p>
+                <a href="#" class="btn btn-ghost" style="width: 100%; justify-content: center;">
+                    <i class="bi bi-envelope"></i> Contact Support
+                </a>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
-        const messageContainer = document.getElementById('message-container');
-        if (messageContainer) {
-            messageContainer.style.transition = 'opacity 0.5s ease';
-            messageContainer.style.opacity = '0';
-            setTimeout(() => messageContainer.remove(), 500);
-        }
-    }, 5000);
+    // Auto-dismiss alerts
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('dismissing');
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
 
-    const form = document.querySelector('form');
+    // Form validation
+    const form = document.getElementById('eventCreateForm');
     if (form) {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
+        form.addEventListener('submit', function(e) {
+            const title = document.getElementById('{{ form.title.id_for_label }}');
+            if (title && !title.value.trim()) {
+                e.preventDefault();
+                title.focus();
+                title.style.borderColor = 'var(--red)';
+                alert('Please enter an event title.');
+                return false;
             }
-            form.classList.add('events-was-validated');
+        });
+
+        form.querySelectorAll('input, textarea, select').forEach(field => {
+            field.addEventListener('focus', function() {
+                this.style.borderColor = '';
+            });
         });
     }
 
-    const firstInput = form ? form.querySelector('input, select, textarea') : null;
-    if (firstInput) {
-        firstInput.focus();
+    // Focus first input
+    const firstInput = form?.querySelector('input, select, textarea');
+    if (firstInput) firstInput.focus();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        const form = document.getElementById('eventCreateForm');
+        if (form) {
+            const btn = form.querySelector('button[name="save"]');
+            if (btn) btn.click();
+        }
     }
 });
 </script>
+
 {% endblock %}
