@@ -11,6 +11,7 @@ class EventsConfig(AppConfig):
         import events.templatetags.custom_tags
         import events.templatetags.signals
         import events.signals  # Importar señales principales
+        import events.signals_system_events  # Importar señales de system events
         # import initial_data
 
         # initial_data.create_default_users() # Eliminado

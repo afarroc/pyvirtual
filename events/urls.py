@@ -4,6 +4,7 @@ from django.views.generic import RedirectView
 from .views import *  # Esto importa TODAS las vistas directamente
 from .setup_views import SetupView
 from .views.ai_assistant import inbox_ai_summary, inbox_ai_chat
+from .views.system_events_views import system_events_feed, system_event_detail, system_events_summary
 app_name = 'events'  # EV-1: namespace declarado
 
 urlpatterns = [
@@ -152,6 +153,13 @@ urlpatterns = [
     path('kanban/project/<int:project_id>/', kanban_project, name='kanban_project'),
     path('eisenhower/', eisenhower_matrix, name='eisenhower_matrix'),
     path('eisenhower/move/<int:task_id>/<str:quadrant>/', move_task_eisenhower, name='move_task_eisenhower'),
+
+    # ============================================================================
+    # SYSTEM EVENTS - Registro de acciones del sistema
+    # ============================================================================
+    path('system-events/', system_events_feed, name='system_events_feed'),
+    path('system-events/<int:event_id>/', system_event_detail, name='system_event_detail'),
+    path('system-events/summary/', system_events_summary, name='system_events_summary'),
 
 # ============================================================================
 # DEPENDENCIAS DE TAREAS

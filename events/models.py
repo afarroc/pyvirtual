@@ -488,6 +488,8 @@ class Tag(models.Model):
         unique_together = ['name', 'category']
 
 # Modelo principal del evento
+# NOTA: Este modelo representa un evento de calendario / reunión / cita,
+# NO un registro de acción del sistema. Para eso usar `SystemEvent`.
 class Event(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
@@ -1067,4 +1069,95 @@ class GTDProcessingSettings(models.Model):
             cls = self.__class__
             cls.objects.filter(created_by=self.created_by, is_active=True).exclude(pk=self.pk).update(is_active=False)
         super().save(*args, **kwargs)
+
+
+# ============================================================================
+# SISTEMA DE EVENTOS DEL SISTEMA (SYSTEM EVENTS)
+# ============================================================================
+class SystemEvent(models.Model):
+    """
+    Modelo dedicado para registrar ocurrencias/acciones del sistema:
+    creación/edición/borrado de tareas, proyectos, inbox items,
+    schedules, reminders, templates, eventos de calendario, etc.
+
+    Este modelo NO es un evento de calendario. Para eso existe `Event`.
+    """
+    ACTION_TASK_CREATED = 'task_created'
+    ACTION_TASK_UPDATED = 'task_updated'
+    ACTION_TASK_DELETED = 'task_deleted'
+    ACTION_TASK_STATUS_CHANGED = 'task_status_changed'
+    ACTION_PROJECT_CREATED = 'project_created'
+    ACTION_PROJECT_UPDATED = 'project_updated'
+    ACTION_PROJECT_DELETED = 'project_deleted'
+    ACTION_PROJECT_STATUS_CHANGED = 'project_status_changed'
+    ACTION_INBOX_CREATED = 'inbox_created'
+    ACTION_INBOX_PROCESSED = 'inbox_processed'
+    ACTION_INBOX_DELETED = 'inbox_deleted'
+    ACTION_SCHEDULE_CREATED = 'schedule_created'
+    ACTION_SCHEDULE_DELETED = 'schedule_deleted'
+    ACTION_REMINDER_CREATED = 'reminder_created'
+    ACTION_REMINDER_DELETED = 'reminder_deleted'
+    ACTION_TEMPLATE_CREATED = 'template_created'
+    ACTION_TEMPLATE_USED = 'template_used'
+    ACTION_EVENT_CREATED = 'event_created'
+    ACTION_EVENT_UPDATED = 'event_updated'
+    ACTION_EVENT_DELETED = 'event_deleted'
+    ACTION_LOGIN = 'login'
+    ACTION_LOGOUT = 'logout'
+    ACTION_OTHER = 'other'
+
+    ACTION_CHOICES = [
+        (ACTION_TASK_CREATED, 'Task Created'),
+        (ACTION_TASK_UPDATED, 'Task Updated'),
+        (ACTION_TASK_DELETED, 'Task Deleted'),
+        (ACTION_TASK_STATUS_CHANGED, 'Task Status Changed'),
+        (ACTION_PROJECT_CREATED, 'Project Created'),
+        (ACTION_PROJECT_UPDATED, 'Project Updated'),
+        (ACTION_PROJECT_DELETED, 'Project Deleted'),
+        (ACTION_PROJECT_STATUS_CHANGED, 'Project Status Changed'),
+        (ACTION_INBOX_CREATED, 'Inbox Created'),
+        (ACTION_INBOX_PROCESSED, 'Inbox Processed'),
+        (ACTION_INBOX_DELETED, 'Inbox Deleted'),
+        (ACTION_SCHEDULE_CREATED, 'Schedule Created'),
+        (ACTION_SCHEDULE_DELETED, 'Schedule Deleted'),
+        (ACTION_REMINDER_CREATED, 'Reminder Created'),
+        (ACTION_REMINDER_DELETED, 'Reminder Deleted'),
+        (ACTION_TEMPLATE_CREATED, 'Template Created'),
+        (ACTION_TEMPLATE_USED, 'Template Used'),
+        (ACTION_EVENT_CREATED, 'Event Created'),
+        (ACTION_EVENT_UPDATED, 'Event Updated'),
+        (ACTION_EVENT_DELETED, 'Event Deleted'),
+        (ACTION_LOGIN, 'Login'),
+        (ACTION_LOGOUT, 'Logout'),
+        (ACTION_OTHER, 'Other'),
+    ]
+
+    action_type = models.CharField(max_length=32, choices=ACTION_CHOICES)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='system_events')
+    timestamp = models.DateTimeField(default=timezone.now, db_index=True)
+
+    # Objeto afectado, usando GenericForeignKey para apuntar a cualquier modelo
+    content_type = models.ForeignKey('contenttypes.ContentType', on_delete=models.SET_NULL, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    # Datos estructurados adicionales: título, resumen, ids relacionados, etc.
+    metadata = models.JSONField(null=True, blank=True, help_text="Contexto adicional del evento")
+
+    # Resumen legible rápido para listados
+    summary = models.CharField(max_length=255, blank=True, help_text="Resumen corto para listados y feeds")
+
+    class Meta:
+        verbose_name = 'System Event'
+        verbose_name_plural = 'System Events'
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['action_type', 'timestamp']),
+            models.Index(fields=['user', 'timestamp']),
+            models.Index(fields=['content_type', 'object_id']),
+        ]
+
+    def __str__(self):
+        user_label = self.user.username if self.user else 'system'
+        return f"[{self.timestamp:%Y-%m-%d %H:%M}] {user_label} :: {self.get_action_type_display()}"
 
