@@ -31,7 +31,7 @@ from .models import (
     GTDProcessingSettings,
     
     # Utility models
-    CreditAccount, Reminder
+    CreditAccount, Reminder, SystemEvent
 )
 
 # Configure logger
@@ -2059,4 +2059,55 @@ class CreditAccountAdmin(admin.ModelAdmin):
         self.message_user(request, f'Reset balance for {updated} accounts.')
         logger.info(f"User {request.user} reset balance for {updated} accounts")
     reset_balance.short_description = 'Reset balance to zero'
+
+
+@admin.register(SystemEvent)
+class SystemEventAdmin(admin.ModelAdmin):
+    list_display = ('id', 'action_type', 'user_link', 'content_type', 'object_id', 'timestamp', 'summary_preview')
+    list_filter = ('action_type', 'timestamp', 'user')
+    search_fields = ('action_type', 'summary', 'metadata', 'user__username')
+    date_hierarchy = 'timestamp'
+    readonly_fields = ('timestamp', 'user_link', 'content_type', 'object_id', 'summary', 'metadata')
+    list_per_page = 50
+    list_select_related = ('user', 'content_type')
+
+    fieldsets = (
+        ('Event Information', {
+            'fields': ('action_type', 'summary', 'timestamp')
+        }),
+        ('Related Object', {
+            'fields': ('user', 'content_type', 'object_id')
+        }),
+        ('Metadata', {
+            'fields': ('metadata',),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def user_link(self, obj):
+        """Link to user if exists"""
+        if obj.user:
+            return format_html('<a href="{}">{}</a>',
+                             reverse('admin:accounts_user_change', args=[obj.user.id]),
+                             obj.user.username)
+        return "system"
+    user_link.short_description = 'User'
+    user_link.admin_order_field = 'user__username'
+
+    def summary_preview(self, obj):
+        """Truncated summary preview"""
+        return obj.summary[:75] + '...' if obj.summary and len(obj.summary) > 75 else obj.summary
+    summary_preview.short_description = 'Summary'
+
+    def has_add_permission(self, request):
+        """Prevent manual addition of system events"""
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Prevent changes to system events"""
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Prevent deletion of system events"""
+        return False
 
