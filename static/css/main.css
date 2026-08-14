@@ -1408,6 +1408,15 @@ img {
 }
 
 .stat-card .stat-sub {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
   font-size: 0.7rem;
   color: var(--gray-400);
 }
@@ -1468,6 +1477,12 @@ img {
 
 .section-card .section-header .header-actions a:hover {
   text-decoration: underline;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Section Headers con colores para Inbox */

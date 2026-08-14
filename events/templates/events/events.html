@@ -1,101 +1,568 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
-{% load humanize %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
 
-{% if messages %}
-<div class="events-container">
-    <div class="events-row">
-        <div class="events-col-12">
-            {% include 'events/includes/messages.html' %}
+<!-- ==========================================
+     EVENTS DASHBOARD
+     ========================================== -->
+
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="bi bi-calendar-event"></i>
+            {{ title|default:"Events Dashboard" }}
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <a href="{% url 'events:events' %}" class="text-decoration-none">
+                Events
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">{{ title|default:"Dashboard" }}</span>
         </div>
     </div>
+    <div class="header-actions">
+        <a href="{% url 'events:event_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Event
+        </a>
+        <a href="{% url 'events:event_panel' %}" class="btn btn-ghost">
+            <i class="bi bi-grid-3x3-gap-fill"></i> Panel View
+        </a>
+    </div>
+</div>
+
+<!-- Messages -->
+{% if messages %}
+<div class="alerts-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }}">
+        <div class="alert-content">
+            <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            <span class="alert-message">{{ message }}</span>
+        </div>
+        <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    {% endfor %}
 </div>
 {% endif %}
 
-<div class="events-container">
-    <div class="events-page-header">
-        <h1 class="events-page-title">
-            <i class="bi bi-calendar-event" style="margin-right: var(--m360-space-2);"></i>{{ title }}
-        </h1>
-        <nav aria-label="breadcrumb">
-            <ol class="events-breadcrumb">
-                <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Home</a></li>
-                <li style="color: var(--m360-text-muted);">/</li>
-                <li><a href="{% url 'events:events' %}"><i class="bi bi-calendar-event"></i> Eventos</a></li>
-                <li style="color: var(--m360-text-muted);">/</li>
-                <li style="color: var(--m360-text);">{{ title }}</li>
-            </ol>
-        </nav>
+<!-- Main Content -->
+<div class="two-col">
+    <!-- Main Column -->
+    <div class="col">
+
+        <!-- Metrics Cards -->
+        {% if metrics %}
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+            <div class="stat-card purple">
+                <div class="stat-content">
+                    <span class="stat-number">{{ metrics.total_events|default:0 }}</span>
+                    <span class="stat-label">Total Events</span>
+                    <span class="stat-sub">All events</span>
+                </div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-content">
+                    <span class="stat-number">{{ metrics.in_progress|default:0 }}</span>
+                    <span class="stat-label">In Progress</span>
+                    <span class="stat-sub">Currently active</span>
+                </div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-content">
+                    <span class="stat-number">{{ metrics.completed|default:0 }}</span>
+                    <span class="stat-label">Completed</span>
+                    <span class="stat-sub">Successfully done</span>
+                </div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-content">
+                    <span class="stat-number">{{ metrics.total_attendees|default:0 }}</span>
+                    <span class="stat-label">Attendees</span>
+                    <span class="stat-sub">Total participants</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Filter Card -->
+        <div class="section-card" style="margin-bottom: 1.5rem;">
+            <div class="section-header section-header-info">
+                <div class="section-title">
+                    <i class="bi bi-funnel-fill"></i>
+                    <h6 style="color: #fff; margin: 0;">Filter Events</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <form method="GET" id="filterForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label for="statusFilter" class="form-label">Status</label>
+                        <select class="form-control" id="statusFilter" name="status">
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="planned">Planned</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hostFilter" class="form-label">Host</label>
+                        <select class="form-control" id="hostFilter" name="host">
+                            <option value="">All Hosts</option>
+                            {% for host in hosts %}
+                            <option value="{{ host.id }}">{{ host.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dateFilter" class="form-label">Date Range</label>
+                        <input type="date" class="form-control" id="dateFilter" name="date">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end; gap: 0.5rem;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                            <i class="bi bi-filter"></i> Apply
+                        </button>
+                        <button type="reset" class="btn btn-ghost" id="clearFilters" style="flex: 0 0 auto;">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Events Table -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="bi bi-calendar2-event"></i>
+                    <h5>Events</h5>
+                    <span class="badge" style="background: var(--purple-light); color: var(--purple); padding: 0.1rem 0.6rem; border-radius: 100px; font-size: 0.7rem; margin-left: 0.5rem;">
+                        {{ events|length }}
+                    </span>
+                </div>
+                <div class="header-actions">
+                    <div class="search-bar" style="width: 200px;">
+                        <i class="bi bi-search"></i>
+                        <input type="text" placeholder="Search events..." id="searchInput">
+                    </div>
+                    <span class="text-muted text-xs" id="eventCount">{{ events|length }} events</span>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 0;">
+
+                {% if events %}
+                <div class="table-wrap" style="max-height: 60vh; overflow-y: auto;">
+                    <table class="table" id="eventTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="id">ID</th>
+                                <th data-sort="title">Title</th>
+                                <th data-sort="status">Status</th>
+                                <th data-sort="host">Host</th>
+                                <th data-sort="date">Created</th>
+                                <th data-sort="attendees">Attendees</th>
+                                <th style="text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                            <tr class="event-row" 
+                                data-id="{{ event.id }}"
+                                data-title="{{ event.title|lower }}"
+                                data-status="{{ event.event_status.status_name|lower }}"
+                                data-host="{{ event.host.username|lower }}"
+                                data-date="{{ event.created_at|date:'Y-m-d' }}">
+                                <td>
+                                    <a href="{% url 'events:event_detail' event.id %}" class="text-decoration-none" style="color: var(--purple); font-weight: 500;">
+                                        #{{ event.id }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{% url 'events:event_detail' event.id %}" class="text-decoration-none" style="font-weight: 500;">
+                                        {{ event.title|truncatechars:45 }}
+                                    </a>
+                                    <div style="font-size: 0.7rem; color: var(--gray-400);">
+                                        <i class="bi bi-geo-alt"></i> {{ event.venue|default:"No venue" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge {% if event.event_status.status_name == 'Completed' %}active{% elif event.event_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
+                                        <i class="bi bi-circle-fill" style="font-size: 0.4rem; margin-right: 0.25rem;"></i>
+                                        {{ event.event_status.status_name }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                        <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--purple-light); color: var(--purple); text-align: center; font-size: 0.6rem; font-weight: 700; line-height: 24px;">
+                                            {{ event.host.username|first|upper }}
+                                        </span>
+                                        {{ event.host.username }}
+                                    </span>
+                                </td>
+                                <td style="font-size: 0.8rem; color: var(--gray-500);">
+                                    {{ event.created_at|date:"M d, Y" }}
+                                </td>
+                                <td>
+                                    <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                        <i class="bi bi-people" style="color: var(--gray-400);"></i>
+                                        {{ event.attendees.count }}/{{ event.max_attendees|default:"∞" }}
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <div class="table-actions" style="justify-content: center;">
+                                        <a href="{% url 'events:event_detail' event.id %}" class="btn btn-sm btn-ghost" title="View">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{% url 'events:event_edit' event.id %}" class="btn btn-sm btn-ghost" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'events:event_assign' event.id %}" class="btn btn-sm btn-ghost" title="Assign">
+                                            <i class="bi bi-link"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- No Results Message -->
+                <div id="noSearchResults" style="display: none; padding: 2rem 1rem; text-align: center;">
+                    <i class="bi bi-search" style="font-size: 2rem; color: var(--gray-400);"></i>
+                    <p style="color: var(--gray-400); margin-top: 0.5rem;">No events found matching your search.</p>
+                </div>
+
+                {% else %}
+                <div class="empty-state" style="padding: 3rem 1.5rem;">
+                    <i class="bi bi-calendar-x" style="font-size: 2.5rem; color: var(--gray-400);"></i>
+                    <h5>No Events Found</h5>
+                    <p style="color: var(--gray-400);">Get started by creating your first event.</p>
+                    <a href="{% url 'events:event_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create First Event
+                    </a>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
     </div>
 
-    {% if metrics %}
-        {% include 'events/includes/metrics_cards.html' %}
-    {% endif %}
+    <!-- Sidebar -->
+    <div class="col">
 
-    <div class="events-row events-gap-4">
-        <div class="events-col-lg-8">
-            <div class="events-row events-gap-3">
-                <div class="events-col-12">
-                    {% include 'events/includes/filter_card.html' %}
+        <!-- Quick Actions -->
+        <div class="section-card">
+            <div class="section-header section-header-success">
+                <div class="section-title">
+                    <i class="bi bi-lightning-charge"></i>
+                    <h6 style="color: #fff;">Quick Actions</h6>
                 </div>
-                <div class="events-col-12">
-                    {% include 'events/includes/top_table.html' %}
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="{% url 'events:event_create' %}" class="btn btn-primary" style="justify-content: center;">
+                        <i class="bi bi-plus-circle"></i> New Event
+                    </a>
+                    <a href="{% url 'events:event_export' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-download"></i> Export Events
+                    </a>
+                    <a href="{% url 'events:event_panel' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-grid-3x3-gap-fill"></i> Panel View
+                    </a>
+                    <a href="{% url 'events:inbox' %}" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-inbox"></i> Go to Inbox
+                    </a>
                 </div>
             </div>
         </div>
 
-        <aside class="events-col-lg-4">
-            <div style="position: sticky; top: 1rem;">
-                <div class="events-row events-gap-3">
-                    <div class="events-col-12">
-                        {% include 'includes/information/info_acordeon.html' %}
-                    </div>
-
-                    <div class="events-col-12">
-                        <div class="m360-card">
-                            <div class="m360-card-body">
-                                <h5 class="events-mb-3">
-                                    <i class="bi bi-activity" style="margin-right: var(--m360-space-2);"></i>Actividad Reciente
-                                </h5>
-                                {% include 'events/includes/activity_card.html' %}
-                            </div>
-                        </div>
-                    </div>
-
-                    {% if user.is_authenticated %}
-                    <div class="events-col-12">
-                        <div class="m360-card">
-                            <div class="m360-card-header" style="background: var(--m360-primary); color: #fff; border: none;">
-                                <h5 class="m360-card-title events-mb-0">
-                                    <i class="bi bi-lightning" style="margin-right: var(--m360-space-1);"></i>Acciones Rápidas
-                                </h5>
-                            </div>
-                            <div class="m360-card-body">
-                                <div class="events-d-grid events-gap-2">
-                                    <a href="{% url 'events:event_create' %}" class="m360-btn m360-btn-success">
-                                        <i class="bi bi-plus-circle" style="margin-right: var(--m360-space-1);"></i>Nuevo Evento
-                                    </a>
-                                    <a href="{% url 'events:event_export' %}" class="m360-btn m360-btn-outline-primary">
-                                        <i class="bi bi-download" style="margin-right: var(--m360-space-1);"></i>Exportar Eventos
-                                    </a>
-                                    <a href="{% url 'events:event_panel' %}" class="m360-btn m360-btn-outline-secondary">
-                                        <i class="bi bi-table" style="margin-right: var(--m360-space-1);"></i>Vista Dashboard
-                                    </a>
-                                    <a href="{% url 'events:inbox' %}" class="m360-btn m360-btn-outline-info">
-                                        <i class="bi bi-inbox" style="margin-right: var(--m360-space-1);"></i>Ir al Inbox
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
+        <!-- Recent Activity -->
+        <div class="section-card">
+            <div class="section-header section-header-purple">
+                <div class="section-title">
+                    <i class="bi bi-activity"></i>
+                    <h6 style="color: #fff;">Recent Activity</h6>
                 </div>
             </div>
-        </aside>
+            <div class="section-body" style="padding: 1rem;">
+                <div class="activity-timeline">
+                    {% for event in events|slice:":5" %}
+                    <div class="activity-item">
+                        <div class="activity-icon {% if event.event_status.status_name == 'Completed' %}green{% elif event.event_status.status_name == 'In Progress' %}amber{% else %}blue{% endif %}">
+                            <i class="bi bi-{% if event.event_status.status_name == 'Completed' %}check-circle{% elif event.event_status.status_name == 'In Progress' %}play-circle{% else %}pause-circle{% endif %}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <strong>{{ event.title|truncatechars:25 }}</strong>
+                            <p class="activity-text">Status: {{ event.event_status.status_name }}</p>
+                            <span class="activity-time">{{ event.updated_at|timesince }} ago</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="bi bi-clock-history"></i>
+                        <p style="color: var(--gray-400); font-size: 0.875rem;">No recent activity</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Help & Resources -->
+        <div class="section-card">
+            <div class="section-header section-header-dark">
+                <div class="section-title">
+                    <i class="bi bi-question-circle"></i>
+                    <h6 style="color: #fff;">Help & Resources</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="#" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-book"></i> Event Management Guide
+                    </a>
+                    <a href="#" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-play-circle"></i> Video Tutorials
+                    </a>
+                    <a href="#" class="btn btn-ghost" style="justify-content: center;">
+                        <i class="bi bi-chat-dots"></i> Support Chat
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ============================================================
+    // SEARCH FILTER
+    // ============================================================
+    const searchInput = document.getElementById('searchInput');
+    const rows = document.querySelectorAll('.event-row');
+    const eventCount = document.getElementById('eventCount');
+    const noResults = document.getElementById('noSearchResults');
+    const totalEvents = rows.length;
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            let visible = 0;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const matches = query === '' || text.includes(query);
+                row.style.display = matches ? '' : 'none';
+                if (matches) visible++;
+            });
+
+            if (eventCount) eventCount.textContent = visible + ' events';
+
+            if (noResults) {
+                noResults.style.display = (visible === 0 && totalEvents > 0) ? 'block' : 'none';
+            }
+        });
+    }
+
+    // ============================================================
+    // CLEAR FILTERS
+    // ============================================================
+    document.getElementById('clearFilters')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = document.getElementById('filterForm');
+        if (form) {
+            form.querySelectorAll('select, input').forEach(el => {
+                if (el.tagName === 'SELECT') el.selectedIndex = 0;
+                if (el.type === 'date') el.value = '';
+            });
+            // Reset search
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
+        }
+    });
+
+    // ============================================================
+    // SORT FUNCTIONALITY
+    // ============================================================
+    document.querySelectorAll('[data-sort]').forEach(th => {
+        th.addEventListener('click', function() {
+            const sortKey = this.dataset.sort;
+            const tbody = this.closest('table').querySelector('tbody');
+            const rowsArray = Array.from(tbody.querySelectorAll('.event-row'));
+
+            const isAsc = this.classList.toggle('asc');
+            this.classList.toggle('desc', !isAsc);
+
+            rowsArray.sort((a, b) => {
+                let aVal = a.dataset[sortKey] || a.textContent.trim();
+                let bVal = b.dataset[sortKey] || b.textContent.trim();
+                if (sortKey === 'id') { aVal = parseInt(aVal); bVal = parseInt(bVal); }
+                if (sortKey === 'date') { aVal = a.dataset.date || ''; bVal = b.dataset.date || ''; }
+                return isAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+            });
+
+            rowsArray.forEach(row => tbody.appendChild(row));
+        });
+    });
+
+    // ============================================================
+    // AUTO-DISMISS ALERTS
+    // ============================================================
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('dismissing');
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
+
+    // ============================================================
+    // KEYBOARD SHORTCUTS
+    // ============================================================
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            const search = document.getElementById('searchInput');
+            if (search) {
+                search.focus();
+                search.select();
+            }
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+            e.preventDefault();
+            window.location.href = "{% url 'events:event_create' %}";
+        }
+        if (e.key === 'Escape') {
+            const search = document.getElementById('searchInput');
+            if (search && document.activeElement === search) {
+                search.value = '';
+                search.dispatchEvent(new Event('input'));
+                search.blur();
+            }
+        }
+    });
+});
+</script>
+
+<style>
+/* Tooltip custom */
+.tooltip-custom {
+    position: fixed;
+    background: var(--gray-900);
+    color: #fff;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    max-width: 300px;
+    z-index: 1000;
+    pointer-events: none;
+    transform: translateY(-100%);
+    margin-top: -0.5rem;
+    box-shadow: var(--shadow-md);
+    animation: tooltipFade 0.15s ease;
+}
+
+@keyframes tooltipFade {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(-100%); }
+}
+
+/* Table row hover */
+.event-row:hover {
+    background: var(--gray-50);
+    cursor: pointer;
+}
+
+/* Sort indicators */
+[data-sort] {
+    cursor: pointer;
+    user-select: none;
+}
+
+[data-sort]:hover {
+    color: var(--gray-900);
+}
+
+[data-sort].asc i.bi-arrow-up-down::before {
+    content: '\F12A';
+}
+
+[data-sort].desc i.bi-arrow-up-down::before {
+    content: '\F128';
+}
+
+/* No results */
+#noSearchResults {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .two-col {
+        grid-template-columns: 1fr !important;
+    }
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .table-wrap {
+        overflow-x: auto;
+    }
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        display: none;
+    }
+    .search-bar {
+        width: 160px !important;
+    }
+    .header-actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    #filterForm {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .search-bar {
+        width: 100% !important;
+    }
+    .table th:nth-child(3),
+    .table td:nth-child(3),
+    .table th:nth-child(5),
+    .table td:nth-child(5) {
+        display: none;
+    }
+}
+
+@media print {
+    .header-actions, .search-bar, .table-actions, .btn, .modal-overlay {
+        display: none !important;
+    }
+    .section-card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+</style>
+
 {% endblock %}
