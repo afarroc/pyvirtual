@@ -65,28 +65,28 @@
         <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
             <div class="stat-card purple">
                 <div class="stat-content">
-                    <span class="stat-number">{{ metrics.total_events|default:0 }}</span>
+                    <span class="stat-number">{{ metrics.events.count|default:0 }}</span>
                     <span class="stat-label">Total Events</span>
                     <span class="stat-sub">All events</span>
                 </div>
             </div>
             <div class="stat-card amber">
                 <div class="stat-content">
-                    <span class="stat-number">{{ metrics.in_progress|default:0 }}</span>
+                    <span class="stat-number">{{ metrics.tasks.count|default:0 }}</span>
                     <span class="stat-label">In Progress</span>
                     <span class="stat-sub">Currently active</span>
                 </div>
             </div>
             <div class="stat-card green">
                 <div class="stat-content">
-                    <span class="stat-number">{{ metrics.completed|default:0 }}</span>
+                    <span class="stat-number">{{ metrics.projects.count|default:0 }}</span>
                     <span class="stat-label">Completed</span>
                     <span class="stat-sub">Successfully done</span>
                 </div>
             </div>
             <div class="stat-card blue">
                 <div class="stat-content">
-                    <span class="stat-number">{{ metrics.total_attendees|default:0 }}</span>
+                    <span class="stat-number">{{ metrics.events.count|default:0 }}</span>
                     <span class="stat-label">Attendees</span>
                     <span class="stat-sub">Total participants</span>
                 </div>
@@ -175,56 +175,56 @@
                         <tbody>
                             {% for event in events %}
                             <tr class="event-row" 
-                                data-id="{{ event.id }}"
-                                data-title="{{ event.title|lower }}"
-                                data-status="{{ event.event_status.status_name|lower }}"
-                                data-host="{{ event.host.username|lower }}"
-                                data-date="{{ event.created_at|date:'Y-m-d' }}">
+                                data-id="{{ event.event.id }}"
+                                data-title="{{ event.event.title|lower }}"
+                                data-status="{{ event.event.event_status.status_name|lower }}"
+                                data-host="{{ event.event.host.username|lower }}"
+                                data-date="{{ event.event.created_at|date:'Y-m-d' }}">
                                 <td>
-                                    <a href="{% url 'events:event_detail' event.id %}" class="text-decoration-none" style="color: var(--purple); font-weight: 500;">
-                                        #{{ event.id }}
+                                    <a href="{% url 'events:event_detail' event.event.id %}" class="text-decoration-none" style="color: var(--purple); font-weight: 500;">
+                                        #{{ event.event.id }}
                                     </a>
                                 </td>
                                 <td>
-                                    <a href="{% url 'events:event_detail' event.id %}" class="text-decoration-none" style="font-weight: 500;">
-                                        {{ event.title|truncatechars:45 }}
+                                    <a href="{% url 'events:event_detail' event.event.id %}" class="text-decoration-none" style="font-weight: 500;">
+                                        {{ event.event.title|truncatechars:45 }}
                                     </a>
                                     <div style="font-size: 0.7rem; color: var(--gray-400);">
-                                        <i class="bi bi-geo-alt"></i> {{ event.venue|default:"No venue" }}
+                                        <i class="bi bi-geo-alt"></i> {{ event.event.venue|default:"No venue" }}
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="status-badge {% if event.event_status.status_name == 'Completed' %}active{% elif event.event_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
+                                    <span class="status-badge {% if event.event.event_status.status_name == 'Completed' %}active{% elif event.event.event_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
                                         <i class="bi bi-circle-fill" style="font-size: 0.4rem; margin-right: 0.25rem;"></i>
-                                        {{ event.event_status.status_name }}
+                                        {{ event.event.event_status.status_name }}
                                     </span>
                                 </td>
                                 <td>
                                     <span style="display: flex; align-items: center; gap: 0.25rem;">
                                         <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--purple-light); color: var(--purple); text-align: center; font-size: 0.6rem; font-weight: 700; line-height: 24px;">
-                                            {{ event.host.username|first|upper }}
+                                            {{ event.event.host.username|first|upper }}
                                         </span>
-                                        {{ event.host.username }}
+                                        {{ event.event.host.username }}
                                     </span>
                                 </td>
                                 <td style="font-size: 0.8rem; color: var(--gray-500);">
-                                    {{ event.created_at|date:"M d, Y" }}
+                                    {{ event.event.created_at|date:"M d, Y" }}
                                 </td>
                                 <td>
                                     <span style="display: flex; align-items: center; gap: 0.25rem;">
                                         <i class="bi bi-people" style="color: var(--gray-400);"></i>
-                                        {{ event.attendees.count }}/{{ event.max_attendees|default:"∞" }}
+                                        {{ event.event.attendees.count }}/{{ event.event.max_attendees|default:"∞" }}
                                     </span>
                                 </td>
                                 <td style="text-align: center;">
                                     <div class="table-actions" style="justify-content: center;">
-                                        <a href="{% url 'events:event_detail' event.id %}" class="btn btn-sm btn-ghost" title="View">
+                                        <a href="{% url 'events:event_detail' event.event.id %}" class="btn btn-sm btn-ghost" title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a href="{% url 'events:event_edit' event.id %}" class="btn btn-sm btn-ghost" title="Edit">
+                                        <a href="{% url 'events:event_edit' event.event.id %}" class="btn btn-sm btn-ghost" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a href="{% url 'events:event_assign' event.id %}" class="btn btn-sm btn-ghost" title="Assign">
+                                        <a href="{% url 'events:event_assign' event.event.id %}" class="btn btn-sm btn-ghost" title="Assign">
                                             <i class="bi bi-link"></i>
                                         </a>
                                     </div>
@@ -296,15 +296,15 @@
             </div>
             <div class="section-body" style="padding: 1rem;">
                 <div class="activity-timeline">
-                    {% for event in events|slice:":5" %}
+                    {% for state in events_states|slice:":5" %}
                     <div class="activity-item">
-                        <div class="activity-icon {% if event.event_status.status_name == 'Completed' %}green{% elif event.event_status.status_name == 'In Progress' %}amber{% else %}blue{% endif %}">
-                            <i class="bi bi-{% if event.event_status.status_name == 'Completed' %}check-circle{% elif event.event_status.status_name == 'In Progress' %}play-circle{% else %}pause-circle{% endif %}"></i>
+                        <div class="activity-icon {% if state.status.status_name == 'Completed' %}green{% elif state.status.status_name == 'In Progress' %}amber{% else %}blue{% endif %}">
+                            <i class="bi bi-{% if state.status.status_name == 'Completed' %}check-circle{% elif state.status.status_name == 'In Progress' %}play-circle{% else %}pause-circle{% endif %}"></i>
                         </div>
                         <div class="activity-content">
-                            <strong>{{ event.title|truncatechars:25 }}</strong>
-                            <p class="activity-text">Status: {{ event.event_status.status_name }}</p>
-                            <span class="activity-time">{{ event.updated_at|timesince }} ago</span>
+                            <strong>{{ state.event.title|truncatechars:25 }}</strong>
+                            <p class="activity-text">Status: {{ state.status.status_name }}</p>
+                            <span class="activity-time">{{ state.start_time|timesince }} ago</span>
                         </div>
                     </div>
                     {% empty %}
