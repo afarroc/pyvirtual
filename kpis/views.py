@@ -13,7 +13,7 @@ import json
 import csv
 import uuid
 import logging
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -59,6 +59,62 @@ def _build_chart(queryset, label_key, value_key='avg_aht'):
     }
 
 
+def _get_trend_percentage(current, previous):
+    """Calcula porcentaje de cambio entre dos valores."""
+    if previous in (0, None):
+        return 0
+    return round(((current - previous) / previous) * 100, 1)
+
+
+def _calculate_service_level(qs, threshold_seconds=20):
+    """Calcula Service Level: % de llamadas atendidas en < threshold_seconds."""
+    total = qs.count()
+    if total == 0:
+        return 0
+    atendidas_en_umbral = qs.filter(aht__lte=threshold_seconds).count()
+    return round((atendidas_en_umbral / total) * 100, 1)
+
+
+def _calculate_fcr(qs):
+    """First Call Resolution: % de resolución en primera llamada."""
+    total = qs.count()
+    if total == 0:
+        return 0
+    fcr_count = qs.filter(resolved_on_first_call=True).count()
+    return round((fcr_count / total) * 100, 1)
+
+
+def _calculate_abandon_rate(qs):
+    """Abandon Rate: % de llamadas abandonadas."""
+    total = qs.count()
+    if total == 0:
+        return 0
+    abandoned = qs.filter(abandoned=True).count()
+    return round((abandoned / total) * 100, 1)
+
+
+def _get_heatmap_data(qs):
+    """Genera datos para heatmap por hora y día de la semana."""
+    heatmap = []
+    for hour in range(24):
+        row = {'hora': f'{hour:02d}:00', 'dias': []}
+        for day in range(7):
+            count = qs.filter(
+                fecha__week_day=(day + 1) % 7 + 1,
+                hora__hour=hour,
+            ).count()
+            color = 'var(--gray-50)'
+            if count > 30:
+                color = 'var(--purple-light)'
+            elif count > 20:
+                color = 'var(--amber-light)'
+            elif count > 10:
+                color = 'var(--blue-light)'
+            row['dias'].append({'valor': count, 'color': color})
+        heatmap.append(row)
+    return heatmap
+
+
 def _date_range_from_request(request):
     """Extrae fecha_desde / fecha_hasta del request.GET.
     Si no se proveen, devuelve últimas 12 semanas."""
@@ -86,9 +142,8 @@ def kpi_home(request):
 @login_required
 def aht_dashboard(request):
     """
-    Dashboard principal KPIs.
+    Dashboard mejorado con métricas SL, FCR, abandonos, heatmap y rankings.
     KPI-2: Caching Redis 5 minutos por usuario + rango de fechas.
-    KPI-4: Incluye métricas de SL estimado.
     """
     fecha_desde, fecha_hasta = _date_range_from_request(request)
     cache_key = _cache_key(request.user.id, f"{fecha_desde}:{fecha_hasta}")
@@ -97,51 +152,139 @@ def aht_dashboard(request):
     if ctx is None:
         qs = CallRecord.objects.filter(fecha__gte=fecha_desde, fecha__lte=fecha_hasta)
 
-        aht_por_servicio  = list(qs.values('servicio').annotate(
-            avg_aht=Avg('aht'), total_eventos=Count('id'), total_registros=Count('id')).order_by('-avg_aht'))
-        aht_por_canal     = list(qs.values('canal').annotate(
-            avg_aht=Avg('aht'), total_eventos=Count('id')).order_by('-avg_aht'))
-        aht_por_semana    = list(qs.values('semana').annotate(
-            avg_aht=Avg('aht'), total_eventos=Count('id')).order_by('semana'))
-        aht_por_supervisor= list(qs.values('supervisor').annotate(
-            avg_aht=Avg('aht'), total_eventos=Count('id'),
-            avg_sat=Avg('satisfaccion')).order_by('-avg_aht'))
-        aht_por_agente    = list(qs.values('agente').annotate(
-            avg_aht=Avg('aht'), total_eventos=Count('id'),
-            avg_sat=Avg('satisfaccion')).order_by('avg_aht')[:20])
-
-        totales = qs.aggregate(
-            total_llamadas  = Count('id'),
-            aht_promedio    = Avg('aht'),
-            sat_promedio    = Avg('satisfaccion'),
-            total_eventos   = Sum('eventos'),
-            total_evals     = Sum('evaluaciones'),
+        # Período anterior para tendencias
+        delta = fecha_hasta - fecha_desde
+        qs_anterior = CallRecord.objects.filter(
+            fecha__gte=fecha_desde - delta,
+            fecha__lt=fecha_desde,
         )
 
+        # ---- Métricas Principales ----
+        aht_por_servicio = list(qs.values('servicio').annotate(
+            avg_aht=Avg('aht'), total_eventos=Count('id'), total_registros=Count('id')
+        ).order_by('-avg_aht'))
+        aht_por_canal = list(qs.values('canal').annotate(
+            avg_aht=Avg('aht'), total_eventos=Count('id')
+        ).order_by('-avg_aht'))
+        aht_por_semana = list(qs.values('semana').annotate(
+            avg_aht=Avg('aht'), total_eventos=Count('id')
+        ).order_by('semana'))
+        aht_por_supervisor = list(qs.values('supervisor').annotate(
+            avg_aht=Avg('aht'), total_eventos=Count('id'),
+            avg_sat=Avg('satisfaccion')
+        ).order_by('-avg_aht'))
+        aht_por_agente = list(qs.values('agente').annotate(
+            avg_aht=Avg('aht'), total_eventos=Count('id'),
+            avg_sat=Avg('satisfaccion')
+        ).order_by('avg_aht')[:20])
+
+        totales = qs.aggregate(
+            total_llamadas=Count('id'),
+            aht_promedio=Avg('aht'),
+            sat_promedio=Avg('satisfaccion'),
+            total_eventos=Sum('eventos'),
+            total_evals=Sum('evaluaciones'),
+        )
+        totales_anterior = qs_anterior.aggregate(
+            total_llamadas=Count('id'),
+            aht_promedio=Avg('aht'),
+        )
+
+        # ---- Service Level ----
+        sl_general = _calculate_service_level(qs)
+        sl_por_servicio = []
+        for servicio in qs.values_list('servicio', flat=True).distinct():
+            sub_qs = qs.filter(servicio=servicio)
+            sl_por_servicio.append({
+                'servicio': servicio,
+                'sl': _calculate_service_level(sub_qs),
+                'total': sub_qs.count(),
+            })
+
+        sl_por_canal = []
+        for canal in qs.values_list('canal', flat=True).distinct():
+            sub_qs = qs.filter(canal=canal)
+            sl_por_canal.append({
+                'canal': canal,
+                'sl': _calculate_service_level(sub_qs),
+                'total': sub_qs.count(),
+            })
+
+        # ---- CSAT ----
+        csat_por_servicio = list(qs.values('servicio').annotate(
+            avg_sat=Avg('satisfaccion'),
+            total=Count('id')
+        ).order_by('-avg_sat'))
+
+        # ---- Volumen por Servicio ----
+        resumen_servicio = list(qs.values('servicio').annotate(
+            volumen=Count('id')
+        ).order_by('-volumen'))
+
+        # ---- Heatmap ----
+        heatmap_data = _get_heatmap_data(qs)
+
+        # ---- Top/Bottom Agentes ----
+        agentes = qs.values('agente').annotate(
+            avg_aht=Avg('aht'),
+            total=Count('id'),
+            avg_sat=Avg('satisfaccion')
+        ).filter(total__gte=5)
+        top_agentes = list(agentes.order_by('avg_aht')[:10])
+        bottom_agentes = list(agentes.order_by('-avg_aht')[:10])
+
         ctx = {
-            # Chart data — colores fijos (no randint)
-            'chart_data_json':         json.dumps(_build_chart(aht_por_servicio,  'servicio'), ensure_ascii=False),
-            'aht_por_canal_json':      json.dumps(_build_chart(aht_por_canal,      'canal'),   ensure_ascii=False),
-            'aht_por_semana_json':     json.dumps(_build_chart(aht_por_semana,     'semana'),  ensure_ascii=False),
-            'aht_por_agente_json':     json.dumps(_build_chart(aht_por_agente,     'agente'),  ensure_ascii=False),
+            # Chart data
+            'chart_data_json': json.dumps(_build_chart(aht_por_servicio, 'servicio'), ensure_ascii=False),
+            'aht_por_canal_json': json.dumps(_build_chart(aht_por_canal, 'canal'), ensure_ascii=False),
+            'aht_por_semana_json': json.dumps(_build_chart(aht_por_semana, 'semana'), ensure_ascii=False),
+            'aht_por_agente_json': json.dumps(_build_chart(aht_por_agente, 'agente'), ensure_ascii=False),
 
             # Tablas
-            'aht_por_servicio':   aht_por_servicio,
-            'aht_por_canal':      aht_por_canal,
-            'aht_por_semana':     aht_por_semana,
+            'aht_por_servicio': aht_por_servicio,
+            'aht_por_canal': aht_por_canal,
+            'aht_por_semana': aht_por_semana,
             'aht_por_supervisor': aht_por_supervisor,
-            'aht_por_agente':     aht_por_agente,
+            'aht_por_agente': aht_por_agente,
 
             # KPIs resumen
-            'total_llamadas':   totales['total_llamadas'] or 0,
-            'aht_promedio':     round(totales['aht_promedio'] or 0, 2),
+            'total_llamadas': totales['total_llamadas'] or 0,
+            'aht_promedio': round(totales['aht_promedio'] or 0, 2),
             'aht_promedio_min': round((totales['aht_promedio'] or 0) / 60, 2),
-            'sat_promedio':     round(totales['sat_promedio'] or 0, 2),
-            'total_eventos':    totales['total_eventos'] or 0,
-            'total_evals':      totales['total_evals'] or 0,
+            'sat_promedio': round(totales['sat_promedio'] or 0, 2),
+            'total_eventos': totales['total_eventos'] or 0,
+            'total_evals': totales['total_evals'] or 0,
 
-            'servicio_mas_alto': max(aht_por_servicio, key=lambda x: x['avg_aht'], default=None),
-            'servicio_mas_bajo': min(aht_por_servicio, key=lambda x: x['avg_aht'], default=None),
+            # Tendencias
+            'total_llamadas_trend': _get_trend_percentage(
+                totales['total_llamadas'], totales_anterior['total_llamadas']
+            ),
+            'aht_trend': _get_trend_percentage(
+                totales['aht_promedio'], totales_anterior['aht_promedio']
+            ),
+
+            # Service Level
+            'service_level': sl_general,
+            'sl_por_servicio': sl_por_servicio,
+            'sl_por_canal': sl_por_canal,
+
+            # CSAT
+            'csat_promedio': round(totales['sat_promedio'] or 0, 2),
+            'csat_por_servicio': csat_por_servicio,
+
+            # Volumen
+            'resumen_servicio': resumen_servicio,
+            'total_volumen': qs.count(),
+
+            # Heatmap
+            'heatmap_data': heatmap_data,
+
+            # Rankings
+            'top_agentes': top_agentes,
+            'bottom_agentes': bottom_agentes,
+
+            'servicio_mas_alto': max(sl_por_servicio, key=lambda x: x['sl'], default=None),
+            'servicio_mas_bajo': min(sl_por_servicio, key=lambda x: x['sl'], default=None),
 
             'cached_at': timezone.now().isoformat(),
         }
@@ -316,6 +459,13 @@ def generate_fake_data(request):
                             ),
                             satisfaccion = round(max(1.0, min(10.0, sat)), 2),
                             created_by   = request.user,
+                            hora         = datetime.time(
+                                hour=random.randint(8, 18),
+                                minute=random.randint(0, 59),
+                            ),
+                            asa          = round(random.uniform(5, 30), 2),
+                            resolved_on_first_call = random.random() < 0.7,
+                            abandoned              = random.random() < 0.1,
                         ))
 
                 batch_size = form.cleaned_data.get('batch_size', 500)

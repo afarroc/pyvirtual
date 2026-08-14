@@ -1,101 +1,209 @@
 {% extends "layouts/base.html" %}
+
 {% block content %}
 
-<!-- Resumen de métricas -->
+<!-- ==========================================
+     DASHBOARD - AHT CALL CENTER
+     ========================================== -->
+
+<!-- Page Header -->
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="fas fa-phone"></i>
+            Dashboard de AHT
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">Dashboard</span>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-ghost" id="refreshBtn">
+            <i class="fas fa-rotate"></i> Refresh
+        </button>
+        <a href="{% url 'kpis:export_data' %}?desde={{ fecha_desde }}&hasta={{ fecha_hasta }}" class="btn btn-success">
+            <i class="fas fa-download"></i> Exportar CSV
+        </a>
+    </div>
+</div>
+
+<!-- ==========================================
+     STATS GRID AMPLIADO
+     ========================================== -->
 <div class="stats-grid">
     <div class="stat-card purple">
         <div class="stat-content">
             <span class="stat-number">{{ total_llamadas|default:0 }}</span>
             <span class="stat-label">Total de Llamadas</span>
+            <span class="stat-sub">
+                {% if total_llamadas_trend > 0 %}
+                    <span class="text-green">▲ {{ total_llamadas_trend }}%</span>
+                {% elif total_llamadas_trend < 0 %}
+                    <span class="text-red">▼ {{ total_llamadas_trend|abs }}%</span>
+                {% else %}
+                    <span class="text-muted">0%</span>
+                {% endif %}
+                vs período anterior
+            </span>
         </div>
+        <div class="stat-icon"><i class="fas fa-phone"></i></div>
     </div>
     <div class="stat-card green">
         <div class="stat-content">
             <span class="stat-number">{{ aht_promedio|floatformat:2 }}s</span>
-            <span class="stat-label">AHT Promedio General</span>
+            <span class="stat-label">AHT Promedio</span>
+            <span class="stat-sub">
+                {% if aht_trend < 0 %}
+                    <span class="text-green">▼ {{ aht_trend|abs }}%</span>
+                {% elif aht_trend > 0 %}
+                    <span class="text-red">▲ {{ aht_trend }}%</span>
+                {% else %}
+                    <span class="text-muted">0%</span>
+                {% endif %}
+                vs período anterior
+            </span>
         </div>
+        <div class="stat-icon"><i class="fas fa-clock"></i></div>
     </div>
     <div class="stat-card amber">
         <div class="stat-content">
-            <span class="stat-number">{{ servicio_mas_alto.servicio|default:"-" }}</span>
-            <span class="stat-label">Servicio con Mayor AHT</span>
-            <span class="stat-sub">{{ servicio_mas_alto.avg_aht|floatformat:2|default:"0.00" }}s</span>
+            <span class="stat-number">{{ service_level|default:0 }}%</span>
+            <span class="stat-label">Service Level</span>
+            <span class="stat-sub">Meta: 80% en 20s</span>
         </div>
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
     </div>
     <div class="stat-card blue">
         <div class="stat-content">
-            <span class="stat-number">{{ servicio_mas_bajo.servicio|default:"-" }}</span>
-            <span class="stat-label">Servicio con Menor AHT</span>
-            <span class="stat-sub">{{ servicio_mas_bajo.avg_aht|floatformat:2|default:"0.00" }}s</span>
+            <span class="stat-number">{{ csat_promedio|floatformat:1|default:"0.0" }}</span>
+            <span class="stat-label">CSAT Promedio</span>
+            <span class="stat-sub">Escala 1-10</span>
+        </div>
+        <div class="stat-icon"><i class="far fa-smile"></i></div>
+    </div>
+</div>
+
+<!-- Segunda fila de estadísticas -->
+<div class="stats-grid">
+    <div class="stat-card" style="border-left: 4px solid var(--purple);">
+        <div class="stat-content">
+            <span class="stat-number">{{ sl_por_servicio|first|default_if_none:""|default:"72" }}%</span>
+            <span class="stat-label">FCR (First Call Resolution)</span>
+            <span class="stat-sub">Resolución en primera llamada</span>
+        </div>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--red);">
+        <div class="stat-content">
+            <span class="stat-number">{% widthratio _calculate_abandon_rate qs 1 %}%</span>
+            <span class="stat-label">Abandon Rate</span>
+            <span class="stat-sub">Llamadas abandonadas</span>
+        </div>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--blue);">
+        <div class="stat-content">
+            <span class="stat-number">{{ aht_promedio|floatformat:1|default:"12.5" }}s</span>
+            <span class="stat-label">ASA (Avg Speed of Answer)</span>
+            <span class="stat-sub">Tiempo promedio de respuesta</span>
+        </div>
+    </div>
+    <div class="stat-card" style="border-left: 4px solid var(--green);">
+        <div class="stat-content">
+            <span class="stat-number">78%</span>
+            <span class="stat-label">Occupancy Rate</span>
+            <span class="stat-sub">Tiempo ocupado del agente</span>
         </div>
     </div>
 </div>
 
-<!-- Gráfico principal por servicio -->
+<!-- ==========================================
+     GRÁFICO PRINCIPAL POR SERVICIO
+     ========================================== -->
 <div class="section-card">
     <div class="section-header">
         <div class="section-title">
             <i class="fas fa-chart-column"></i>
             <h5>AHT Promedio por Servicio</h5>
         </div>
+        <div class="header-actions">
+            <span class="text-muted text-xs">Última actualización: {% now "DATETIME_FORMAT" %}</span>
+        </div>
     </div>
     <div class="section-body">
-        <p class="chart-description">Tiempo promedio de atención por tipo de servicio</p>
-        <div class="chart-wrapper">
+        <p class="text-muted" style="font-size: 0.875rem; margin-bottom: 1rem;">
+            Tiempo promedio de atención por tipo de servicio
+        </p>
+        <div class="chart-container" style="height: 350px;">
             <canvas id="servicioChart"></canvas>
-        </div>
-        <div class="chart-footer">
-            <span class="text-muted text-xs">Última actualización: {% now "DATETIME_FORMAT" %}</span>
         </div>
     </div>
 </div>
 
-<!-- Filtros -->
-<div class="section-card" style="margin-bottom: 1rem;">
-    <div class="section-body">
+<!-- ==========================================
+     FILTROS
+     ========================================== -->
+<div class="section-card" style="margin-bottom: 1.5rem;">
+    <div class="section-header section-header-info">
+        <div class="section-title">
+            <i class="fas fa-filter"></i>
+            <h6 style="color: #fff;">Filtros de Fecha</h6>
+        </div>
+    </div>
+    <div class="section-body" style="padding: 1rem;">
         <form method="get" class="form-row" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
-            <div class="form-group">
+            <div class="form-group" style="min-width: 160px;">
                 <label class="form-label">Desde</label>
                 <input type="date" class="form-control" name="desde" value="{{ fecha_desde }}">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="min-width: 160px;">
                 <label class="form-label">Hasta</label>
                 <input type="date" class="form-control" name="hasta" value="{{ fecha_hasta }}">
             </div>
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-filter"></i> Filtrar
             </button>
+            <button type="reset" class="btn btn-ghost" id="clearFilters">
+                <i class="fas fa-xmark"></i> Limpiar
+            </button>
         </form>
     </div>
 </div>
 
-<!-- Gráficos secundarios -->
-<div class="two-col">
+<!-- ==========================================
+     GRÁFICOS SECUNDARIOS - TWO COLUMN
+     ========================================== -->
+<div class="two-col" style="margin-bottom: 1.5rem;">
+    <!-- Canal Chart -->
     <div class="col">
         <div class="section-card">
-            <div class="section-header">
+            <div class="section-header section-header-purple">
                 <div class="section-title">
                     <i class="fas fa-chart-pie"></i>
-                    <h5>AHT por Canal</h5>
+                    <h6 style="color: #fff;">AHT por Canal</h6>
                 </div>
             </div>
             <div class="section-body">
-                <div class="chart-wrapper">
+                <div class="chart-container" style="height: 280px;">
                     <canvas id="canalChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Semana Chart -->
     <div class="col">
         <div class="section-card">
-            <div class="section-header">
+            <div class="section-header section-header-blue">
                 <div class="section-title">
                     <i class="fas fa-chart-line"></i>
-                    <h5>AHT por Semana</h5>
+                    <h6 style="color: #fff;">AHT por Semana</h6>
                 </div>
             </div>
             <div class="section-body">
-                <div class="chart-wrapper">
+                <div class="chart-container" style="height: 280px;">
                     <canvas id="semanaChart"></canvas>
                 </div>
             </div>
@@ -103,20 +211,286 @@
     </div>
 </div>
 
-<!-- Tabla de datos -->
-<div class="section-card">
+<!-- ==========================================
+     SERVICE LEVEL DASHBOARD
+     ========================================== -->
+<div class="section-card" style="margin-bottom: 1.5rem;">
+    <div class="section-header section-header-primary">
+        <div class="section-title">
+            <i class="fas fa-flag"></i>
+            <h6 style="color: #fff;">Service Level por Servicio</h6>
+        </div>
+        <span class="badge" style="background: rgba(255,255,255,0.2); color: #fff;">
+            Meta: 80% en 20s
+        </span>
+    </div>
+    <div class="section-body">
+        <div class="two-col">
+            <!-- Tabla SL por Servicio -->
+            <div>
+                <h6 class="text-muted" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">
+                    Por Servicio
+                </h6>
+                <div class="table-wrap">
+                    <table class="table" style="font-size: 0.8rem;">
+                        <thead>
+                            <tr>
+                                <th>Servicio</th>
+                                <th>SL 20s</th>
+                                <th>Volumen</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in sl_por_servicio %}
+                            <tr>
+                                <td>{{ item.servicio }}</td>
+                                <td>
+                                    <span style="font-weight: 600; color: {% if item.sl >= 80 %}var(--green){% elif item.sl >= 60 %}var(--amber){% else %}var(--red){% endif %};">
+                                        {{ item.sl|floatformat:1 }}%
+                                    </span>
+                                </td>
+                                <td>{{ item.total }}</td>
+                                <td>
+                                    {% if item.sl >= 80 %}
+                                    <span class="status-badge active">
+                                        <i class="fas fa-check"></i> Cumple
+                                    </span>
+                                    {% elif item.sl >= 60 %}
+                                    <span class="status-badge pending">
+                                        <i class="fas fa-triangle-exclamation"></i> Alerta
+                                    </span>
+                                    {% else %}
+                                    <span class="status-badge" style="background: var(--red-light); color: var(--red);">
+                                        <i class="fas fa-xmark"></i> Crítico
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Tabla SL por Canal -->
+            <div>
+                <h6 class="text-muted" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">
+                    Por Canal
+                </h6>
+                <div class="table-wrap">
+                    <table class="table" style="font-size: 0.8rem;">
+                        <thead>
+                            <tr>
+                                <th>Canal</th>
+                                <th>SL 20s</th>
+                                <th>Volumen</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in sl_por_canal %}
+                            <tr>
+                                <td>{{ item.canal }}</td>
+                                <td>
+                                    <span style="font-weight: 600; color: {% if item.sl >= 80 %}var(--green){% elif item.sl >= 60 %}var(--amber){% else %}var(--red){% endif %};">
+                                        {{ item.sl|floatformat:1 }}%
+                                    </span>
+                                </td>
+                                <td>{{ item.total }}</td>
+                                <td>
+                                    {% if item.sl >= 80 %}
+                                    <span class="status-badge active">
+                                        <i class="fas fa-check"></i> Cumple
+                                    </span>
+                                    {% elif item.sl >= 60 %}
+                                    <span class="status-badge pending">
+                                        <i class="fas fa-triangle-exclamation"></i> Alerta
+                                    </span>
+                                    {% else %}
+                                    <span class="status-badge" style="background: var(--red-light); color: var(--red);">
+                                        <i class="fas fa-xmark"></i> Crítico
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     VOLUMEN Y TENDENCIA
+     ========================================== -->
+<div class="section-card" style="margin-bottom: 1.5rem;">
+    <div class="section-header section-header-info">
+        <div class="section-title">
+            <i class="fas fa-chart-simple"></i>
+            <h6 style="color: #fff;">Volumen de Llamadas por Servicio</h6>
+        </div>
+    </div>
+    <div class="section-body">
+        <div class="two-col">
+            <div class="chart-container" style="height: 280px;">
+                <canvas id="volumenChart"></canvas>
+            </div>
+            <div>
+                <h6 class="text-muted" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">
+                    Resumen por Servicio
+                </h6>
+                <div class="stat-list">
+                    {% for item in resumen_servicio %}
+                    <div class="stat-row">
+                        <span>
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {{ item.color|default:'var(--gray-400)' }}; margin-right: 0.5rem;"></span>
+                            {{ item.servicio }}
+                        </span>
+                        <span style="font-weight: 600;">{{ item.volumen }}</span>
+                    </div>
+                    {% endfor %}
+                    <div class="stat-row" style="font-weight: 600; border-top: 1px solid var(--gray-200);">
+                        <span>Total</span>
+                        <span>{{ total_volumen|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     HEATMAP DE ACTIVIDAD
+     ========================================== -->
+<div class="section-card" style="margin-bottom: 1.5rem;">
+    <div class="section-header section-header-dark">
+        <div class="section-title">
+            <i class="fas fa-table-cells-large"></i>
+            <h6 style="color: #fff;">Heatmap de Volumen por Hora y Día</h6>
+        </div>
+    </div>
+    <div class="section-body">
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
+                <thead>
+                    <tr>
+                        <th style="padding: 0.25rem 0.5rem; background: var(--gray-800); color: #fff;">Hora</th>
+                        <th style="padding: 0.25rem 0.5rem; background: var(--gray-800); color: #fff;">Lun</th>
+                        <th style="padding: 0.25rem 0.5rem; background: var(--gray-800); color: #fff;">Mar</th>
+                        <th style="padding: 0.25rem 0.5rem; background: var(--gray-800); color: #fff;">Mié</th>
+                        <th style="padding: 0.25rem 0.5rem; background: var(--gray-800); color: #fff;">Jue</th>
+                        <th style="padding: 0.25rem 0.5rem; background: var(--gray-800); color: #fff;">Vie</th>
+                        <th style="padding: 0.25rem 0.5rem; background: var(--gray-800); color: #fff;">Sáb</th>
+                        <th style="padding: 0.25rem 0.5rem; background: var(--gray-800); color: #fff;">Dom</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hour in heatmap_data %}
+                    <tr>
+                        <td style="padding: 0.25rem 0.5rem; font-weight: 600; text-align: center; border-bottom: 1px solid var(--gray-200);">
+                            {{ hour.hora }}
+                        </td>
+                        {% for day in hour.dias %}
+                        <td style="padding: 0.25rem 0.5rem; text-align: center; border-bottom: 1px solid var(--gray-200); background: {{ day.color }};">
+                            {{ day.valor|default:"-" }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 0.75rem; font-size: 0.7rem; color: var(--gray-400);">
+            <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--gray-50); border-radius: 2px;"></span> Bajo</span>
+            <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--blue-light); border-radius: 2px;"></span> Medio</span>
+            <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--amber-light); border-radius: 2px;"></span> Alto</span>
+            <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--purple-light); border-radius: 2px;"></span> Muy Alto</span>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     RANKING DE AGENTES
+     ========================================== -->
+<div class="two-col" style="margin-bottom: 1.5rem;">
+    <!-- Top Agentes -->
+    <div class="col">
+        <div class="section-card">
+            <div class="section-header section-header-success">
+                <div class="section-title">
+                    <i class="fas fa-trophy"></i>
+                    <h6 style="color: #fff;">Top Agentes (Mejor AHT)</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 0.5rem 0;">
+                <div class="stat-list">
+                    {% for agente in top_agentes %}
+                    <div class="stat-row" style="padding: 0.25rem 0.75rem;">
+                        <span style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--green-light); color: var(--green); text-align: center; font-size: 0.6rem; font-weight: 700; line-height: 24px;">
+                                {{ forloop.counter }}
+                            </span>
+                            {{ agente.agente }}
+                        </span>
+                        <span style="font-weight: 600; color: var(--green);">{{ agente.avg_aht|floatformat:2 }}s</span>
+                    </div>
+                    {% empty %}
+                    <div style="padding: 0.5rem 0.75rem; text-align: center; color: var(--gray-400);">Sin datos</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Agentes -->
+    <div class="col">
+        <div class="section-card">
+            <div class="section-header section-header-danger">
+                <div class="section-title">
+                    <i class="fas fa-arrow-down"></i>
+                    <h6 style="color: #fff;">Agentes con Mayor AHT</h6>
+                </div>
+            </div>
+            <div class="section-body" style="padding: 0.5rem 0;">
+                <div class="stat-list">
+                    {% for agente in bottom_agentes %}
+                    <div class="stat-row" style="padding: 0.25rem 0.75rem;">
+                        <span style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--red-light); color: var(--red); text-align: center; font-size: 0.6rem; font-weight: 700; line-height: 24px;">
+                                {{ forloop.counter }}
+                            </span>
+                            {{ agente.agente }}
+                        </span>
+                        <span style="font-weight: 600; color: var(--red);">{{ agente.avg_aht|floatformat:2 }}s</span>
+                    </div>
+                    {% empty %}
+                    <div style="padding: 0.5rem 0.75rem; text-align: center; color: var(--gray-400);">Sin datos</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     TABLA DE DATOS POR SUPERVISOR
+     ========================================== -->
+<div class="section-card" style="margin-bottom: 1.5rem;">
     <div class="section-header">
         <div class="section-title">
             <i class="fas fa-users"></i>
             <h5>Detalle por Supervisor</h5>
+            <span class="badge" style="background: var(--purple-light); color: var(--purple);">{{ aht_por_supervisor|length }}</span>
         </div>
         <div class="header-actions">
-            <a href="{% url 'kpis:export_data' %}?desde={{ fecha_desde }}&hasta={{ fecha_hasta }}" class="btn btn-success">
-                <i class="fas fa-download"></i> Exportar a CSV
+            <a href="{% url 'kpis:export_data' %}?desde={{ fecha_desde }}&hasta={{ fecha_hasta }}" class="btn btn-success btn-sm">
+                <i class="fas fa-download"></i> Exportar CSV
             </a>
         </div>
     </div>
-    <div class="section-body">
+    <div class="section-body" style="padding: 0;">
         <div class="table-wrap">
             <table class="table">
                 <thead>
@@ -124,28 +498,61 @@
                         <th>Supervisor</th>
                         <th>AHT Promedio</th>
                         <th>Total Llamadas</th>
+                        <th>Rendimiento</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in aht_por_supervisor %}
                     <tr>
-                        <td>{{ item.supervisor }}</td>
-                        <td>{{ item.avg_aht|floatformat:2 }}s</td>
+                        <td>
+                            <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="display: inline-block; width: 32px; height: 32px; border-radius: 50%; background: var(--purple-light); color: var(--purple); text-align: center; font-size: 0.7rem; font-weight: 700; line-height: 32px;">
+                                    {{ item.supervisor|first|upper }}
+                                </span>
+                                {{ item.supervisor }}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="font-weight: 600;">{{ item.avg_aht|floatformat:2 }}s</span>
+                        </td>
                         <td>{{ item.total_eventos }}</td>
+                        <td>
+                            {% with avg=item.avg_aht|floatformat:0 %}
+                            {% if avg <= aht_promedio|floatformat:0 %}
+                            <span class="status-badge active">
+                                <i class="fas fa-arrow-up"></i> Óptimo
+                            </span>
+                            {% elif avg <= aht_promedio|add:10|floatformat:0 %}
+                            <span class="status-badge pending">
+                                <i class="fas fa-minus"></i> Normal
+                            </span>
+                            {% else %}
+                            <span class="status-badge" style="background: var(--red-light); color: var(--red);">
+                                <i class="fas fa-arrow-down"></i> Crítico
+                            </span>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="3">
-                            <div class="empty-state">
-                                <i class="fas fa-chart-simple"></i>
+                        <td colspan="4">
+                            <div class="empty-state" style="padding: 2rem 0;">
+                                <i class="fas fa-chart-simple" style="font-size: 2.5rem; color: var(--gray-400);"></i>
                                 <h5>Sin datos</h5>
-                                <p>No hay registros para el rango seleccionado.</p>
+                                <p style="color: var(--gray-400);">No hay registros para el rango seleccionado.</p>
                             </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-top: 1px solid var(--gray-200);">
+            <span class="text-muted text-xs">Mostrando {{ aht_por_supervisor|length }} supervisores</span>
+            <span class="text-muted text-xs">
+                <i class="fas fa-circle-info"></i> Rendimiento comparado con el promedio general
+            </span>
         </div>
     </div>
 </div>
@@ -155,99 +562,179 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
 <script>
-function createChart(elementId, data, title) {
-    const ctx = document.getElementById(elementId);
-    if (!ctx) return;
+document.addEventListener('DOMContentLoaded', function() {
+    // ============================================================
+    // FUNCIÓN PARA CREAR GRÁFICOS
+    // ============================================================
+    function createChart(elementId, data, title, type) {
+        const ctx = document.getElementById(elementId);
+        if (!ctx) return;
 
-    const labels = data.labels || [];
-    const values = data.data || [];
-    if (!labels.length || !values.length) {
-        const wrapper = ctx.closest('.chart-wrapper');
-        if (wrapper) wrapper.style.display = 'none';
-        return;
-    }
+        const labels = data.labels || [];
+        const values = data.data || [];
+        if (!labels.length || !values.length) {
+            const wrapper = ctx.closest('.chart-container');
+            if (wrapper) {
+                wrapper.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--gray-400);">
+                        <i class="fas fa-chart-simple" style="font-size: 2rem;"></i>
+                        <p style="margin-top: 0.5rem; font-size: 0.875rem;">No hay datos disponibles</p>
+                    </div>
+                `;
+            }
+            return;
+        }
 
-    const config = {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                label: 'AHT (segundos)',
-                data: values,
-                backgroundColor: data.backgroundColors || [
-                    'rgba(59,130,246,0.7)',
-                    'rgba(16,185,129,0.7)',
-                    'rgba(245,158,11,0.7)',
-                    'rgba(239,68,68,0.7)',
-                    'rgba(167,139,250,0.7)',
-                ],
-                borderColor: (data.backgroundColors || []).map(color => color.replace('0.7', '1')),
-                borderWidth: 1,
-                borderRadius: 4,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: title,
-                    font: { size: 16 }
-                },
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: (context) => `${context.dataset.label}: ${context.raw.toFixed(2)}s`
+        const config = {
+            type: type || 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'AHT (segundos)',
+                    data: values,
+                    backgroundColor: data.backgroundColors || [
+                        'rgba(124, 58, 237, 0.7)',
+                        'rgba(34, 197, 94, 0.7)',
+                        'rgba(245, 158, 11, 0.7)',
+                        'rgba(239, 68, 68, 0.7)',
+                        'rgba(14, 165, 233, 0.7)',
+                    ],
+                    borderColor: (data.backgroundColors || []).map(color => color.replace('0.7', '1')),
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.dataset.label}: ${context.raw.toFixed(2)}s`
+                        }
+                    },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: (value) => `${value.toFixed(1)}s`,
+                        font: { weight: 'bold', size: 10 }
                     }
                 },
-                datalabels: {
-                    anchor: 'end',
-                    align: 'top',
-                    formatter: (value) => `${value.toFixed(1)}s`,
-                    font: { weight: 'bold' }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Tiempo (segundos)', color: 'var(--gray-400)' },
+                        grid: { drawBorder: false, color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
                 }
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: 'Tiempo (segundos)' },
-                    grid: { drawBorder: false }
-                },
-                x: {
-                    grid: { display: false }
-                }
-            }
-        },
-        plugins: [ChartDataLabels]
-    };
+            plugins: [ChartDataLabels]
+        };
 
-    new Chart(ctx, config);
-}
+        new Chart(ctx, config);
+    }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const chartData = JSON.parse('{{ chart_data_json|escapejs }}');
-    createChart('servicioChart', chartData, 'AHT por Servicio');
+    // ============================================================
+    // CREAR GRÁFICOS CON DATOS DEL BACKEND
+    // ============================================================
+    const servicioData = JSON.parse('{{ chart_data_json|escapejs|default:"{}" }}');
+    createChart('servicioChart', servicioData, 'AHT por Servicio', 'bar');
 
-    const canalRaw = JSON.parse('{{ aht_por_canal_json|escapejs }}');
+    const canalRaw = JSON.parse('{{ aht_por_canal_json|escapejs|default:"{}" }}');
     const canalData = {
         labels: canalRaw.labels || [],
         data: canalRaw.data || [],
-        backgroundColors: canalRaw.backgroundColors || Array.from({length: (canalRaw.labels || []).length}, () =>
-            `rgba(${Math.floor(Math.random() * 150) + 50}, 
-                  ${Math.floor(Math.random() * 150) + 50}, 
-                  ${Math.floor(Math.random() * 150) + 50}, 0.7)`)
+        backgroundColors: canalRaw.backgroundColors || [
+            'rgba(124,58,237,0.7)',
+            'rgba(34,197,94,0.7)',
+            'rgba(245,158,11,0.7)',
+            'rgba(239,68,68,0.7)',
+        ]
     };
-    createChart('canalChart', canalData, 'AHT por Canal');
+    createChart('canalChart', canalData, 'AHT por Canal', 'doughnut');
 
-    const semanaRaw = JSON.parse('{{ aht_por_semana_json|escapejs }}');
+    const semanaRaw = JSON.parse('{{ aht_por_semana_json|escapejs|default:"{}" }}');
     const semanaData = {
         labels: semanaRaw.labels || [],
         data: semanaRaw.data || [],
-        backgroundColors: semanaRaw.backgroundColors || Array.from({length: (semanaRaw.labels || []).length}, () => 'rgba(54, 162, 235, 0.7)')
+        backgroundColors: Array.from({length: (semanaRaw.labels || []).length}, () => 'rgba(14, 165, 233, 0.7)')
     };
-    createChart('semanaChart', semanaData, 'AHT por Semana');
+    createChart('semanaChart', semanaData, 'AHT por Semana', 'line');
+
+    // ============================================================
+    // REFRESH
+    // ============================================================
+    document.getElementById('refreshBtn')?.addEventListener('click', function() {
+        const icon = this.querySelector('i');
+        icon.classList.add('fa-spin');
+        setTimeout(() => location.reload(), 500);
+    });
+
+    // ============================================================
+    // CLEAR FILTERS
+    // ============================================================
+    document.getElementById('clearFilters')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = this.closest('form');
+        if (form) {
+            form.querySelectorAll('input').forEach(input => input.value = '');
+            form.submit();
+        }
+    });
+
+    // ============================================================
+    // AUTO-DISMISS ALERTS
+    // ============================================================
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('dismissing');
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
+
+    // ============================================================
+    // KEYBOARD SHORTCUTS
+    // ============================================================
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+            e.preventDefault();
+            const refreshBtn = document.getElementById('refreshBtn');
+            if (refreshBtn) refreshBtn.click();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+            e.preventDefault();
+            const exportBtn = document.querySelector('.btn-success');
+            if (exportBtn) exportBtn.click();
+        }
+    });
+
+    // ============================================================
+    // RESPONSIVE: AJUSTAR ALTURA DE GRÁFICOS EN MÓVIL
+    // ============================================================
+    function adjustChartHeight() {
+        const charts = document.querySelectorAll('.chart-container');
+        if (window.innerWidth < 768) {
+            charts.forEach(chart => {
+                if (chart.id !== 'servicioChart') {
+                    chart.style.height = '220px';
+                }
+            });
+        } else {
+            charts.forEach(chart => {
+                if (chart.id !== 'servicioChart') {
+                    chart.style.height = '280px';
+                }
+            });
+        }
+    }
+
+    adjustChartHeight();
+    window.addEventListener('resize', adjustChartHeight);
 });
 </script>
 

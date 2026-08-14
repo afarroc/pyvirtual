@@ -75,6 +75,12 @@ class CallRecord(models.Model):
         validators=[MinValueValidator(0)],
     )
 
+    # Métricas avanzadas (nuevas)
+    resolved_on_first_call = models.BooleanField('Resuelto en primera llamada', default=False)
+    abandoned              = models.BooleanField('Llamada abandonada', default=False)
+    asa                    = models.FloatField('ASA (segundos)', default=0.0, validators=[MinValueValidator(0)])
+    hora                   = models.TimeField('Hora del evento', null=True, blank=True, db_index=True)
+
     # Auditoría
     created_by   = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True,
