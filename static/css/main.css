@@ -185,6 +185,8 @@ img {
 .text-sm { font-size: 0.875rem; }
 .text-xs { font-size: 0.75rem; }
 .text-center { text-align: center; }
+.d-flex { display: flex; }
+.text-end { text-align: end; }
 .text-right { text-align: right; }
 .text-left { text-align: left; }
 .font-medium { font-weight: 500; }
@@ -1424,6 +1426,13 @@ img {
 /* ==========================================
    SECTION CARD
    ========================================== */
+.card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
 .section-card {
   background: #fff;
   border: 1px solid var(--gray-200);
@@ -12327,3 +12336,32 @@ teY(0);
 .top-25 { top: 25%; }
 .top-50 { top: 50%; }
 .top-75 { top: 75%; }
+
+/* ==========================================
+   MIGRATION COMPATIBILITY - Custom prefixes
+   ========================================== */
+.m360-card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; }
+.m360-card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--gray-200); }
+.m360-card-body { padding: 1.5rem; }
+.m360-card-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--gray-200); }
+.m360-card-title { margin: 0; font-weight: 700; }
+.m360-form-control { display: block; width: 100%; padding: 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid var(--gray-300); border-radius: var(--radius-sm); background: #fff; }
+.m360-gray-50 { background: var(--gray-50); }
+.m360-border { border-color: var(--gray-200); }
+
+.events-d-flex { display: flex; }
+.events-flex-wrap { flex-wrap: wrap; }
+.events-align-center { align-items: center; }
+.events-justify-between { justify-content: space-between; }
+.events-justify-end { justify-content: flex-end; }
+.events-gap-2 { gap: 0.5rem; }
+.events-gap-4 { gap: 1rem; }
+.events-mb-0 { margin-bottom: 0; }
+.events-mb-2 { margin-bottom: 0.5rem; }
+.events-py-5 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+.events-text-center { text-align: center; }
+.events-text-end { text-align: end; }
+.events-h-100 { height: 100%; }
+
+.events-row { display: flex; flex-wrap: wrap; margin: 0 -0.75rem; }
+.events-col-md-4 { flex: 0 0 33.333%; max-width: 33.333%; padding: 0 0.75rem; }
