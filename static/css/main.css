@@ -12780,3 +12780,63 @@ img {
 
 .events-row { display: flex; flex-wrap: wrap; margin: 0 -0.75rem; }
 .events-col-md-4 { flex: 0 0 33.333%; max-width: 33.333%; padding: 0 0.75rem; }
+
+/* ==========================================
+   RESPONSIVE CONSOLIDADO
+   ========================================== */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+  .eisenhower-grid {
+    grid-template-columns: 1fr;
+  }
+  .tools-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .learning-grid {
+    grid-template-columns: 1fr;
+  }
+  .kanban-board {
+    flex-direction: column;
+    overflow-x: visible;
+  }
+  .kanban-column {
+    min-width: 100%;
+  }
+  .table-wrap {
+    overflow-x: auto;
+  }
+  .pagination {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .tools-grid {
+    grid-template-columns: 1fr;
+  }
+  .eisenhower-summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .two-col[style*="gap: 1.5rem;"] {
+    grid-template-columns: 1fr;
+  }
+}
