@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container mt-4">
     <div class="card">
-        <div class="card-header bg-primary text-white">
+        <div class="kpi-generator-header">
             <h2><i class="fas fa-database"></i> Generador de Datos Ficticios</h2>
         </div>
         <div class="card-body">
@@ -12,14 +12,14 @@
                 
                 <div class="row">
                     <div class="col-md-6">
-                        <h4 class="mb-3">Configuración Básica</h4>
+                        <h4 class="kpi-generator-section-title">Configuración Básica</h4>
                         {% include 'includes/form_field.html' with field=form.weeks %}
                         {% include 'includes/form_field.html' with field=form.records_per_week %}
                         {% include 'includes/form_field.html' with field=form.clear_existing %}
                     </div>
                     
                     <div class="col-md-6">
-                        <h4 class="mb-3">Configuración Avanzada</h4>
+                        <h4 class="kpi-generator-section-title">Configuración Avanzada</h4>
                         {% include 'includes/form_field.html' with field=form.batch_size %}
                         {% include 'includes/form_field.html' with field=form.random_seed %}
                     </div>
@@ -29,13 +29,13 @@
                 
                 <div class="row">
                     <div class="col-md-6">
-                        <h4 class="mb-3">Servicios</h4>
+                        <h4 class="kpi-generator-section-title">Servicios</h4>
                         {{ form.services }}
                         {% include 'includes/form_field.html' with field=form.service_weights %}
                     </div>
                     
                     <div class="col-md-6">
-                        <h4 class="mb-3">Canales</h4>
+                        <h4 class="kpi-generator-section-title">Canales</h4>
                         {{ form.channels }}
                         {% include 'includes/form_field.html' with field=form.channel_weights %}
                     </div>
@@ -45,23 +45,23 @@
                 
                 <div class="row">
                     <div class="col-md-6">
-                        <h4 class="mb-3">Personal</h4>
+                        <h4 class="kpi-generator-section-title">Personal</h4>
                         {% include 'includes/form_field.html' with field=form.num_agents %}
                         {% include 'includes/form_field.html' with field=form.num_supervisors %}
                     </div>
                     
                     <div class="col-md-6">
-                        <h4 class="mb-3">Métricas</h4>
+                        <h4 class="kpi-generator-section-title">Métricas</h4>
                         {% include 'includes/form_field.html' with field=form.min_evaluations %}
                         {% include 'includes/form_field.html' with field=form.max_evaluations %}
                     </div>
                 </div>
                 
-                <div class="mt-4 text-center">
+                <div class="kpi-generator-actions">
                     <button type="submit" class="btn btn-primary btn-lg">
                         <i class="fas fa-cogs"></i> Generar Datos
                     </button>
-                    <a href="{% url 'kpis:dashboard' %}" class="btn btn-secondary btn-lg ml-3">
+                    <a href="{% url 'kpis:dashboard' %}" class="btn btn-secondary btn-lg">
                         <i class="fas fa-times"></i> Cancelar
                     </a>
                 </div>
