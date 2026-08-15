@@ -18,7 +18,8 @@ from datetime import date, datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.cache import cache
-from django.db.models import Avg, Count, Max, Min, Sum
+from django.db.models import Avg, Case, Count, ExpressionWrapper, F, FloatField, IntegerField, Max, Min, Sum, When
+from django.db.models.functions import Cast
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
@@ -31,6 +32,17 @@ logger = logging.getLogger(__name__)
 # ── Cache keys ────────────────────────────────────────────────────────────────
 _CACHE_TTL    = 60 * 5   # 5 minutos
 _CACHE_PREFIX = 'kpis:dashboard'
+
+
+# ── Excepciones custom ───────────────────────────────────────────────────────
+class DashboardPerformanceError(Exception):
+    """Se lanza cuando la generación del dashboard excede el tiempo máximo permitido."""
+    pass
+
+
+class EmptyDashboardDataError(Exception):
+    """Se lanza cuando no hay datos suficientes para construir el dashboard."""
+    pass
 
 
 def _cache_key(user_id, suffix=''):
@@ -93,12 +105,35 @@ def _calculate_abandon_rate(qs):
     return round((abandoned / total) * 100, 1)
 
 
+def _service_level_by_group(qs, field, threshold_seconds=20):
+    """Calcula Service Level agrupado por un campo en una sola consulta."""
+    return list(
+        qs.values(field)
+        .annotate(
+            total=Count('id'),
+            atendidas=Count(
+                Case(
+                    When(aht__lte=threshold_seconds, then=1),
+                    output_field=IntegerField(),
+                )
+            ),
+        )
+        .annotate(
+            sl=ExpressionWrapper(
+                Cast(F('atendidas'), FloatField()) * 100.0 / Cast(F('total'), FloatField()),
+                output_field=FloatField(),
+            )
+        )
+        .order_by('-sl')
+    )
+
+
 def _get_heatmap_data(qs):
     """Genera datos para heatmap por hora y día de la semana en una sola consulta."""
     from django.db.models import Count
     from django.db.models.functions import ExtractWeekDay, TruncHour
 
-    counts = qs.annotate(
+    counts = qs.exclude(hora__isnull=True).annotate(
         weekday=ExtractWeekDay('fecha'),
         hour=TruncHour('hora'),
     ).values('weekday', 'hour').annotate(
@@ -107,6 +142,8 @@ def _get_heatmap_data(qs):
 
     count_map = {}
     for item in counts:
+        if item['hour'] is None:
+            continue
         hour_val = item['hour'].hour
         weekday_val = item['weekday']
         count_map[(weekday_val, hour_val)] = item['count']
@@ -154,6 +191,11 @@ def kpi_home(request):
 
 
 @login_required
+def sections_examples(request):
+    return render(request, 'kpis/sections_examples.html')
+
+
+@login_required
 def aht_dashboard(request):
     """
     Dashboard mejorado con métricas SL, FCR, abandonos, heatmap y rankings.
@@ -173,138 +215,163 @@ def aht_dashboard(request):
             fecha__lt=fecha_desde,
         )
 
-        # ---- Métricas Principales ----
-        aht_por_servicio = list(qs.values('servicio').annotate(
-            avg_aht=Avg('aht'), total_eventos=Count('id'), total_registros=Count('id')
-        ).order_by('-avg_aht'))
-        aht_por_canal = list(qs.values('canal').annotate(
-            avg_aht=Avg('aht'), total_eventos=Count('id')
-        ).order_by('-avg_aht'))
-        aht_por_semana = list(qs.values('semana').annotate(
-            avg_aht=Avg('aht'), total_eventos=Count('id')
-        ).order_by('semana'))
-        aht_por_supervisor = list(qs.values('supervisor').annotate(
-            avg_aht=Avg('aht'), total_eventos=Count('id'),
-            avg_sat=Avg('satisfaccion')
-        ).order_by('-avg_aht'))
-        aht_por_agente = list(qs.values('agente').annotate(
-            avg_aht=Avg('aht'), total_eventos=Count('id'),
-            avg_sat=Avg('satisfaccion')
-        ).order_by('avg_aht')[:20])
+        try:
+            start = timezone.now()
+            # ---- Métricas Principales ----
+            aht_por_servicio = list(qs.values('servicio').annotate(
+                avg_aht=Avg('aht'), total_eventos=Count('id'), total_registros=Count('id')
+            ).order_by('-avg_aht'))
+            aht_por_canal = list(qs.values('canal').annotate(
+                avg_aht=Avg('aht'), total_eventos=Count('id')
+            ).order_by('-avg_aht'))
+            aht_por_semana = list(qs.values('semana').annotate(
+                avg_aht=Avg('aht'), total_eventos=Count('id')
+            ).order_by('semana'))
+            aht_por_supervisor = list(qs.values('supervisor').annotate(
+                avg_aht=Avg('aht'), total_eventos=Count('id'),
+                avg_sat=Avg('satisfaccion')
+            ).order_by('-avg_aht'))
+            aht_por_agente = list(qs.values('agente').annotate(
+                avg_aht=Avg('aht'), total_eventos=Count('id'),
+                avg_sat=Avg('satisfaccion')
+            ).order_by('avg_aht')[:20])
 
-        totales = qs.aggregate(
-            total_llamadas=Count('id'),
-            aht_promedio=Avg('aht'),
-            sat_promedio=Avg('satisfaccion'),
-            total_eventos=Sum('eventos'),
-            total_evals=Sum('evaluaciones'),
-            asa_promedio=Avg('asa'),
-        )
-        totales_anterior = qs_anterior.aggregate(
-            total_llamadas=Count('id'),
-            aht_promedio=Avg('aht'),
-        )
+            totales = qs.aggregate(
+                total_llamadas=Count('id'),
+                aht_promedio=Avg('aht'),
+                sat_promedio=Avg('satisfaccion'),
+                total_eventos=Sum('eventos'),
+                total_evals=Sum('evaluaciones'),
+                asa_promedio=Avg('asa'),
+            )
+            totales_anterior = qs_anterior.aggregate(
+                total_llamadas=Count('id'),
+                aht_promedio=Avg('aht'),
+            )
 
-        # ---- Service Level ----
-        sl_general = _calculate_service_level(qs)
-        sl_por_servicio = []
-        for servicio in qs.values_list('servicio', flat=True).distinct():
-            sub_qs = qs.filter(servicio=servicio)
-            sl_por_servicio.append({
-                'servicio': servicio,
-                'sl': _calculate_service_level(sub_qs),
-                'total': sub_qs.count(),
+            if totales['total_llamadas'] == 0:
+                raise EmptyDashboardDataError('No hay registros en el rango seleccionado.')
+
+            # ---- Service Level ----
+            sl_general = _calculate_service_level(qs)
+            sl_por_servicio = _service_level_by_group(qs, 'servicio')
+            sl_por_canal = _service_level_by_group(qs, 'canal')
+
+            # ---- FCR y Abandon Rate ----
+            fcr_rate = _calculate_fcr(qs)
+            abandon_rate = _calculate_abandon_rate(qs)
+
+            # ---- CSAT ----
+            csat_por_servicio = list(qs.values('servicio').annotate(
+                avg_sat=Avg('satisfaccion'),
+                total=Count('id')
+            ).order_by('-avg_sat'))
+
+            # ---- Heatmap ----
+            heatmap_data = _get_heatmap_data(qs)
+
+            # ---- Top/Bottom Agentes ----
+            agentes = qs.values('agente').annotate(
+                avg_aht=Avg('aht'),
+                total=Count('id'),
+                avg_sat=Avg('satisfaccion')
+            ).filter(total__gte=5)
+            top_agentes = list(agentes.order_by('avg_aht')[:10])
+            bottom_agentes = list(agentes.order_by('-avg_aht')[:10])
+
+            elapsed = (timezone.now() - start).total_seconds()
+            if elapsed > 8:
+                raise DashboardPerformanceError(f'El dashboard tardó {elapsed:.2f}s en generarse.')
+
+            ctx = {
+                # Chart data
+                'chart_data_json': json.dumps(_build_chart(aht_por_servicio, 'servicio'), ensure_ascii=False),
+                'aht_por_canal_json': json.dumps(_build_chart(aht_por_canal, 'canal'), ensure_ascii=False),
+                'aht_por_semana_json': json.dumps(_build_chart(aht_por_semana, 'semana'), ensure_ascii=False),
+                'aht_por_agente_json': json.dumps(_build_chart(aht_por_agente, 'agente'), ensure_ascii=False),
+
+                # Tablas
+                'aht_por_servicio': aht_por_servicio,
+                'aht_por_canal': aht_por_canal,
+                'aht_por_semana': aht_por_semana,
+                'aht_por_supervisor': aht_por_supervisor,
+                'aht_por_agente': aht_por_agente,
+
+                # KPIs resumen
+                'total_llamadas': totales['total_llamadas'] or 0,
+                'aht_promedio': round(totales['aht_promedio'] or 0, 2),
+                'aht_promedio_min': round((totales['aht_promedio'] or 0) / 60, 2),
+                'sat_promedio': round(totales['sat_promedio'] or 0, 2),
+                'total_eventos': totales['total_eventos'] or 0,
+                'total_evals': totales['total_evals'] or 0,
+                'asa_promedio': round(totales['asa_promedio'] or 0, 2),
+
+                # Tendencias
+                'total_llamadas_trend': _get_trend_percentage(
+                    totales['total_llamadas'], totales_anterior['total_llamadas']
+                ),
+                'total_llamadas_trend_abs': abs(_get_trend_percentage(
+                    totales['total_llamadas'], totales_anterior['total_llamadas']
+                )),
+                'aht_trend': _get_trend_percentage(
+                    totales['aht_promedio'], totales_anterior['aht_promedio']
+                ),
+                'aht_trend_abs': abs(_get_trend_percentage(
+                    totales['aht_promedio'], totales_anterior['aht_promedio']
+                )),
+
+                # Service Level
+                'service_level': sl_general,
+                'sl_por_servicio': sl_por_servicio,
+                'sl_por_canal': sl_por_canal,
+                'fcr_rate': fcr_rate,
+                'abandon_rate': abandon_rate,
+
+                # CSAT
+                'csat_promedio': round(totales['sat_promedio'] or 0, 2),
+                'csat_por_servicio': csat_por_servicio,
+
+                # Heatmap
+                'heatmap_data': heatmap_data,
+
+                # Rankings
+                'top_agentes': top_agentes,
+                'bottom_agentes': bottom_agentes,
+
+                'servicio_mas_alto': max(sl_por_servicio, key=lambda x: x['sl'], default=None),
+                'servicio_mas_bajo': min(sl_por_servicio, key=lambda x: x['sl'], default=None),
+
+                'cached_at': timezone.now().isoformat(),
+            }
+            cache.set(cache_key, ctx, timeout=_CACHE_TTL)
+
+        except EmptyDashboardDataError as e:
+            logger.warning('aht_dashboard empty data: %s', e)
+            return render(request, 'kpis/dashboard_error.html', {
+                'fecha_desde': fecha_desde,
+                'fecha_hasta': fecha_hasta,
+                'error_title': 'Sin datos para el período seleccionado',
+                'error_message': str(e) or 'No se encontraron registros en el rango de fechas consultado.',
+                'error_type': 'empty_data',
             })
-
-        sl_por_canal = []
-        for canal in qs.values_list('canal', flat=True).distinct():
-            sub_qs = qs.filter(canal=canal)
-            sl_por_canal.append({
-                'canal': canal,
-                'sl': _calculate_service_level(sub_qs),
-                'total': sub_qs.count(),
+        except DashboardPerformanceError as e:
+            logger.error('aht_dashboard performance: %s', e)
+            return render(request, 'kpis/dashboard_error.html', {
+                'fecha_desde': fecha_desde,
+                'fecha_hasta': fecha_hasta,
+                'error_title': 'El dashboard tardó demasiado en generarse',
+                'error_message': str(e) or 'La generación del dashboard excedió el tiempo máximo permitido. Intenta reducir el rango de fechas.',
+                'error_type': 'performance',
             })
-
-        # ---- FCR y Abandon Rate ----
-        fcr_rate = _calculate_fcr(qs)
-        abandon_rate = _calculate_abandon_rate(qs)
-
-        # ---- CSAT ----
-        csat_por_servicio = list(qs.values('servicio').annotate(
-            avg_sat=Avg('satisfaccion'),
-            total=Count('id')
-        ).order_by('-avg_sat'))
-
-        # ---- Heatmap ----
-        heatmap_data = _get_heatmap_data(qs)
-
-        # ---- Top/Bottom Agentes ----
-        agentes = qs.values('agente').annotate(
-            avg_aht=Avg('aht'),
-            total=Count('id'),
-            avg_sat=Avg('satisfaccion')
-        ).filter(total__gte=5)
-        top_agentes = list(agentes.order_by('avg_aht')[:10])
-        bottom_agentes = list(agentes.order_by('-avg_aht')[:10])
-
-        ctx = {
-            # Chart data
-            'chart_data_json': json.dumps(_build_chart(aht_por_servicio, 'servicio'), ensure_ascii=False),
-            'aht_por_canal_json': json.dumps(_build_chart(aht_por_canal, 'canal'), ensure_ascii=False),
-            'aht_por_semana_json': json.dumps(_build_chart(aht_por_semana, 'semana'), ensure_ascii=False),
-            'aht_por_agente_json': json.dumps(_build_chart(aht_por_agente, 'agente'), ensure_ascii=False),
-
-            # Tablas
-            'aht_por_servicio': aht_por_servicio,
-            'aht_por_canal': aht_por_canal,
-            'aht_por_semana': aht_por_semana,
-            'aht_por_supervisor': aht_por_supervisor,
-            'aht_por_agente': aht_por_agente,
-
-            # KPIs resumen
-            'total_llamadas': totales['total_llamadas'] or 0,
-            'aht_promedio': round(totales['aht_promedio'] or 0, 2),
-            'aht_promedio_min': round((totales['aht_promedio'] or 0) / 60, 2),
-            'sat_promedio': round(totales['sat_promedio'] or 0, 2),
-            'total_eventos': totales['total_eventos'] or 0,
-            'total_evals': totales['total_evals'] or 0,
-            'asa_promedio': round(totales['asa_promedio'] or 0, 2),
-
-            # Tendencias
-            'total_llamadas_trend': _get_trend_percentage(
-                totales['total_llamadas'], totales_anterior['total_llamadas']
-            ),
-            'aht_trend': _get_trend_percentage(
-                totales['aht_promedio'], totales_anterior['aht_promedio']
-            ),
-            'aht_trend_abs': abs(_get_trend_percentage(
-                totales['aht_promedio'], totales_anterior['aht_promedio']
-            )),
-
-            # Service Level
-            'service_level': sl_general,
-            'sl_por_servicio': sl_por_servicio,
-            'sl_por_canal': sl_por_canal,
-            'fcr_rate': fcr_rate,
-            'abandon_rate': abandon_rate,
-
-            # CSAT
-            'csat_promedio': round(totales['sat_promedio'] or 0, 2),
-            'csat_por_servicio': csat_por_servicio,
-
-            # Heatmap
-            'heatmap_data': heatmap_data,
-
-            # Rankings
-            'top_agentes': top_agentes,
-            'bottom_agentes': bottom_agentes,
-
-            'servicio_mas_alto': max(sl_por_servicio, key=lambda x: x['sl'], default=None),
-            'servicio_mas_bajo': min(sl_por_servicio, key=lambda x: x['sl'], default=None),
-
-            'cached_at': timezone.now().isoformat(),
-        }
-        cache.set(cache_key, ctx, timeout=_CACHE_TTL)
+        except Exception as e:
+            logger.error('aht_dashboard error: %s', e, exc_info=True)
+            return render(request, 'kpis/dashboard_error.html', {
+                'fecha_desde': fecha_desde,
+                'fecha_hasta': fecha_hasta,
+                'error_title': 'Error interno al generar el dashboard',
+                'error_message': 'Ocurrió un error inesperado. Por favor, intenta nuevamente.',
+                'error_type': 'internal',
+            })
 
     ctx.update({
         'fecha_desde': fecha_desde,

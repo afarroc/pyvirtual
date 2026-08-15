@@ -43,7 +43,7 @@
                 {% if total_llamadas_trend > 0 %}
                     <span class="text-green">▲ {{ total_llamadas_trend }}%</span>
                 {% elif total_llamadas_trend < 0 %}
-                    <span class="text-red">▼ {{ total_llamadas_trend|abs }}%</span>
+                    <span class="text-red">▼ {{ total_llamadas_trend_abs }}%</span>
                 {% else %}
                     <span class="text-muted">0%</span>
                 {% endif %}

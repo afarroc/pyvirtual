@@ -1,0 +1,55 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="dashboard-header">
+    <div>
+        <h1>
+            <i class="fas fa-chart-line"></i>
+            Dashboard de AHT
+        </h1>
+        <div class="text-muted text-sm">
+            <a href="{% url 'index' %}" class="text-decoration-none">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <span class="text-muted"> / </span>
+            <span class="text-muted">Dashboard</span>
+        </div>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'kpis:aht_dashboard' %}" class="btn btn-primary">
+            <i class="fas fa-rotate"></i> Reintentar
+        </a>
+    </div>
+</div>
+
+<div class="card" style="max-width: 720px; margin: 40px auto;">
+    <div class="card-body" style="text-align: center;">
+        {% if error_type == 'empty_data' %}
+            <i class="fas fa-box-open" style="font-size: 48px; color: var(--amber);"></i>
+        {% elif error_type == 'performance' %}
+            <i class="fas fa-gauge-high" style="font-size: 48px; color: var(--red);"></i>
+        {% else %}
+            <i class="fas fa-triangle-exclamation" style="font-size: 48px; color: var(--red);"></i>
+        {% endif %}
+
+        <h2 class="mt-3" style="margin-top: 16px;">{{ error_title }}</h2>
+        <p class="text-muted" style="margin-top: 8px;">{{ error_message }}</p>
+
+        <div class="text-muted text-sm" style="margin-top: 12px;">
+            Período consultado:
+            <strong>{{ fecha_desde }}</strong> al <strong>{{ fecha_hasta }}</strong>
+        </div>
+
+        <div style="margin-top: 24px;">
+            <a href="{% url 'kpis:aht_dashboard' %}" class="btn btn-primary">
+                <i class="fas fa-rotate"></i> Reintentar
+            </a>
+            <a href="{% url 'kpis:generate_data' %}" class="btn btn-ghost" style="margin-left: 8px;">
+                <i class="fas fa-database"></i> Generar datos de prueba
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
