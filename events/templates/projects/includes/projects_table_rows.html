@@ -1,0 +1,60 @@
+{% load static %}
+{% if projects_data %}
+    {% for project_data in projects_data %}
+    <div class="project-card" data-status="{{ project_data.project.project_status.id }}">
+        <div class="project-header">
+            <h6>
+                <a href="{% url 'events:project_panel_with_id' project_data.project.id %}">
+                    {{ project_data.project.title }}
+                </a>
+            </h6>
+            <span class="status-badge status-{{ project_data.project.project_status.status_name|lower|cut:' ' }}">
+                {{ project_data.project.project_status.status_name }}
+            </span>
+        </div>
+        <p class="project-description">{{ project_data.project.description|truncatechars:100 }}</p>
+        <div class="project-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ project_data.completion_rate|floatformat:0 }}%;"></div>
+            </div>
+        </div>
+        <div class="project-meta">
+            <span>
+                <i class="bi bi-person"></i>
+                {{ project_data.project.host.username }}
+            </span>
+            <span>
+                <i class="bi bi-calendar"></i>
+                {{ project_data.project.created_at|date:"M d, Y" }}
+            </span>
+            <span>
+                <i class="bi bi-cash"></i>
+                ${{ project_data.project.ticket_price|floatformat:2 }}
+            </span>
+            <span>
+                <i class="bi bi-check-circle"></i>
+                {{ project_data.completion_rate|floatformat:0 }}% complete
+            </span>
+        </div>
+        <div class="project-actions">
+            <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="btn btn-sm btn-ghost" title="View">
+                <i class="fas fa-eye"></i>
+            </a>
+            {% if request.user == project_data.project.host or request.user.profile.role == 'SU' %}
+            <a href="{% url 'events:project_edit' project_data.project.id %}" class="btn btn-sm btn-ghost" title="Edit">
+                <i class="fas fa-pen"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <i class="bi bi-folder-x"></i>
+        <h5>No projects found</h5>
+        <p>Create your first project to get started</p>
+        <a href="{% url 'events:project_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create Project
+        </a>
+    </div>
+{% endif %}
