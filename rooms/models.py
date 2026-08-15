@@ -12,6 +12,7 @@ class PlayerProfile(models.Model):
     position_x = models.IntegerField(default=0)
     position_y = models.IntegerField(default=0)
     position_z = models.IntegerField(default=0)
+    position_geometry = models.JSONField(blank=True, null=True, help_text='GeoJSON/WKT representando la posición espacial exacta del jugador')
     energy = models.IntegerField(default=100)
     productivity = models.IntegerField(default=50)
     social = models.IntegerField(default=50)
@@ -29,12 +30,23 @@ class PlayerProfile(models.Model):
     navigation_history = models.JSONField(default=list, help_text='Historial de celdas visitadas para navegación con botón atrás')
     last_navigation_time = models.DateTimeField(auto_now=True)
 
+    def _update_position_geometry(self):
+        """Actualiza el campo espacial del jugador a partir de position_x/y/z."""
+        from rooms.utils import set_player_position_geometry
+        set_player_position_geometry(self, self.position_x, self.position_y, self.position_z)
+
+    def is_inside_current_room(self):
+        """True si la posición espacial actual está dentro de la geometría de la room."""
+        from rooms.utils import cell_contains_point
+        if not self.current_room or self.current_room.cell_type != 'ROOM':
+            return False
+        return cell_contains_point(self.current_room, self)
+
     def move_to_room(self, direction):
         current_cell = self.current_room
         if not current_cell or current_cell.cell_type != 'ROOM':
             return False
 
-        # Buscar salida en la dirección indicada entre las conexiones de la celda
         exit_cell = None
         for conn in current_cell.outgoing_connections.select_related('to_cell', 'entrance').all():
             if conn.entrance and conn.entrance.properties.get('face') == direction.upper() and conn.entrance.properties.get('enabled', True):
@@ -47,6 +59,7 @@ class PlayerProfile(models.Model):
         self.add_to_navigation_history(self.current_room.id)
         self.current_room = exit_cell
         self.position_x, self.position_y = self.calculate_new_position(direction)
+        self._update_position_geometry()
         self.save()
         return True
 
@@ -59,52 +72,23 @@ class PlayerProfile(models.Model):
         if not self.current_room or self.current_room.cell_type != 'ROOM':
             return False, "No estás en ninguna habitación (ROOM)"
 
-        # Permitir movimiento si la celda destino está dentro de la jerarquía de la room actual
         if target_cell.cell_type == 'ROOM':
             self.add_to_navigation_history(self.current_room.id)
             self.current_room = target_cell
             self.position_x = target_cell.position_x
             self.position_y = target_cell.position_y
+            self._update_position_geometry()
             self.save()
             return True, f"Movido a {target_cell.name}"
 
-        # Para celdas hijas, deben pertenecer a la room actual o ser alcanzables
         if target_cell.parent != self.current_room and target_cell.parent_id != self.current_room.id:
             return False, "La celda destino no está en la habitación actual"
 
         self.position_x = target_cell.position_x
         self.position_y = target_cell.position_y
+        self._update_position_geometry()
         self.save()
         return True, f"Movido a {target_cell.name}"
-
-    def get_navigation_breadcrumb(self):
-        breadcrumb = []
-        current = self.current_room
-        while current:
-            breadcrumb.append({
-                'id': current.id,
-                'name': current.name,
-                'cell_type': current.cell_type,
-            })
-            current = current.parent
-        return list(reversed(breadcrumb))
-
-    def get_last_navigation_target(self):
-        if not self.navigation_history:
-            return None
-        last_id = self.navigation_history[-1]
-        return Cell.objects.filter(pk=last_id).first()
-
-    def calculate_new_position(self, direction):
-        if direction == 'NORTH':
-            return self.position_x, self.current_room.length
-        elif direction == 'SOUTH':
-            return self.position_x, 0
-        elif direction == 'EAST':
-            return self.current_room.width, self.position_y
-        elif direction == 'WEST':
-            return 0, self.position_y
-        return self.position_x, self.position_y
 
     def get_available_exits(self):
         """Devuelve todas las salidas disponibles de la habitación actual."""
@@ -113,7 +97,6 @@ class PlayerProfile(models.Model):
         if not current_room or current_room.cell_type != 'ROOM':
             return exits
 
-        # 1. Conexiones de celda ( Doors / Portales como celdas )
         for conn in current_room.outgoing_connections.select_related('to_cell', 'entrance').all():
             if conn.entrance and conn.entrance.properties.get('enabled', True):
                 exits.append({
@@ -125,7 +108,6 @@ class PlayerProfile(models.Model):
                     'energy_cost': conn.energy_cost,
                 })
 
-        # 2. Celdas hijas de tipo DOOR o PORTAL
         for child in current_room.children.filter(cell_type__in=['DOOR', 'PORTAL']):
             exits.append({
                 'type': 'cell',
@@ -134,7 +116,6 @@ class PlayerProfile(models.Model):
                 'cell_type': child.cell_type,
             })
 
-        # 3. Navegación jerárquica (padre/hijo ROOM)
         parent = current_room.parent
         if parent and parent.cell_type == 'ROOM':
             exits.append({
@@ -186,7 +167,6 @@ class PlayerProfile(models.Model):
         self.add_to_navigation_history(self.current_room.id)
 
         if exit_type == 'connection':
-            # Las conexiones ahora son parte de CellConnections
             conn = CellConnection.objects.filter(entrance_id=exit_id).first()
             if conn:
                 self.current_room = conn.to_cell
@@ -206,6 +186,7 @@ class PlayerProfile(models.Model):
             self.position_y = target_cell.position_y
             self.energy -= 1
 
+        self._update_position_geometry()
         self.save()
         return True
 
@@ -236,8 +217,42 @@ class PlayerProfile(models.Model):
         self.energy -= 20
         self.position_x = target_cell.position_x
         self.position_y = target_cell.position_y
+        self._update_position_geometry()
         self.save()
         return True, f"Teletransportado a {target_cell.name}"
+
+    def calculate_new_position(self, direction):
+        if direction == 'NORTH':
+            return self.position_x, self.current_room.length
+        elif direction == 'SOUTH':
+            return self.position_x, 0
+        elif direction == 'EAST':
+            return self.current_room.width, self.position_y
+        elif direction == 'WEST':
+            return 0, self.position_y
+        return self.position_x, self.position_y
+
+    def get_nearby_exits(self, max_distance=50):
+        """
+        Devuelve salidas cercanas usando geometría.
+        max_distance en unidades del modelo.
+        """
+        from rooms.utils import distance_between
+        exits = self.get_available_exits()
+        nearby = []
+        for exit_info in exits:
+            if exit_info['type'] == 'connection':
+                try:
+                    entrance_cell = Cell.objects.get(id=exit_info['id'])
+                    dist = distance_between(self, entrance_cell)
+                    if dist is not None and dist <= max_distance:
+                        nearby.append({
+                            **exit_info,
+                            'distance': dist,
+                        })
+                except Cell.DoesNotExist:
+                    continue
+        return sorted(nearby, key=lambda x: x.get('distance', float('inf')))
 
 
 class Cell(models.Model):
@@ -273,6 +288,7 @@ class Cell(models.Model):
     height = models.IntegerField(null=True, blank=True, help_text='Alto en cm')
     depth = models.IntegerField(null=True, blank=True, help_text='Profundidad en cm')
     length = models.IntegerField(default=30, help_text='Largo en cm')
+    geometry = models.JSONField(blank=True, null=True, help_text='GeoJSON/WKT del polígono/volumen de la celda para operaciones espaciales con Shapely')
     color = models.CharField(max_length=7, null=True, blank=True, help_text='Color hex #RRGGBB')
     color_primary = models.CharField(max_length=7, default='#2196f3', help_text='Color primario en formato hex (#RRGGBB)')
     color_secondary = models.CharField(max_length=7, default='#1976d2', help_text='Color secundario en formato hex (#RRGGBB)')

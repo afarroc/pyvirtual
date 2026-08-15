@@ -217,6 +217,7 @@ class CellTransitionManager:
         if special_effects:
             self._apply_special_effects(player_profile, special_effects)
 
+        player_profile._update_position_geometry()
         player_profile.save()
         self.logger.info(f"Transición completada: {player_profile.user.username} -> {target_room.name}")
 
