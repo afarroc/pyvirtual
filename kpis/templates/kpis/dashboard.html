@@ -58,7 +58,7 @@
             <span class="stat-label">AHT Promedio</span>
             <span class="stat-sub">
                 {% if aht_trend < 0 %}
-                    <span class="text-green">▼ {{ aht_trend|abs }}%</span>
+                    <span class="text-green">▼ {{ aht_trend_abs }}%</span>
                 {% elif aht_trend > 0 %}
                     <span class="text-red">▲ {{ aht_trend }}%</span>
                 {% else %}
@@ -105,7 +105,7 @@
     </div>
     <div class="stat-card" style="border-left: 4px solid var(--blue);">
         <div class="stat-content">
-            <span class="stat-number">{{ aht_promedio|floatformat:1|default:"12.5" }}s</span>
+            <span class="stat-number">{{ asa_promedio|floatformat:1|default:"12.5" }}s</span>
             <span class="stat-label">ASA (Avg Speed of Answer)</span>
             <span class="stat-sub">Tiempo promedio de respuesta</span>
         </div>
@@ -316,45 +316,6 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ==========================================
-     VOLUMEN Y TENDENCIA
-     ========================================== -->
-<div class="section-card" style="margin-bottom: 1.5rem;">
-    <div class="section-header section-header-info">
-        <div class="section-title">
-            <i class="fas fa-chart-simple"></i>
-            <h6 style="color: #fff;">Volumen de Llamadas por Servicio</h6>
-        </div>
-    </div>
-    <div class="section-body">
-        <div class="two-col">
-            <div class="chart-container" style="height: 280px;">
-                <canvas id="volumenChart"></canvas>
-            </div>
-            <div>
-                <h6 class="text-muted" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">
-                    Resumen por Servicio
-                </h6>
-                <div class="stat-list">
-                    {% for item in resumen_servicio %}
-                    <div class="stat-row">
-                        <span>
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {{ item.color|default:'var(--gray-400)' }}; margin-right: 0.5rem;"></span>
-                            {{ item.servicio }}
-                        </span>
-                        <span style="font-weight: 600;">{{ item.volumen }}</span>
-                    </div>
-                    {% endfor %}
-                    <div class="stat-row" style="font-weight: 600; border-top: 1px solid var(--gray-200);">
-                        <span>Total</span>
-                        <span>{{ total_volumen|default:0 }}</span>
-                    </div>
                 </div>
             </div>
         </div>

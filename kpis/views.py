@@ -94,15 +94,29 @@ def _calculate_abandon_rate(qs):
 
 
 def _get_heatmap_data(qs):
-    """Genera datos para heatmap por hora y día de la semana."""
+    """Genera datos para heatmap por hora y día de la semana en una sola consulta."""
+    from django.db.models import Count
+    from django.db.models.functions import ExtractWeekDay, TruncHour
+
+    counts = qs.annotate(
+        weekday=ExtractWeekDay('fecha'),
+        hour=TruncHour('hora'),
+    ).values('weekday', 'hour').annotate(
+        count=Count('id')
+    )
+
+    count_map = {}
+    for item in counts:
+        hour_val = item['hour'].hour
+        weekday_val = item['weekday']
+        count_map[(weekday_val, hour_val)] = item['count']
+
     heatmap = []
     for hour in range(24):
         row = {'hora': f'{hour:02d}:00', 'dias': []}
         for day in range(7):
-            count = qs.filter(
-                fecha__week_day=(day + 1) % 7 + 1,
-                hora__hour=hour,
-            ).count()
+            django_weekday = (day + 1) % 7 + 1
+            count = count_map.get((django_weekday, hour), 0)
             color = 'var(--gray-50)'
             if count > 30:
                 color = 'var(--purple-light)'
@@ -184,6 +198,7 @@ def aht_dashboard(request):
             sat_promedio=Avg('satisfaccion'),
             total_eventos=Sum('eventos'),
             total_evals=Sum('evaluaciones'),
+            asa_promedio=Avg('asa'),
         )
         totales_anterior = qs_anterior.aggregate(
             total_llamadas=Count('id'),
@@ -220,11 +235,6 @@ def aht_dashboard(request):
             total=Count('id')
         ).order_by('-avg_sat'))
 
-        # ---- Volumen por Servicio ----
-        resumen_servicio = list(qs.values('servicio').annotate(
-            volumen=Count('id')
-        ).order_by('-volumen'))
-
         # ---- Heatmap ----
         heatmap_data = _get_heatmap_data(qs)
 
@@ -258,6 +268,7 @@ def aht_dashboard(request):
             'sat_promedio': round(totales['sat_promedio'] or 0, 2),
             'total_eventos': totales['total_eventos'] or 0,
             'total_evals': totales['total_evals'] or 0,
+            'asa_promedio': round(totales['asa_promedio'] or 0, 2),
 
             # Tendencias
             'total_llamadas_trend': _get_trend_percentage(
@@ -266,6 +277,9 @@ def aht_dashboard(request):
             'aht_trend': _get_trend_percentage(
                 totales['aht_promedio'], totales_anterior['aht_promedio']
             ),
+            'aht_trend_abs': abs(_get_trend_percentage(
+                totales['aht_promedio'], totales_anterior['aht_promedio']
+            )),
 
             # Service Level
             'service_level': sl_general,
@@ -277,10 +291,6 @@ def aht_dashboard(request):
             # CSAT
             'csat_promedio': round(totales['sat_promedio'] or 0, 2),
             'csat_por_servicio': csat_por_servicio,
-
-            # Volumen
-            'resumen_servicio': resumen_servicio,
-            'total_volumen': qs.count(),
 
             # Heatmap
             'heatmap_data': heatmap_data,
