@@ -39,6 +39,9 @@ pandas
 numpy
 openpyxl==3.1.5
 
+# Geometry / spatial (MIT)
+shapely
+
 # Encoding detection
 chardet==5.2.0
 

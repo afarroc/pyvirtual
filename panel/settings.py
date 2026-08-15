@@ -215,13 +215,12 @@ if DEBUG:
     else:
         DATABASES = {
             'default': {
-                'ENGINE':   'django.db.backends.mysql',
+                'ENGINE':   'django.db.backends.postgresql',
                 'NAME':     config('DATABASE_NAME',     default='management360'),
                 'USER':     config('DATABASE_USER',     default='root'),
                 'PASSWORD': config('DATABASE_PASSWORD', default=''),
                 'HOST':     config('DATABASE_HOST',     default='192.168.18.46'),
-                'PORT':     config('DATABASE_PORT',     default='3306'),
-                'OPTIONS':  {'charset': 'utf8mb4'},
+                'PORT':     config('DATABASE_PORT',     default='5432'),
             }
         }
 else:
