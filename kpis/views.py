@@ -210,6 +210,10 @@ def aht_dashboard(request):
                 'total': sub_qs.count(),
             })
 
+        # ---- FCR y Abandon Rate ----
+        fcr_rate = _calculate_fcr(qs)
+        abandon_rate = _calculate_abandon_rate(qs)
+
         # ---- CSAT ----
         csat_por_servicio = list(qs.values('servicio').annotate(
             avg_sat=Avg('satisfaccion'),
@@ -267,6 +271,8 @@ def aht_dashboard(request):
             'service_level': sl_general,
             'sl_por_servicio': sl_por_servicio,
             'sl_por_canal': sl_por_canal,
+            'fcr_rate': fcr_rate,
+            'abandon_rate': abandon_rate,
 
             # CSAT
             'csat_promedio': round(totales['sat_promedio'] or 0, 2),

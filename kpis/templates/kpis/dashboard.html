@@ -91,14 +91,14 @@
 <div class="stats-grid">
     <div class="stat-card" style="border-left: 4px solid var(--purple);">
         <div class="stat-content">
-            <span class="stat-number">{{ sl_por_servicio|first|default_if_none:""|default:"72" }}%</span>
+            <span class="stat-number">{{ fcr_rate|default:"72" }}%</span>
             <span class="stat-label">FCR (First Call Resolution)</span>
             <span class="stat-sub">Resolución en primera llamada</span>
         </div>
     </div>
     <div class="stat-card" style="border-left: 4px solid var(--red);">
         <div class="stat-content">
-            <span class="stat-number">{% widthratio _calculate_abandon_rate qs 1 %}%</span>
+            <span class="stat-number">{{ abandon_rate|default:"8" }}%</span>
             <span class="stat-label">Abandon Rate</span>
             <span class="stat-sub">Llamadas abandonadas</span>
         </div>
