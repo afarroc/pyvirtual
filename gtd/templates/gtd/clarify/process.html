@@ -11,11 +11,11 @@
 <div class="dashboard-header">
     <div>
         <h1>
-            <i class="fas fa-edit text-primary"></i> 
+            <i class="fas fa-edit text-purple"></i> 
             Clarificar: <span id="itemTitleDisplay">{{ item.title|truncatechars:40 }}</span>
         </h1>
         <div class="subtitle" id="progressInfo">
-            <i class="fas fa-arrow-right"></i> Paso 2 de 5 · 
+            <i class="fas fa-arrow-right text-muted"></i> Paso 2 de 5 · 
             <span id="remainingCount">{{ next_items_count }}</span> restantes
         </div>
     </div>
@@ -23,7 +23,7 @@
         <span class="badge priority-badge badge-{{ item.priority }}" id="priorityBadge">
             <i class="fas fa-flag"></i> {{ item.priority|title }}
         </span>
-        <a href="{% url 'gtd:clarify_inbox' %}" class="btn btn-outline-secondary btn-sm" id="exitBtn">
+        <a href="{% url 'gtd:clarify_inbox' %}" class="btn btn-ghost btn-sm" id="exitBtn">
             <i class="fas fa-times"></i> Salir
         </a>
     </div>
@@ -32,20 +32,18 @@
 <!-- ============================================
      PROGRESO DE CLARIFICACIÓN
      ============================================ -->
-<div class="section-card mb-3">
+<div class="section-card">
     <div class="section-body">
-        <div class="flex justify-between items-center">
-            <span class="text-muted text-sm">
-                <i class="fas fa-chart-line text-primary"></i> Progreso
-            </span>
-            <span class="font-semibold" id="progressStats">{{ stats.processed }}/{{ stats.total }}</span>
+        <div class="stat-item">
+            <span class="text-muted"><i class="fas fa-chart-line text-purple"></i> Progreso</span>
+            <span class="fw-bold" id="progressStats">{{ stats.processed }}/{{ stats.total }}</span>
         </div>
-        <div class="progress mt-1">
+        <div class="progress-bar mt-1">
             <div class="progress-fill" id="progressFill" style="width: {{ stats.processing_rate }}%;"></div>
         </div>
-        <div class="flex justify-between text-xs text-muted mt-1">
-            <span id="processedCount">{{ stats.processed }} clarificados</span>
-            <span id="unprocessedCount">{{ stats.unprocessed }} pendientes</span>
+                <span class="stat-item border-top mt-2 pt-2">
+            <span class="text-muted" id="processedCount">{{ stats.processed }} clarificados</span>
+            <span class="text-muted" id="unprocessedCount">{{ stats.unprocessed }} pendientes</span>
         </div>
     </div>
 </div>
@@ -53,17 +51,17 @@
 <!-- ============================================
      ITEM INFO
      ============================================ -->
-<div class="section-card mb-3">
+<div class="section-card border-start border-4 border-gray-300">
     <div class="section-body">
-        <div class="item-info" style="background: var(--gray-50); border-radius: var(--radius-sm); padding: 1rem;">
-            <div class="flex justify-between items-start gap-3">
-                <div class="flex-1">
-                    <h3 class="mb-1" style="font-size: 1.1rem;" id="itemTitle">{{ item.title }}</h3>
+        <div class="bg-light p-2 rounded">
+            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                <div class="flex-1 flex-shrink-0" style="min-width: 280px;">
+                    <h3 class="fs-6 mb-1" id="itemTitle">{{ item.title }}</h3>
                     {% if item.description %}
-                        <p class="text-muted text-sm mb-1" id="itemDescription">{{ item.description|truncatewords:20 }}</p>
+                        <p class="text-muted fs-7 mb-0" id="itemDescription">{{ item.description|truncatewords:20 }}</p>
                     {% endif %}
                 </div>
-                <div class="text-xs text-muted text-right flex-shrink-0">
+                <div class="text-muted text-end flex-shrink-0 fs-7">
                     <div><i class="fas fa-user"></i> {{ item.created_by.get_full_name|default:item.created_by.username }}</div>
                     <div><i class="fas fa-clock"></i> Hace <span id="itemTimeAgo">{{ item.created_at|timesince }}</span></div>
                 </div>
@@ -76,11 +74,11 @@
      FORMULARIO DE CLARIFICACIÓN CON AJAX
      ============================================ -->
 <div class="section-card" id="clarifyFormCard">
-    <div class="section-header section-header-primary">
-        <h5 class="mb-0">
+    <div class="section-header section-header-purple">
+        <h5>
             <i class="fas fa-filter"></i> Decisión GTD
         </h5>
-        <small class="text-light opacity-75">
+        <small class="opacity-75">
             <i class="fas fa-info-circle"></i> Procesa el item
         </small>
     </div>
@@ -91,17 +89,17 @@
             
             <!-- PASO 1: ¿Es accionable? -->
             <div class="mb-3">
-                <label class="form-label font-semibold text-sm text-uppercase text-muted">
-                    <span class="badge badge-primary me-1">1</span> 
+                <label class="fw-semibold text-uppercase text-muted d-block mb-2">
+                    <span class="badge bg-purple-light text-purple me-2">1</span> 
                     ¿Es accionable?
                 </label>
-                <div class="btn-group w-full" role="group" id="categoryGroup">
+                <div class="btn-group d-flex gap-2 flex-wrap" role="group" id="categoryGroup">
                     <input type="radio" class="btn-check" name="gtd_category" id="catAccionable" value="accionable" checked>
-                    <label class="btn btn-outline-success btn-sm" for="catAccionable">
+                    <label class="btn btn-success btn-sm flex-fill text-center" for="catAccionable">
                         <i class="fas fa-check-circle"></i> Sí, es accionable
                     </label>
                     <input type="radio" class="btn-check" name="gtd_category" id="catNoAccionable" value="no_accionable">
-                    <label class="btn btn-outline-danger btn-sm" for="catNoAccionable">
+                    <label class="btn btn-danger btn-sm flex-fill text-center" for="catNoAccionable">
                         <i class="fas fa-times-circle"></i> No, no es accionable
                     </label>
                 </div>
@@ -109,77 +107,76 @@
             
             <!-- PASO 2: Acción a tomar -->
             <div class="mb-3">
-                <label class="form-label font-semibold text-sm text-uppercase text-muted">
-                    <span class="badge badge-primary me-1">2</span> 
+                <label class="fw-semibold text-uppercase text-muted d-block mb-2">
+                    <span class="badge bg-purple-light text-purple me-2">2</span> 
                     ¿Qué acción tomar?
                 </label>
                 <div class="action-buttons-grid" id="actionButtons">
                     <!-- Accionables -->
                     <div class="action-option" data-category="accionable">
                         <input type="radio" class="btn-check" name="action_type" id="actionDo" value="hacer">
-                        <label class="btn btn-outline-success btn-sm w-full text-center" for="actionDo">
-                            <i class="fas fa-play-circle d-block"></i>
-                            <small>Hacer</small>
+                        <label class="btn btn-success btn-sm flex-fill text-center flex-column align-items-center gap-1 py-1 px-1 fs-7" for="actionDo">
+                            <i class="fas fa-play-circle"></i>
+                            <span>Hacer</span>
                         </label>
                     </div>
                     <div class="action-option" data-category="accionable">
                         <input type="radio" class="btn-check" name="action_type" id="actionDelegate" value="delegar">
-                        <label class="btn btn-outline-info btn-sm w-full text-center" for="actionDelegate">
-                            <i class="fas fa-user-plus d-block"></i>
-                            <small>Delegar</small>
+                        <label class="btn btn-info btn-sm flex-fill text-center flex-column align-items-center gap-1 py-1 px-1 fs-7" for="actionDelegate">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Delegar</span>
                         </label>
                     </div>
                     <div class="action-option" data-category="accionable">
                         <input type="radio" class="btn-check" name="action_type" id="actionDefer" value="posponer">
-                        <label class="btn btn-outline-warning btn-sm w-full text-center" for="actionDefer">
-                            <i class="fas fa-calendar-plus d-block"></i>
-                            <small>Posponer</small>
+                        <label class="btn btn-warning btn-sm flex-fill text-center flex-column align-items-center gap-1 py-1 px-1 fs-7" for="actionDefer">
+                            <i class="fas fa-calendar-plus"></i>
+                            <span>Posponer</span>
                         </label>
                     </div>
                     <div class="action-option" data-category="accionable">
                         <input type="radio" class="btn-check" name="action_type" id="actionProject" value="proyecto">
-                        <label class="btn btn-outline-primary btn-sm w-full text-center" for="actionProject">
-                            <i class="fas fa-project-diagram d-block"></i>
-                            <small>Proyecto</small>
+                        <label class="btn btn-primary btn-sm flex-fill text-center flex-column align-items-center gap-1 py-1 px-1 fs-7" for="actionProject">
+                            <i class="fas fa-project-diagram"></i>
+                            <span>Proyecto</span>
                         </label>
                     </div>
                     <!-- No accionables -->
                     <div class="action-option" data-category="no_accionable">
                         <input type="radio" class="btn-check" name="action_type" id="actionArchive" value="archivar">
-                        <label class="btn btn-outline-secondary btn-sm w-full text-center" for="actionArchive">
-                            <i class="fas fa-archive d-block"></i>
-                            <small>Archivar</small>
+                        <label class="btn btn-secondary btn-sm flex-fill text-center flex-column align-items-center gap-1 py-1 px-1 fs-7" for="actionArchive">
+                            <i class="fas fa-archive"></i>
+                            <span>Archivar</span>
                         </label>
                     </div>
                     <div class="action-option" data-category="no_accionable">
                         <input type="radio" class="btn-check" name="action_type" id="actionSomeday" value="incubar">
-                        <label class="btn btn-outline-secondary btn-sm w-full text-center" for="actionSomeday">
-                            <i class="fas fa-bed d-block"></i>
-                            <small>Algún día</small>
+                        <label class="btn btn-secondary btn-sm flex-fill text-center flex-column align-items-center gap-1 py-1 px-1 fs-7" for="actionSomeday">
+                            <i class="fas fa-bed"></i>
+                            <span>Algún día</span>
                         </label>
                     </div>
                     <div class="action-option" data-category="no_accionable">
                         <input type="radio" class="btn-check" name="action_type" id="actionWait" value="esperar">
-                        <label class="btn btn-outline-secondary btn-sm w-full text-center" for="actionWait">
-                            <i class="fas fa-hourglass d-block"></i>
-                            <small>Esperar</small>
+                        <label class="btn btn-secondary btn-sm flex-fill text-center flex-column align-items-center gap-1 py-1 px-1 fs-7" for="actionWait">
+                            <i class="fas fa-hourglass"></i>
+                            <span>Esperar</span>
                         </label>
                     </div>
                     <div class="action-option" data-category="no_accionable">
                         <input type="radio" class="btn-check" name="action_type" id="actionDelete" value="eliminar">
-                        <label class="btn btn-outline-danger btn-sm w-full text-center" for="actionDelete">
-                            <i class="fas fa-trash d-block"></i>
-                            <small>Eliminar</small>
+                        <label class="btn btn-danger btn-sm flex-fill text-center flex-column align-items-center gap-1 py-1 px-1 fs-7" for="actionDelete">
+                            <i class="fas fa-trash"></i>
+                            <span>Eliminar</span>
                         </label>
                     </div>
                 </div>
             </div>
-            
             <!-- PASO 3: Opciones adicionales -->
             <div id="additionalOptions" class="mb-3">
                 <!-- Hacer -->
                 <div class="action-options" data-action="hacer" style="display:none;">
-                    <div class="flex gap-2 items-center flex-wrap" style="background: var(--gray-50); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                    <div class="flex gap-2 items-center flex-wrap bg-light p-2 rounded border">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="important" id="importantCheck">
                             <label class="form-check-label text-sm" for="importantCheck">
@@ -198,27 +195,27 @@
                     </div>
                     <small class="text-muted d-block mt-1 text-xs">
                         <i class="fas fa-info-circle"></i> 
-                        <span class="font-semibold text-success">Regla de 2 minutos:</span> 
+                        <span class="fw-semibold text-success">Regla de 2 minutos:</span> 
                         Si toma menos de 2 minutos, <strong>hazlo ahora</strong>.
                     </small>
                 </div>
                 
                 <!-- Delegar -->
                 <div class="action-options" data-action="delegar" style="display:none;">
-                    <div style="background: var(--gray-50); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
-                        <div class="flex gap-2 flex-wrap">
-                            <div class="flex-1" style="min-width: 140px;">
-                                <label class="text-sm text-muted"><i class="fas fa-user"></i> Asignar a</label>
-                                <select class="form-control form-control-sm" name="assigned_to" id="delegateUser">
+                    <div class="bg-light p-2 rounded border">
+                        <div class="d-flex gap-3 flex-wrap">
+                            <div class="flex-fill flex-shrink-0" style="min-width: 140px;">
+                                <label class="text-muted text-sm"><i class="fas fa-user"></i> Asignar a</label>
+                                <select name="assigned_to" id="delegateUser" class="form-select form-select-sm">
                                     <option value="">Seleccionar...</option>
                                     {% for user in available_users %}
                                         <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="flex-1" style="min-width: 140px;">
-                                <label class="text-sm text-muted"><i class="fas fa-calendar-alt"></i> Fecha límite</label>
-                                <input type="date" class="form-control form-control-sm" name="due_date" id="delegateDueDate">
+                            <div class="flex-fill flex-shrink-0" style="min-width: 140px;">
+                                <label class="text-muted text-sm"><i class="fas fa-calendar-alt"></i> Fecha límite</label>
+                                <input type="date" name="due_date" id="delegateDueDate" class="form-control form-control-sm">
                             </div>
                         </div>
                     </div>
@@ -226,15 +223,15 @@
                 
                 <!-- Posponer -->
                 <div class="action-options" data-action="posponer" style="display:none;">
-                    <div style="background: var(--gray-50); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
-                        <div class="flex gap-2 flex-wrap">
-                            <div class="flex-1" style="min-width: 140px;">
-                                <label class="text-sm text-muted"><i class="fas fa-calendar-day"></i> Inicio</label>
-                                <input type="date" class="form-control form-control-sm" name="start_date" id="deferStartDate">
+                    <div class="bg-light p-2 rounded border">
+                        <div class="d-flex gap-3 flex-wrap">
+                            <div class="flex-fill flex-shrink-0" style="min-width: 140px;">
+                                <label class="text-muted text-sm"><i class="fas fa-calendar-day"></i> Inicio</label>
+                                <input type="date" name="start_date" id="deferStartDate" class="form-control form-control-sm">
                             </div>
-                            <div class="flex-1" style="min-width: 140px;">
-                                <label class="text-sm text-muted"><i class="fas fa-calendar-alt"></i> Límite</label>
-                                <input type="date" class="form-control form-control-sm" name="due_date" id="deferDueDate">
+                            <div class="flex-fill flex-shrink-0" style="min-width: 140px;">
+                                <label class="text-muted text-sm"><i class="fas fa-calendar-alt"></i> Límite</label>
+                                <input type="date" name="due_date" id="deferDueDate" class="form-control form-control-sm">
                             </div>
                         </div>
                     </div>
@@ -242,17 +239,15 @@
                 
                 <!-- Proyecto -->
                 <div class="action-options" data-action="proyecto" style="display:none;">
-                    <div style="background: var(--gray-50); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
-                        <div class="flex gap-2 items-center flex-wrap">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="important" id="importantProjectCheck">
-                                <label class="form-check-label text-sm" for="importantProjectCheck">
-                                    <i class="fas fa-star text-warning"></i> Importante
-                                </label>
-                            </div>
-                            <div class="flex-1" style="min-width: 140px;">
-                                <label class="text-sm text-muted"><i class="fas fa-user"></i> Asignar a</label>
-                                <select class="form-control form-control-sm" name="assigned_to" id="projectUser">
+                    <div class="bg-light p-2 rounded border">
+                        <div class="d-flex gap-3 align-items-center flex-wrap">
+                            <label class="text-sm text-gray-700 d-inline-flex align-items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="important" id="importantProjectCheck" class="form-check-input" style="accent-color: var(--purple);">
+                                <i class="fas fa-star text-amber"></i> Importante
+                            </label>
+                            <div class="flex-fill flex-shrink-0" style="min-width: 140px;">
+                                <label class="text-muted text-sm"><i class="fas fa-user"></i> Asignar a</label>
+                                <select name="assigned_to" id="projectUser" class="form-select form-select-sm">
                                     <option value="">Yo mismo</option>
                                     {% for user in available_users %}
                                         <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
@@ -265,28 +260,26 @@
                 
                 <!-- Esperar -->
                 <div class="action-options" data-action="esperar" style="display:none;">
-                    <div style="background: var(--gray-50); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
-                        <div class="form-group">
-                            <label class="text-sm text-muted"><i class="fas fa-question-circle"></i> ¿Qué esperas?</label>
-                            <input type="text" class="form-control form-control-sm" name="waiting_for" id="waitingFor" placeholder="Ej: Respuesta de Juan, Confirmación...">
-                        </div>
+                    <div class="bg-light p-2 rounded border">
+                        <label class="text-muted text-sm d-block mb-2"><i class="fas fa-question-circle"></i> ¿Qué esperas?</label>
+                        <input type="text" name="waiting_for" id="waitingFor" placeholder="Ej: Respuesta de Juan, Confirmación..." class="form-control form-control-sm">
                     </div>
                 </div>
             </div>
             
             <!-- BOTONES DE ACCIÓN -->
-            <div class="flex gap-2 flex-wrap mt-3 pt-2" style="border-top: 1px solid var(--gray-200);">
+            <div class="d-flex gap-2 flex-wrap mt-3 pt-3 border-top">
                 <button type="submit" class="btn btn-primary btn-sm" id="submitBtn">
                     <i class="fas fa-check"></i> Procesar
                 </button>
-                <button type="button" class="btn btn-outline-info btn-sm" id="suggestBtn">
+                <button type="button" class="btn btn-info btn-sm" id="suggestBtn">
                     <i class="fas fa-robot"></i> Sugerir
                 </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="skipBtn">
+                <button type="button" class="btn btn-ghost btn-sm" id="skipBtn">
                     <i class="fas fa-forward"></i> Saltar
                 </button>
-                <span class="flex-1"></span>
-                <small class="text-muted align-self-center text-xs">
+                <span class="flex-fill"></span>
+                <small class="text-muted fs-7 align-self-center">
                     <kbd>Enter</kbd> procesar · <kbd>Esc</kbd> salir
                 </small>
             </div>
@@ -300,15 +293,15 @@
 <!-- ============================================
      CONSEJO GTD
      ============================================ -->
-<div class="section-card" style="border-left: 4px solid var(--green);">
+<div class="section-card border-start border-4 border-green">
     <div class="section-body">
-        <div class="flex gap-2 items-start">
-            <i class="fas fa-lightbulb text-success fs-4 mt-1"></i>
+        <div class="d-flex gap-3 align-items-start">
+            <i class="fas fa-lightbulb text-green" style="font-size: 1.5rem; margin-top: 0.25rem;"></i>
             <div>
-                <h6 class="font-semibold mb-1">Regla de los 2 minutos</h6>
-                <p class="text-muted small mb-0">
+                <h6 class="fw-semibold mb-1">Regla de los 2 minutos</h6>
+                <p class="text-muted text-sm mb-0">
                     Si la acción toma menos de 2 minutos, 
-                    <span class="text-success font-semibold">hazla ahora</span>. 
+                    <span class="fw-semibold text-green">hazla ahora</span>. 
                     Si no, decide entre delegar, posponer o convertir en proyecto.
                 </p>
             </div>
@@ -1032,7 +1025,4 @@
     .btn-group .btn {
         font-size: 0.7rem;
         padding: 0.2rem 0.4rem;
-    }
-}
-</style>
 {% endblock %}

@@ -12,19 +12,19 @@
         {% endif %}
         <div class="d-flex justify-content-between align-items-center mt-3">
             <small class="text-muted">
-                <i class="bi bi-clock me-1"></i>{{ item.created_at|date:"d/m/Y H:i" }}
+                <i class="fas fa-clock me-1"></i>{{ item.created_at|date:"d/m/Y H:i" }}
             </small>
             {% if item.processed_to %}
                 {% load inbox_tags %}
                 <a href="{{ item.processed_to|get_linked_object_url }}" 
                    class="btn btn-sm {{ item.processed_to|get_linked_object_button_class }}">
-                    <i class="bi {{ item.processed_to|get_linked_object_icon }} me-1"></i>
-                    Ver {{ item.processed_to|get_linked_object_type|title }}
+                     <i class="fas {{ item.processed_to|get_linked_object_icon }} me-1"></i>
+                     Ver {{ item.processed_to|get_linked_object_type|title }}
                 </a>
             {% else %}
-                <a href="#" class="btn btn-secondary btn-sm">
-                    <i class="bi bi-link me-1"></i>Ver Objeto
-                </a>
+                <span class="btn btn-secondary btn-sm disabled">
+                    <i class="fas fa-link me-1"></i>Sin objeto asociado
+                </span>
             {% endif %}
         </div>
     </div>

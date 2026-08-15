@@ -74,41 +74,41 @@
           <span class="process-badge process-badge-light">#{{ inbox_item.id }}</span>
         </div>
         <div class="section-body">
-          <h4 class="process-item-title">{{ inbox_item.title }}</h4>
+          <h4 class="process-item-title" id="processItemTitle">{{ inbox_item.title }}</h4>
           {% if inbox_item.description %}
-            <p class="text-muted process-item-desc">{{ inbox_item.description }}</p>
+            <p class="text-muted process-item-desc" id="processItemDesc">{{ inbox_item.description }}</p>
           {% else %}
-            <p class="text-muted process-item-desc"><em>Sin descripción adicional</em></p>
+            <p class="text-muted process-item-desc" id="processItemDesc"><em>Sin descripción adicional</em></p>
           {% endif %}
 
           <div class="process-item-metadata">
             <div class="process-meta-item">
               <i class="fas fa-calendar" aria-hidden="true"></i>
-              <strong>Creado:</strong> {{ inbox_item.created_at|date:"d/m/Y H:i" }}
+              <strong>Creado:</strong> <span id="processItemCreated">{{ inbox_item.created_at|date:"d/m/Y H:i" }}</span>
             </div>
             <div class="process-meta-item">
               <i class="fas fa-user" aria-hidden="true"></i>
-              <strong>Creador:</strong> {{ inbox_item.created_by.get_full_name|default:inbox_item.created_by.username }}
+              <strong>Creador:</strong> <span id="processItemCreator">{{ inbox_item.created_by.get_full_name|default:inbox_item.created_by.username }}</span>
             </div>
             <div class="process-meta-item">
               <i class="fas fa-eye" aria-hidden="true"></i>
-              <strong>Vistas:</strong> {{ inbox_item.view_count }}
+              <strong>Vistas:</strong> <span id="processItemViews">{{ inbox_item.view_count }}</span>
             </div>
             <div class="process-meta-item">
               <i class="fas fa-clock" aria-hidden="true"></i>
-              <strong>Última actividad:</strong> {{ inbox_item.last_activity|date:"d/m/Y H:i" }}
+              <strong>Última actividad:</strong> <span id="processItemLastActivity">{{ inbox_item.last_activity|date:"d/m/Y H:i" }}</span>
             </div>
           </div>
 
           <div class="process-status-badges">
-            <span class="process-badge {% if inbox_item.is_processed %}process-badge-success{% else %}process-badge-warning{% endif %}">
+            <span class="process-badge {% if inbox_item.is_processed %}process-badge-success{% else %}process-badge-warning{% endif %}" id="processStatusBadge">
               <i class="fas {% if inbox_item.is_processed %}fa-check-circle{% else %}fa-clock{% endif %}" aria-hidden="true"></i>
-              {% if inbox_item.is_processed %}Procesado{% else %}Pendiente{% endif %}
+              <span id="processStatusText">{% if inbox_item.is_processed %}Procesado{% else %}Pendiente{% endif %}</span>
             </span>
             {% if inbox_item.is_public %}
-              <span class="process-badge process-badge-info"><i class="fas fa-globe" aria-hidden="true"></i> Público</span>
+              <span class="process-badge process-badge-info" id="processVisibilityBadge"><i class="fas fa-globe" aria-hidden="true"></i> <span id="processVisibilityText">Público</span></span>
             {% else %}
-              <span class="process-badge process-badge-secondary"><i class="fas fa-lock" aria-hidden="true"></i> Privado</span>
+              <span class="process-badge process-badge-secondary" id="processVisibilityBadge"><i class="fas fa-lock" aria-hidden="true"></i> <span id="processVisibilityText">Privado</span></span>
             {% endif %}
           </div>
         </div>
@@ -125,15 +125,15 @@
         <div class="section-body">
           <div class="process-consensus-item">
             <small class="text-muted">Categoría GTD</small>
-            <span class="process-badge process-badge-primary">{{ consensus_category|title|default:"Sin consenso" }}</span>
+            <span class="process-badge process-badge-primary" id="consensusCategory">{{ consensus_category|title|default:"Sin consenso" }}</span>
           </div>
           <div class="process-consensus-item">
             <small class="text-muted">Tipo de Acción</small>
-            <span class="process-badge process-badge-secondary">{{ consensus_action|title|default:"Sin consenso" }}</span>
+            <span class="process-badge process-badge-secondary" id="consensusAction">{{ consensus_action|title|default:"Sin consenso" }}</span>
           </div>
           <div class="process-consensus-item">
             <small class="text-muted">Votos de Clasificación</small>
-            <span class="process-badge process-badge-light">{{ classifications|length }} usuario(s)</span>
+            <span class="process-badge process-badge-light" id="consensusVotes">{{ classifications|length }} usuario(s)</span>
           </div>
         </div>
       </div>
@@ -147,16 +147,16 @@
           </h6>
         </div>
         <div class="section-body">
-          <div class="process-stats-grid">
-            <div class="process-stat-item">
-              <span class="process-stat-number text-success">{{ processed_count }}</span>
-              <small class="text-muted">Items procesados</small>
+            <div class="process-stats-grid">
+              <div class="process-stat-item">
+                <span class="process-stat-number text-success" id="processStatProcessed">{{ processed_count }}</span>
+                <small class="text-muted">Items procesados</small>
+              </div>
+              <div class="process-stat-item">
+                <span class="process-stat-number text-warning" id="processStatPending">{{ unprocessed_count }}</span>
+                <small class="text-muted">Items pendientes</small>
+              </div>
             </div>
-            <div class="process-stat-item">
-              <span class="process-stat-number text-warning">{{ unprocessed_count }}</span>
-              <small class="text-muted">Items pendientes</small>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -588,7 +588,124 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- No inline scripts - todo en main.js -->
+<input type="hidden" id="inboxItemApiUrl" value="{% url 'events:inbox_item_api' inbox_item.id %}">
+<script>
+(function() {
+  'use strict';
+
+  const itemId = {{ inbox_item.id }};
+  const apiUrlEl = document.getElementById('inboxItemApiUrl');
+  const apiUrl = apiUrlEl ? apiUrlEl.value : `/events/inbox/api/item/${itemId}/`;
+  const pollIntervalMs = 30000;
+  let pollTimer = null;
+
+  function getCsrfToken() {
+    const cookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+    return cookie ? cookie.split('=')[1] : '';
+  }
+
+  function updateElement(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const current = el.textContent.trim();
+    if (current !== String(value)) {
+      el.textContent = value;
+      el.classList.add('animate-fade-in');
+      setTimeout(() => el.classList.remove('animate-fade-in'), 300);
+    }
+  }
+
+  function refreshItemData() {
+    fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'X-CSRFToken': getCsrfToken(),
+        'Accept': 'application/json',
+      },
+      credentials: 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (!data || !data.success || !data.item) return;
+
+      const item = data.item;
+      updateElement('processItemTitle', item.title);
+      updateElement('processItemDesc', item.description || 'Sin descripción adicional');
+      updateElement('processItemCreated', item.created_at);
+      updateElement('processItemCreator', item.created_by);
+      updateElement('processItemViews', item.view_count);
+      updateElement('processItemLastActivity', item.last_activity);
+
+      const statusBadge = document.getElementById('processStatusBadge');
+      if (statusBadge) {
+        const icon = statusBadge.querySelector('i');
+        const label = item.is_processed ? 'Procesado' : 'Pendiente';
+        const iconClass = item.is_processed ? 'fa-check-circle' : 'fa-clock';
+        const badgeClass = item.is_processed ? 'process-badge-success' : 'process-badge-warning';
+        if (icon) icon.className = 'fas ' + iconClass + ' aria-hidden="true"';
+        statusBadge.className = 'process-badge ' + badgeClass;
+        statusBadge.lastChild.textContent = ' ' + label;
+      }
+
+      const visibilityBadge = document.getElementById('processVisibilityBadge');
+      if (visibilityBadge) {
+        const icon = visibilityBadge.querySelector('i');
+        if (item.is_public) {
+          visibilityBadge.className = 'process-badge process-badge-info';
+          if (icon) { icon.className = 'fas fa-globe aria-hidden="true"'; }
+          updateElement('processVisibilityText', 'Público');
+        } else {
+          visibilityBadge.className = 'process-badge process-badge-secondary';
+          if (icon) { icon.className = 'fas fa-lock aria-hidden="true"'; }
+          updateElement('processVisibilityText', 'Privado');
+        }
+      }
+
+      if (data.stats) {
+        updateElement('processStatProcessed', data.stats.processed_count);
+        updateElement('processStatPending', data.stats.unprocessed_count);
+      }
+
+      if (data.consensus) {
+        updateElement('consensusCategory', data.consensus.category || 'Sin consenso');
+        updateElement('consensusAction', data.consensus.action || 'Sin consenso');
+        updateElement('consensusVotes', data.consensus.votes + ' usuario(s)');
+      }
+    })
+    .catch(() => {
+      // Silenciar errores de polling para no interrumpir la experiencia
+    });
+  }
+
+  function startPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    refreshItemData();
+    pollTimer = setInterval(refreshItemData, pollIntervalMs);
+  }
+
+  function stopPolling() {
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  }
+
+  // Pausar polling cuando la pestaña no esté visible
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopPolling();
+    } else {
+      startPolling();
+    }
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startPolling);
+  } else {
+    startPolling();
+  }
+})();
+</script>
 {% endblock %}
 
 {% block extra_css %}

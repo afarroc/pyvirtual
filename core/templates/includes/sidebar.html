@@ -1,50 +1,99 @@
 <!-- ==========================================
-   SIDEBAR - Multi-level Navigation
+   SIDEBAR - Navegación estructurada por dominio
    ========================================== -->
 <aside class="sidebar" id="mainSidebar" role="navigation" aria-label="Menú principal">
   <nav class="sidebar-nav">
-    
-    <!-- SECCIÓN 1: DASHBOARD -->
+
+    <!-- ==========================================
+         GRUPO 1: CORE
+         ========================================== -->
     <div class="nav-section">
-      <span class="nav-label">Dashboard</span>
+      <span class="nav-label">Core</span>
       <ul>
-        {% include 'includes/sidebar_content/dashboard.html' %}
+        <li class="sidebar-nav-item">
+          <a href="{% url 'events:unified_dashboard' %}" class="sidebar-nav-link">
+            <i class="fas fa-gauge-high" aria-hidden="true"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
       </ul>
     </div>
 
-    <!-- SECCIÓN 2: EVENTS -->
+    <!-- ==========================================
+         GRUPO 2: WORKSPACE
+         ========================================== -->
     <div class="nav-section">
-      <span class="nav-label">Calendar</span>
+      <span class="nav-label">Workspace</span>
       <ul>
+        {% include 'includes/sidebar_content/projects.html' %}
+        {% include 'includes/sidebar_content/tasks.html' %}
         {% include 'includes/sidebar_content/events.html' %}
       </ul>
     </div>
 
-    <!-- SECCIÓN 3: PROJECTS -->
+    <!-- ==========================================
+         GRUPO 3: PRODUCTIVITY
+         ========================================== -->
     <div class="nav-section">
-      <span class="nav-label">Projects</span>
+      <span class="nav-label">Productivity</span>
       <ul>
-        {% include 'includes/sidebar_content/projects.html' %}
+        <li class="sidebar-nav-item">
+          <a class="sidebar-nav-link" href="{% url 'events:kanban_board' %}">
+            <i class="fas fa-table-cells" aria-hidden="true"></i>
+            <span>Kanban</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a class="sidebar-nav-link" href="{% url 'events:eisenhower_matrix' %}">
+            <i class="fas fa-table-cells-large" aria-hidden="true"></i>
+            <span>Eisenhower</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a class="sidebar-nav-link" href="{% url 'events:inbox' %}">
+            <i class="fas fa-inbox" aria-hidden="true"></i>
+            <span>Inbox</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a class="sidebar-nav-link" href="{% url 'events:task_dependencies_list' %}">
+            <i class="fas fa-link" aria-hidden="true"></i>
+            <span>Task Dependencies</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a class="sidebar-nav-link" href="{% url 'events:task_schedules' %}">
+            <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
+            <span>Task Schedules</span>
+          </a>
+        </li>
       </ul>
     </div>
 
-    <!-- SECCIÓN 4: TASKS -->
+    <!-- ==========================================
+         GRUPO 4: ANALYTICS
+         ========================================== -->
     <div class="nav-section">
-      <span class="nav-label">Tasks</span>
+      <span class="nav-label">Analytics</span>
       <ul>
-        {% include 'includes/sidebar_content/tasks.html' %}
+        <li class="sidebar-nav-item">
+          <a class="sidebar-nav-link" href="{% url 'kpis:home' %}">
+            <i class="fas fa-chart-line" aria-hidden="true"></i>
+            <span>KPIs</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a class="sidebar-nav-link" href="{% url 'analyst:report_list' %}">
+            <i class="fas fa-file-lines" aria-hidden="true"></i>
+            <span>Reports</span>
+          </a>
+        </li>
       </ul>
     </div>
 
-    <!-- SECCIÓN 5: MANAGEMENT -->
-    <div class="nav-section">
-      <span class="nav-label">Management</span>
-      <ul>
-        {% include 'includes/sidebar_content/management.html' %}
-      </ul>
-    </div>
-
-    <!-- SECCIÓN 6: COURSES -->
+    <!-- ==========================================
+         GRUPO 5: LEARNING
+         ========================================== -->
     <div class="nav-section">
       <span class="nav-label">Learning</span>
       <ul>
@@ -52,87 +101,59 @@
       </ul>
     </div>
 
-    <!-- SECCIÓN 7: CURRICULUM -->
-    <div class="nav-section">
-      <span class="nav-label">Profile</span>
-      <ul>
-        {% include 'includes/sidebar_content/curriculum.html' %}
-      </ul>
-    </div>
-
-    <!-- SECCIÓN 8: ANALYST -->
-    <div class="nav-section">
-      <span class="nav-label">Analytics</span>
-      <ul>
-        {% include 'includes/sidebar_content/analyst.html' %}
-      </ul>
-    </div>
-
-    <!-- SECCIÓN 9: KPIS -->
-    <div class="nav-section">
-      <span class="nav-label">Reports</span>
-      <ul>
-        {% include 'includes/sidebar_content/kpis.html' %}
-      </ul>
-    </div>
-
-    <!-- SECCIÓN 10: CHAT -->
+    <!-- ==========================================
+         GRUPO 6: COMMUNICATION
+         ========================================== -->
     <div class="nav-section">
       <span class="nav-label">Communication</span>
       <ul>
         {% include 'includes/sidebar_content/chat.html' %}
-      </ul>
-    </div>
-
-    <!-- SECCIÓN 11: ROOMS -->
-    <div class="nav-section">
-      <span class="nav-label">Spaces</span>
-      <ul>
         {% include 'includes/sidebar_content/rooms.html' %}
       </ul>
     </div>
 
-    <!-- SECCIÓN 12: TOOLS -->
+    <!-- ==========================================
+         GRUPO 7: ACCOUNT
+         ========================================== -->
     <div class="nav-section">
-      <span class="nav-label">Tools</span>
+      <span class="nav-label">Account</span>
       <ul>
-        {% include 'includes/sidebar_content/tools.html' %}
+        <li class="sidebar-nav-item">
+          <a class="sidebar-nav-link" href="{% url 'cv:cv_detail' %}">
+            <i class="fas fa-user" aria-hidden="true"></i>
+            <span>Profile</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a class="sidebar-nav-link" href="{% url 'password_change' %}">
+            <i class="fas fa-cog" aria-hidden="true"></i>
+            <span>Settings</span>
+          </a>
+        </li>
+        {% include 'includes/sidebar_content/curriculum.html' %}
       </ul>
     </div>
 
-    <!-- SECCIÓN 13: CONFIGURATION -->
-    <div class="nav-section">
-      <span class="nav-label">Settings</span>
-      <ul>
-        {% include 'includes/sidebar_content/configuration.html' %}
-      </ul>
-    </div>
-
-    <!-- SECCIÓN 14: HELP -->
+    <!-- ==========================================
+         GRUPO 8: SUPPORT
+         ========================================== -->
     <div class="nav-section">
       <span class="nav-label">Support</span>
       <ul>
         {% include 'includes/sidebar_content/help.html' %}
-      </ul>
-    </div>
-
-    <!-- SECCIÓN 15: PAGES -->
-    <div class="nav-section">
-      <span class="nav-label">Info</span>
-      <ul>
+        <li class="sidebar-nav-item">
+          <a class="sidebar-nav-link" href="{% url 'faq' %}">
+            <i class="fas fa-circle-question" aria-hidden="true"></i>
+            <span>FAQ</span>
+          </a>
+        </li>
         {% include 'includes/sidebar_content/pages.html' %}
       </ul>
     </div>
 
-    <!-- SECCIÓN 16: ACCOUNT -->
-    <div class="nav-section">
-      <span class="nav-label">Account</span>
-      <ul>
-        {% include 'includes/sidebar_content/account.html' %}
-      </ul>
-    </div>
-
-    <!-- SECCIÓN: BOTTOM -->
+    <!-- ==========================================
+         BOTTOM SECTION
+         ========================================== -->
     <div class="nav-bottom">
       <div class="upgrade-card">
         <i class="fas fa-rocket" aria-hidden="true"></i>
@@ -142,9 +163,6 @@
       </div>
       <a href="{% url 'help:help_home' %}" class="nav-link-bottom">
         <i class="fas fa-life-ring" aria-hidden="true"></i> Help Center
-      </a>
-      <a href="{% url 'logout' %}" class="nav-link-bottom">
-        <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
       </a>
     </div>
 

@@ -11,12 +11,12 @@
 <div class="dashboard-header">
     <div>
         <h1>
-            <i class="bi bi-folder-fill"></i>
+            <i class="fas fa-folder"></i>
             {{ title|default:"Project Panel" }}
         </h1>
         <div class="text-muted text-sm">
             <a href="{% url 'index' %}" class="text-decoration-none">
-                <i class="bi bi-house-door"></i> Home
+                <i class="fas fa-house"></i> Home
             </a>
             <span class="text-muted"> / </span>
             <a href="{% url 'events:projects' %}" class="text-decoration-none">
@@ -28,13 +28,13 @@
     </div>
     <div class="header-actions">
         <button class="btn btn-ghost" id="toggleViewBtn">
-            <i class="bi bi-grid"></i> <span>Board View</span>
+            <i class="fas fa-table-cells"></i> <span>Board View</span>
         </button>
         <button class="btn btn-ghost" id="exportBtn">
-            <i class="bi bi-download"></i> Export
+            <i class="fas fa-download"></i> Export
         </button>
         <a href="{% url 'events:project_create' %}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Create Project
+            <i class="fas fa-plus-circle"></i> Create Project
         </a>
     </div>
 </div>
@@ -57,7 +57,7 @@
             {% endif %}
         </div>
         <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
-            <i class="bi bi-x"></i>
+            <i class="fas fa-xmark"></i>
         </button>
     </div>
     {% endfor %}
@@ -70,7 +70,7 @@
         <!-- Main Content Area -->
         <div class="col">
             <!-- Statistics Cards -->
-            <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+            <div class="stats-grid project-panel-stats">
                 <div class="stat-card purple">
                     <div class="stat-content">
                         <span class="stat-number">{{ total_projects|default:0 }}</span>
@@ -102,60 +102,60 @@
             </div>
 
             <!-- Quick Actions Panel -->
-            <div class="section-card" style="margin-bottom: 1.5rem;">
-                <div class="section-header section-header-success" style="margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0;">
+            <div class="section-card project-panel-section">
+                <div class="section-header section-header-success">
                     <div class="section-title">
-                        <i class="bi bi-gear-fill"></i>
+                        <i class="fa-solid fa-gear"></i>
                         <h6 style="color: #fff; margin: 0;">Quick Actions</h6>
                     </div>
                 </div>
-                <div class="section-body" style="padding: 0.5rem 0;">
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
-                        <a href="{% url 'events:project_create' %}" class="btn btn-primary" style="justify-content: center;">
-                            <i class="bi bi-plus-circle"></i> Create Project
+                <div class="section-body">
+                    <div class="project-panel-actions">
+                        <a href="{% url 'events:project_create' %}" class="btn btn-primary">
+                            <i class="fa-solid fa-plus-circle"></i> Create Project
                         </a>
-                        <button class="btn btn-ghost" id="bulkEditBtn" style="justify-content: center;">
-                            <i class="bi bi-pencil"></i> Bulk Edit
+                        <button class="btn btn-ghost" id="bulkEditBtn">
+                            <i class="fa-solid fa-pen"></i> Bulk Edit
                         </button>
-                        <button class="btn btn-ghost" id="exportProjectsBtn" style="justify-content: center;">
-                            <i class="bi bi-download"></i> Export
+                        <button class="btn btn-ghost" id="exportProjectsBtn">
+                            <i class="fa-solid fa-download"></i> Export
                         </button>
-                        <button class="btn btn-ghost" id="filterProjectsBtn" style="justify-content: center;">
-                            <i class="bi bi-funnel"></i> Filter
+                        <button class="btn btn-ghost" id="filterProjectsBtn">
+                            <i class="fa-solid fa-filter"></i> Filter
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- View Selector -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 0.5rem 1rem;">
+            <div class="project-view-selector">
                 <div style="display: flex; gap: 0.25rem;">
                     <button class="btn btn-sm btn-primary active" data-view="table">
-                        <i class="bi bi-table"></i> Table
+                        <i class="fa-solid fa-table"></i> Table
                     </button>
                     <button class="btn btn-sm btn-ghost" data-view="cards">
-                        <i class="bi bi-card-text"></i> Cards
+                        <i class="fa-solid fa-id-card"></i> Cards
                     </button>
                     <button class="btn btn-sm btn-ghost" data-view="grid">
-                        <i class="bi bi-grid-3x3-gap"></i> Grid
+                        <i class="fa-solid fa-grip"></i> Grid
                     </button>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <span class="text-muted text-sm" id="projectCount">{{ projects_data|length }} projects</span>
                     <div class="dropdown">
                         <button class="icon-btn" data-dropdown="viewOptions">
-                            <i class="bi bi-gear"></i>
+                            <i class="fa-solid fa-gear"></i>
                         </button>
                         <div class="dropdown-menu" id="viewOptions">
                             <a href="#" class="dropdown-item" id="compactViewToggle">
-                                <i class="bi bi-layout-text-sidebar"></i> Compact View
+                                <i class="fa-solid fa-table-list"></i> Compact View
                             </a>
                             <hr class="dropdown-divider">
                             <a href="{% url 'events:project_export' %}" class="dropdown-item">
-                                <i class="bi bi-download"></i> Export Projects
+                                <i class="fa-solid fa-download"></i> Export Projects
                             </a>
                             <a href="{% url 'events:project_create' %}" class="dropdown-item">
-                                <i class="bi bi-plus-circle"></i> Create Project
+                                <i class="fa-solid fa-plus-circle"></i> Create Project
                             </a>
                         </div>
                     </div>
@@ -165,13 +165,13 @@
             <!-- Table View -->
             <div id="tableView" class="view-container">
                 <div class="section-card">
-                    <div class="section-body" style="padding: 0;">
+                    <div class="section-body project-table-wrap">
                         {% if projects_data %}
                         <div class="table-wrap">
                             <table class="table" id="projectTable">
                                 <thead>
                                     <tr>
-                                        <th style="width: 30px;">
+                                        <th class="text-center">
                                             <input type="checkbox" id="selectAllProjects" class="form-check-input">
                                         </th>
                                         <th data-sort="id">ID</th>
@@ -180,7 +180,7 @@
                                         <th data-sort="status">Status</th>
                                         <th data-sort="progress">Progress</th>
                                         <th data-sort="tasks">Tasks</th>
-                                        <th style="text-align: center;">Actions</th>
+                                        <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -195,7 +195,7 @@
                                             <input type="checkbox" class="project-checkbox form-check-input" value="{{ project_data.project.id }}">
                                         </td>
                                         <td>
-                                            <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="text-decoration-none" style="color: var(--purple); font-weight: 500;">
+                                            <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="text-decoration-none project-id-link">
                                                 #{{ project_data.project.id }}
                                             </a>
                                         </td>
@@ -205,10 +205,8 @@
                                             </a>
                                         </td>
                                         <td>
-                                            <span style="display: flex; align-items: center; gap: 0.25rem;">
-                                                <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--purple-light); color: var(--purple); text-align: center; font-size: 0.6rem; font-weight: 700; line-height: 24px;">
-                                                    {{ project_data.project.assigned_to.username|first|upper }}
-                                                </span>
+                                            <span class="project-assigned-avatar">
+                                                <span class="avatar-initials">{{ project_data.project.assigned_to.username|first|upper }}</span>
                                                 {{ project_data.project.assigned_to.username }}
                                             </span>
                                         </td>
@@ -218,27 +216,27 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 100px;">
-                                                <div class="progress-bar" style="flex: 1; height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                                            <div class="project-progress-cell">
+                                                <div class="progress-bar">
                                                     <div class="progress-fill" style="width: {{ project_data.completion_rate|floatformat:0 }}%; background: {% if project_data.completion_rate > 80 %}var(--green){% elif project_data.completion_rate > 30 %}var(--blue){% else %}var(--amber){% endif %};"></div>
                                                 </div>
-                                                <span style="font-size: 0.75rem; font-weight: 600; min-width: 35px; text-align: right;">{{ project_data.completion_rate|floatformat:0 }}%</span>
+                                                <span class="project-progress-text">{{ project_data.completion_rate|floatformat:0 }}%</span>
                                             </div>
                                         </td>
-                                        <td style="font-size: 0.8rem; color: var(--gray-500);">
+                                        <td class="project-meta-text">
                                             {{ project_data.count_tasks }}
                                             <span style="color: var(--green);">({{ project_data.completed_tasks }} done)</span>
                                         </td>
-                                        <td style="text-align: center;">
-                                            <div class="table-actions" style="justify-content: center;">
+                                        <td class="text-center">
+                                            <div class="table-actions project-table-actions">
                                                 <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="btn btn-sm btn-ghost" title="View">
-                                                    <i class="bi bi-eye"></i>
+                                                    <i class="fas fa-eye"></i>
                                                 </a>
                                                 <a href="{% url 'events:project_edit' project_data.project.id %}" class="btn btn-sm btn-ghost" title="Edit">
-                                                    <i class="bi bi-pencil"></i>
+                                                    <i class="fas fa-pen"></i>
                                                 </a>
                                                 <button onclick="confirmDelete({{ project_data.project.id }})" class="btn btn-sm btn-ghost" style="color: var(--red);" title="Delete">
-                                                    <i class="bi bi-trash"></i>
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -247,24 +245,24 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-top: 1px solid var(--gray-200);">
+                        <div class="project-table-footer">
                             <div style="display: flex; gap: 0.5rem;">
                                 <button class="btn btn-sm btn-danger" id="deleteSelected" disabled>
-                                    <i class="bi bi-trash"></i> Delete Selected
+                                    <i class="fas fa-trash"></i> Delete Selected
                                 </button>
                                 <button class="btn btn-sm btn-ghost" id="exportSelected" disabled>
-                                    <i class="bi bi-download"></i> Export Selected
+                                    <i class="fas fa-download"></i> Export Selected
                                 </button>
                             </div>
                             <span class="text-muted text-xs" id="visibleProjects">{{ projects_data|length }} projects</span>
                         </div>
                         {% else %}
                         <div class="empty-state">
-                            <i class="bi bi-folder-x"></i>
+                            <i class="fas fa-folder-open"></i>
                             <h5>No projects found</h5>
                             <p>Create your first project to get started.</p>
                             <a href="{% url 'events:project_create' %}" class="btn btn-primary">
-                                <i class="bi bi-plus-circle"></i> Create First Project
+                                <i class="fas fa-plus-circle"></i> Create First Project
                             </a>
                         </div>
                         {% endif %}
@@ -304,25 +302,25 @@
                             </div>
                         </div>
                         <div class="project-meta" style="font-size: 0.75rem;">
-                            <span><i class="bi bi-person"></i> {{ project_data.project.host.username }}</span>
-                            <span><i class="bi bi-calendar"></i> {{ project_data.project.created_at|date:"M d, Y" }}</span>
+                            <span><i class="fa-solid fa-user"></i> {{ project_data.project.host.username }}</span>
+                            <span><i class="fa-solid fa-calendar"></i> {{ project_data.project.created_at|date:"M d, Y" }}</span>
                         </div>
                         <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--gray-200);">
                             <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="btn btn-sm btn-primary" style="flex: 1; justify-content: center;">
-                                <i class="bi bi-eye"></i> View
+                                <i class="fa-solid fa-eye"></i> View
                             </a>
                             <a href="{% url 'events:project_edit' project_data.project.id %}" class="btn btn-sm btn-ghost" style="flex: 1; justify-content: center;">
-                                <i class="bi bi-pencil"></i> Edit
+                                <i class="fa-solid fa-pen"></i> Edit
                             </a>
                         </div>
                     </div>
                     {% empty %}
                     <div class="empty-state full-width">
-                        <i class="bi bi-folder-x"></i>
+                        <i class="fas fa-folder-open"></i>
                         <h5>No projects found</h5>
                         <p>Create your first project to get started.</p>
                         <a href="{% url 'events:project_create' %}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Create First Project
+                            <i class="fas fa-plus-circle"></i> Create First Project
                         </a>
                     </div>
                     {% endfor %}
@@ -335,7 +333,7 @@
                     {% for project_data in projects_data %}
                     <div style="background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 1rem; text-align: center; transition: all var(--transition);">
                         <div style="font-size: 2rem; color: var(--purple); margin-bottom: 0.5rem;">
-                            <i class="bi bi-folder"></i>
+                            <i class="fas fa-folder"></i>
                         </div>
                         <h6 style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">{{ project_data.project.title|truncatechars:20 }}</h6>
                         <div style="font-size: 0.65rem; color: var(--gray-400); margin-bottom: 0.5rem;">
@@ -348,16 +346,16 @@
                             {{ project_data.completion_rate|floatformat:0 }}% complete
                         </div>
                         <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="btn btn-sm btn-primary" style="width: 100%; justify-content: center;">
-                            <i class="bi bi-box-arrow-in-right"></i> Open
+                            <i class="fas fa-arrow-right-to-bracket"></i> Open
                         </a>
                     </div>
                     {% empty %}
                     <div class="empty-state full-width">
-                        <i class="bi bi-folder-x"></i>
+                        <i class="fas fa-folder-open"></i>
                         <h5>No projects found</h5>
                         <p>Create your first project to get started.</p>
                         <a href="{% url 'events:project_create' %}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Create First Project
+                            <i class="fas fa-plus-circle"></i> Create First Project
                         </a>
                     </div>
                     {% endfor %}
@@ -369,7 +367,7 @@
             <div class="section-card">
                 <div class="section-header section-header-primary">
                     <div class="section-title">
-                        <i class="bi bi-eye"></i>
+                        <i class="fas fa-eye"></i>
                         <h5 style="color: #fff;">Project Details</h5>
                     </div>
                 </div>
@@ -381,7 +379,7 @@
             <div class="section-card">
                 <div class="section-header section-header-info">
                     <div class="section-title">
-                        <i class="bi bi-list-task"></i>
+                        <i class="fas fa-list-check"></i>
                         <h5 style="color: #fff;">Project Tasks</h5>
                     </div>
                 </div>
@@ -399,7 +397,7 @@
             <div class="section-card">
                 <div class="section-header section-header-info">
                     <div class="section-title">
-                        <i class="bi bi-bar-chart"></i>
+                        <i class="fas fa-chart-bar"></i>
                         <h6 style="color: #fff;">Quick Stats</h6>
                     </div>
                 </div>
@@ -450,13 +448,13 @@
                         <h6 style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">Status Distribution</h6>
                         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
                             <span class="status-badge pending">
-                                <i class="bi bi-play-circle"></i> {{ in_progress_count|default:0 }} In Progress
+                                <i class="fa-solid fa-circle-play"></i> {{ in_progress_count|default:0 }} In Progress
                             </span>
                             <span class="status-badge active">
-                                <i class="bi bi-check-circle"></i> {{ completed_count|default:0 }} Completed
+                                <i class="fa-solid fa-circle-check"></i> {{ completed_count|default:0 }} Completed
                             </span>
                             <span class="status-badge completed">
-                                <i class="bi bi-pause-circle"></i> {{ pending_count|default:0 }} Pending
+                                <i class="fa-solid fa-circle-pause"></i> {{ pending_count|default:0 }} Pending
                             </span>
                         </div>
                     </div>
@@ -468,7 +466,7 @@
             <div class="section-card">
                 <div class="section-header section-header-purple">
                     <div class="section-title">
-                        <i class="bi bi-activity"></i>
+                        <i class="fas fa-wave-square"></i>
                         <h6 style="color: #fff;">Recent Activity</h6>
                     </div>
                 </div>
@@ -477,7 +475,7 @@
                         {% for project_data in projects_data|slice:":5" %}
                         <div class="activity-item">
                             <div class="activity-icon {% if project_data.project.project_status.status_name == 'Completed' %}green{% elif project_data.project.project_status.status_name == 'In Progress' %}amber{% else %}blue{% endif %}">
-                                <i class="bi bi-{% if project_data.project.project_status.status_name == 'Completed' %}check-circle{% elif project_data.project.project_status.status_name == 'In Progress' %}play-circle{% else %}pause-circle{% endif %}"></i>
+                                <i class="{% if project_data.project.project_status.status_name == 'Completed' %}fas fa-check-circle{% elif project_data.project.project_status.status_name == 'In Progress' %}fas fa-play-circle{% else %}fas fa-pause-circle{% endif %}"></i>
                             </div>
                             <div class="activity-content">
                                 <strong>{{ project_data.project.title|truncatechars:25 }}</strong>
@@ -489,7 +487,7 @@
                         </div>
                         {% empty %}
                         <div class="empty-state">
-                            <i class="bi bi-clock-history"></i>
+                            <i class="fas fa-clock"></i>
                             <p style="color: var(--gray-400); font-size: 0.875rem;">No recent activity</p>
                         </div>
                         {% endfor %}
@@ -497,7 +495,7 @@
                     {% if projects_data|length > 5 %}
                     <div style="text-align: center; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-200);">
                         <a href="{% url 'events:projects' %}" class="btn btn-sm btn-ghost">
-                            <i class="bi bi-eye"></i> View All Projects
+                            <i class="fa-solid fa-eye"></i> View All Projects
                         </a>
                     </div>
                     {% endif %}
@@ -508,20 +506,20 @@
             <div class="section-card">
                 <div class="section-header section-header-dark">
                     <div class="section-title">
-                        <i class="bi bi-question-circle"></i>
+                        <i class="fas fa-circle-question"></i>
                         <h6 style="color: #fff;">Help & Resources</h6>
                     </div>
                 </div>
                 <div class="section-body" style="padding: 1rem;">
                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                         <a href="#" class="btn btn-ghost" style="justify-content: center;">
-                            <i class="bi bi-book"></i> Project Management Guide
+                            <i class="fas fa-book"></i> Project Management Guide
                         </a>
                         <a href="#" class="btn btn-ghost" style="justify-content: center;">
-                            <i class="bi bi-play-circle"></i> Video Tutorials
+                            <i class="fas fa-circle-play"></i> Video Tutorials
                         </a>
                         <a href="#" class="btn btn-ghost" style="justify-content: center;">
-                            <i class="bi bi-chat-dots"></i> Support Chat
+                            <i class="fas fa-comments"></i> Support Chat
                         </a>
                     </div>
                 </div>
@@ -711,7 +709,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ============================================================
-    // TOGGLE VIEW BUTTON    // ============================================================
+    // TOGGLE VIEW BUTTON
+    // ============================================================
     const toggleViewBtn = document.getElementById('toggleViewBtn');
     if (toggleViewBtn) {
         toggleViewBtn.addEventListener('click', function() {
@@ -721,9 +720,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (targetBtn) targetBtn.click();
             
             if (isGridView) {
-                this.innerHTML = '<i class="bi bi-table"></i> <span>Table View</span>';
+                this.innerHTML = '<i class="fa-solid fa-table"></i> <span>Table View</span>';
             } else {
-                this.innerHTML = '<i class="bi bi-grid"></i> <span>Board View</span>';
+                this.innerHTML = '<i class="fa-solid fa-grip"></i> <span>Board View</span>';
             }
         });
     }
@@ -873,15 +872,13 @@ function confirmDelete(projectId) {
 }
 
 .view-container {
-    animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-@media (max-width: 768px) {
     .stats-grid {
         grid-template-columns: 1fr 1fr !important;
     }

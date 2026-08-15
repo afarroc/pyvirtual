@@ -8,6 +8,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.template.loader import render_to_string
 
 User = get_user_model()
 from django.utils import timezone
@@ -92,6 +93,10 @@ def events(request):
             'today': today,
             'start_of_month': start_of_month,
             'start_of_year': start_of_year,
+            'hosts': User.objects.filter(
+                Q(pk__in=Event.objects.values_list('host', flat=True).distinct()) |
+                Q(pk__in=Event.objects.values_list('assigned_to', flat=True).distinct())
+            ).distinct(),
         }
         
         return render(request, 'events/events.html', context)
@@ -99,6 +104,54 @@ def events(request):
         logger.critical(f"Unexpected error in events view: {str(e)}", exc_info=True)
         messages.error(request, f'Error al procesar eventos: {e}')
         return redirect('home')
+
+
+@login_required
+def events_table(request):
+    if request.method == 'GET':
+        managers = get_managers_for_user(request.user)
+        all_events, active_events = managers['event_manager'].get_all_events()
+        search = request.GET.get('search', '').strip()
+        status = request.GET.get('status')
+        host = request.GET.get('host')
+        date_str = request.GET.get('date')
+        sort_key = request.GET.get('sort')
+        sort_dir = request.GET.get('dir', 'asc')
+
+        filtered_events = _apply_filters_to_events(
+            all_events,
+            completed=False,
+            status=status if status else None,
+            date_str=date_str if date_str else None
+        )
+
+        if search:
+            filtered_events = [
+                e for e in filtered_events
+                if search.lower() in e['event'].title.lower()
+                or search.lower() in e['event'].host.username.lower()
+            ]
+
+        if host:
+            filtered_events = [e for e in filtered_events if str(e['event'].host_id) == host]
+
+        filtered_events = list(filtered_events)
+        if sort_key in {'id', 'title', 'status', 'host', 'date'}:
+            filtered_events.sort(key=lambda e: (
+                e['event'].id if sort_key == 'id' else
+                e['event'].title.lower() if sort_key == 'title' else
+                e['event'].event_status.status_name.lower() if sort_key == 'status' else
+                e['event'].host.username.lower() if sort_key == 'host' else
+                e['event'].created_at.isoformat()
+            ))
+            if sort_dir == 'desc':
+                filtered_events.reverse()
+
+        html = render_to_string('events/includes/events_table_rows.html', {
+            'events': filtered_events,
+        }, request=request)
+        return HttpResponse(html)
+    return HttpResponse(status=405)
 
 
 @login_required
@@ -435,15 +488,9 @@ def event_history(request, event_id=None):
 def _initialize_session_filters(request, today):
     """Inicializar filtros de sesión."""
     if request.session.get('first_session', True):
-        try:
-            status_in_progress = Status.objects.get(status_name='In Progress').id
-        except ObjectDoesNotExist:
-            status_in_progress = None
-            logger.warning("Status 'In Progress' not found")
-
-        request.session.setdefault('filtered_completed', True)
-        request.session.setdefault('filtered_status', status_in_progress)
-        request.session.setdefault('filtered_date', today.isoformat())
+        request.session.setdefault('filtered_completed', False)
+        request.session.setdefault('filtered_status', None)
+        request.session.setdefault('filtered_date', None)
         request.session['first_session'] = False
 
 
@@ -485,10 +532,18 @@ def _apply_filters_to_events(events, completed, status, date_str):
             ]
         
         if status:
-            filtered_events = [
-                e for e in filtered_events 
-                if e['event'].event_status_id == status
-            ]
+            status_map = {
+                'active': 'In Progress',
+                'completed': 'Completed',
+                'planned': 'Created',
+            }
+            status_name = status_map.get(str(status))
+            if status_name:
+                status_obj = Status.objects.get(status_name=status_name)
+                filtered_events = [
+                    e for e in filtered_events 
+                    if e['event'].event_status_id == status_obj.id
+                ]
         
         if date_str:
             filter_date = datetime.strptime(date_str, '%Y-%m-%d').date()

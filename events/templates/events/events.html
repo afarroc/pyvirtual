@@ -103,7 +103,7 @@
                 </div>
             </div>
             <div class="section-body" style="padding: 1rem;">
-                <form method="GET" id="filterForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                <form id="filterForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
                     <div class="form-group">
                         <label for="statusFilter" class="form-label">Status</label>
                         <select class="form-control" id="statusFilter" name="status">
@@ -127,10 +127,10 @@
                         <input type="date" class="form-control" id="dateFilter" name="date">
                     </div>
                     <div class="form-group" style="display: flex; align-items: flex-end; gap: 0.5rem;">
-                        <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                        <button type="button" id="applyFilters" class="btn btn-primary" style="flex: 1; justify-content: center;">
                             <i class="bi bi-filter"></i> Apply
                         </button>
-                        <button type="reset" class="btn btn-ghost" id="clearFilters" style="flex: 0 0 auto;">
+                        <button type="button" class="btn btn-ghost" id="clearFilters" style="flex: 0 0 auto;">
                             <i class="bi bi-x-circle"></i>
                         </button>
                     </div>
@@ -157,8 +157,6 @@
                 </div>
             </div>
             <div class="section-body" style="padding: 0;">
-
-                {% if events %}
                 <div class="table-wrap" style="max-height: 60vh; overflow-y: auto;">
                     <table class="table" id="eventTable">
                         <thead>
@@ -172,65 +170,8 @@
                                 <th style="text-align: center;">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for event in events %}
-                            <tr class="event-row" 
-                                data-id="{{ event.event.id }}"
-                                data-title="{{ event.event.title|lower }}"
-                                data-status="{{ event.event.event_status.status_name|lower }}"
-                                data-host="{{ event.event.host.username|lower }}"
-                                data-date="{{ event.event.created_at|date:'Y-m-d' }}">
-                                <td>
-                                    <a href="{% url 'events:event_detail' event.event.id %}" class="text-decoration-none" style="color: var(--purple); font-weight: 500;">
-                                        #{{ event.event.id }}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{% url 'events:event_detail' event.event.id %}" class="text-decoration-none" style="font-weight: 500;">
-                                        {{ event.event.title|truncatechars:45 }}
-                                    </a>
-                                    <div style="font-size: 0.7rem; color: var(--gray-400);">
-                                        <i class="bi bi-geo-alt"></i> {{ event.event.venue|default:"No venue" }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="status-badge {% if event.event.event_status.status_name == 'Completed' %}active{% elif event.event.event_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
-                                        <i class="bi bi-circle-fill" style="font-size: 0.4rem; margin-right: 0.25rem;"></i>
-                                        {{ event.event.event_status.status_name }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span style="display: flex; align-items: center; gap: 0.25rem;">
-                                        <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--purple-light); color: var(--purple); text-align: center; font-size: 0.6rem; font-weight: 700; line-height: 24px;">
-                                            {{ event.event.host.username|first|upper }}
-                                        </span>
-                                        {{ event.event.host.username }}
-                                    </span>
-                                </td>
-                                <td style="font-size: 0.8rem; color: var(--gray-500);">
-                                    {{ event.event.created_at|date:"M d, Y" }}
-                                </td>
-                                <td>
-                                    <span style="display: flex; align-items: center; gap: 0.25rem;">
-                                        <i class="bi bi-people" style="color: var(--gray-400);"></i>
-                                        {{ event.event.attendees.count }}/{{ event.event.max_attendees|default:"∞" }}
-                                    </span>
-                                </td>
-                                <td style="text-align: center;">
-                                    <div class="table-actions" style="justify-content: center;">
-                                        <a href="{% url 'events:event_detail' event.event.id %}" class="btn btn-sm btn-ghost" title="View">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a href="{% url 'events:event_edit' event.event.id %}" class="btn btn-sm btn-ghost" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a href="{% url 'events:event_assign' event.event.id %}" class="btn btn-sm btn-ghost" title="Assign">
-                                            <i class="bi bi-link"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                        <tbody id="eventsTableBody">
+                            {% include 'events/includes/events_table_rows.html' %}
                         </tbody>
                     </table>
                 </div>
@@ -240,18 +181,6 @@
                     <i class="bi bi-search" style="font-size: 2rem; color: var(--gray-400);"></i>
                     <p style="color: var(--gray-400); margin-top: 0.5rem;">No events found matching your search.</p>
                 </div>
-
-                {% else %}
-                <div class="empty-state" style="padding: 3rem 1.5rem;">
-                    <i class="bi bi-calendar-x" style="font-size: 2.5rem; color: var(--gray-400);"></i>
-                    <h5>No Events Found</h5>
-                    <p style="color: var(--gray-400);">Get started by creating your first event.</p>
-                    <a href="{% url 'events:event_create' %}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Create First Event
-                    </a>
-                </div>
-                {% endif %}
-
             </div>
         </div>
 
@@ -345,81 +274,90 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ============================================================
-    // SEARCH FILTER
-    // ============================================================
+    const filterForm = document.getElementById('filterForm');
+    const statusFilter = document.getElementById('statusFilter');
+    const hostFilter = document.getElementById('hostFilter');
+    const dateFilter = document.getElementById('dateFilter');
     const searchInput = document.getElementById('searchInput');
-    const rows = document.querySelectorAll('.event-row');
     const eventCount = document.getElementById('eventCount');
     const noResults = document.getElementById('noSearchResults');
-    const totalEvents = rows.length;
+    const tableBody = document.getElementById('eventsTableBody');
+    const currentUrl = new URL(window.location.href);
 
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-            let visible = 0;
+    function getFilters() {
+        return {
+            status: statusFilter ? statusFilter.value : '',
+            host: hostFilter ? hostFilter.value : '',
+            date: dateFilter ? dateFilter.value : '',
+            search: searchInput ? searchInput.value : ''
+        };
+    }
 
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                const matches = query === '' || text.includes(query);
-                row.style.display = matches ? '' : 'none';
-                if (matches) visible++;
-            });
+    function setFilters(params) {
+        if (statusFilter && params.status !== undefined) statusFilter.value = params.status;
+        if (hostFilter && params.host !== undefined) hostFilter.value = params.host;
+        if (dateFilter && params.date !== undefined) dateFilter.value = params.date;
+        if (searchInput && params.search !== undefined) searchInput.value = params.search;
+    }
 
-            if (eventCount) eventCount.textContent = visible + ' events';
-
-            if (noResults) {
-                noResults.style.display = (visible === 0 && totalEvents > 0) ? 'block' : 'none';
+    function loadTable(params = {}) {
+        const filters = Object.assign({}, getFilters(), params);
+        const url = new URL('{% url "events:events_table" %}', window.location.origin);
+        Object.keys(filters).forEach(key => {
+            if (filters[key] !== '' && filters[key] !== undefined && filters[key] !== null) {
+                url.searchParams.set(key, filters[key]);
             }
+        });
+
+        fetch(url, {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(response => response.text())
+        .then(html => {
+            if (tableBody) tableBody.innerHTML = html;
+            const rows = document.querySelectorAll('.event-row');
+            if (eventCount) eventCount.textContent = rows.length + ' events';
+            if (noResults) noResults.style.display = rows.length === 0 ? 'block' : 'none';
+            currentUrl.search = url.searchParams.toString();
+            window.history.replaceState({}, '', currentUrl.toString());
+        })
+        .catch(() => {});
+    }
+
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            loadTable();
         });
     }
 
-    // ============================================================
-    // CLEAR FILTERS
-    // ============================================================
-    document.getElementById('clearFilters')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        const form = document.getElementById('filterForm');
-        if (form) {
-            form.querySelectorAll('select, input').forEach(el => {
-                if (el.tagName === 'SELECT') el.selectedIndex = 0;
-                if (el.type === 'date') el.value = '';
-            });
-            // Reset search
-            if (searchInput) {
-                searchInput.value = '';
-                searchInput.dispatchEvent(new Event('input'));
-            }
-        }
+    document.getElementById('applyFilters')?.addEventListener('click', function() {
+        loadTable();
     });
 
-    // ============================================================
-    // SORT FUNCTIONALITY
-    // ============================================================
+    document.getElementById('clearFilters')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        setFilters({status: '', host: '', date: '', search: ''});
+        loadTable();
+    });
+
+    if (searchInput) {
+        let timeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => loadTable(), 250);
+        });
+    }
+
     document.querySelectorAll('[data-sort]').forEach(th => {
         th.addEventListener('click', function() {
             const sortKey = this.dataset.sort;
-            const tbody = this.closest('table').querySelector('tbody');
-            const rowsArray = Array.from(tbody.querySelectorAll('.event-row'));
-
-            const isAsc = this.classList.toggle('asc');
-            this.classList.toggle('desc', !isAsc);
-
-            rowsArray.sort((a, b) => {
-                let aVal = a.dataset[sortKey] || a.textContent.trim();
-                let bVal = b.dataset[sortKey] || b.textContent.trim();
-                if (sortKey === 'id') { aVal = parseInt(aVal); bVal = parseInt(bVal); }
-                if (sortKey === 'date') { aVal = a.dataset.date || ''; bVal = b.dataset.date || ''; }
-                return isAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-            });
-
-            rowsArray.forEach(row => tbody.appendChild(row));
+            const currentParams = Object.fromEntries(currentUrl.searchParams.entries());
+            const currentDir = currentParams.sort === sortKey && currentParams.dir === 'asc' ? 'desc' : 'asc';
+            loadTable({sort: sortKey, dir: currentDir});
         });
     });
 
-    // ============================================================
-    // AUTO-DISMISS ALERTS
-    // ============================================================
     document.querySelectorAll('.alert').forEach(alert => {
         setTimeout(() => {
             alert.classList.add('dismissing');
@@ -427,16 +365,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 
-    // ============================================================
-    // KEYBOARD SHORTCUTS
-    // ============================================================
     document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
             e.preventDefault();
-            const search = document.getElementById('searchInput');
-            if (search) {
-                search.focus();
-                search.select();
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
             }
         }
         if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
@@ -444,11 +378,10 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = "{% url 'events:event_create' %}";
         }
         if (e.key === 'Escape') {
-            const search = document.getElementById('searchInput');
-            if (search && document.activeElement === search) {
-                search.value = '';
-                search.dispatchEvent(new Event('input'));
-                search.blur();
+            if (searchInput && document.activeElement === searchInput) {
+                searchInput.value = '';
+                loadTable();
+                searchInput.blur();
             }
         }
     });

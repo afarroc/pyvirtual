@@ -9,9 +9,8 @@
 
 {% block content %}
 
+{% block inbox_header %}
 <div class="dashboard-wrapper">
-
-  <!-- Header -->
   <div class="dashboard-header">
     <div>
       <h1>
@@ -32,333 +31,334 @@
       </a>
     </div>
   </div>
+</div>
+{% endblock %}
 
-  <!-- Stats Grid -->
-  <div class="stats-grid">
-    <div class="stat-card purple">
-      <i class="fas fa-question-circle stat-icon" aria-hidden="true"></i>
-      <div class="stat-number">{{ gtd_stats.total }}</div>
-      <div class="stat-label">Pendientes</div>
-      <div class="stat-sub">Items sin procesar</div>
-    </div>
-    <div class="stat-card green">
-      <i class="fas fa-check-circle stat-icon" aria-hidden="true"></i>
-      <div class="stat-number">{{ gtd_stats.accionables }}</div>
-      <div class="stat-label">Accionables</div>
-      <div class="stat-sub">Listos para ejecutar</div>
-    </div>
-    <div class="stat-card blue">
-      <i class="fas fa-times-circle stat-icon" aria-hidden="true"></i>
-      <div class="stat-number">{{ gtd_stats.no_accionables }}</div>
-      <div class="stat-label">No Accionables</div>
-      <div class="stat-sub">Referencia o archivo</div>
-    </div>
-    <div class="stat-card amber">
-      <i class="fas fa-check-double stat-icon" aria-hidden="true"></i>
-      <div class="stat-number">{{ total_processed }}</div>
-      <div class="stat-label">Procesados</div>
-      <div class="stat-sub">Items completados</div>
-    </div>
+{% block inbox_stats %}
+<div class="stats-grid">
+  <div class="stat-card purple">
+    <i class="fas fa-question-circle stat-icon" aria-hidden="true"></i>
+    <div class="stat-number">{{ gtd_stats.total }}</div>
+    <div class="stat-label">Pendientes</div>
+    <div class="stat-sub">Items sin procesar</div>
   </div>
+  <div class="stat-card green">
+    <i class="fas fa-check-circle stat-icon" aria-hidden="true"></i>
+    <div class="stat-number">{{ gtd_stats.accionables }}</div>
+    <div class="stat-label">Accionables</div>
+    <div class="stat-sub">Listos para ejecutar</div>
+  </div>
+  <div class="stat-card blue">
+    <i class="fas fa-times-circle stat-icon" aria-hidden="true"></i>
+    <div class="stat-number">{{ gtd_stats.no_accionables }}</div>
+    <div class="stat-label">No Accionables</div>
+    <div class="stat-sub">Referencia o archivo</div>
+  </div>
+  <div class="stat-card amber">
+    <i class="fas fa-check-double stat-icon" aria-hidden="true"></i>
+    <div class="stat-number">{{ total_processed }}</div>
+    <div class="stat-label">Procesados</div>
+    <div class="stat-sub">Items completados</div>
+  </div>
+</div>
+{% endblock %}
 
-  <!-- Main Content -->
-  <div class="two-col">
-    <!-- Left Column -->
-    <div>
+{% block inbox_main %}
+<div class="two-col">
+  <!-- Left Column -->
+  <div>
 
-      <!-- Pendientes -->
-      {% if pendientes %}
-      <div class="section-card section-pendientes" id="section-pendientes">
-        <div class="section-header section-header-amber">
-          <h5>
-            <i class="fas fa-question-circle" aria-hidden="true"></i>
-            Pendientes de Categorizar
-            <span class="pendiente-counter">
+    {% block inbox_pendientes %}
+    {% if pendientes %}
+    <div class="section-card section-pendientes" id="section-pendientes">
+      <div class="section-header section-header-amber">
+        <h5>
+          <i class="fas fa-question-circle" aria-hidden="true"></i>
+          Pendientes de Categorizar
+          <span class="pendiente-counter">
+            <i class="fas fa-clock" aria-hidden="true"></i>
+            {{ gtd_stats.pendientes }} pendientes
+            <span class="counter-number">{{ gtd_stats.pendientes }}</span>
+          </span>
+        </h5>
+        <div class="header-actions">
+          <button type="button" class="btn btn-sm btn-ghost" onclick="classifyAll()" title="Clasificar todos">
+            <i class="fas fa-magic" aria-hidden="true"></i> Clasificar Todos
+          </button>
+          <button type="button" class="btn btn-sm btn-ghost" onclick="expandAllPendientes()" title="Expandir todos">
+            <i class="fas fa-expand" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <div class="pendientes-container" id="pendientesContainer">
+        {% for item in pendientes %}
+        <div class="pendiente-card" data-id="{{ item.id }}" data-title="{{ item.title }}">
+          {% if item.priority %}
+          <span class="priority-indicator priority-{{ item.priority }}"></span>
+          {% endif %}
+
+          <div class="pendiente-header">
+            <div class="pendiente-title">{{ item.title|truncatechars:50 }}</div>
+            <span class="pendiente-badge">
               <i class="fas fa-clock" aria-hidden="true"></i>
-              {{ gtd_stats.pendientes }} pendientes
-              <span class="counter-number">{{ gtd_stats.pendientes }}</span>
+              {{ item.created_at|timesince }}
             </span>
-          </h5>
-          <div class="header-actions">
-            <button type="button" class="btn btn-sm btn-ghost" onclick="classifyAll()" title="Clasificar todos">
-              <i class="fas fa-magic" aria-hidden="true"></i> Clasificar Todos
-            </button>
-            <button type="button" class="btn btn-sm btn-ghost" onclick="expandAllPendientes()" title="Expandir todos">
-              <i class="fas fa-expand" aria-hidden="true"></i>
-            </button>
           </div>
-        </div>
-        <div class="pendientes-container" id="pendientesContainer">
-          {% for item in pendientes %}
-          <div class="pendiente-card" data-id="{{ item.id }}" data-title="{{ item.title }}">
-            <!-- Indicador de prioridad -->
-            {% if item.priority %}
-            <span class="priority-indicator priority-{{ item.priority }}"></span>
+
+          {% if item.description %}
+          <div class="pendiente-desc">{{ item.description|truncatechars:100 }}</div>
+          {% endif %}
+
+          <div class="pendiente-meta">
+            <span class="meta-item">
+              <i class="fas fa-user" aria-hidden="true"></i>
+              {{ item.created_by.username|default:"Sistema" }}
+            </span>
+            <span class="meta-item">
+              <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+              {{ item.created_at|date:"d/m/Y" }}
+            </span>
+            {% if item.source %}
+            <span class="meta-item">
+              <i class="fas fa-tag" aria-hidden="true"></i>
+              {{ item.source }}
+            </span>
             {% endif %}
-
-            <!-- Header -->
-            <div class="pendiente-header">
-              <div class="pendiente-title">{{ item.title|truncatechars:50 }}</div>
-              <span class="pendiente-badge">
-                <i class="fas fa-clock" aria-hidden="true"></i>
-                {{ item.created_at|timesince }}
-              </span>
-            </div>
-
-            <!-- Descripción -->
-            {% if item.description %}
-            <div class="pendiente-desc">{{ item.description|truncatechars:100 }}</div>
-            {% endif %}
-
-            <!-- Meta -->
-            <div class="pendiente-meta">
-              <span class="meta-item">
-                <i class="fas fa-user" aria-hidden="true"></i>
-                {{ item.created_by.username|default:"Sistema" }}
-              </span>
-              <span class="meta-item">
-                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-                {{ item.created_at|date:"d/m/Y" }}
-              </span>
-              {% if item.source %}
-              <span class="meta-item">
-                <i class="fas fa-tag" aria-hidden="true"></i>
-                {{ item.source }}
-              </span>
-              {% endif %}
-            </div>
-
-            <!-- Acciones Rápidas -->
-            <div class="pendiente-actions">
-              <button type="button" class="btn btn-sm btn-quick-accionable" onclick="quickClassify({{ item.id }}, 'accionable')" title="Marcar como Accionable">
-                <i class="fas fa-check-circle" aria-hidden="true"></i> Accionable
-              </button>
-              <button type="button" class="btn btn-sm btn-quick-no-accionable" onclick="quickClassify({{ item.id }}, 'no_accionable')" title="Marcar como No Accionable">
-                <i class="fas fa-times-circle" aria-hidden="true"></i> No Accionable
-              </button>
-              <button type="button" class="btn btn-sm btn-quick-delete" onclick="deleteInboxItem({{ item.id }}, '{{ item.title|escapejs }}')" title="Eliminar">
-                <i class="fas fa-trash" aria-hidden="true"></i>
-              </button>
-            </div>
-
-            <!-- Acciones extendidas (toggle) -->
-            <div class="pendiente-extended">
-              <div class="pendiente-extended-grid">
-                <a href="{% url 'events:process_inbox_item' item.id %}" class="btn btn-sm btn-ghost">
-                  <i class="fas fa-gear" aria-hidden="true"></i> Procesar
-                </a>
-                <button type="button" class="btn btn-sm btn-ghost" onclick="window.location.href='{% url 'events:process_inbox_item' item.id %}'">
-                  <i class="fas fa-pencil" aria-hidden="true"></i> Editar
-                </button>
-                <button type="button" class="btn btn-sm btn-ghost" onclick="openModal('assignModal')">
-                  <i class="fas fa-user-plus" aria-hidden="true"></i> Asignar
-                </button>
-              </div>
-            </div>
-
-            <!-- Toggle para mostrar acciones extendidas -->
-            <div class="pendiente-toggle-container">
-              <button type="button" class="btn btn-sm btn-ghost pendiente-toggle">
-                <i class="fas fa-chevron-down" aria-hidden="true"></i> Más opciones
-              </button>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-
-        <!-- Botón "Ver todos" si hay muchos -->
-        {% if pendientes|length > 8 %}
-        <div class="text-center mt-3">
-          <button type="button" class="btn btn-sm btn-ghost" id="loadMorePendientes">
-            <i class="fas fa-arrow-down" aria-hidden="true"></i> Cargar más ({{ pendientes|length|add:"-8" }} pendientes)
-          </button>
-        </div>
-        {% endif %}
-      </div>
-      {% endif %}
-
-      <!-- Accionables -->
-      {% if accionables %}
-      <div class="section-card section-accionables" id="section-accionables">
-        <div class="section-header section-header-green">
-          <h5>
-            <i class="fas fa-check-circle" aria-hidden="true"></i>
-            Items Accionables ({{ gtd_stats.accionables }})
-          </h5>
-        </div>
-        <div class="project-grid">
-          {% for item in accionables %}
-            {% include 'events/includes/inbox_item_card.html' with item=item type='accionable' %}
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      <!-- No Accionables -->
-      {% if no_accionables %}
-      <div class="section-card section-no-accionables" id="section-no_accionables">
-        <div class="section-header section-header-blue">
-          <h5>
-            <i class="fas fa-times-circle" aria-hidden="true"></i>
-            Items No Accionables ({{ gtd_stats.no_accionables }})
-          </h5>
-        </div>
-        <div class="project-grid">
-          {% for item in no_accionables %}
-            {% include 'events/includes/inbox_item_card.html' with item=item type='no_accionable' %}
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      <!-- Procesados -->
-      {% if processed_items %}
-      <div class="section-card section-procesados" id="section-procesados">
-        <div class="section-header section-header-purple">
-          <h5>
-            <i class="fas fa-check-double" aria-hidden="true"></i>
-            Items Procesados ({{ total_processed }})
-          </h5>
-        </div>
-        <div class="project-grid">
-          {% for item in processed_items|slice:":8" %}
-            {% include 'events/includes/processed_item_card.html' with item=item %}
-          {% endfor %}
-        </div>
-        {% if processed_items|length > 8 %}
-        <div class="text-center mt-3">
-          <small class="text-muted">Y {{ processed_items|length|add:"-8" }} más...</small>
-        </div>
-        {% endif %}
-      </div>
-      {% endif %}
-
-      <!-- Empty State -->
-      {% if not pendientes and not accionables and not no_accionables and not processed_items %}
-      <div class="section-card">
-        <div class="empty-state empty-state-lg">
-          <i class="fas fa-inbox" aria-hidden="true"></i>
-          <h4 class="text-muted">Tu bandeja de entrada está vacía</h4>
-          <p class="text-muted">¡Excelente! Has procesado todos tus items pendientes.</p>
-          <button type="button" class="btn btn-primary" onclick="openModal('quickAddModal')">
-            <i class="fas fa-plus-circle" aria-hidden="true"></i> Agregar tu primera idea
-          </button>
-        </div>
-      </div>
-      {% endif %}
-
-    </div>
-
-    <!-- Right Column - Sidebar -->
-    <div>
-
-      <!-- Filtros Rápidos -->
-      <div class="section-card">
-        <div class="section-header section-header-dark">
-          <h5>
-            <i class="fas fa-filter" aria-hidden="true"></i>
-            Filtros Rápidos
-          </h5>
-        </div>
-        <div class="filter-group">
-          <button type="button" class="btn btn-sm btn-outline-secondary filter-btn" id="filterPendientes">
-            <i class="fas fa-question-circle" aria-hidden="true"></i> Solo Pendientes
-          </button>
-          <button type="button" class="btn btn-sm btn-outline-secondary filter-btn" id="filterAccionables">
-            <i class="fas fa-check-circle" aria-hidden="true"></i> Solo Accionables
-          </button>
-          <button type="button" class="btn btn-sm btn-outline-secondary filter-btn" id="filterNoAccionables">
-            <i class="fas fa-times-circle" aria-hidden="true"></i> Solo No Accionables
-          </button>
-          <button type="button" class="btn btn-sm btn-outline-secondary filter-btn" id="filterProcesados">
-            <i class="fas fa-check-double" aria-hidden="true"></i> Solo Procesados
-          </button>
-          <button type="button" class="btn btn-sm btn-primary filter-btn mt-1" id="clearFilters">
-            <i class="fas fa-eraser" aria-hidden="true"></i> Limpiar Filtros
-          </button>
-        </div>
-      </div>
-
-      <!-- Resumen GTD -->
-      <div class="section-card">
-        <div class="section-header section-header-blue">
-          <h5>
-            <i class="fas fa-chart-bar" aria-hidden="true"></i>
-            Resumen GTD
-          </h5>
-        </div>
-        <div class="gtd-summary">
-          <div class="gtd-summary-row">
-            <span class="text-muted">Tasa de procesamiento:</span>
-            <span class="font-bold">{{ processing_rate|default:"0" }}%</span>
-          </div>
-          <div class="gtd-summary-row">
-            <span class="text-muted">Items por día:</span>
-            <span class="font-bold">{{ items_per_day|default:"0" }}</span>
-          </div>
-          <div class="gtd-progress">
-            <div class="progress">
-              <div class="progress-fill progress-fill-green" style="width:{{ processing_rate|default:0 }}%;"></div>
-            </div>
-          </div>
-          <a href="{% url 'events:inbox_admin_dashboard' %}" class="btn btn-primary w-full justify-center">
-            <i class="fas fa-shield-alt" aria-hidden="true"></i> Panel Admin
-          </a>
-        </div>
-      </div>
-
-      <!-- Asistente GTD -->
-      <div class="section-card" id="ai-assistant-panel">
-        <div class="section-header section-header-purple">
-          <h5>
-            <i class="fas fa-robot" aria-hidden="true"></i>
-            Asistente GTD
-          </h5>
-          <button type="button" class="btn btn-sm btn-light" id="ai-refresh-btn" title="Analizar estado actual">
-            <i class="fas fa-sync" id="ai-refresh-icon" aria-hidden="true"></i>
-          </button>
-        </div>
-        <div class="ai-assistant-content">
-
-          <!-- AI Analysis Zone -->
-          <div id="ai-analysis-zone">
-            <div class="text-center ai-placeholder" id="ai-placeholder">
-              <i class="fas fa-lightbulb" aria-hidden="true"></i>
-              <a href="#" class="ai-placeholder-link" id="ai-summary-trigger">Analizar mi GTD ahora</a>
-            </div>
-            <div id="ai-analysis-content" class="ai-analysis-content">
-              <div id="ai-analysis-text" class="ai-analysis-text"></div>
-              <div class="ai-source-badge">
-                <span id="ai-source-badge" class="status status-active"></span>
-              </div>
-            </div>
-            <div id="ai-loading" class="ai-loading">
-              <div class="spinner"></div>
-              <span class="text-muted">Analizando…</span>
-            </div>
           </div>
 
-          <hr class="ai-divider">
-
-          <!-- AI Chat History -->
-          <div id="ai-chat-history" class="ai-chat-history"></div>
-
-          <!-- AI Chat Input -->
-          <div class="ai-chat-input">
-            <input type="text" id="ai-chat-input" class="search-bar ai-input" placeholder="Pregúntame algo…" maxlength="300">
-            <button class="btn btn-primary" type="button" id="ai-send-btn">
-              <i class="fas fa-paper-plane" aria-hidden="true"></i>
+          <div class="pendiente-actions">
+            <button type="button" class="btn btn-sm btn-quick-accionable" onclick="quickClassify({{ item.id }}, 'accionable')" title="Marcar como Accionable">
+              <i class="fas fa-check-circle" aria-hidden="true"></i> Accionable
+            </button>
+            <button type="button" class="btn btn-sm btn-quick-no-accionable" onclick="quickClassify({{ item.id }}, 'no_accionable')" title="Marcar como No Accionable">
+              <i class="fas fa-times-circle" aria-hidden="true"></i> No Accionable
+            </button>
+            <button type="button" class="btn btn-sm btn-quick-delete" onclick="deleteInboxItem({{ item.id }}, '{{ item.title|escapejs }}')" title="Eliminar">
+              <i class="fas fa-trash" aria-hidden="true"></i>
             </button>
           </div>
-          <small class="text-muted ai-powered">Powered by Ollama · datos en tiempo real</small>
+
+          <div class="pendiente-extended">
+            <div class="pendiente-extended-grid">
+              <a href="{% url 'events:process_inbox_item' item.id %}" class="btn btn-sm btn-ghost">
+                <i class="fas fa-gear" aria-hidden="true"></i> Procesar
+              </a>
+              <button type="button" class="btn btn-sm btn-ghost" onclick="window.location.href='{% url 'events:process_inbox_item' item.id %}'">
+                <i class="fas fa-pencil" aria-hidden="true"></i> Editar
+              </button>
+              <button type="button" class="btn btn-sm btn-ghost" onclick="openModal('assignModal')">
+                <i class="fas fa-user-plus" aria-hidden="true"></i> Asignar
+              </button>
+            </div>
+          </div>
+
+          <div class="pendiente-toggle-container">
+            <button type="button" class="btn btn-sm btn-ghost pendiente-toggle">
+              <i class="fas fa-chevron-down" aria-hidden="true"></i> Más opciones
+            </button>
+          </div>
         </div>
+        {% endfor %}
       </div>
 
+      {% if pendientes|length > 8 %}
+      <div class="text-center mt-3">
+        <button type="button" class="btn btn-sm btn-ghost" id="loadMorePendientes">
+          <i class="fas fa-arrow-down" aria-hidden="true"></i> Cargar más ({{ pendientes|length|add:"-8" }} pendientes)
+        </button>
+      </div>
+      {% endif %}
     </div>
+    {% endif %}
+    {% endblock %}
+
+    {% block inbox_accionables %}
+    {% if accionables %}
+    <div class="section-card section-accionables" id="section-accionables">
+      <div class="section-header section-header-green">
+        <h5>
+          <i class="fas fa-check-circle" aria-hidden="true"></i>
+          Items Accionables ({{ gtd_stats.accionables }})
+        </h5>
+      </div>
+      <div class="project-grid">
+        {% for item in accionables %}
+          {% include 'events/includes/inbox_item_card.html' with item=item type='accionable' %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% endblock %}
+
+    {% block inbox_no_accionables %}
+    {% if no_accionables %}
+    <div class="section-card section-no-accionables" id="section-no_accionables">
+      <div class="section-header section-header-blue">
+        <h5>
+          <i class="fas fa-times-circle" aria-hidden="true"></i>
+          Items No Accionables ({{ gtd_stats.no_accionables }})
+        </h5>
+      </div>
+      <div class="project-grid">
+        {% for item in no_accionables %}
+          {% include 'events/includes/inbox_item_card.html' with item=item type='no_accionable' %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% endblock %}
+
+    {% block inbox_procesados %}
+    {% if processed_items %}
+    <div class="section-card section-procesados" id="section-procesados">
+      <div class="section-header section-header-purple">
+        <h5>
+          <i class="fas fa-check-double" aria-hidden="true"></i>
+          Items Procesados ({{ total_processed }})
+        </h5>
+      </div>
+      <div class="project-grid">
+        {% for item in processed_items|slice:":8" %}
+          {% include 'events/includes/processed_item_card.html' with item=item %}
+        {% endfor %}
+      </div>
+      {% if processed_items|length > 8 %}
+      <div class="text-center mt-3">
+        <small class="text-muted">Y {{ processed_items|length|add:"-8" }} más...</small>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% endblock %}
+
+    {% block inbox_empty_state %}
+    {% if not pendientes and not accionables and not no_accionables and not processed_items %}
+    <div class="section-card">
+      <div class="empty-state empty-state-lg">
+        <i class="fas fa-inbox" aria-hidden="true"></i>
+        <h4 class="text-muted">Tu bandeja de entrada está vacía</h4>
+        <p class="text-muted">¡Excelente! Has procesado todos tus items pendientes.</p>
+        <button type="button" class="btn btn-primary" onclick="openModal('quickAddModal')">
+          <i class="fas fa-plus-circle" aria-hidden="true"></i> Agregar tu primera idea
+        </button>
+      </div>
+    </div>
+    {% endif %}
+    {% endblock %}
+
   </div>
+
+  {% block inbox_sidebar %}
+  <div>
+
+    {% block inbox_sidebar_filters %}
+    <div class="section-card">
+      <div class="section-header section-header-dark">
+        <h5>
+          <i class="fas fa-filter" aria-hidden="true"></i>
+          Filtros Rápidos
+        </h5>
+      </div>
+      <div class="filter-group">
+        <button type="button" class="btn btn-sm btn-outline-secondary filter-btn" id="filterPendientes">
+          <i class="fas fa-question-circle" aria-hidden="true"></i> Solo Pendientes
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary filter-btn" id="filterAccionables">
+          <i class="fas fa-check-circle" aria-hidden="true"></i> Solo Accionables
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary filter-btn" id="filterNoAccionables">
+          <i class="fas fa-times-circle" aria-hidden="true"></i> Solo No Accionables
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary filter-btn" id="filterProcesados">
+          <i class="fas fa-check-double" aria-hidden="true"></i> Solo Procesados
+        </button>
+        <button type="button" class="btn btn-sm btn-primary filter-btn mt-1" id="clearFilters">
+          <i class="fas fa-eraser" aria-hidden="true"></i> Limpiar Filtros
+        </button>
+      </div>
+    </div>
+    {% endblock %}
+
+    {% block inbox_sidebar_summary %}
+    <div class="section-card">
+      <div class="section-header section-header-blue">
+        <h5>
+          <i class="fas fa-chart-bar" aria-hidden="true"></i>
+          Resumen GTD
+        </h5>
+      </div>
+      <div class="gtd-summary">
+        <div class="gtd-summary-row">
+          <span class="text-muted">Tasa de procesamiento:</span>
+          <span class="font-bold">{{ processing_rate|default:"0" }}%</span>
+        </div>
+        <div class="gtd-summary-row">
+          <span class="text-muted">Items por día:</span>
+          <span class="font-bold">{{ items_per_day|default:"0" }}</span>
+        </div>
+        <div class="gtd-progress">
+          <div class="progress">
+            <div class="progress-fill progress-fill-green" style="width:{{ processing_rate|default:0 }}%;"></div>
+          </div>
+        </div>
+        <a href="{% url 'events:inbox_admin_dashboard' %}" class="btn btn-primary w-full justify-center">
+          <i class="fas fa-shield-alt" aria-hidden="true"></i> Panel Admin
+        </a>
+      </div>
+    </div>
+    {% endblock %}
+
+    {% block inbox_sidebar_ai %}
+    <div class="section-card" id="ai-assistant-panel">
+      <div class="section-header section-header-purple">
+        <h5>
+          <i class="fas fa-robot" aria-hidden="true"></i>
+          Asistente GTD
+        </h5>
+        <button type="button" class="btn btn-sm btn-light" id="ai-refresh-btn" title="Analizar estado actual">
+          <i class="fas fa-sync" id="ai-refresh-icon" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="ai-assistant-content">
+        <div id="ai-analysis-zone">
+          <div class="text-center ai-placeholder" id="ai-placeholder">
+            <i class="fas fa-lightbulb" aria-hidden="true"></i>
+            <a href="#" class="ai-placeholder-link" id="ai-summary-trigger">Analizar mi GTD ahora</a>
+          </div>
+          <div id="ai-analysis-content" class="ai-analysis-content">
+            <div id="ai-analysis-text" class="ai-analysis-text"></div>
+            <div class="ai-source-badge">
+              <span id="ai-source-badge" class="status status-active"></span>
+            </div>
+          </div>
+          <div id="ai-loading" class="ai-loading">
+            <div class="spinner"></div>
+            <span class="text-muted">Analizando…</span>
+          </div>
+        </div>
+
+        <hr class="ai-divider">
+
+        <div id="ai-chat-history" class="ai-chat-history"></div>
+
+        <div class="ai-chat-input">
+          <input type="text" id="ai-chat-input" class="search-bar ai-input" placeholder="Pregúntame algo…" maxlength="300">
+          <button class="btn btn-primary" type="button" id="ai-send-btn">
+            <i class="fas fa-paper-plane" aria-hidden="true"></i>
+          </button>
+        </div>
+        <small class="text-muted ai-powered">Powered by Ollama · datos en tiempo real</small>
+      </div>
+    </div>
+    {% endblock %}
+
+  </div>
+  {% endblock %}
 
 </div>
+{% endblock %}
 
+{% block inbox_modals %}
 <!-- Quick Add Modal -->
 <div class="modal-overlay" id="quickAddModal">
   <div class="modal">
@@ -418,6 +418,7 @@
     </form>
   </div>
 </div>
+{% endblock %}
 
 {% endblock %}
 

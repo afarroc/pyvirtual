@@ -11,12 +11,12 @@
 <div class="dashboard-header">
     <div>
         <h1>
-            <i class="bi bi-list-check"></i>
+            <i class="fas fa-list-check"></i>
             Task Dashboard
         </h1>
         <div class="text-muted text-sm">
             <a href="{% url 'index' %}" class="text-decoration-none">
-                <i class="bi bi-house-door"></i> Home
+                <i class="fas fa-house"></i> Home
             </a>
             <span class="text-muted"> / </span>
             <a href="{% url 'events:tasks' %}" class="text-decoration-none">
@@ -28,10 +28,10 @@
     </div>
     <div class="header-actions">
         <a href="{% url 'events:task_create' %}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> New Task
+            <i class="fas fa-plus-circle"></i> New Task
         </a>
         <a href="{% url 'events:task_panel' %}" class="btn btn-ghost">
-            <i class="bi bi-kanban"></i> Panel View
+            <i class="fas fa-columns"></i> Panel View
         </a>
     </div>
 </div>
@@ -39,16 +39,16 @@
 <!-- Messages -->
 {% if messages %}
 <div class="alerts-container">
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags|default:'info' }}">
-        <div class="alert-content">
-            <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
-            <span class="alert-message">{{ message }}</span>
-        </div>
-        <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
-            <i class="bi bi-x"></i>
-        </button>
+{% for message in messages %}
+<div class="alert alert-{{ message.tags|default:'info' }}">
+    <div class="alert-content">
+        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-circle-info{% endif %}"></i>
+        <span class="alert-message">{{ message }}</span>
     </div>
+    <button class="alert-dismiss" aria-label="Close alert">
+        <i class="fas fa-xmark"></i>
+    </button>
+</div>
     {% endfor %}
 </div>
 {% endif %}
@@ -58,20 +58,17 @@
 <div class="alerts-container">
     {% for alert in alerts %}
     <div class="alert alert-{{ alert.type }}">
-        <div class="alert-content">
-            <i class="{{ alert.icon }}"></i>
-            <div style="flex: 1;">
-                <strong style="display: block; font-size: 0.875rem;">{{ alert.title }}</strong>
-                <span class="alert-message" style="font-weight: 400;">{{ alert.message }}</span>
-            </div>
+        <div class="alert-content flex-1">
+            <strong class="d-block fw-semibold text-sm">{{ alert.title }}</strong>
+            <span class="alert-message fw-normal">{{ alert.message }}</span>
+        </div>
             {% if alert.action_url %}
             <a href="{{ alert.action_url }}" class="btn btn-sm btn-{{ alert.type }}">
                 {{ alert.action_text }}
             </a>
             {% endif %}
-        </div>
-        <button class="alert-dismiss" onclick="this.closest('.alert').remove();">
-            <i class="bi bi-x"></i>
+        <button class="alert-dismiss" aria-label="Close alert" onclick="const el=this.closest('.alert'); if(el) el.remove();">
+            <i class="fas fa-xmark"></i>
         </button>
     </div>
     {% endfor %}
@@ -79,7 +76,7 @@
 {% endif %}
 
 <!-- Stats Grid -->
-<div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+<div class="stats-grid grid-cols-4 mb-4">
     <div class="stat-card purple">
         <div class="stat-content">
             <span class="stat-number">{{ tasks_data|length|default:0 }}</span>
@@ -114,27 +111,27 @@
 <div class="section-card">
     <div class="section-header">
         <div class="section-title">
-            <i class="bi bi-table"></i>
+            <i class="fas fa-table"></i>
             <h5>Tasks</h5>
-            <span class="badge" style="background: var(--purple-light); color: var(--purple); padding: 0.1rem 0.6rem; border-radius: 100px; font-size: 0.7rem; margin-left: 0.5rem;">
+            <span class="badge bg-purple-light text-purple">
                 {{ tasks_data|length|default:0 }}
             </span>
         </div>
         <div class="header-actions">
-            <div class="search-bar" style="width: 220px;">
-                <i class="bi bi-search"></i>
+            <div class="search-bar">
+                <i class="fas fa-magnifying-glass"></i>
                 <input type="text" placeholder="Search tasks by title, status, project..." id="taskSearchInput">
-                <button class="search-clear" id="clearSearch" style="display: none; background: none; border: none; color: var(--gray-400);">
-                    <i class="bi bi-x"></i>
+                <button class="search-clear d-none bg-transparent border-0 text-gray-400" id="clearSearch">
+                    <i class="fas fa-xmark"></i>
                 </button>
             </div>
             <span class="text-muted text-xs" id="taskCount">Showing {{ tasks_data|length }} tasks</span>
         </div>
     </div>
-    <div class="section-body" style="padding: 0;">
+    <div class="section-body p-0">
 
         {% if tasks_data %}
-        <div class="table-wrap" style="max-height: 70vh; overflow-y: auto;">
+        <div class="table-wrap max-h-70 overflow-y-auto">
             <table class="table" id="taskTable">
                 <thead>
                     <tr>
@@ -145,7 +142,7 @@
                         <th data-sort="assigned">Assigned To</th>
                         <th data-sort="priority">Priority</th>
                         <th data-sort="date">Created</th>
-                        <th style="text-align: center;">Actions</th>
+                        <th class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -159,7 +156,7 @@
                         data-priority="{% if task_data.task.important %}high{% else %}normal{% endif %}"
                         data-date="{{ task_data.task.created_at|date:'Y-m-d' }}">
                         <td>
-                            <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="text-decoration-none" style="color: var(--purple); font-weight: 500;">
+                            <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="text-decoration-none text-purple fw-semibold">
                                 #{{ task_data.task.id }}
                             </a>
                         </td>
@@ -168,60 +165,58 @@
                                 {{ task_data.task.title|truncatechars:50 }}
                             </a>
                             {% if task_data.task.important %}
-                            <i class="bi bi-star-fill" style="color: var(--red); font-size: 0.6rem;" title="High Priority"></i>
+                                <i class="fas fa-star text-red fs-icon-sm" title="High Priority"></i>
                             {% endif %}
                         </td>
                         <td>
                             <span class="status-badge {% if task_data.task.task_status.status_name == 'Completed' %}active{% elif task_data.task.task_status.status_name == 'In Progress' %}pending{% else %}completed{% endif %}">
-                                <i class="bi bi-circle-fill" style="font-size: 0.4rem; margin-right: 0.25rem;"></i>
+                                <i class="fas fa-circle fs-icon-xs me-1"></i>
                                 {{ task_data.task.task_status.status_name }}
                             </span>
                         </td>
                         <td>
                             {% if task_data.task.project %}
-                            <a href="{% url 'events:projects_with_id' task_data.task.project.id %}" class="text-decoration-none" style="color: var(--gray-700); font-size: 0.8rem;">
-                                <i class="bi bi-folder"></i> {{ task_data.task.project.title|truncatechars:20 }}
+                            <a href="{% url 'events:projects_with_id' task_data.task.project.id %}" class="text-decoration-none text-gray-700 text-sm">
+                                <i class="fas fa-folder"></i> {{ task_data.task.project.title|truncatechars:20 }}
                             </a>
                             {% else %}
-                            <span class="text-muted" style="font-size: 0.75rem;">—</span>
+                            <span class="text-muted text-xs">-</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if task_data.task.assigned_to %}
-                            <span style="display: flex; align-items: center; gap: 0.25rem;">
-                                <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--purple-light); color: var(--purple); text-align: center; font-size: 0.6rem; font-weight: 700; line-height: 24px;">
-                                    {{ task_data.task.assigned_to.username|first|upper }}
-                                </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="avatar-initial">{{ task_data.task.assigned_to.username|first|upper }}</span>
                                 {{ task_data.task.assigned_to.username }}
                             </span>
                             {% else %}
-                            <span class="text-muted" style="font-size: 0.75rem;">Unassigned</span>
+                            <span class="text-muted text-xs">Unassigned</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if task_data.task.important %}
-                            <span class="status-badge" style="background: var(--red-light); color: var(--red);">
-                                <i class="bi bi-star-fill"></i> High
+                            <span class="status-badge bg-red-light text-red">
+                                <i class="fas fa-star"></i> High
                             </span>
                             {% else %}
-                            <span class="status-badge" style="background: var(--gray-100); color: var(--gray-500);">
+                            <span class="status-badge bg-gray-100 text-gray-500">
                                 Normal
                             </span>
                             {% endif %}
                         </td>
-                        <td style="font-size: 0.75rem; color: var(--gray-500);">
+                        <td class="text-gray-500 text-xs">
                             {{ task_data.task.created_at|date:"M d, Y" }}
                         </td>
-                        <td style="text-align: center;">
-                            <div class="table-actions" style="justify-content: center;">
+                        <td class="text-center">
+                            <div class="table-actions d-flex justify-content-center">
                                 <a href="{% url 'events:tasks_with_id' task_data.task.id %}" class="btn btn-sm btn-ghost" title="View">
-                                    <i class="bi bi-eye"></i>
+                                    <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="{% url 'events:task_edit' task_data.task.id %}" class="btn btn-sm btn-ghost" title="Edit">
-                                    <i class="bi bi-pencil"></i>
+                                    <i class="fas fa-pencil"></i>
                                 </a>
-                                <button onclick="confirmDelete({{ task_data.task.id }}, '{{ task_data.task.title|escapejs }}')" class="btn btn-sm btn-ghost" style="color: var(--red);" title="Delete">
-                                    <i class="bi bi-trash"></i>
+                                <button onclick="confirmDelete({{ task_data.task.id }}, '{{ task_data.task.title|escapejs }}')" class="btn btn-sm btn-ghost btn-delete-task text-red" title="Delete" data-task-id="{{ task_data.task.id }}" data-task-title="{{ task_data.task.title|escapejs }}">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </td>
@@ -232,30 +227,30 @@
         </div>
 
         <!-- No Results Message (hidden by default) -->
-        <div id="noSearchResults" style="display: none; padding: 2rem 1rem; text-align: center;">
-            <i class="bi bi-search" style="font-size: 2rem; color: var(--gray-400);"></i>
-            <p style="color: var(--gray-400); margin-top: 0.5rem;">No tasks found matching your search.</p>
+        <div id="noSearchResults" class="d-none p-4 text-center">
+            <i class="fas fa-magnifying-glass fs-icon-lg text-gray-400"></i>
+            <p class="text-gray-400 mt-1">No tasks found matching your search.</p>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-top: 1px solid var(--gray-200);">
+        <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
             <span class="text-muted text-xs" id="visibleTaskCount">
                 Showing <span id="visibleCount">{{ tasks_data|length }}</span> of {{ tasks_data|length }} tasks
             </span>
-            <div style="display: flex; gap: 0.5rem;">
+            <div class="d-flex gap-2">
                 <button class="btn btn-sm btn-ghost" id="refreshBtn" title="Refresh">
-                    <i class="bi bi-arrow-clockwise"></i>
+                    <i class="fas fa-rotate"></i>
                 </button>
             </div>
         </div>
 
         {% else %}
         <!-- Empty State -->
-        <div class="empty-state" style="padding: 3rem 1.5rem;">
-            <i class="bi bi-list-check" style="font-size: 2.5rem; color: var(--gray-400);"></i>
+        <div class="empty-state p-4">
+            <i class="fas fa-list-check fs-icon-xl text-gray-400"></i>
             <h5>No Tasks Found</h5>
-            <p style="color: var(--gray-400);">Get started by creating your first task.</p>
+            <p class="text-gray-400">Get started by creating your first task.</p>
             <a href="{% url 'events:task_create' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Create First Task
+                <i class="fas fa-plus-circle"></i> Create First Task
             </a>
         </div>
         {% endif %}
@@ -267,21 +262,18 @@
 <div class="modal-overlay" id="deleteModal">
     <div class="modal">
         <div class="modal-header">
-            <h5><i class="bi bi-exclamation-triangle" style="color: var(--red);"></i> Confirm Deletion</h5>
+            <h5><i class="fas fa-triangle-exclamation text-red"></i> Confirm Deletion</h5>
             <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
         </div>
         <div class="modal-body">
             <p>Are you sure you want to delete the task <strong id="deleteTaskTitle"></strong>?</p>
-            <p style="font-size: 0.8rem; color: var(--gray-500);">
-                <i class="bi bi-info-circle"></i> This action cannot be undone.
+            <p class="text-gray-500 text-sm">
+                <i class="fas fa-circle-info"></i> This action cannot be undone.
             </p>
         </div>
         <div class="modal-actions">
             <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
-            <form method="POST" id="deleteTaskForm">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Delete Task</button>
-            </form>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete Task</button>
         </div>
     </div>
 </div>
@@ -385,6 +377,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 
+    // Delegated dismiss for all alert close buttons
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.alert-dismiss');
+        if (!btn) return;
+        const alert = btn.closest('.alert');
+        if (!alert) return;
+        alert.classList.add('dismissing');
+        setTimeout(() => alert.remove(), 300);
+    });
+
     // ============================================================
     // KEYBOARD SHORTCUTS
     // ============================================================
@@ -453,124 +455,194 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 // DELETE FUNCTIONS
 // ============================================================
+let taskToDelete = null;
+
 function confirmDelete(taskId, taskTitle) {
+    taskToDelete = taskId;
     document.getElementById('deleteTaskTitle').textContent = `"${taskTitle}" (ID: ${taskId})`;
-    document.getElementById('deleteTaskForm').action = `/events/tasks/${taskId}/delete/`;
     document.getElementById('deleteModal').classList.add('show');
 }
 
 function closeDeleteModal() {
     document.getElementById('deleteModal').classList.remove('show');
+    taskToDelete = null;
 }
 
 document.getElementById('deleteModal')?.addEventListener('click', function(e) {
     if (e.target === this) closeDeleteModal();
 });
+
+document.getElementById('confirmDeleteBtn')?.addEventListener('click', function() {
+    if (!taskToDelete) return;
+    
+    const csrfToken = getCsrfToken();
+    
+    fetch(`/events/tasks/${taskToDelete}/delete/ajax/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Accept': 'application/json',
+        },
+        credentials: 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+        closeDeleteModal();
+        
+        if (data.success) {
+            showAlert(data.message || 'Tarea eliminada exitosamente.', 'success');
+            
+            if (data.tasks && Array.isArray(data.tasks)) {
+                refreshTaskTable(data.tasks);
+            } else {
+                const row = document.querySelector(`.task-row[data-id="${taskToDelete}"]`);
+                if (row) row.remove();
+            }
+            
+            updateTaskStats(data.stats);
+        } else {
+            showAlert(data.error || 'Error al eliminar la tarea.', 'danger');
+        }
+    })
+    .catch(() => {
+        closeDeleteModal();
+        showAlert('Error de conexión al eliminar la tarea.', 'danger');
+    });
+});
+
+function getCsrfToken() {
+    const cookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+    return cookie ? cookie.split('=')[1] : '';
+}
+
+function refreshTaskTable(tasks) {
+    const tbody = document.querySelector('#taskTable tbody');
+    const noResults = document.getElementById('noSearchResults');
+    const visibleCount = document.getElementById('visibleCount');
+    const taskCount = document.getElementById('taskCount');
+    const totalTasks = tasks.length;
+    
+    if (!tbody) return;
+    
+    if (tasks.length === 0) {
+        tbody.innerHTML = '';
+        if (noResults) noResults.style.display = 'block';
+        if (visibleCount) visibleCount.textContent = 0;
+        if (taskCount) taskCount.textContent = 'Showing 0 tasks';
+        return;
+    }
+    
+    if (noResults) noResults.style.display = 'none';
+    
+    tbody.innerHTML = tasks.map(task => `
+        <tr class="task-row" 
+            data-id="${task.id}"
+            data-title="${task.title.toLowerCase()}"
+            data-status="${task.status.toLowerCase()}"
+            data-project="${(task.project || 'none').toLowerCase()}"
+            data-assigned="${(task.assigned_to || 'unassigned').toLowerCase()}"
+            data-priority="${task.important ? 'high' : 'normal'}"
+            data-date="${task.created_at}">
+            <td>
+                <a href="/events/tasks/${task.id}/" class="text-decoration-none text-purple fw-semibold">
+                    #${task.id}
+                </a>
+            </td>
+            <td>
+                <a href="/events/tasks/${task.id}/" class="text-decoration-none" title="${task.title}">
+                    ${task.title.length > 50 ? task.title.substring(0, 50) + '...' : task.title}
+                </a>
+                ${task.important ? '<i class="fas fa-star text-red fs-icon-sm" title="High Priority"></i>' : ''}
+            </td>
+            <td>
+                <span class="status-badge ${task.status === 'Completed' ? 'active' : task.status === 'In Progress' ? 'pending' : 'completed'}">
+                    <i class="fas fa-circle fs-icon-xs me-1"></i>
+                    ${task.status}
+                </span>
+            </td>
+            <td>
+                ${task.project ? `<a href="/events/projects/" class="text-decoration-none text-gray-700 text-sm">
+                    <i class="fas fa-folder"></i> ${task.project.length > 20 ? task.project.substring(0, 20) + '...' : task.project}
+                </a>` : '<span class="text-muted text-xs">—</span>'}
+            </td>
+            <td>
+                ${task.assigned_to ? `<span class="d-flex align-items-center gap-1">
+                    <span class="avatar-initial">${task.assigned_to.charAt(0).toUpperCase()}</span>
+                    ${task.assigned_to}
+                </span>` : '<span class="text-muted text-xs">Unassigned</span>'}
+            </td>
+            <td>
+                ${task.important ? '<span class="status-badge bg-red-light text-red"><i class="fas fa-star"></i> High</span>' : '<span class="status-badge bg-gray-100 text-gray-500">Normal</span>'}
+            </td>
+            <td class="text-gray-500 fs-8">
+                ${new Date(task.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </td>
+            <td class="text-center">
+                <div class="table-actions d-flex justify-content-center">
+                    <a href="/events/tasks/${task.id}/" class="btn btn-sm btn-ghost" title="View">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="/events/tasks/${task.id}/edit/" class="btn btn-sm btn-ghost" title="Edit">
+                        <i class="fas fa-pencil"></i>
+                    </a>
+                    <button onclick="confirmDelete(${task.id}, '${task.title.replace(/'/g, "\\'")}')" class="btn btn-sm btn-ghost btn-delete-task text-red" title="Delete" data-task-id="${task.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+    
+    const searchInput = document.getElementById('taskSearchInput');
+    if (searchInput && searchInput.value.trim()) {
+        searchInput.dispatchEvent(new Event('input'));
+    }
+}
+
+function updateTaskStats(stats) {
+    const statNumbers = document.querySelectorAll('.stat-number');
+    if (statNumbers.length >= 4 && stats) {
+        statNumbers[0].textContent = stats.total_tasks || 0;
+        statNumbers[1].textContent = stats.in_progress_count || 0;
+        statNumbers[2].textContent = stats.completed_count || 0;
+        statNumbers[3].textContent = stats.high_priority_count || 0;
+    }
+}
+
+function showAlert(message, type) {
+    const alertsContainer = document.querySelector('.alerts-container');
+    if (!alertsContainer) return;
+
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type}`;
+    alert.style.animation = 'fadeIn 0.3s ease';
+    alert.innerHTML = `
+        <div class="alert-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'danger' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span class="alert-message">${message}</span>
+        </div>
+        <button class="alert-dismiss" aria-label="Close alert">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    const dismissBtn = alert.querySelector('.alert-dismiss');
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', () => {
+            alert.classList.add('dismissing');
+            setTimeout(() => alert.remove(), 300);
+        });
+    }
+
+    alertsContainer.insertBefore(alert, alertsContainer.firstChild);
+
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.classList.add('dismissing');
+            setTimeout(() => alert.remove(), 300);
+        }
+    }, 5000);
+}
 </script>
-
-<!-- Styles -->
-<style>
-/* Tooltip custom */
-.tooltip-custom {
-    animation: tooltipFade 0.15s ease;
-}
-
-@keyframes tooltipFade {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(-100%); }
-}
-
-/* Search clear button */
-.search-bar .search-clear {
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.search-bar {
-    position: relative;
-}
-
-/* Table row hover */
-.task-row:hover {
-    background: var(--gray-50);
-    cursor: pointer;
-}
-
-/* Sort indicators */
-[data-sort] {
-    cursor: pointer;
-    user-select: none;
-}
-
-[data-sort]:hover {
-    color: var(--gray-900);
-}
-
-[data-sort].asc i.bi-arrow-up-down::before {
-    content: '\F12A';
-}
-
-[data-sort].desc i.bi-arrow-up-down::before {
-    content: '\F128';
-}
-
-/* No results */
-#noSearchResults {
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .stats-grid {
-        grid-template-columns: 1fr 1fr !important;
-    }
-    .table-wrap {
-        overflow-x: auto;
-    }
-    .table th:nth-child(4),
-    .table td:nth-child(4),
-    .table th:nth-child(7),
-    .table td:nth-child(7) {
-        display: none;
-    }
-    .search-bar {
-        width: 160px !important;
-    }
-    .header-actions {
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .stats-grid {
-        grid-template-columns: 1fr !important;
-    }
-    .search-bar {
-        width: 100% !important;
-    }
-    .table th:nth-child(5),
-    .table td:nth-child(5) {
-        display: none;
-    }
-}
-
-@media print {
-    .header-actions, .search-bar, .table-actions, .btn, .modal-overlay {
-        display: none !important;
-    }
-    .section-card {
-        border: none !important;
-        box-shadow: none !important;
-    }
-}
-</style>
 
 {% endblock %}

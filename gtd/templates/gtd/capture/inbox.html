@@ -32,30 +32,66 @@
 </div>
 
 <!-- ============================================
-     CAPTURA RÁPIDA - DISEÑO MEJORADO
+     MÉTRICAS
      ============================================ -->
-<div class="section-card mb-4">
+<div class="stats-grid">
+    <div class="stat-card purple">
+        <div class="stat-content">
+            <span class="stat-number">{{ total_count|default:stats.total }}</span>
+            <span class="stat-label">Total capturado</span>
+            <span class="stat-sub">Histórico</span>
+        </div>
+        <div class="stat-icon"><i class="fas fa-inbox"></i></div>
+    </div>
+    <div class="stat-card amber">
+        <div class="stat-content">
+            <span class="stat-number">{{ unprocessed_count|default:stats.unprocessed }}</span>
+            <span class="stat-label">Pendientes</span>
+            <span class="stat-sub">Sin clarificar</span>
+        </div>
+        <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-content">
+            <span class="stat-number">{{ processed_count|default:stats.processed }}</span>
+            <span class="stat-label">Clarificados</span>
+            <span class="stat-sub">Últimos 7 días</span>
+        </div>
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-content">
+            <span class="stat-number">{{ stats.capture_rate|default:0 }}%</span>
+            <span class="stat-label">Tasa</span>
+            <span class="stat-sub">Procesamiento</span>
+        </div>
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+    </div>
+</div>
+
+<!-- ============================================
+     CAPTURA RÁPIDA
+     ============================================ -->
+<div class="section-card">
     <div class="section-header section-header-purple">
-        <h5 class="mb-0">
+        <h5>
             <i class="fas fa-bolt"></i> Captura Rápida
-            <span class="badge bg-primary ms-2">
+            <span class="badge" style="background: var(--purple-light); color: var(--purple); margin-left: 0.5rem;">
                 <i class="fas fa-keyboard"></i> Enter
             </span>
         </h5>
-        <small class="text-light opacity-75">
+        <small style="opacity: 0.75;">
             <i class="fas fa-info-circle"></i> Captura todo, sin filtrar
         </small>
     </div>
-    <div class="section-body pt-3">
-        <div class="row g-3">
-            <div class="col-md-10">
+    <div class="section-body">
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <div style="flex: 1 1 280px;">
                 <div class="capture-input-wrapper">
-                    <input type="text" class="form-control form-control-lg" id="captureInput"
-                           placeholder="¿Qué tienes en mente? Escribe y presiona Enter para capturar..." 
-                           autofocus>
+                    <input type="text" id="captureInput" placeholder="¿Qué tienes en mente? Escribe y presiona Enter para capturar..." autofocus>
                     <div class="capture-quick-tips">
                         <small class="text-muted">
-                            <i class="fas fa-lightbulb"></i> 
+                            <i class="fas fa-lightbulb"></i>
                             <span class="d-none d-md-inline">Consejo GTD: </span>
                             Captura todo lo que llama tu atención. La claridad viene después.
                         </small>
@@ -65,197 +101,89 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-2">
-                <button class="btn btn-primary btn-lg w-100" type="button" id="captureBtn">
+            <div>
+                <button class="btn btn-primary btn-lg" type="button" id="captureBtn">
                     <i class="fas fa-plus"></i> Capturar
                 </button>
             </div>
         </div>
-        
+
         <!-- Feedback de captura -->
-        <div id="captureFeedback" class="mt-3" style="display:none;"></div>
+        <div id="captureFeedback" style="display:none;"></div>
     </div>
 </div>
 
 <!-- ============================================
-     LISTA DE PENDIENTES - CON BOTÓN "HACER AHORA"
+     LISTA DE PENDIENTES
      ============================================ -->
-<div class="row">
-    <!-- Columna principal: Pendientes -->
-    <div class="col-lg-8">
-        <div class="section-card section-pendientes">
-            <div class="section-header section-header-amber d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-hourglass-half"></i> Bandeja de Entrada
-                    <span class="badge bg-warning text-dark ms-2" id="unprocessedBadge">
-                        {{ unprocessed_items.count }}
-                    </span>
-                </h5>
-                <div class="header-actions">
-                    <span class="text-muted small me-2">
-                        <i class="fas fa-arrow-right"></i> 
-                        <span class="d-none d-sm-inline">Siguiente paso: </span>
-                        <a href="{% url 'gtd:clarify_inbox' %}" class="text-decoration-none">Clarificar</a>
-                    </span>
+<div class="inbox-list">
+    {% for item in unprocessed_items %}
+        <div class="inbox-card inbox-card-priority-{{ item.priority }}" id="item-{{ item.id }}" data-id="{{ item.id }}">
+            <div class="inbox-card-body">
+                <div class="inbox-card-header">
+                    <div class="inbox-card-title">
+                        <span class="inbox-card-priority-dot priority-{{ item.priority }}"></span>
+                        <span class="item-title">{{ item.title }}</span>
+                    </div>
+                    <div class="inbox-card-actions">
+                        <button class="btn btn-sm btn-success do-now-btn"
+                                data-id="{{ item.id }}"
+                                data-title="{{ item.title|escapejs }}"
+                                title="Si la acción toma menos de 2 minutos, hazla ahora">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="d-none d-md-inline">Hacer Ahora</span>
+                        </button>
+                        <button class="btn btn-sm btn-primary inbox-options-trigger"
+                                data-id="{{ item.id }}"
+                                data-title="{{ item.title|escapejs }}"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                title="Más opciones">
+                            <i class="fas fa-ellipsis"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="section-body p-0">
-                <div class="list-group list-group-flush" id="unprocessedList">
-                    {% for item in unprocessed_items %}
-                        <div class="list-group-item priority-{{ item.priority }}" id="item-{{ item.id }}" data-id="{{ item.id }}">
-                            <div class="d-flex w-100 justify-content-between align-items-start">
-                                <div class="flex-grow-1 me-2">
-                                    <h6 class="mb-1 item-title-wrapper">
-                                        {% if item.priority == 'alta' %}
-                                            <span class="badge bg-danger priority-badge">!</span>
-                                        {% elif item.priority == 'media' %}
-                                            <span class="badge bg-warning text-dark priority-badge">-</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary priority-badge">·</span>
-                                        {% endif %}
-                                        <span class="item-title">{{ item.title }}</span>
-                                    </h6>
-                                    {% if item.description %}
-                                        <p class="mb-1 text-muted small item-description">{{ item.description|truncatewords:15 }}</p>
-                                    {% endif %}
-                                    <div class="item-meta d-flex align-items-center gap-3 flex-wrap">
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock"></i> 
-                                            <span class="item-time" data-timestamp="{{ item.created_at.isoformat }}">
-                                                {{ item.created_at|timesince }} ago
-                                            </span>
-                                        </small>
-                                        <small class="text-muted">
-                                            <i class="fas fa-tag"></i> 
-                                            <span class="badge bg-light text-muted">Pendiente de clarificar</span>
-                                        </small>
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-1 flex-shrink-0 align-items-center">
-                                    <button class="btn btn-sm btn-success do-now-btn" 
-                                            data-id="{{ item.id }}" 
-                                            data-title="{{ item.title|escapejs }}"
-                                            title="Si la acción toma menos de 2 minutos, hazla ahora">
-                                        <i class="fas fa-check-circle"></i> 
-                                        <span class="d-none d-md-inline">Hacer Ahora</span>
-                                    </button>
-                                    <a href="{% url 'gtd:clarify_process' item.id %}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-edit"></i> 
-                                        <span class="d-none d-md-inline">Clarificar</span>
-                                    </a>
-                                    <button class="btn btn-sm btn-danger delete-item" 
-                                            data-id="{{ item.id }}" 
-                                            data-title="{{ item.title|escapejs }}"
-                                            title="Eliminar este item">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    {% empty %}
-                        <div class="empty-state text-center py-5" id="emptyUnprocessed">
-                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                            <h5 class="text-muted">¡Bandeja de entrada vacía!</h5>
-                            <p class="text-muted small">
-                                Tu mente está libre. Captura algo nuevo para empezar a construir tu sistema GTD.
-                            </p>
-                            <button class="btn btn-sm btn-outline-primary mt-2" id="focusCaptureBtn">
-                                <i class="fas fa-pen"></i> Capturar ahora
+                {% if item.description %}
+                    <p class="inbox-card-description">{{ item.description|truncatewords:25 }}</p>
+                {% endif %}
+                <div class="inbox-card-footer">
+                    <div class="inbox-card-meta">
+                        <span class="inbox-card-meta-item">
+                            <i class="fas fa-clock"></i>
+                            <span class="item-time" data-timestamp="{{ item.created_at.isoformat }}">{{ item.created_at|timesince }} ago</span>
+                        </span>
+                        <span class="badge inbox-card-status">Pendiente de clarificar</span>
+                    </div>
+                    <div class="inbox-card-options" id="options-{{ item.id }}">
+                        <div class="inbox-options-title">Opciones del item</div>
+                        <div class="inbox-options-grid">
+                            <a href="{% url 'gtd:clarify_process' item.id %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i> Clarificar
+                            </a>
+                            <button class="btn btn-sm btn-danger delete-item"
+                                    data-id="{{ item.id }}"
+                                    data-title="{{ item.title|escapejs }}"
+                                    title="Eliminar este item">
+                                <i class="fas fa-trash"></i> Eliminar
                             </button>
                         </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Columna lateral: Estadísticas y contexto GTD -->
-    <div class="col-lg-4">
-        <!-- Estadísticas rápidas -->
-        <div class="section-card mb-3">
-            <div class="section-header section-header-blue">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-simple"></i> Tu Progreso GTD
-                </h5>
-            </div>
-            <div class="section-body">
-                <div class="gtd-progress-stats">
-                    <div class="stat-item d-flex justify-content-between align-items-center py-2 border-bottom">
-                        <span class="text-muted"><i class="fas fa-database text-purple"></i> Total Capturado</span>
-                        <span class="fw-bold" id="statTotal">{{ stats.total }}</span>
-                    </div>
-                    <div class="stat-item d-flex justify-content-between align-items-center py-2 border-bottom">
-                        <span class="text-muted"><i class="fas fa-hourglass-half text-warning"></i> Pendientes</span>
-                        <span class="fw-bold" id="statUnprocessed">{{ stats.unprocessed }}</span>
-                    </div>
-                    <div class="stat-item d-flex justify-content-between align-items-center py-2 border-bottom">
-                        <span class="text-muted"><i class="fas fa-check-circle text-success"></i> Clarificados</span>
-                        <span class="fw-bold" id="statProcessed">{{ stats.processed }}</span>
-                    </div>
-                    <div class="stat-item d-flex justify-content-between align-items-center py-2">
-                        <span class="text-muted"><i class="fas fa-flag text-danger"></i> Alta Prioridad</span>
-                        <span class="fw-bold text-danger" id="statHighPriority">{{ stats.high_priority }}</span>
-                    </div>
-                </div>
-                
-                <div class="gtd-progress mt-3">
-                    <div class="d-flex justify-content-between small">
-                        <span class="text-muted">Tasa de procesamiento</span>
-                        <span class="fw-bold" id="statRate">{{ stats.capture_rate|default:0 }}%</span>
-                    </div>
-                    <div class="progress-bar mt-1">
-                        <div class="progress-fill progress-fill-green" 
-                             style="width: {{ stats.capture_rate|default:0 }}%;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Atajos y consejos GTD -->
-        <div class="section-card mb-3">
-            <div class="section-header section-header-dark">
-                <h5 class="mb-0">
-                    <i class="fas fa-keyboard"></i> Atajos Rápidos
-                </h5>
-            </div>
-            <div class="section-body">
-                <div class="gtd-shortcuts">
-                    <div class="shortcut-item d-flex justify-content-between align-items-center py-2 border-bottom">
-                        <span><kbd>Enter</kbd> en el campo</span>
-                        <span class="text-muted">Capturar inmediato</span>
-                    </div>
-                    <div class="shortcut-item d-flex justify-content-between align-items-center py-2 border-bottom">
-                        <span><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd></span>
-                        <span class="text-muted">Captura global</span>
-                    </div>
-                    <div class="shortcut-item d-flex justify-content-between align-items-center py-2">
-                        <span><kbd>Ctrl</kbd> + <kbd>Click</kbd></span>
-                        <span class="text-muted">Abrir en nueva pestaña</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Consejo GTD del día -->
-        <div class="section-card" style="border-left: 4px solid var(--purple);">
-            <div class="section-body">
-                <div class="d-flex gap-2 align-items-start">
-                    <i class="fas fa-lightbulb text-purple fs-4 mt-1"></i>
-                    <div>
-                        <h6 class="fw-semibold mb-1">Principio GTD</h6>
-                        <p class="text-muted small mb-0">
-                            "Tu mente es para tener ideas, no para retenerlas."<br>
-                            <span class="text-purple">Captura todo, clarifica después.</span>
-                        </p>
-                        <div class="mt-2 small text-muted">
-                            <i class="fas fa-clock"></i> Última captura: 
-                            <span id="lastCaptureTime">--:--:--</span>
+                        <div class="inbox-options-meta">
+                            ID: {{ item.id }} · Creado: {{ item.created_at|date:"Y-m-d H:i" }}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    {% empty %}
+        <div class="empty-state full-width" id="emptyUnprocessed">
+            <i class="fas fa-check-circle"></i>
+            <h4>Bandeja de entrada vacía</h4>
+            <p>Capturá algo nuevo para seguir avanzando con Memento.</p>
+            <button class="btn btn-primary" id="focusCaptureBtn" type="button">
+                <i class="fas fa-pen"></i> Capturar ahora
+            </button>
+        </div>
+    {% endfor %}
 </div>
 
 {% endblock %}
@@ -271,12 +199,12 @@
     var FEEDBACK_TIMEOUT = 4000;
     var csrfToken = document.getElementById('csrfToken')?.value || '{{ csrf_token }}';
     
-    // Elementos del DOM
+    // Elementes del DOM
     var elements = {
         captureInput: document.getElementById('captureInput'),
         captureBtn: document.getElementById('captureBtn'),
         feedback: document.getElementById('captureFeedback'),
-        unprocessedList: document.getElementById('unprocessedList'),
+        unprocessedList: document.querySelector('.inbox-list'),
         pendingCount: document.getElementById('pendingCountNumber'),
         unprocessedBadge: document.getElementById('unprocessedBadge'),
         lastCaptureTime: document.getElementById('lastCaptureTime')
@@ -482,7 +410,7 @@
             el.style.transform = 'translateX(20px)';
             setTimeout(function() {
                 el.remove();
-                var remaining = document.querySelectorAll('#unprocessedList .list-group-item');
+                var remaining = document.querySelectorAll('.inbox-list .inbox-card');
                 if (remaining.length === 0) {
                     showEmptyState();
                 }
@@ -498,62 +426,61 @@
         
         var priorityBadge = '';
         if (item.priority === 'alta') {
-            priorityBadge = '<span class="badge bg-danger priority-badge">!</span>';
+            priorityBadge = '<span class="badge" style="background: var(--red-light); color: var(--red);">!</span>';
         } else if (item.priority === 'media') {
-            priorityBadge = '<span class="badge bg-warning text-dark priority-badge">-</span>';
+            priorityBadge = '<span class="badge" style="background: var(--amber-light); color: var(--amber);">-</span>';
         } else {
-            priorityBadge = '<span class="badge bg-secondary priority-badge">·</span>';
+            priorityBadge = '<span class="badge" style="background: var(--blue-light); color: var(--blue);">·</span>';
         }
         
         var descriptionHtml = '';
         if (item.description) {
             var desc = item.description.substring(0, 100);
             desc += item.description.length > 100 ? '...' : '';
-            descriptionHtml = '<p class="mb-1 text-muted small item-description">' + escapeHtml(desc) + '</p>';
+            descriptionHtml = '<p class="inbox-card-description">' + escapeHtml(desc) + '</p>';
         }
         
         var div = document.createElement('div');
-        div.className = 'list-group-item priority-' + item.priority;
+        div.className = 'inbox-card inbox-card-priority-' + item.priority;
         div.id = 'item-' + item.id;
         div.setAttribute('data-id', item.id);
         div.style.animation = 'slideInRight 0.4s ease';
         div.innerHTML = `
-            <div class="d-flex w-100 justify-content-between align-items-start">
-                <div class="flex-grow-1 me-2">
-                    <h6 class="mb-1 item-title-wrapper">
-                        ${priorityBadge}
+            <div class="inbox-card-body">
+                <div class="inbox-card-header">
+                    <div class="inbox-card-title">
+                        <span class="inbox-card-priority-dot priority-${item.priority}"></span>
                         <span class="item-title">${escapeHtml(item.title)}</span>
-                    </h6>
-                    ${descriptionHtml}
-                    <div class="item-meta d-flex align-items-center gap-3 flex-wrap">
-                        <small class="text-muted">
-                            <i class="fas fa-clock"></i> 
-                            <span class="item-time">hace unos segundos</span>
-                        </small>
-                        <small class="text-muted">
-                            <i class="fas fa-tag"></i> 
-                            <span class="badge bg-light text-muted">Pendiente de clarificar</span>
-                        </small>
+                    </div>
+                    <div class="inbox-card-actions">
+                        <button class="btn btn-sm btn-success do-now-btn" 
+                                data-id="${item.id}" 
+                                data-title="${escapeHtml(item.title)}"
+                                title="Si la acción toma menos de 2 minutos, hazla ahora">
+                            <i class="fas fa-check-circle"></i> 
+                            <span class="d-none d-md-inline">Hacer Ahora</span>
+                        </button>
+                        <a href="/gtd/inbox/${item.id}/process/" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit"></i> 
+                            <span class="d-none d-md-inline">Clarificar</span>
+                        </a>
+                        <button class="btn btn-sm btn-danger delete-item" 
+                                data-id="${item.id}" 
+                                data-title="${escapeHtml(item.title)}"
+                                title="Eliminar este item">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="d-flex gap-1 flex-shrink-0 align-items-center">
-                    <button class="btn btn-sm btn-success do-now-btn" 
-                            data-id="${item.id}" 
-                            data-title="${escapeHtml(item.title)}"
-                            title="Si la acción toma menos de 2 minutos, hazla ahora">
-                        <i class="fas fa-check-circle"></i> 
-                        <span class="d-none d-md-inline">Hacer Ahora</span>
-                    </button>
-                    <a href="/gtd/inbox/${item.id}/process/" class="btn btn-sm btn-primary">
-                        <i class="fas fa-edit"></i> 
-                        <span class="d-none d-md-inline">Clarificar</span>
-                    </a>
-                    <button class="btn btn-sm btn-danger delete-item" 
-                            data-id="${item.id}" 
-                            data-title="${escapeHtml(item.title)}"
-                            title="Eliminar este item">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                ${descriptionHtml}
+                <div class="inbox-card-footer">
+                    <div class="inbox-card-meta">
+                        <span class="inbox-card-meta-item">
+                            <i class="fas fa-clock"></i> 
+                            <span class="item-time">hace unos segundos</span>
+                        </span>
+                        <span class="badge inbox-card-status">Pendiente de clarificar</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -562,7 +489,7 @@
         if (list) {
             list.insertBefore(div, list.firstChild);
             
-            var items = list.querySelectorAll('.list-group-item');
+            var items = list.querySelectorAll('.inbox-card');
             if (items.length > 50) {
                 items[items.length - 1].remove();
             }
@@ -575,14 +502,12 @@
         
         var emptyDiv = document.createElement('div');
         emptyDiv.id = 'emptyUnprocessed';
-        emptyDiv.className = 'empty-state text-center py-5';
+        emptyDiv.className = 'empty-state full-width';
         emptyDiv.innerHTML = `
-            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-            <h5 class="text-muted">¡Bandeja de entrada vacía!</h5>
-            <p class="text-muted small">
-                Tu mente está libre. Captura algo nuevo para empezar a construir tu sistema GTD.
-            </p>
-            <button class="btn btn-sm btn-outline-primary mt-2" id="focusCaptureBtn">
+            <i class="fas fa-check-circle"></i>
+            <h4>Bandeja de entrada vacía</h4>
+            <p>Capturá algo nuevo para seguir avanzando con Memento.</p>
+            <button class="btn btn-primary" id="focusCaptureBtn" type="button">
                 <i class="fas fa-pen"></i> Capturar ahora
             </button>
         `;
@@ -751,7 +676,7 @@
     console.log('GTD Quick Capture: Ctrl+Shift+I');
     console.log('Bandeja de entrada lista para capturar');
     
-    document.querySelectorAll('#unprocessedList .list-group-item').forEach(function(el, index) {
+    document.querySelectorAll('.inbox-list .inbox-card').forEach(function(el, index) {
         el.style.animationDelay = (index * 0.05) + 's';
         el.classList.add('animate-slide-in');
     });
@@ -934,6 +859,148 @@
     .item-title-wrapper {
         font-size: 0.9rem;
     }
+}
+
+/* ==========================================
+   INBOX
+   ========================================== */
+.inbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inbox-card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  transition: all var(--transition);
+}
+
+.inbox-card:hover {
+  border-color: var(--purple);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.inbox-card-priority-alta {
+  border-left: 4px solid var(--red);
+  background: #fffaf8;
+}
+
+.inbox-card-priority-media {
+  border-left: 4px solid var(--amber);
+}
+
+.inbox-card-priority-baja {
+  border-left: 4px solid var(--blue);
+}
+
+.inbox-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inbox-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.inbox-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: var(--gray-900);
+}
+
+.inbox-card-priority-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.inbox-card-priority-dot.priority-alta {
+  background: var(--red);
+}
+
+.inbox-card-priority-dot.priority-media {
+  background: var(--amber);
+}
+
+.inbox-card-priority-dot.priority-baja {
+  background: var(--blue);
+}
+
+.inbox-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.inbox-card-description {
+  color: var(--gray-600);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.inbox-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.inbox-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.inbox-card-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.inbox-card-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.inbox-card-options {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.inbox-options-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.inbox-options-grid {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.inbox-options-meta {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--gray-400);
 }
 </style>
 {% endblock %}

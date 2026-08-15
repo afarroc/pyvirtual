@@ -391,6 +391,74 @@ def inbox_view(request):
 
     return render(request, 'events/inbox.html', context)
 
+
+@login_required
+def inbox_item_api(request, item_id):
+    """
+    API endpoint para obtener datos actualizados de un item del inbox
+    Usado para actualizaciones en tiempo real en la vista de proceso
+    """
+    if request.method != 'GET':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+    try:
+        inbox_item = get_object_or_404(InboxItem, id=item_id)
+
+        # Verificar permisos básicos
+        if not (request.user == inbox_item.created_by or
+                inbox_item.authorized_users.filter(id=request.user.id).exists() or
+                inbox_item.is_public or
+                (hasattr(request.user, 'cv') and hasattr(request.user.cv, 'role') and
+                 request.user.cv.role in ['SU', 'ADMIN', 'GTD_ANALYST'])):
+            return JsonResponse({'success': False, 'error': 'No tienes permisos para ver este item'})
+
+        # Estadísticas rápidas del usuario
+        user_items = InboxItem.objects.filter(
+            models.Q(created_by=request.user) | models.Q(assigned_to=request.user)
+        ).distinct()
+        processed_count = user_items.filter(is_processed=True).count()
+        unprocessed_count = user_items.filter(is_processed=False).count()
+
+        # Consenso
+        classifications = InboxItemClassification.objects.filter(inbox_item=inbox_item)
+        consensus_category = inbox_item.get_classification_consensus()
+        consensus_action = inbox_item.get_action_type_consensus()
+
+        data = {
+            'success': True,
+            'item': {
+                'id': inbox_item.id,
+                'title': inbox_item.title,
+                'description': inbox_item.description or '',
+                'created_at': inbox_item.created_at.strftime('%d/%m/%Y %H:%M'),
+                'created_by': inbox_item.created_by.get_full_name() or inbox_item.created_by.username,
+                'view_count': inbox_item.view_count,
+                'last_activity': inbox_item.last_activity.strftime('%d/%m/%Y %H:%M'),
+                'is_processed': inbox_item.is_processed,
+                'is_public': inbox_item.is_public,
+                'gtd_category': inbox_item.gtd_category,
+                'action_type': inbox_item.action_type,
+                'priority': inbox_item.priority,
+                'notes': inbox_item.notes or '',
+            },
+            'stats': {
+                'processed_count': processed_count,
+                'unprocessed_count': unprocessed_count,
+            },
+            'consensus': {
+                'category': consensus_category or 'Sin consenso',
+                'action': consensus_action or 'Sin consenso',
+                'votes': classifications.count(),
+            }
+        }
+        return JsonResponse(data)
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
 @login_required
 def event_inbox_panel(request):
     """

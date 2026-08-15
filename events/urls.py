@@ -26,6 +26,7 @@ urlpatterns = [
     # GESTIÓN DE EVENTOS
     # ============================================================================
     path('events/', events, name='events'),
+    path('events/table/', events_table, name='events_table'),
     path('events/create/', event_create, name='event_create'),
     path('events/<int:event_id>/', event_detail, name='event_detail'),
     path('events/edit/', event_edit, name='event_edit'),
@@ -45,6 +46,7 @@ urlpatterns = [
     # GESTIÓN DE PROYECTOS
     # ============================================================================
     path('projects/', projects, name='projects'),
+    path('projects/table/', projects_table, name='projects_table'),
     path('projects/create/', project_create, name='project_create'),
     path('projects/<int:project_id>/', projects, name='projects_with_id'),
     path('projects/<int:project_id>/detail/', project_detail, name='project_detail'),
@@ -66,6 +68,7 @@ urlpatterns = [
     path('tasks/<int:task_id>/', tasks, name='tasks_with_id'),
     path('tasks/<int:task_id>/edit/', task_edit, name='task_edit'),
     path('tasks/<int:task_id>/delete/', task_delete, name='task_delete'),
+    path('tasks/<int:task_id>/delete/ajax/', task_delete_ajax, name='task_delete_ajax'),
     path('tasks/<int:task_id>/activate/', task_activate, name='task_activate'),
     path('tasks/<int:task_id>/status/', change_task_status, name='change_task_status'),
     path('tasks/<int:task_id>/dependencies/', task_dependencies, name='task_dependencies'),
@@ -140,6 +143,7 @@ urlpatterns = [
     path('inbox/api/classification-history/<int:item_id>/', get_classification_history, name='get_classification_history'),
     path('inbox/classify/<int:item_id>/', classify_inbox_item_ajax, name='classify_inbox_item_ajax'),
     path('inbox/api/consensus/<int:item_id>/', get_consensus_api, name='get_consensus_api'),
+    path('inbox/api/item/<int:item_id>/', inbox_item_api, name='inbox_item_api'),
 
     # Asistente IA GTD
     path('inbox/ai/summary/', inbox_ai_summary, name='inbox_ai_summary'),

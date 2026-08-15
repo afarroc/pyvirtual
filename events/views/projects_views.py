@@ -9,6 +9,8 @@ from django.utils import timezone
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 from django.urls import reverse
 from django.db import transaction, IntegrityError
+from django.core.paginator import Paginator
+from django.template.loader import render_to_string
 import logging
 import csv
 
@@ -27,13 +29,24 @@ from ..management.project_manager import ProjectManager
 
 logger = logging.getLogger(__name__)
 
+
+def is_su_user(user):
+    return bool(user and (user.is_superuser or getattr(getattr(user, 'cv', None), 'role', None) == 'SU'))
+
+
 def get_projects_for_user(user):
     """
-    Obtiene todos los proyectos para un usuario específico con optimización completa
+    Obtiene todos los proyectos para un usuario específico con optimización completa.
+    Los superusuarios y usuarios con rol SU ven todos los proyectos.
+    Devuelve un queryset de Project optimizado.
     """
-    projects = Project.objects.filter(
-        Q(host=user) | Q(attendees=user)
-    ).select_related(
+    if is_su_user(user):
+        projects = Project.objects.all()
+    else:
+        projects = Project.objects.filter(
+            Q(host=user) | Q(attendees=user)
+        )
+    return projects.select_related(
         'project_status', 
         'event', 
         'host', 
@@ -42,7 +55,14 @@ def get_projects_for_user(user):
         'attendees',
         'task_set'
     ).order_by('-created_at')
-    
+
+
+def get_projects_data_for_user(user):
+    """
+    Obtiene datos procesados de proyectos con estadísticas.
+    Devuelve (projects_data, active_projects, completed_projects, blocked_projects).
+    """
+    projects = get_projects_for_user(user)
     projects_data = []
     active_projects = []
     completed_projects = []
@@ -97,7 +117,7 @@ def render_single_project_view(request, project_id, title, statuses):
         ), id=project_id)
         
         # Verificar permisos
-        if project.host != request.user and request.user not in project.attendees.all():
+        if not is_su_user(request.user) and project.host != request.user and request.user not in project.attendees.all():
             messages.error(request, 'No tienes permiso para ver este proyecto.')
             return redirect('events:project_panel')
         
@@ -157,7 +177,7 @@ def render_project_panel_view(request, title, statuses):
     """
     try:
         # Obtener todos los proyectos del usuario con estadísticas
-        projects_data, active_projects, completed_projects, blocked_projects = get_projects_for_user(request.user)
+        projects_data, active_projects, completed_projects, blocked_projects = get_projects_data_for_user(request.user)
         
         # Calcular estadísticas generales
         total_projects = len(projects_data)
@@ -224,6 +244,8 @@ def render_project_panel_view(request, title, statuses):
             'active_projects_list': active_projects_list,
             'alerts': alerts,
             'is_single_project_view': False,
+            'completed_tasks_sum': sum(p.get('completed_tasks', 0) for p in sorted_projects),
+            'avg_tasks_per_project': (total_tasks / total_projects) if total_projects else 0,
         }
         
         return render(request, 'projects/project_panel.html', context)
@@ -572,63 +594,108 @@ def projects(request, project_id=None):
         })
 
     # VISTA DE LISTADO DE PROYECTOS
-    else:
-        # Obtener proyectos del usuario
-        projects_list = Project.objects.filter(
-            Q(host=request.user) | Q(attendees=request.user)
-        ).select_related(
-            'project_status', 
-            'event', 
-            'host', 
-            'assigned_to'
-        ).prefetch_related(
-            'attendees',
-            'task_set'
-        ).order_by('-created_at')
+    projects_list = get_projects_for_user(request.user)
+    
+    # Filtros GET
+    search = request.GET.get('search', '').strip()
+    status_id = request.GET.get('status')
+    page_number = request.GET.get('page', 1)
+    
+    if search:
+        projects_list = projects_list.filter(
+            Q(title__icontains=search) |
+            Q(description__icontains=search)
+        )
+    
+    if status_id:
+        projects_list = projects_list.filter(project_status_id=status_id)
+    
+    # Paginación
+    paginator = Paginator(projects_list, 12)
+    page_obj = paginator.get_page(page_number)
+    
+    # Preparar datos de proyectos con estadísticas
+    projects_data = []
+    for project in page_obj:
+        count_tasks = project.task_set.count()
+        project_tasks = project.task_set.select_related('task_status').all()
+        completed_tasks_count = project_tasks.filter(task_status__status_name='Completed').count()
+        in_progress_tasks_count = project_tasks.filter(task_status__status_name='In Progress').count()
+        completion_rate = (completed_tasks_count / count_tasks * 100) if count_tasks else 0
         
-        # Preparar datos de proyectos con estadísticas
-        projects_data = []
-        for project in projects_list:
-            # Contar tareas del proyecto
-            count_tasks = project.task_set.count()
-            
-            # Obtener tareas del proyecto
-            project_tasks = project.task_set.select_related('task_status').all()
-            
-            project_data = {
-                'project': project,
-                'count_tasks': count_tasks,
-                'tasks': project_tasks,
-            }
-            
-            projects_data.append(project_data)
+        project_data = {
+            'project': project,
+            'count_tasks': count_tasks,
+            'tasks': project_tasks,
+            'completed_tasks_count': completed_tasks_count,
+            'in_progress_tasks_count': in_progress_tasks_count,
+            'completion_rate': completion_rate,
+        }
         
-        # Calcular estadísticas generales
-        total_projects = len(projects_data)
-        in_progress_count = sum(1 for p in projects_data 
-                               if p['project'].project_status.status_name == 'In Progress')
-        completed_count = sum(1 for p in projects_data 
-                             if p['project'].project_status.status_name == 'Completed')
-        total_tasks = sum(p['count_tasks'] for p in projects_data)
+        projects_data.append(project_data)
+    
+    # Calcular estadísticas generales
+    total_projects = projects_list.count()
+    in_progress_count = projects_list.filter(project_status__status_name='In Progress').count()
+    completed_count = projects_list.filter(project_status__status_name='Completed').count()
+    total_tasks = sum(p['count_tasks'] for p in projects_data)
+    
+    # Generar alertas generales
+    alerts = generate_projects_overview_alerts(projects_data, request.user)
+    performance_alerts = generate_performance_alerts(projects_data, request.user)
+    alerts.extend(performance_alerts)
+    
+    return render(request, "projects/projects.html", {
+        'title': title,
+        'projects': page_obj,
+        'projects_data': projects_data,
+        'alerts': alerts,
+        'project_statuses': project_statuses,
+        'total_projects': total_projects,
+        'in_progress_count': in_progress_count,
+        'completed_count': completed_count,
+        'total_tasks': total_tasks,
+    })
+
+
+@login_required
+def projects_table(request):
+    """Endpoint AJAX para tabla de proyectos."""
+    if request.method != 'GET':
+        return HttpResponse(status=405)
+    
+    projects_list = get_projects_for_user(request.user)
+    
+    search = request.GET.get('search', '').strip()
+    status_id = request.GET.get('status')
+    
+    if search:
+        projects_list = projects_list.filter(
+            Q(title__icontains=search) |
+            Q(description__icontains=search)
+        )
+    
+    if status_id:
+        projects_list = projects_list.filter(project_status_id=status_id)
+    
+    projects_data = []
+    for project in projects_list:
+        count_tasks = project.task_set.count()
+        project_tasks = project.task_set.select_related('task_status').all()
+        completed_tasks_count = project_tasks.filter(task_status__status_name='Completed').count()
+        completion_rate = (completed_tasks_count / count_tasks * 100) if count_tasks else 0
         
-        # Generar alertas generales
-        alerts = generate_projects_overview_alerts(projects_data, request.user)
-        
-        # Añadir alertas de rendimiento
-        performance_alerts = generate_performance_alerts(projects_data, request.user)
-        alerts.extend(performance_alerts)
-        
-        return render(request, "projects/projects.html", {
-            'title': title,
-            'projects': projects_list,
-            'projects_data': projects_data,
-            'alerts': alerts,
-            'project_statuses': project_statuses,
-            'total_projects': total_projects,
-            'in_progress_count': in_progress_count,
-            'completed_count': completed_count,
-            'total_tasks': total_tasks,
+        projects_data.append({
+            'project': project,
+            'count_tasks': count_tasks,
+            'completion_rate': completion_rate,
         })
+    
+    html = render_to_string('projects/includes/projects_table_rows.html', {
+        'projects_data': projects_data,
+        'request': request,
+    })
+    return HttpResponse(html)
 
 
 @login_required
@@ -661,7 +728,7 @@ def project_detail(request, project_id):
     project = get_object_or_404(Project, id=project_id)
 
     # Verificar permisos
-    if not (project.host == request.user or request.user in project.attendees.all()):
+    if not is_su_user(request.user) and project.host != request.user and request.user not in project.attendees.all():
         messages.error(request, 'No tienes permisos para ver este proyecto.')
         return redirect('events:projects')
 
@@ -819,8 +886,8 @@ def project_edit(request, project_id=None):
                 messages.error(request, 'El proyecto con el ID "{}" no existe.'.format(project_id))
                 return redirect('home')
 
-            # Verificar permisos - solo el host o attendees pueden editar
-            if not (project.host == request.user or request.user in project.attendees.all()):
+            # Verificar permisos - solo el host, attendees o SU pueden editar
+            if not (project.host == request.user or request.user in project.attendees.all() or is_su_user(request.user)):
                 messages.error(request, 'No tienes permisos para editar este proyecto.')
                 return redirect('events:projects')
 
@@ -859,7 +926,7 @@ def project_edit(request, project_id=None):
 
             # Estamos manejando una solicitud GET sin argumentos
             # Verificar el rol del usuario
-            if request.user.is_superuser or (hasattr(request.user, 'cv') and getattr(request.user.cv, 'role', None) == 'SU'):
+            if is_su_user(request.user):
                 # Si el usuario es un 'SU', puede ver todos los proyectos
                 projects = Project.objects.all().order_by('-updated_at')
             else:
@@ -884,8 +951,8 @@ def project_delete(request, project_id):
     if request.method == 'POST':
         project = get_object_or_404(Project, pk=project_id)
 
-        # Verificar permisos - solo el host o attendees pueden eliminar
-        if not (project.host == request.user or request.user in project.attendees.all()):
+        # Verificar permisos - solo el host, attendees o SU pueden eliminar
+        if not (project.host == request.user or request.user in project.attendees.all() or is_su_user(request.user)):
             messages.error(request, 'No tienes permiso para eliminar este proyecto.')
             return redirect('events:project_panel')
 
@@ -918,7 +985,7 @@ def change_project_status(request, project_id):
             messages.error(request, "User is none: Usuario no autenticado")
             return redirect('home')
         
-        if project.host is not None and (project.host == request.user or request.user in project.attendees.all()):
+        if is_su_user(request.user) or (project.host is not None and (project.host == request.user or request.user in project.attendees.all())):
             old_status = project.project_status
             project.record_edit(
                 editor=request.user,
@@ -958,7 +1025,7 @@ def project_activate(request, project_id=None):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     
     else:
-        projects = Project.objects.all().order_by('-updated_at')
+        projects = get_projects_for_user(request.user)
         # Crea una lista para almacenar los proyectos y sus recuentos de tareas
         projects_with_task_count = []
         
@@ -991,10 +1058,11 @@ def project_bulk_action(request):
             messages.error(request, 'No se seleccionaron proyectos.')
             return redirect('events:project_panel')
 
-        projects = Project.objects.filter(id__in=selected_projects)
+        allowed_projects = get_projects_for_user(request.user)
+        projects = allowed_projects.filter(id__in=selected_projects)
 
         if action == 'delete':
-            if not (request.user.is_superuser or (hasattr(request.user, 'cv') and getattr(request.user.cv, 'role', None) == 'SU')):
+            if not is_su_user(request.user):
                 messages.error(request, 'No tienes permiso para eliminar proyectos.')
                 return redirect('events:project_panel')
 
@@ -1026,11 +1094,12 @@ def project_export(request):
     if request.method == 'POST':
         selected_projects = request.POST.getlist('selected_projects')
         if selected_projects:
-            projects = Project.objects.filter(id__in=selected_projects)
+            allowed_projects = get_projects_for_user(request.user)
+            projects = allowed_projects.filter(id__in=selected_projects)
         else:
-            projects = Project.objects.all()
+            projects = get_projects_for_user(request.user)
     else:
-        projects = Project.objects.all()
+        projects = get_projects_for_user(request.user)
 
     # Crear respuesta CSV
     response = HttpResponse(content_type='text/csv')

@@ -11,7 +11,7 @@
     <div>
         <h1>
             <i class="bi bi-kanban"></i>
-            Projects Dashboard
+            Projects
         </h1>
         <div class="text-muted text-sm">
             <a href="{% url 'index' %}" class="text-decoration-none">
@@ -25,19 +25,6 @@
         <a href="{% url 'events:project_create' %}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> New Project
         </a>
-        <div class="dropdown">
-            <button class="btn btn-ghost" data-dropdown="actionsDropdown">
-                <i class="bi bi-gear"></i>
-            </button>
-            <div class="dropdown-menu" id="actionsDropdown">
-                <a href="{% url 'events:project_export' %}" class="dropdown-item">
-                    <i class="bi bi-download"></i> Export Data
-                </a>
-                <a href="#" onclick="refreshDashboard()" class="dropdown-item">
-                    <i class="bi bi-arrow-clockwise"></i> Refresh
-                </a>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -48,7 +35,6 @@
         <div class="stat-content">
             <span class="stat-number">{{ total_projects|default:0 }}</span>
             <span class="stat-label">Total Projects</span>
-            <span class="stat-sub">+{{ increase|default:0 }} this week</span>
         </div>
     </div>
     <div class="stat-card green">
@@ -56,7 +42,6 @@
         <div class="stat-content">
             <span class="stat-number">{{ in_progress_count|default:0 }}</span>
             <span class="stat-label">Active Projects</span>
-            <span class="stat-sub">Currently in progress</span>
         </div>
     </div>
     <div class="stat-card blue">
@@ -64,15 +49,13 @@
         <div class="stat-content">
             <span class="stat-number">{{ completed_count|default:0 }}</span>
             <span class="stat-label">Completed</span>
-            <span class="stat-sub">Successfully finished</span>
         </div>
     </div>
     <div class="stat-card amber">
-        <div class="stat-icon"><i class="bi bi-cash"></i></div>
+        <div class="stat-icon"><i class="bi bi-list-task"></i></div>
         <div class="stat-content">
-            <span class="stat-number">${{ total_ticket_price|floatformat:2|default:'0.00' }}</span>
-            <span class="stat-label">Total Revenue</span>
-            <span class="stat-sub">From all projects</span>
+            <span class="stat-number">{{ total_tasks|default:0 }}</span>
+            <span class="stat-label">Total Tasks</span>
         </div>
     </div>
 </div>
@@ -88,11 +71,11 @@
                     <h5>Projects Overview</h5>
                 </div>
                 <div class="header-actions">
-                    <div class="search-bar" style="width: 200px;">
+                    <div class="search-bar">
                         <i class="bi bi-search"></i>
                         <input type="text" placeholder="Search projects..." id="projectSearch">
                     </div>
-                    <select class="form-select form-select-sm" id="statusFilter" style="width: 150px;">
+                    <select class="form-select form-select-sm" id="statusFilter">
                         <option value="">All Status</option>
                         {% for status in project_statuses %}
                         <option value="{{ status.id }}">{{ status.status_name }}</option>
@@ -101,61 +84,14 @@
                 </div>
             </div>
             <div class="section-body">
-                <div class="project-list" id="projectsContainer">
-                    {% for project_data in projects_data %}
-                    <div class="project-item" data-status="{{ project_data.project.project_status.id }}">
-                        <div class="project-info">
-                            <div class="project-title-row">
-                                <h6>
-                                    <a href="{% url 'events:project_panel_with_id' project_data.project.id %}">
-                                        {{ project_data.project.title }}
-                                    </a>
-                                </h6>
-                                <span class="status-badge status-{{ project_data.project.project_status.status_name|lower|cut:' ' }}">
-                                    {{ project_data.project.project_status.status_name }}
-                                </span>
-                            </div>
-                            <p class="project-description">{{ project_data.project.description|truncatechars:100 }}</p>
-                            <div class="project-meta">
-                                <span>
-                                    <i class="bi bi-person"></i>
-                                    {{ project_data.project.host.username }}
-                                </span>
-                                <span>
-                                    <i class="bi bi-calendar"></i>
-                                    {{ project_data.project.created_at|date:"M d, Y" }}
-                                </span>
-                                <span>
-                                    <i class="bi bi-cash"></i>
-                                    ${{ project_data.project.ticket_price|floatformat:2 }}
-                                </span>
-                                <span>
-                                    <i class="bi bi-check-circle"></i>
-                                    {{ project_data.completion_rate|floatformat:0 }}% complete
-                                </span>
-                            </div>
-                        </div>
-                        <div class="project-actions">
-                            <a href="{% url 'events:project_panel_with_id' project_data.project.id %}" class="btn btn-sm btn-ghost">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            {% if request.user == project_data.project.host or request.user.profile.role == 'SU' %}
-                            <a href="{% url 'events:project_edit' project_data.project.id %}" class="btn btn-sm btn-ghost">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="empty-state">
-                        <i class="bi bi-folder-x"></i>
-                        <h5>No projects found</h5>
-                        <p>Create your first project to get started</p>
-                        <a href="{% url 'events:project_create' %}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Create Project
-                        </a>
-                    </div>
-                    {% endfor %}
+                <div class="project-grid" id="projectsContainer">
+                    {% include 'projects/includes/projects_table_rows.html' %}
+                </div>
+
+                <div id="noSearchResults" class="empty-state" style="display: none;">
+                    <i class="bi bi-search"></i>
+                    <h5>No projects found</h5>
+                    <p>Try adjusting your search or filter criteria.</p>
                 </div>
 
                 {% if projects.has_other_pages %}
@@ -200,60 +136,16 @@
                 </div>
             </div>
             <div class="section-body">
-                <div class="action-grid" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <a href="{% url 'events:project_create' %}" class="btn btn-primary w-full" style="justify-content: center;">
+                <div class="action-grid">
+                    <a href="{% url 'events:project_create' %}" class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i> New Project
                     </a>
-                    <a href="{% url 'events:task_create' %}" class="btn btn-success w-full" style="justify-content: center;">
+                    <a href="{% url 'events:task_create' %}" class="btn btn-success">
                         <i class="bi bi-plus-circle"></i> New Task
                     </a>
-                    <a href="{% url 'events:project_export' %}" class="btn btn-ghost w-full" style="justify-content: center;">
+                    <a href="{% url 'events:project_export' %}" class="btn btn-ghost">
                         <i class="bi bi-download"></i> Export Projects
                     </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title">
-                    <i class="bi bi-activity"></i>
-                    <h6>Recent Activity</h6>
-                </div>
-            </div>
-            <div class="section-body">
-                <div class="activity-timeline">
-                    <div class="activity-item">
-                        <div class="activity-icon purple">
-                            <i class="bi bi-plus-circle"></i>
-                        </div>
-                        <div class="activity-content">
-                            <strong>New project created</strong>
-                            <p class="activity-text">Project "Marketing Campaign" was created</p>
-                            <span class="activity-time">2 hours ago</span>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon green">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
-                        <div class="activity-content">
-                            <strong>Task completed</strong>
-                            <p class="activity-text">"Design mockups" task completed</p>
-                            <span class="activity-time">4 hours ago</span>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon amber">
-                            <i class="bi bi-pencil"></i>
-                        </div>
-                        <div class="activity-content">
-                            <strong>Project updated</strong>
-                            <p class="activity-text">"Website Redesign" project updated</p>
-                            <span class="activity-time">6 hours ago</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -267,14 +159,14 @@
                 </div>
             </div>
             <div class="section-body">
-                <div class="status-distribution" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div class="status-distribution">
                     {% for status in project_statuses %}
-                    <div class="status-row" style="display: flex; align-items: center; gap: 0.75rem;">
-                        <span class="status-name" style="flex: 1; font-size: 0.8rem; color: var(--gray-600);">{{ status.status_name }}</span>
-                        <div class="status-bar-wrapper" style="flex: 2; height: 6px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
-                            <div class="status-bar" style="width: {% widthratio status.projects_count|default:0 total_projects|default:1 100 %}%; height: 100%; background: var(--{{ status.color|default:'gray' }}); border-radius: 4px; transition: width 0.5s ease;"></div>
+                    <div class="status-row">
+                        <span class="status-name">{{ status.status_name }}</span>
+                        <div class="status-bar-wrapper">
+                            <div class="status-bar" style="width: {% widthratio status.projects_count|default:0 total_projects|default:1 100 %}%; background: var(--{{ status.color|default:'gray' }});"></div>
                         </div>
-                        <span class="status-count" style="font-size: 0.8rem; font-weight: 600; color: var(--gray-700); min-width: 24px; text-align: right;">{{ status.projects_count|default:0 }}</span>
+                        <span class="status-count">{{ status.projects_count|default:0 }}</span>
                     </div>
                     {% endfor %}
                 </div>
@@ -283,223 +175,51 @@
     </div>
 </div>
 
-<!-- Analytics Section -->
-<div class="section-card">
-    <div class="section-header">
-        <div class="section-title">
-            <i class="bi bi-graph-up"></i>
-            <h5>Analytics & Trends</h5>
-        </div>
-        <div class="header-actions">
-            <button class="btn btn-sm btn-primary active" data-chart="overview">Overview</button>
-            <button class="btn btn-sm btn-ghost" data-chart="projects">Projects</button>
-            <button class="btn btn-sm btn-ghost" data-chart="tasks">Tasks</button>
-        </div>
-    </div>
-    <div class="section-body">
-        <div id="analyticsChart" class="chart-container" style="min-height: 350px; position: relative;">
-            <div class="chart-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: var(--gray-400);">
-                <div class="spinner"></div>
-                <p style="margin-top: 0.75rem;">Loading analytics data...</p>
-            </div>
-        </div>
-        {% autoescape off %}
-        <script type="application/json" id="analyticsData">
-            {% if chart_data_json %}
-                {{ chart_data_json }}
-            {% else %}
-                {"events_data":[],"projects_data":[],"tasks_data":[],"project_dates":[]}
-            {% endif %}
-        </script>
-        {% endautoescape %}
-    </div>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Dropdown toggle
-    document.querySelectorAll('[data-dropdown]').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const dropdownId = this.dataset.dropdown;
-            const menu = document.getElementById(dropdownId);
-            const isOpen = menu.classList.contains('show');
-            
-            document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
-            
-            if (!isOpen) {
-                menu.classList.add('show');
-            }
-        });
-    });
-
-    document.addEventListener('click', function() {
-        document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
-    });
-
-    // Project search and filter
     const searchInput = document.getElementById('projectSearch');
     const statusFilter = document.getElementById('statusFilter');
-    const projectItems = document.querySelectorAll('.project-item');
+    const projectsContainer = document.getElementById('projectsContainer');
+    const noResults = document.getElementById('noSearchResults');
+    const currentUrl = new URL(window.location.href);
 
-    function filterProjects() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = statusFilter.value;
-
-        projectItems.forEach(item => {
-            const title = item.querySelector('.project-title-row h6').textContent.toLowerCase();
-            const status = item.dataset.status;
-            const matchesSearch = title.includes(searchTerm);
-            const matchesStatus = !statusValue || status === statusValue;
-
-            item.style.display = matchesSearch && matchesStatus ? '' : 'none';
-        });
-    }
-
-    if (searchInput) searchInput.addEventListener('input', filterProjects);
-    if (statusFilter) statusFilter.addEventListener('change', filterProjects);
-
-    // Chart controls
-    document.querySelectorAll('[data-chart]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const container = this.closest('.section-header');
-            container.querySelectorAll('[data-chart]').forEach(b => {
-                b.classList.remove('active', 'btn-primary');
-                b.classList.add('btn-ghost');
-            });
-            this.classList.add('active', 'btn-primary');
-            this.classList.remove('btn-ghost');
-        });
-    });
-
-    // Lazy load chart
-    const chartContainer = document.getElementById('analyticsChart');
-    if (chartContainer) {
-        const chartObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    loadChart();
-                    chartObserver.unobserve(entry.target);
-                }
-            });
-        });
-        chartObserver.observe(chartContainer);
-    }
-
-    function loadChart() {
-        const dataElement = document.getElementById('analyticsData');
-        if (!dataElement) return;
-
-        try {
-            const data = JSON.parse(dataElement.textContent.trim());
-            
-            if (!data.projects_data || data.projects_data.length === 0) {
-                showChartPlaceholder();
-                return;
+    function loadProjects(params = {}) {
+        const url = new URL('{% url "events:projects_table" %}', window.location.origin);
+        url.searchParams.set('search', searchInput ? searchInput.value : '');
+        url.searchParams.set('status', statusFilter ? statusFilter.value : '');
+        Object.keys(params).forEach(key => {
+            if (params[key] !== '' && params[key] !== undefined && params[key] !== null) {
+                url.searchParams.set(key, params[key]);
             }
+        });
 
-            if (typeof ApexCharts === 'undefined') {
-                showChartError('Chart library not loaded');
-                return;
-            }
-
-            const options = {
-                series: [
-                    { name: 'Projects', data: data.projects_data },
-                    { name: 'Tasks', data: data.tasks_data }
-                ],
-                chart: {
-                    height: 350,
-                    type: 'line',
-                    toolbar: { show: false },
-                    fontFamily: 'Plus Jakarta Sans, sans-serif'
-                },
-                colors: ['#7c3aed', '#22c55e'],
-                stroke: {
-                    curve: 'smooth',
-                    width: 3
-                },
-                xaxis: {
-                    categories: data.project_dates || [],
-                    labels: {
-                        format: 'dd/MM',
-                        style: {
-                            colors: '#94a3b8',
-                            fontSize: '12px'
-                        }
-                    }
-                },
-                yaxis: {
-                    labels: {
-                        formatter: function(value) {
-                            return Math.round(value);
-                        },
-                        style: {
-                            colors: '#94a3b8',
-                            fontSize: '12px'
-                        }
-                    }
-                },
-                grid: {
-                    borderColor: '#e2e8f0'
-                },
-                tooltip: {
-                    shared: true,
-                    intersect: false,
-                    theme: 'light'
-                },
-                legend: {
-                    position: 'top',
-                    horizontalAlign: 'right',
-                    labels: {
-                        colors: '#475569'
-                    }
-                },
-                responsive: [{
-                    breakpoint: 768,
-                    options: {
-                        chart: { height: 280 }
-                    }
-                }]
-            };
-
-            const loading = chartContainer.querySelector('.chart-loading');
-            if (loading) loading.remove();
-
-            const chart = new ApexCharts(chartContainer, options);
-            chart.render();
-
-        } catch (error) {
-            showChartError('Failed to load chart data');
-        }
+        fetch(url, {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(response => response.text())
+        .then(html => {
+            if (projectsContainer) projectsContainer.innerHTML = html;
+            const rows = document.querySelectorAll('.project-card');
+            if (noResults) noResults.style.display = rows.length === 0 ? 'flex' : 'none';
+            currentUrl.search = url.searchParams.toString();
+            window.history.replaceState({}, '', currentUrl.toString());
+        })
+        .catch(() => {});
     }
 
-    function showChartError(message) {
-        const loading = chartContainer.querySelector('.chart-loading');
-        if (loading) {
-            loading.innerHTML = `
-                <i class="bi bi-exclamation-triangle" style="font-size: 2rem; color: var(--red);"></i>
-                <p style="color: var(--red); margin-top: 0.5rem;">${message}</p>
-                <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 0.5rem;">Retry</button>
-            `;
-        }
+    if (searchInput) {
+        let timeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => loadProjects(), 250);
+        });
     }
 
-    function showChartPlaceholder() {
-        const loading = chartContainer.querySelector('.chart-loading');
-        if (loading) {
-            loading.innerHTML = `
-                <i class="bi bi-bar-chart-line" style="font-size: 2.5rem; color: var(--gray-400);"></i>
-                <p style="color: var(--gray-400); margin-top: 0.5rem;">No data available yet</p>
-                <small style="color: var(--gray-400);">Analytics will appear once you have projects</small>
-            `;
-        }
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            loadProjects();
+        });
     }
-
-    // Refresh function
-    window.refreshDashboard = function() {
-        location.reload();
-    };
 });
 </script>
 

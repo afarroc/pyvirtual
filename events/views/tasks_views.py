@@ -805,6 +805,83 @@ def task_delete(request, task_id):
     return redirect('events:tasks')
 
 
+@login_required
+def task_delete_ajax(request, task_id):
+    """
+    AJAX endpoint para eliminar una tarea y devolver datos actualizados de la lista
+    """
+    logger = logging.getLogger(__name__)
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+    
+    try:
+        task = get_object_or_404(Task, pk=task_id)
+        
+        if not (request.user.is_superuser or (hasattr(request.user, 'cv') and getattr(request.user.cv, 'role', None) == 'SU')):
+            return JsonResponse({'success': False, 'error': 'No tienes permiso para eliminar esta tarea.'}, status=403)
+        
+        task_title = task.title
+        task.delete()
+        logger.info(f"Task {task_id} deleted by {request.user.username}")
+        
+        tasks_list = Task.objects.filter(
+            Q(host=request.user) | Q(assigned_to=request.user)
+        ).select_related(
+            'task_status', 
+            'project', 
+            'project__project_status',
+            'event', 
+            'event__event_status',
+            'assigned_to',
+            'host'
+        ).prefetch_related('taskstate_set').order_by('task_status__status_name', '-updated_at')
+        
+        tasks_data = []
+        for task in tasks_list:
+            active_state = task.taskstate_set.filter(
+                end_time__isnull=True,
+                status__status_name='In Progress'
+            ).first()
+            
+            completed_state_qs = task.taskstate_set.filter(
+                status__status_name='Completed'
+            ).order_by('-end_time')
+            
+            completed_state = completed_state_qs.first() if completed_state_qs.exists() else None
+            
+            tasks_data.append({
+                'id': task.id,
+                'title': task.title,
+                'status': task.task_status.status_name if task.task_status else '',
+                'project': task.project.title if task.project else '',
+                'assigned_to': task.assigned_to.username if task.assigned_to else '',
+                'important': task.important,
+                'created_at': task.created_at.strftime('%Y-%m-%d'),
+            })
+        
+        total_tasks = len(tasks_data)
+        in_progress_count = sum(1 for t in tasks_data if t['status'] == 'In Progress')
+        completed_count = sum(1 for t in tasks_data if t['status'] == 'Completed')
+        high_priority_count = sum(1 for t in tasks_data if t['important'])
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Tarea "{task_title}" eliminada exitosamente.',
+            'tasks': tasks_data,
+            'stats': {
+                'total_tasks': total_tasks,
+                'in_progress_count': in_progress_count,
+                'completed_count': completed_count,
+                'high_priority_count': high_priority_count,
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Error deleting task {task_id}: {str(e)}", exc_info=True)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
 # ============================================================================
 # VISTAS DE ACCIONES SOBRE TAREAS
 # ============================================================================
